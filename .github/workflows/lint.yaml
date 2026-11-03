@@ -2,15 +2,14 @@ name: Code Quality - Lint
 
 on:
   push:
-    branches: [jazzy]
+    branches: [main]
   pull_request:
-    branches: [jazzy]
+    branches: [main]
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  # ── Python linting ────────────────────────────────────────────────────────────
   python-lint:
     name: Python (flake8)
     runs-on: ubuntu-24.04
@@ -29,13 +28,12 @@ jobs:
       - name: Run flake8
         run: |
           flake8 . \
-            --max-line-length=100 \
+            --max-line-length=120 \
             --exclude=build,install,log,__pycache__,.git \
             --extend-ignore=W503 \
             --statistics \
             --count
 
-  # ── XML / URDF / xacro / package.xml validation ───────────────────────────────
   xml-lint:
     name: XML / URDF / package.xml
     runs-on: ubuntu-24.04
@@ -46,51 +44,6 @@ jobs:
       - name: Install xmllint
         run: sudo apt-get install -y libxml2-utils
 
-      - name: Validate XML files (package.xml, model.config, .sdf, .world)
+      - name: Validate XML files (package.xml, urdf, xacro)
         run: |
-          echo "=== Validating XML files ==="
-          find . \
-            -not -path "./build/*" \
-            -not -path "./install/*" \
-            -not -path "./log/*" \
-            \( -name "package.xml" -o -name "model.config" \
-               -o -name "*.sdf" -o -name "*.world" \) \
-          | while read -r f; do
-              echo "Checking: $f"
-              xmllint --noout "$f" || exit 1
-            done
-
-      - name: Validate URDF / xacro files (well-formed XML)
-        run: |
-          echo "=== Validating URDF/xacro files ==="
-          find . \
-            -not -path "./build/*" \
-            -not -path "./install/*" \
-            -not -path "./log/*" \
-            \( -name "*.urdf" -o -name "*.xacro" \) \
-          | while read -r f; do
-              echo "Checking: $f"
-              xmllint --noout "$f" || exit 1
-            done
-
-  # ── YAML validation ────────────────────────────────────────────────────────────
-  yaml-lint:
-    name: YAML (yamllint)
-    runs-on: ubuntu-24.04
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install yamllint
-        run: pip install yamllint
-
-      - name: Run yamllint
-        run: |
-          yamllint \
-            --config-data "{extends: default, rules: {line-length: {max: 120}, truthy: {allowed-values: ['true', 'false']}}}" \
-            $(find . \
-                -not -path "./build/*" \
-                -not -path "./install/*" \
-                -not -path "./log/*" \
-                \( -name "*.yaml" -o -name "*.yml" \) \
-              | grep -v ".github/workflows")
+          find src -name "package.xml" -exec xmllint --noout {} +

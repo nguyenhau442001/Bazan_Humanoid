@@ -1,0 +1,278 @@
+<?xml version="1.0"?>
+<robot name="synapse_humanoid" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Include ros2_control definition -->
+  <xacro:include filename="$(find humanoid_description)/urdf/humanoid_ros2_control.xacro"/>
+
+  <!-- Material definitions -->
+  <material name="dark_grey"><color rgba="0.2 0.2 0.2 1.0"/></material>
+  <material name="metallic_blue"><color rgba="0.0 0.45 0.75 1.0"/></material>
+  <material name="silver"><color rgba="0.75 0.75 0.75 1.0"/></material>
+  <material name="orange"><color rgba="1.0 0.4 0.0 1.0"/></material>
+
+  <!-- Base footprint & Pelvis -->
+  <link name="base_footprint"/>
+
+  <joint name="base_footprint_to_pelvis" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="pelvis"/>
+    <origin xyz="0 0 0.85" rpy="0 0 0"/>
+  </joint>
+
+  <link name="pelvis">
+    <visual>
+      <geometry><box size="0.22 0.26 0.16"/></geometry>
+      <material name="dark_grey"/>
+    </visual>
+    <collision>
+      <geometry><box size="0.22 0.26 0.16"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="5.0"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.03" ixy="0" ixz="0" iyy="0.03" iyz="0" izz="0.03"/>
+    </inertial>
+  </link>
+
+  <!-- Torso -->
+  <joint name="torso_yaw_joint" type="revolute">
+    <parent link="pelvis"/>
+    <child link="torso"/>
+    <origin xyz="0 0 0.12" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-1.57" upper="1.57" effort="100.0" velocity="3.0"/>
+  </joint>
+
+  <link name="torso">
+    <visual>
+      <origin xyz="0 0 0.22" rpy="0 0 0"/>
+      <geometry><box size="0.24 0.32 0.44"/></geometry>
+      <material name="metallic_blue"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0.22" rpy="0 0 0"/>
+      <geometry><box size="0.24 0.32 0.44"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="12.0"/>
+      <origin xyz="0 0 0.22"/>
+      <inertia ixx="0.20" ixy="0" ixz="0" iyy="0.18" iyz="0" izz="0.15"/>
+    </inertial>
+  </link>
+
+  <!-- Head & Camera -->
+  <joint name="head_yaw_joint" type="revolute">
+    <parent link="torso"/>
+    <child link="neck_link"/>
+    <origin xyz="0 0 0.46" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-1.2" upper="1.2" effort="20.0" velocity="4.0"/>
+  </joint>
+
+  <link name="neck_link">
+    <visual>
+      <geometry><cylinder radius="0.04" length="0.08"/></geometry>
+      <material name="silver"/>
+    </visual>
+    <inertial><mass value="0.5"/><inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/></inertial>
+  </link>
+
+  <joint name="head_pitch_joint" type="revolute">
+    <parent link="neck_link"/>
+    <child link="head"/>
+    <origin xyz="0 0 0.06" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-0.8" upper="0.8" effort="20.0" velocity="4.0"/>
+  </joint>
+
+  <link name="head">
+    <visual>
+      <origin xyz="0.02 0 0.08"/>
+      <geometry><box size="0.16 0.18 0.18"/></geometry>
+      <material name="dark_grey"/>
+    </visual>
+    <collision>
+      <origin xyz="0.02 0 0.08"/>
+      <geometry><box size="0.16 0.18 0.18"/></geometry>
+    </collision>
+    <inertial><mass value="1.8"/><origin xyz="0 0 0.08"/><inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01"/></inertial>
+  </link>
+
+  <!-- RGB-D Head Camera Link -->
+  <joint name="head_camera_joint" type="fixed">
+    <parent link="head"/>
+    <child link="head_camera_link"/>
+    <origin xyz="0.10 0 0.09" rpy="0 0 0"/>
+  </joint>
+  <link name="head_camera_link">
+    <visual>
+      <geometry><box size="0.03 0.10 0.03"/></geometry>
+      <material name="orange"/>
+    </visual>
+  </link>
+
+  <!-- 6-DOF Leg Macro -->
+  <xacro:macro name="bipedal_leg" params="prefix reflect">
+    <joint name="${prefix}_hip_yaw_joint" type="revolute">
+      <parent link="pelvis"/>
+      <child link="${prefix}_hip_yaw_link"/>
+      <origin xyz="0 ${reflect * 0.11} -0.10" rpy="0 0 0"/>
+      <axis xyz="0 0 1"/>
+      <limit lower="-0.8" upper="0.8" effort="120" velocity="4.0"/>
+    </joint>
+
+    <link name="${prefix}_hip_yaw_link">
+      <visual><geometry><cylinder radius="0.05" length="0.08"/></geometry><material name="silver"/></visual>
+      <inertial><mass value="1.5"/><inertia ixx="0.005" ixy="0" ixz="0" iyy="0.005" iyz="0" izz="0.005"/></inertial>
+    </link>
+
+    <joint name="${prefix}_hip_roll_joint" type="revolute">
+      <parent link="${prefix}_hip_yaw_link"/>
+      <child link="${prefix}_hip_roll_link"/>
+      <origin xyz="0 0 -0.06" rpy="0 0 0"/>
+      <axis xyz="1 0 0"/>
+      <limit lower="-0.5" upper="0.5" effort="150" velocity="4.0"/>
+    </joint>
+
+    <link name="${prefix}_hip_roll_link">
+      <visual><geometry><box size="0.08 0.08 0.08"/></geometry><material name="metallic_blue"/></visual>
+      <inertial><mass value="1.8"/><inertia ixx="0.006" ixy="0" ixz="0" iyy="0.006" iyz="0" izz="0.006"/></inertial>
+    </link>
+
+    <joint name="${prefix}_hip_pitch_joint" type="revolute">
+      <parent link="${prefix}_hip_roll_link"/>
+      <child link="${prefix}_thigh"/>
+      <origin xyz="0 0 -0.06" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+      <limit lower="-1.6" upper="0.8" effort="200" velocity="4.0"/>
+    </joint>
+
+    <link name="${prefix}_thigh">
+      <visual>
+        <origin xyz="0 0 -0.18"/>
+        <geometry><box size="0.10 0.10 0.36"/></geometry>
+        <material name="dark_grey"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 -0.18"/>
+        <geometry><box size="0.10 0.10 0.36"/></geometry>
+      </collision>
+      <inertial><mass value="4.0"/><origin xyz="0 0 -0.18"/><inertia ixx="0.04" ixy="0" ixz="0" iyy="0.04" iyz="0" izz="0.01"/></inertial>
+    </link>
+
+    <joint name="${prefix}_knee_pitch_joint" type="revolute">
+      <parent link="${prefix}_thigh"/>
+      <child link="${prefix}_shin"/>
+      <origin xyz="0 0 -0.36" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+      <limit lower="0.0" upper="2.2" effort="220" velocity="4.0"/>
+    </joint>
+
+    <link name="${prefix}_shin">
+      <visual>
+        <origin xyz="0 0 -0.17"/>
+        <geometry><box size="0.09 0.09 0.34"/></geometry>
+        <material name="metallic_blue"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 -0.17"/>
+        <geometry><box size="0.09 0.09 0.34"/></geometry>
+      </collision>
+      <inertial><mass value="3.5"/><origin xyz="0 0 -0.17"/><inertia ixx="0.03" ixy="0" ixz="0" iyy="0.03" iyz="0" izz="0.01"/></inertial>
+    </link>
+
+    <joint name="${prefix}_ankle_pitch_joint" type="revolute">
+      <parent link="${prefix}_shin"/>
+      <child link="${prefix}_ankle_link"/>
+      <origin xyz="0 0 -0.34" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+      <limit lower="-0.8" upper="0.8" effort="120" velocity="4.0"/>
+    </joint>
+
+    <link name="${prefix}_ankle_link">
+      <visual><geometry><box size="0.06 0.06 0.06"/></geometry><material name="silver"/></visual>
+      <inertial><mass value="0.8"/><inertia ixx="0.002" ixy="0" ixz="0" iyy="0.002" iyz="0" izz="0.002"/></inertial>
+    </link>
+
+    <joint name="${prefix}_ankle_roll_joint" type="revolute">
+      <parent link="${prefix}_ankle_link"/>
+      <child link="${prefix}_foot"/>
+      <origin xyz="0 0 -0.04" rpy="0 0 0"/>
+      <axis xyz="1 0 0"/>
+      <limit lower="-0.4" upper="0.4" effort="120" velocity="4.0"/>
+    </joint>
+
+    <link name="${prefix}_foot">
+      <visual>
+        <origin xyz="0.04 0 -0.02"/>
+        <geometry><box size="0.22 0.12 0.04"/></geometry>
+        <material name="dark_grey"/>
+      </visual>
+      <collision>
+        <origin xyz="0.04 0 -0.02"/>
+        <geometry><box size="0.22 0.12 0.04"/></geometry>
+      </collision>
+      <inertial><mass value="1.2"/><origin xyz="0.04 0 -0.02"/><inertia ixx="0.004" ixy="0" ixz="0" iyy="0.008" iyz="0" izz="0.009"/></inertial>
+    </link>
+  </xacro:macro>
+
+  <xacro:bipedal_leg prefix="left" reflect="1"/>
+  <xacro:bipedal_leg prefix="right" reflect="-1"/>
+
+  <!-- 3-DOF Arm Macro -->
+  <xacro:macro name="upper_arm" params="prefix reflect">
+    <joint name="${prefix}_shoulder_pitch_joint" type="revolute">
+      <parent link="torso"/>
+      <child link="${prefix}_shoulder_link"/>
+      <origin xyz="0 ${reflect * 0.20} 0.38" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+      <limit lower="-2.0" upper="2.0" effort="60" velocity="4.0"/>
+    </joint>
+
+    <link name="${prefix}_shoulder_link">
+      <visual><geometry><sphere radius="0.05"/></geometry><material name="silver"/></visual>
+      <inertial><mass value="1.0"/><inertia ixx="0.002" ixy="0" ixz="0" iyy="0.002" iyz="0" izz="0.002"/></inertial>
+    </link>
+
+    <joint name="${prefix}_shoulder_roll_joint" type="revolute">
+      <parent link="${prefix}_shoulder_link"/>
+      <child link="${prefix}_upper_arm"/>
+      <origin xyz="0 ${reflect * 0.05} 0" rpy="0 0 0"/>
+      <axis xyz="1 0 0"/>
+      <limit lower="-1.8" upper="1.8" effort="60" velocity="4.0"/>
+    </joint>
+
+    <link name="${prefix}_upper_arm">
+      <visual>
+        <origin xyz="0 0 -0.14"/>
+        <geometry><box size="0.07 0.07 0.28"/></geometry>
+        <material name="dark_grey"/>
+      </visual>
+      <inertial><mass value="2.0"/><origin xyz="0 0 -0.14"/><inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.005"/></inertial>
+    </link>
+
+    <joint name="${prefix}_elbow_pitch_joint" type="revolute">
+      <parent link="${prefix}_upper_arm"/>
+      <child link="${prefix}_forearm"/>
+      <origin xyz="0 0 -0.28" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+      <limit lower="-2.2" upper="0.0" effort="40" velocity="4.0"/>
+    </joint>
+
+    <link name="${prefix}_forearm">
+      <visual>
+        <origin xyz="0 0 -0.12"/>
+        <geometry><box size="0.06 0.06 0.24"/></geometry>
+        <material name="metallic_blue"/>
+      </visual>
+      <inertial><mass value="1.5"/><origin xyz="0 0 -0.12"/><inertia ixx="0.008" ixy="0" ixz="0" iyy="0.008" iyz="0" izz="0.004"/></inertial>
+    </link>
+  </xacro:macro>
+
+  <xacro:upper_arm prefix="left" reflect="1"/>
+  <xacro:upper_arm prefix="right" reflect="-1"/>
+
+  <!-- Attach ros2_control hardware system -->
+  <xacro:humanoid_ros2_control name="SynapseHumanoidHardware"/>
+
+</robot>

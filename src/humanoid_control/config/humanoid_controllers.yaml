@@ -1,0 +1,59 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 1000  # 1 kHz real-time control loop
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    lower_body_trajectory_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    upper_body_trajectory_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+lower_body_trajectory_controller:
+  ros__parameters:
+    joints:
+      - left_hip_yaw_joint
+      - left_hip_roll_joint
+      - left_hip_pitch_joint
+      - left_knee_pitch_joint
+      - left_ankle_pitch_joint
+      - left_ankle_roll_joint
+      - right_hip_yaw_joint
+      - right_hip_roll_joint
+      - right_hip_pitch_joint
+      - right_knee_pitch_joint
+      - right_ankle_pitch_joint
+      - right_ankle_roll_joint
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    state_publish_rate: 200.0
+    action_monitor_rate: 50.0
+    allow_partial_joints_goal: false
+    constraints:
+      stopped_velocity_tolerance: 0.05
+      goal_time: 0.0
+
+upper_body_trajectory_controller:
+  ros__parameters:
+    joints:
+      - torso_yaw_joint
+      - head_yaw_joint
+      - head_pitch_joint
+      - left_shoulder_pitch_joint
+      - left_shoulder_roll_joint
+      - left_elbow_pitch_joint
+      - right_shoulder_pitch_joint
+      - right_shoulder_roll_joint
+      - right_elbow_pitch_joint
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    state_publish_rate: 100.0
+    action_monitor_rate: 50.0
