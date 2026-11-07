@@ -1,0 +1,5 @@
+[flake8]
+# Nested Body(...) trees in gen_robot.py are indented to mirror the kinematic chain.
+per-file-ignores =
+    sim/mini_humanoid/gen_robot.py:E128
+    software/ai/sim/mini_humanoid/gen_robot.py:E128
