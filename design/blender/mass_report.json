@@ -1,0 +1,2214 @@
+{
+ "total_g": 676.6560268182158,
+ "old_total_g": 535.6,
+ "com_mm": [
+  -0.6389458012131246,
+  0.0177342689989955,
+  144.43157700729782
+ ],
+ "I_body": [
+  [
+   4531357.687808588,
+   -343.667349630183,
+   -119103.26314582516
+  ],
+  [
+   -343.667349630183,
+   4114898.240956854,
+   -1770.8210758923822
+  ],
+  [
+   -119103.26314582516,
+   -1770.8210758923822,
+   611867.1580287495
+  ]
+ ],
+ "I_body_principal": [
+  4534973.794510324,
+  4114898.9450499923,
+  608250.3472338795
+ ],
+ "categories": {
+  "Servos": 247.6,
+  "Printed shell": 186.59862437027627,
+  "Electronics": 70.0,
+  "Sensors, brackets, screws": 67.5,
+  "Battery 2S": 57.0,
+  "Wiring": 30.0,
+  "Soles": 17.95740244793963
+ },
+ "variants": {
+  "PLA, walls as drawn (1.0 / 1.2 mm)": 676.6560268182159,
+  "PLA, walls +0.4 mm (0.8 mm nozzle, 2 perimeters)": 744.9455155047608,
+  "LW-PLA, walls as drawn": 602.919473639639,
+  "PLA, walls 0.8 mm (thin, fragile)": 641.1768918581199
+ },
+ "lipm": {
+  "com_height_mm": 144.43157700729782,
+  "omega": 8.241446184386772,
+  "tc_s": 0.12133792754656053
+ },
+ "margins": {
+  "front_mm": 47.638945801213126,
+  "back_mm": 26.361054198786874,
+  "lateral_shift_to_one_foot_mm": 21.982265731001004
+ },
+ "links": {
+  "base": {
+   "mass": 243.01011697950847,
+   "com": [
+    -1.208454375946672,
+    -2.177737438144387e-12,
+    65.60358860778967
+   ],
+   "I": [
+    [
+     245159.21619746368,
+     -1.5948949570274057e-08,
+     2314.802748913833
+    ],
+    [
+     -1.5948949570274057e-08,
+     178253.33529717103,
+     -5.355753383953579e-09
+    ],
+    [
+     2314.802748913833,
+     -5.355753383953579e-09,
+     123760.81931579087
+    ]
+   ],
+   "principal": [
+    245203.33840282192,
+    178253.335297171,
+    123716.69711043261
+   ],
+   "old_mass": 216.79999999999998
+  },
+  "neck_yaw": {
+   "mass": 12.792134656198563,
+   "com": [
+    4.757046130814203e-16,
+    -4.408073634731311e-16,
+    17.090909201760894
+   ],
+   "I": [
+    [
+     2190.1857563245576,
+     -7.176398260829351e-14,
+     7.032970264094264e-13
+    ],
+    [
+     -7.176398260829351e-14,
+     1852.203385983128,
+     -2.872678157633196e-13
+    ],
+    [
+     7.032970264094264e-13,
+     -2.872678157633196e-13,
+     911.5213444385498
+    ]
+   ],
+   "principal": [
+    2190.1857563245576,
+    1852.203385983128,
+    911.5213444385499
+   ],
+   "old_mass": 13.0
+  },
+  "head_pitch": {
+   "mass": 65.07440537276095,
+   "com": [
+    9.261506150445038,
+    0.18440429737609465,
+    24.953642177676443
+   ],
+   "I": [
+    [
+     55191.16198680084,
+     -224.8619261941422,
+     -1853.191234736616
+    ],
+    [
+     -224.8619261941422,
+     47354.5470266873,
+     -240.55629386815554
+    ],
+    [
+     -1853.191234736616,
+     -240.55629386815554,
+     60098.69020781426
+    ]
+   ],
+   "principal": [
+    60721.70630298859,
+    54581.58567651242,
+    47341.10724180135
+   ],
+   "old_mass": 20.0
+  },
+  "l_shoulder_pitch": {
+   "mass": 7.406577375280925,
+   "com": [
+    -9.643543429062584e-16,
+    6.379818451630705,
+    -1.5949546129076566
+   ],
+   "I": [
+    [
+     1659.560017462296,
+     1.0528830526647595e-12,
+     -7.329383968438366e-13
+    ],
+    [
+     1.0528830526647595e-12,
+     1420.7969566300744,
+     19.139455355121754
+    ],
+    [
+     -7.329383968438366e-13,
+     19.139455355121754,
+     1654.775153624094
+    ]
+   ],
+   "principal": [
+    1659.560017462296,
+    1656.3304262226102,
+    1419.2416840315582
+   ],
+   "old_mass": 1.0
+  },
+  "l_shoulder_roll": {
+   "mass": 13.21822484008339,
+   "com": [
+    -4.532602842222017e-17,
+    0.0,
+    -9.843250292413188
+   ],
+   "I": [
+    [
+     2712.681360049988,
+     -4.558319233183284e-14,
+     -2.750967652929886e-13
+    ],
+    [
+     -4.558319233183284e-14,
+     2193.5613600498764,
+     8.731149137020111e-11
+    ],
+    [
+     -2.750967652929886e-13,
+     8.731149137020111e-11,
+     1092.8747011344385
+    ]
+   ],
+   "principal": [
+    2712.681360049988,
+    2193.561360049877,
+    1092.874701134439
+   ],
+   "old_mass": 12.0
+  },
+  "l_elbow": {
+   "mass": 17.010168303186603,
+   "com": [
+    0.07739801331742566,
+    -0.022113718090707835,
+    -7.110094744082147
+   ],
+   "I": [
+    [
+     4995.473679547664,
+     2.60399257868022,
+     48.56752402463991
+    ],
+    [
+     2.60399257868022,
+     5284.892794657208,
+     -13.8764354356681
+    ],
+    [
+     48.56752402463991,
+     -13.8764354356681,
+     1175.2515577192971
+    ]
+   ],
+   "principal": [
+    5284.960255450251,
+    4996.070634311275,
+    1174.5871421626437
+   ],
+   "old_mass": 12.5
+  },
+  "r_shoulder_pitch": {
+   "mass": 7.406577375280918,
+   "com": [
+    -2.1253862162736636e-15,
+    -6.379818451630726,
+    -1.594954612907685
+   ],
+   "I": [
+    [
+     1659.560017462878,
+     5.555054404191124e-13,
+     -7.623564664671226e-12
+    ],
+    [
+     5.555054404191124e-13,
+     1420.7969566311804,
+     -19.139455354990787
+    ],
+    [
+     -7.623564664671226e-12,
+     -19.139455354990787,
+     1654.775153623974
+    ]
+   ],
+   "principal": [
+    1659.560017462878,
+    1656.3304262224776,
+    1419.241684032678
+   ],
+   "old_mass": 1.0
+  },
+  "r_shoulder_roll": {
+   "mass": 13.21822484008339,
+   "com": [
+    -5.243599366492138e-17,
+    0.0,
+    -9.843250292413188
+   ],
+   "I": [
+    [
+     2712.681360049988,
+     4.353440393363902e-14,
+     -2.1710635004606663e-13
+    ],
+    [
+     4.353440393363902e-14,
+     2193.5613600498764,
+     -8.731149137020111e-11
+    ],
+    [
+     -2.1710635004606663e-13,
+     -8.731149137020111e-11,
+     1092.874701134424
+    ]
+   ],
+   "principal": [
+    2712.681360049988,
+    2193.5613600498764,
+    1092.874701134424
+   ],
+   "old_mass": 12.0
+  },
+  "r_elbow": {
+   "mass": 17.010168303186603,
+   "com": [
+    0.07739801331742568,
+    0.02211371809070073,
+    -7.110094744082147
+   ],
+   "I": [
+    [
+     4995.473679547606,
+     -2.60399257868049,
+     48.567524024639795
+    ],
+    [
+     -2.60399257868049,
+     5284.892794657149,
+     13.876435435638996
+    ],
+    [
+     48.567524024639795,
+     13.876435435638996,
+     1175.2515577192753
+    ]
+   ],
+   "principal": [
+    5284.960255450191,
+    4996.070634311217,
+    1174.587142162623
+   ],
+   "old_mass": 12.5
+  },
+  "l_hip_roll": {
+   "mass": 21.037114588014255,
+   "com": [
+    -9.316867062732529,
+    3.552713678800501e-15,
+    -0.7676175496642514
+   ],
+   "I": [
+    [
+     2708.380457932886,
+     -9.094947017729282e-13,
+     150.4530397341914
+    ],
+    [
+     -9.094947017729282e-13,
+     3223.4654139630147,
+     0.0
+    ],
+    [
+     150.4530397341914,
+     0.0,
+     2564.3576524655873
+    ]
+   ],
+   "principal": [
+    3223.4654139630147,
+    2803.167614212575,
+    2469.5704961858987
+   ],
+   "old_mass": 14.0
+  },
+  "l_hip_pitch": {
+   "mass": 21.86009138021876,
+   "com": [
+    3.869288823807099e-17,
+    -7.105427357601002e-15,
+    -11.099779452194653
+   ],
+   "I": [
+    [
+     3905.4060729910852,
+     1.208597192695985e-13,
+     5.690652613121761e-13
+    ],
+    [
+     1.208597192695985e-13,
+     4385.951142629143,
+     -1.4551915228366852e-11
+    ],
+    [
+     5.690652613121761e-13,
+     -1.4551915228366852e-11,
+     1759.855530838313
+    ]
+   ],
+   "principal": [
+    4385.951142629143,
+    3905.4060729910852,
+    1759.8555308383136
+   ],
+   "old_mass": 25.0
+  },
+  "l_knee": {
+   "mass": 23.964727761224847,
+   "com": [
+    -4.460869496872142e-17,
+    -3.552713678800501e-15,
+    -4.050037158177574
+   ],
+   "I": [
+    [
+     4644.810781852269,
+     -4.953274886550691e-14,
+     2.5188999750420525e-13
+    ],
+    [
+     -4.953274886550691e-14,
+     5120.897789716459,
+     -7.275957614183426e-12
+    ],
+    [
+     2.5188999750420525e-13,
+     -7.275957614183426e-12,
+     1902.6184363015345
+    ]
+   ],
+   "principal": [
+    5120.897789716459,
+    4644.810781852269,
+    1902.6184363015352
+   ],
+   "old_mass": 25.0
+  },
+  "l_ankle_pitch": {
+   "mass": 19.78865746719123,
+   "com": [
+    5.69909015843158e-17,
+    -7.105427357601002e-15,
+    8.345923928522403
+   ],
+   "I": [
+    [
+     2206.922272993037,
+     -1.7593265511095524e-14,
+     2.3171147105465745e-14
+    ],
+    [
+     -1.7593265511095524e-14,
+     2668.0734741939814,
+     -5.4569682106375694e-12
+    ],
+    [
+     2.3171147105465745e-14,
+     -5.4569682106375694e-12,
+     1423.1828837779685
+    ]
+   ],
+   "principal": [
+    2668.0734741939814,
+    2206.922272993037,
+    1423.1828837779685
+   ],
+   "old_mass": 14.0
+  },
+  "l_ankle_roll": {
+   "mass": 37.20412318967397,
+   "com": [
+    -4.730658456932203,
+    0.32254489479065285,
+    -9.862204448243865
+   ],
+   "I": [
+    [
+     7028.3566795556835,
+     -176.76790148344116,
+     1823.7479828911423
+    ],
+    [
+     -176.76790148344116,
+     13485.100089214264,
+     169.6535466209898
+    ],
+    [
+     1823.7479828911423,
+     169.6535466209898,
+     11766.072713171128
+    ]
+   ],
+   "principal": [
+    13501.683977804929,
+    12377.162187056936,
+    6400.683317079199
+   ],
+   "old_mass": 26.0
+  },
+  "r_hip_roll": {
+   "mass": 21.037114588014255,
+   "com": [
+    -9.316867062732529,
+    -3.552713678800501e-15,
+    -0.7676175496642088
+   ],
+   "I": [
+    [
+     2708.3804579326534,
+     9.094947017729282e-13,
+     150.45303973418413
+    ],
+    [
+     9.094947017729282e-13,
+     3223.465413962782,
+     -2.9103830456733704e-11
+    ],
+    [
+     150.45303973418413,
+     -2.9103830456733704e-11,
+     2564.357652465589
+    ]
+   ],
+   "principal": [
+    3223.465413962781,
+    2803.167614212402,
+    2469.5704961858405
+   ],
+   "old_mass": 14.0
+  },
+  "r_hip_pitch": {
+   "mass": 21.86009138021876,
+   "com": [
+    1.9346444119035494e-17,
+    7.105427357601002e-15,
+    -11.099779452194653
+   ],
+   "I": [
+    [
+     3905.4060729911143,
+     -2.855146400785694e-14,
+     3.903929633040475e-13
+    ],
+    [
+     -2.855146400785694e-14,
+     4385.951142629172,
+     -7.275957614183426e-12
+    ],
+    [
+     3.903929633040475e-13,
+     -7.275957614183426e-12,
+     1759.855530838313
+    ]
+   ],
+   "principal": [
+    4385.951142629172,
+    3905.4060729911143,
+    1759.8555308383143
+   ],
+   "old_mass": 25.0
+  },
+  "r_knee": {
+   "mass": 23.96472776122485,
+   "com": [
+    9.509985520804345e-17,
+    1.0658141036401503e-14,
+    -4.050037158177588
+   ],
+   "I": [
+    [
+     4644.810781852269,
+     -8.937604434322543e-15,
+     5.087843254730615e-13
+    ],
+    [
+     -8.937604434322543e-15,
+     5120.897789716473,
+     2.1827872842550278e-11
+    ],
+    [
+     5.087843254730615e-13,
+     2.1827872842550278e-11,
+     1902.6184363015345
+    ]
+   ],
+   "principal": [
+    5120.897789716475,
+    4644.810781852269,
+    1902.6184363015363
+   ],
+   "old_mass": 25.0
+  },
+  "r_ankle_pitch": {
+   "mass": 19.78865746719123,
+   "com": [
+    5.2241659785622805e-17,
+    7.105427357601002e-15,
+    8.345923928522403
+   ],
+   "I": [
+    [
+     2206.9222729930443,
+     9.134964784607298e-15,
+     -4.011065642278439e-14
+    ],
+    [
+     9.134964784607298e-15,
+     2668.073474193985,
+     5.4569682106375694e-12
+    ],
+    [
+     -4.011065642278439e-14,
+     5.4569682106375694e-12,
+     1423.1828837779685
+    ]
+   ],
+   "principal": [
+    2668.073474193987,
+    2206.9222729930443,
+    1423.18288377797
+   ],
+   "old_mass": 14.0
+  },
+  "r_ankle_roll": {
+   "mass": 37.204123189673965,
+   "com": [
+    -4.730658456932204,
+    -0.3225448947910863,
+    -9.86220444824386
+   ],
+   "I": [
+    [
+     7028.3566795556835,
+     176.76790148293185,
+     1823.747982891141
+    ],
+    [
+     176.76790148293185,
+     13485.100089214262,
+     -169.65354662116079
+    ],
+    [
+     1823.747982891141,
+     -169.65354662116079,
+     11766.072713171117
+    ]
+   ],
+   "principal": [
+    13501.683977804969,
+    12377.162187056874,
+    6400.683317079226
+   ],
+   "old_mass": 26.0
+  },
+  "l_hip_yaw": {
+   "mass": 16.4,
+   "com": [
+    0.0,
+    3.552713678800501e-15,
+    17.975609756097583
+   ],
+   "I": [
+    [
+     2961.8907439023606,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     2221.0829105690354,
+     1.4551915228366852e-11
+    ],
+    [
+     0.0,
+     1.4551915228366852e-11,
+     1361.2171666666682
+    ]
+   ],
+   "principal": [
+    2961.8907439023606,
+    2221.0829105690354,
+    1361.2171666666682
+   ],
+   "old_mass": 13.4
+  },
+  "r_hip_yaw": {
+   "mass": 16.4,
+   "com": [
+    0.0,
+    -3.552713678800501e-15,
+    17.975609756097583
+   ],
+   "I": [
+    [
+     2961.8907439023606,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     2221.0829105690354,
+     -1.4551915228366852e-11
+    ],
+    [
+     0.0,
+     -1.4551915228366852e-11,
+     1361.2171666666682
+    ]
+   ],
+   "principal": [
+    2961.8907439023606,
+    2221.0829105690354,
+    1361.2171666666682
+   ],
+   "old_mass": 13.4
+  }
+ },
+ "parts": [
+  {
+   "part": "torso",
+   "link": "base",
+   "group": "Printed shell",
+   "grams": 30.565383139667944,
+   "material": "PLA",
+   "wall_mm": 1.2,
+   "volume_cm3": 24.649502531990294,
+   "area_cm2": 193.69038739894702,
+   "com": [
+    1.3230137287025589e-11,
+    -1.1950325121049669e-11,
+    188.99999999999983
+   ]
+  },
+  {
+   "part": "waist",
+   "link": "base",
+   "group": "Printed shell",
+   "grams": 6.792378384654853,
+   "material": "PLA",
+   "wall_mm": 1.0,
+   "volume_cm3": 5.477724503753913,
+   "area_cm2": 56.46658276069031,
+   "com": [
+    -0.9999999999998107,
+    -2.2005189270173516e-13,
+    147.9999999999998
+   ]
+  },
+  {
+   "part": "pelvis",
+   "link": "base",
+   "group": "Printed shell",
+   "grams": 15.937130439563362,
+   "material": "PLA",
+   "wall_mm": 1.2,
+   "volume_cm3": 12.85252454803497,
+   "area_cm2": 102.79982551136663,
+   "com": [
+    -1.999999999988943,
+    -1.0191510556497333e-11,
+    129.00000000000054
+   ]
+  },
+  {
+   "part": "collar",
+   "link": "base",
+   "group": "Printed shell",
+   "grams": 2.915225015622301,
+   "material": "PLA",
+   "wall_mm": 1.0,
+   "volume_cm3": 2.3509879158244367,
+   "area_cm2": 26.16052477686956,
+   "com": [
+    2.2969598250287323e-16,
+    -5.158085221117152e-16,
+    222.00000000000227
+   ]
+  },
+  {
+   "part": "neck_housing",
+   "link": "neck_yaw",
+   "group": "Printed shell",
+   "grams": 2.292134656198563,
+   "material": "PLA",
+   "wall_mm": 1.0,
+   "volume_cm3": 1.8484956904827123,
+   "area_cm2": 18.7909337323925,
+   "com": [
+    2.6548516469816034e-15,
+    -2.4600941902532245e-15,
+    234.00000000000074
+   ]
+  },
+  {
+   "part": "head",
+   "link": "head_pitch",
+   "group": "Printed shell",
+   "grams": 33.1201827311242,
+   "material": "PLA",
+   "wall_mm": 1.2,
+   "volume_cm3": 26.709824783164688,
+   "area_cm2": 210.99844777190788,
+   "com": [
+    1.7411381814817575e-13,
+    -1.4673686056190454e-13,
+    271.350338972069
+   ]
+  },
+  {
+   "part": "visor",
+   "link": "head_pitch",
+   "group": "Printed shell",
+   "grams": 7.137147838803653,
+   "material": "PLA",
+   "wall_mm": 1.0,
+   "volume_cm3": 5.755764386131977,
+   "area_cm2": 58.97476492598536,
+   "com": [
+    29.80000000000344,
+    -8.965958051121486e-12,
+    267.99999999999966
+   ]
+  },
+  {
+   "part": "ear_1",
+   "link": "head_pitch",
+   "group": "Printed shell",
+   "grams": 0.9085374014165457,
+   "material": "PLA",
+   "wall_mm": 1.0,
+   "volume_cm3": 0.7326914527552787,
+   "area_cm2": 8.08689299728092,
+   "com": [
+    -2.497159667554312e-16,
+    41.500000000000014,
+    268.99999999999966
+   ]
+  },
+  {
+   "part": "ear_-1",
+   "link": "head_pitch",
+   "group": "Printed shell",
+   "grams": 0.9085374014165457,
+   "material": "PLA",
+   "wall_mm": 1.0,
+   "volume_cm3": 0.7326914527552787,
+   "area_cm2": 8.08689299728092,
+   "com": [
+    -2.497159667554312e-16,
+    -41.50000000000002,
+    268.99999999999966
+   ]
+  },
+  {
+   "part": "l_shoulder",
+   "link": "l_shoulder_pitch",
+   "group": "Printed shell",
+   "grams": 5.906577375280925,
+   "material": "PLA",
+   "wall_mm": 1.0,
+   "volume_cm3": 4.763368851033003,
+   "area_cm2": 47.49450644226324,
+   "com": [
+    -1.2092561570115191e-15,
+    58.00000000000006,
+    210.0
+   ]
+  },
+  {
+   "part": "l_upper_arm",
+   "link": "l_shoulder_roll",
+   "group": "Printed shell",
+   "grams": 2.7182248400833906,
+   "material": "PLA",
+   "wall_mm": 1.0,
+   "volume_cm3": 2.1921168065188623,
+   "area_cm2": 22.437246706623345,
+   "com": [
+    -2.204120961437966e-16,
+    54.999999999999986,
+    184.00000000000017
+   ]
+  },
+  {
+   "part": "l_elbow",
+   "link": "l_elbow",
+   "group": "Printed shell",
+   "grams": 2.751360227771565,
+   "material": "PLA",
+   "wall_mm": 1.0,
+   "volume_cm3": 2.2188388933641665,
+   "area_cm2": 22.78442833389051,
+   "com": [
+    8.240631224545734e-16,
+    54.99999999999991,
+    162.00000000000006
+   ]
+  },
+  {
+   "part": "l_forearm",
+   "link": "l_elbow",
+   "group": "Printed shell",
+   "grams": 2.4206322007628414,
+   "material": "PLA",
+   "wall_mm": 1.0,
+   "volume_cm3": 1.9521227425506795,
+   "area_cm2": 20.06879755335985,
+   "com": [
+    -2.717752139606739e-16,
+    55.00000000000001,
+    137.78571448354984
+   ]
+  },
+  {
+   "part": "l_hand",
+   "link": "l_elbow",
+   "group": "Printed shell",
+   "grams": 1.150096841386242,
+   "material": "PLA",
+   "wall_mm": 1.0,
+   "volume_cm3": 0.9274974527308403,
+   "area_cm2": 9.742406457034189,
+   "com": [
+    2.0377885368385557e-15,
+    54.999999999999986,
+    114.99999999999969
+   ]
+  },
+  {
+   "part": "l_thumb",
+   "link": "l_elbow",
+   "group": "Printed shell",
+   "grams": 0.18807903326595488,
+   "material": "PLA",
+   "wall_mm": 1.0,
+   "volume_cm3": 0.15167663973060874,
+   "area_cm2": 1.9576240371647264,
+   "com": [
+    7.000000000000002,
+    53.000000000000036,
+    118.0000000000003
+   ]
+  },
+  {
+   "part": "r_shoulder",
+   "link": "r_shoulder_pitch",
+   "group": "Printed shell",
+   "grams": 5.906577375280918,
+   "material": "PLA",
+   "wall_mm": 1.0,
+   "volume_cm3": 4.7633688510329995,
+   "area_cm2": 47.49450644226323,
+   "com": [
+    -2.6651369249924955e-15,
+    -58.00000000000009,
+    209.99999999999994
+   ]
+  },
+  {
+   "part": "r_upper_arm",
+   "link": "r_shoulder_roll",
+   "group": "Printed shell",
+   "grams": 2.7182248400833906,
+   "material": "PLA",
+   "wall_mm": 1.0,
+   "volume_cm3": 2.1921168065188623,
+   "area_cm2": 22.437246706623345,
+   "com": [
+    -2.5498654259772553e-16,
+    -54.999999999999986,
+    184.00000000000017
+   ]
+  },
+  {
+   "part": "r_elbow",
+   "link": "r_elbow",
+   "group": "Printed shell",
+   "grams": 2.7513602277715634,
+   "material": "PLA",
+   "wall_mm": 1.0,
+   "volume_cm3": 2.2188388933641643,
+   "area_cm2": 22.784428333890514,
+   "com": [
+    9.265372931225002e-16,
+    -54.999999999999964,
+    162.00000000000026
+   ]
+  },
+  {
+   "part": "r_forearm",
+   "link": "r_elbow",
+   "group": "Printed shell",
+   "grams": 2.4206322007628414,
+   "material": "PLA",
+   "wall_mm": 1.0,
+   "volume_cm3": 1.9521227425506795,
+   "area_cm2": 20.06879755335985,
+   "com": [
+    -2.135376681119581e-16,
+    -55.00000000000001,
+    137.78571448354975
+   ]
+  },
+  {
+   "part": "r_hand",
+   "link": "r_elbow",
+   "group": "Printed shell",
+   "grams": 1.150096841386242,
+   "material": "PLA",
+   "wall_mm": 1.0,
+   "volume_cm3": 0.9274974527308403,
+   "area_cm2": 9.742406457034189,
+   "com": [
+    2.0377885368385557e-15,
+    -54.99999999999997,
+    114.99999999999969
+   ]
+  },
+  {
+   "part": "r_thumb",
+   "link": "r_elbow",
+   "group": "Printed shell",
+   "grams": 0.18807903326595488,
+   "material": "PLA",
+   "wall_mm": 1.0,
+   "volume_cm3": 0.15167663973060874,
+   "area_cm2": 1.9576240371647264,
+   "com": [
+    7.000000000000002,
+    -53.000000000000036,
+    118.0000000000003
+   ]
+  },
+  {
+   "part": "l_hip",
+   "link": "l_hip_roll",
+   "group": "Printed shell",
+   "grams": 4.037114588014255,
+   "material": "PLA",
+   "wall_mm": 1.0,
+   "volume_cm3": 3.2557375709792375,
+   "area_cm2": 32.03007356876194,
+   "com": [
+    3.4918919367147305e-15,
+    22.000000000000018,
+    110.99999999999993
+   ]
+  },
+  {
+   "part": "l_thigh",
+   "link": "l_hip_pitch",
+   "group": "Printed shell",
+   "grams": 4.860091380218758,
+   "material": "PLA",
+   "wall_mm": 1.0,
+   "volume_cm3": 3.9194285324344817,
+   "area_cm2": 38.957349703939535,
+   "com": [
+    1.7403583728723048e-16,
+    21.999999999999968,
+    91.0000000000001
+   ]
+  },
+  {
+   "part": "l_knee",
+   "link": "l_knee",
+   "group": "Printed shell",
+   "grams": 3.0824062444820477,
+   "material": "PLA",
+   "wall_mm": 1.0,
+   "volume_cm3": 2.4858114874855217,
+   "area_cm2": 25.391599733671743,
+   "com": [
+    -7.241263492107042e-17,
+    21.999999999999982,
+    69.99999999999994
+   ]
+  },
+  {
+   "part": "l_shin",
+   "link": "l_knee",
+   "group": "Printed shell",
+   "grams": 3.882321516742799,
+   "material": "PLA",
+   "wall_mm": 1.0,
+   "volume_cm3": 3.130904448986128,
+   "area_cm2": 31.27831520736062,
+   "com": [
+    -2.1786708519660678e-16,
+    21.999999999999975,
+    44.99999999999997
+   ]
+  },
+  {
+   "part": "l_ankle",
+   "link": "l_ankle_pitch",
+   "group": "Printed shell",
+   "grams": 2.7886574671912268,
+   "material": "PLA",
+   "wall_mm": 1.0,
+   "volume_cm3": 2.248917312250989,
+   "area_cm2": 22.657386499181595,
+   "com": [
+    4.044144694953661e-16,
+    21.99999999999997,
+    28.99999999999998
+   ]
+  },
+  {
+   "part": "l_shoe",
+   "link": "l_ankle_roll",
+   "group": "Printed shell",
+   "grams": 6.715630245232052,
+   "material": "PLA",
+   "wall_mm": 1.0,
+   "volume_cm3": 5.415830842929074,
+   "area_cm2": 54.450349388182474,
+   "com": [
+    2.949736596278457e-13,
+    21.99999999999984,
+    12.000000000000002
+   ]
+  },
+  {
+   "part": "l_boot",
+   "link": "l_ankle_roll",
+   "group": "Printed shell",
+   "grams": 2.509791720472103,
+   "material": "PLA",
+   "wall_mm": 1.0,
+   "volume_cm3": 2.0240255810258896,
+   "area_cm2": 20.614323982724844,
+   "com": [
+    8.425301447820126e-17,
+    22.000000000000025,
+    19.0
+   ]
+  },
+  {
+   "part": "l_sole",
+   "link": "l_ankle_roll",
+   "group": "Soles",
+   "grams": 8.978701223969814,
+   "material": "TPU-sole",
+   "wall_mm": null,
+   "volume_cm3": 19.952669386599588,
+   "area_cm2": 63.603075123728125,
+   "com": [
+    2.155958583210746e-12,
+    21.999999999999215,
+    4.0
+   ]
+  },
+  {
+   "part": "r_hip",
+   "link": "r_hip_roll",
+   "group": "Printed shell",
+   "grams": 4.037114588014255,
+   "material": "PLA",
+   "wall_mm": 1.0,
+   "volume_cm3": 3.2557375709792375,
+   "area_cm2": 32.03007356876194,
+   "com": [
+    3.340576619457092e-15,
+    -22.000000000000018,
+    111.00000000000016
+   ]
+  },
+  {
+   "part": "r_thigh",
+   "link": "r_hip_pitch",
+   "group": "Printed shell",
+   "grams": 4.860091380218758,
+   "material": "PLA",
+   "wall_mm": 1.0,
+   "volume_cm3": 3.9194285324344817,
+   "area_cm2": 38.95734970393953,
+   "com": [
+    8.701791864361525e-17,
+    -21.999999999999968,
+    91.0000000000001
+   ]
+  },
+  {
+   "part": "r_knee",
+   "link": "r_knee",
+   "group": "Printed shell",
+   "grams": 3.0824062444820495,
+   "material": "PLA",
+   "wall_mm": 1.0,
+   "volume_cm3": 2.4858114874855235,
+   "area_cm2": 25.391599733671736,
+   "com": [
+    1.1433573934905844e-16,
+    -21.99999999999997,
+    69.99999999999994
+   ]
+  },
+  {
+   "part": "r_shin",
+   "link": "r_knee",
+   "group": "Printed shell",
+   "grams": 3.882321516742799,
+   "material": "PLA",
+   "wall_mm": 1.0,
+   "volume_cm3": 3.130904448986128,
+   "area_cm2": 31.27831520736062,
+   "com": [
+    4.962528051700488e-16,
+    -21.99999999999996,
+    44.99999999999997
+   ]
+  },
+  {
+   "part": "r_ankle",
+   "link": "r_ankle_pitch",
+   "group": "Printed shell",
+   "grams": 2.7886574671912268,
+   "material": "PLA",
+   "wall_mm": 1.0,
+   "volume_cm3": 2.248917312250989,
+   "area_cm2": 22.657386499181595,
+   "com": [
+    3.707132637040855e-16,
+    -21.99999999999997,
+    28.999999999999957
+   ]
+  },
+  {
+   "part": "r_shoe",
+   "link": "r_ankle_roll",
+   "group": "Printed shell",
+   "grams": 6.715630245232045,
+   "material": "PLA",
+   "wall_mm": 1.0,
+   "volume_cm3": 5.415830842929067,
+   "area_cm2": 54.450349388182474,
+   "com": [
+    2.9446986174632964e-13,
+    -22.000000000000135,
+    12.000000000000023
+   ]
+  },
+  {
+   "part": "r_boot",
+   "link": "r_ankle_roll",
+   "group": "Printed shell",
+   "grams": 2.509791720472105,
+   "material": "PLA",
+   "wall_mm": 1.0,
+   "volume_cm3": 2.0240255810258914,
+   "area_cm2": 20.614323982724844,
+   "com": [
+    -2.3403615132833675e-16,
+    -21.999999999999996,
+    19.0
+   ]
+  },
+  {
+   "part": "r_sole",
+   "link": "r_ankle_roll",
+   "group": "Soles",
+   "grams": 8.978701223969814,
+   "material": "TPU-sole",
+   "wall_mm": null,
+   "volume_cm3": 19.952669386599588,
+   "area_cm2": 63.603075123728125,
+   "com": [
+    2.155571131045059e-12,
+    -22.000000000000792,
+    4.0
+   ]
+  },
+  {
+   "part": "battery_2s",
+   "link": "base",
+   "group": "Battery 2S",
+   "grams": 57,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    0.0,
+    164.5
+   ]
+  },
+  {
+   "part": "electronics",
+   "link": "base",
+   "group": "Electronics",
+   "grams": 49,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    0.0,
+    190.0
+   ]
+  },
+  {
+   "part": "ubec",
+   "link": "base",
+   "group": "Electronics",
+   "grams": 15,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    -17.0,
+    0.0,
+    197.0
+   ]
+  },
+  {
+   "part": "l_shoulder_pitch_servo",
+   "link": "base",
+   "group": "Servos",
+   "grams": 13.4,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    33.5,
+    211.0
+   ]
+  },
+  {
+   "part": "r_shoulder_pitch_servo",
+   "link": "base",
+   "group": "Servos",
+   "grams": 13.4,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    -33.5,
+    211.0
+   ]
+  },
+  {
+   "part": "neck_yaw_servo",
+   "link": "base",
+   "group": "Servos",
+   "grams": 9.0,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    0.0,
+    213.0
+   ]
+  },
+  {
+   "part": "wiring",
+   "link": "base",
+   "group": "Wiring",
+   "grams": 30,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    0.0,
+    173.0
+   ]
+  },
+  {
+   "part": "l_hip_yaw_servo",
+   "link": "l_hip_yaw",
+   "group": "Servos",
+   "grams": 13.4,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    22.0,
+    137.0
+   ]
+  },
+  {
+   "part": "l_hip_roll_servo",
+   "link": "l_hip_roll",
+   "group": "Servos",
+   "grams": 14.0,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    -14.0,
+    22.0,
+    115.0
+   ]
+  },
+  {
+   "part": "l_hip_pitch_servo",
+   "link": "l_hip_pitch",
+   "group": "Servos",
+   "grams": 14.0,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    22.0,
+    106.0
+   ]
+  },
+  {
+   "part": "l_knee_servo",
+   "link": "l_knee",
+   "group": "Servos",
+   "grams": 14.0,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    22.0,
+    70.0
+   ]
+  },
+  {
+   "part": "l_ankle_pitch_servo",
+   "link": "l_ankle_pitch",
+   "group": "Servos",
+   "grams": 14.0,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    22.0,
+    36.0
+   ]
+  },
+  {
+   "part": "l_ankle_roll_servo",
+   "link": "l_ankle_roll",
+   "group": "Servos",
+   "grams": 14.0,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    -14.0,
+    22.0,
+    23.0
+   ]
+  },
+  {
+   "part": "r_hip_yaw_servo",
+   "link": "r_hip_yaw",
+   "group": "Servos",
+   "grams": 13.4,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    -22.0,
+    137.0
+   ]
+  },
+  {
+   "part": "r_hip_roll_servo",
+   "link": "r_hip_roll",
+   "group": "Servos",
+   "grams": 14.0,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    -14.0,
+    -22.0,
+    115.0
+   ]
+  },
+  {
+   "part": "r_hip_pitch_servo",
+   "link": "r_hip_pitch",
+   "group": "Servos",
+   "grams": 14.0,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    -22.0,
+    106.0
+   ]
+  },
+  {
+   "part": "r_knee_servo",
+   "link": "r_knee",
+   "group": "Servos",
+   "grams": 14.0,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    -22.0,
+    70.0
+   ]
+  },
+  {
+   "part": "r_ankle_pitch_servo",
+   "link": "r_ankle_pitch",
+   "group": "Servos",
+   "grams": 14.0,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    -22.0,
+    36.0
+   ]
+  },
+  {
+   "part": "r_ankle_roll_servo",
+   "link": "r_ankle_roll",
+   "group": "Servos",
+   "grams": 14.0,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    -14.0,
+    -22.0,
+    23.0
+   ]
+  },
+  {
+   "part": "l_shoulder_roll_servo",
+   "link": "l_shoulder_roll",
+   "group": "Servos",
+   "grams": 9.0,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    55.0,
+    206.0
+   ]
+  },
+  {
+   "part": "l_elbow_servo",
+   "link": "l_elbow",
+   "group": "Servos",
+   "grams": 9.0,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    55.0,
+    162.0
+   ]
+  },
+  {
+   "part": "r_shoulder_roll_servo",
+   "link": "r_shoulder_roll",
+   "group": "Servos",
+   "grams": 9.0,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    -55.0,
+    206.0
+   ]
+  },
+  {
+   "part": "r_elbow_servo",
+   "link": "r_elbow",
+   "group": "Servos",
+   "grams": 9.0,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    -55.0,
+    162.0
+   ]
+  },
+  {
+   "part": "head_pitch_servo",
+   "link": "neck_yaw",
+   "group": "Servos",
+   "grams": 9.0,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    0.0,
+    247.0
+   ]
+  },
+  {
+   "part": "camera",
+   "link": "head_pitch",
+   "group": "Electronics",
+   "grams": 6,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    24.0,
+    0.0,
+    289.0
+   ]
+  },
+  {
+   "part": "face_oled",
+   "link": "head_pitch",
+   "group": "Sensors, brackets, screws",
+   "grams": 12.0,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    17.0,
+    0.0,
+    269.0
+   ]
+  },
+  {
+   "part": "tof_vl53l1x",
+   "link": "head_pitch",
+   "group": "Sensors, brackets, screws",
+   "grams": 1.5,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    28.0,
+    8.0,
+    292.0
+   ]
+  },
+  {
+   "part": "l_mic",
+   "link": "head_pitch",
+   "group": "Sensors, brackets, screws",
+   "grams": 1.0,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    40.0,
+    269.0
+   ]
+  },
+  {
+   "part": "l_fsr_pair",
+   "link": "l_ankle_roll",
+   "group": "Sensors, brackets, screws",
+   "grams": 2.0,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    10.0,
+    28.0,
+    1.0
+   ]
+  },
+  {
+   "part": "r_mic",
+   "link": "head_pitch",
+   "group": "Sensors, brackets, screws",
+   "grams": 1.0,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    -40.0,
+    269.0
+   ]
+  },
+  {
+   "part": "r_fsr_pair",
+   "link": "r_ankle_roll",
+   "group": "Sensors, brackets, screws",
+   "grams": 2.0,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    10.0,
+    -28.0,
+    1.0
+   ]
+  },
+  {
+   "part": "l_hip_yaw_bracket",
+   "link": "l_hip_yaw",
+   "group": "Sensors, brackets, screws",
+   "grams": 3.0,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    22.0,
+    115.0
+   ]
+  },
+  {
+   "part": "l_hip_roll_bracket",
+   "link": "l_hip_roll",
+   "group": "Sensors, brackets, screws",
+   "grams": 3.0,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    22.0,
+    115.0
+   ]
+  },
+  {
+   "part": "l_hip_pitch_bracket",
+   "link": "l_hip_pitch",
+   "group": "Sensors, brackets, screws",
+   "grams": 3.0,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    22.0,
+    115.0
+   ]
+  },
+  {
+   "part": "l_knee_bracket",
+   "link": "l_knee",
+   "group": "Sensors, brackets, screws",
+   "grams": 3.0,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    22.0,
+    70.0
+   ]
+  },
+  {
+   "part": "l_ankle_pitch_bracket",
+   "link": "l_ankle_pitch",
+   "group": "Sensors, brackets, screws",
+   "grams": 3.0,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    22.0,
+    25.0
+   ]
+  },
+  {
+   "part": "l_ankle_roll_bracket",
+   "link": "l_ankle_roll",
+   "group": "Sensors, brackets, screws",
+   "grams": 3.0,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    22.0,
+    25.0
+   ]
+  },
+  {
+   "part": "r_hip_yaw_bracket",
+   "link": "r_hip_yaw",
+   "group": "Sensors, brackets, screws",
+   "grams": 3.0,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    -22.0,
+    115.0
+   ]
+  },
+  {
+   "part": "r_hip_roll_bracket",
+   "link": "r_hip_roll",
+   "group": "Sensors, brackets, screws",
+   "grams": 3.0,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    -22.0,
+    115.0
+   ]
+  },
+  {
+   "part": "r_hip_pitch_bracket",
+   "link": "r_hip_pitch",
+   "group": "Sensors, brackets, screws",
+   "grams": 3.0,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    -22.0,
+    115.0
+   ]
+  },
+  {
+   "part": "r_knee_bracket",
+   "link": "r_knee",
+   "group": "Sensors, brackets, screws",
+   "grams": 3.0,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    -22.0,
+    70.0
+   ]
+  },
+  {
+   "part": "r_ankle_pitch_bracket",
+   "link": "r_ankle_pitch",
+   "group": "Sensors, brackets, screws",
+   "grams": 3.0,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    -22.0,
+    25.0
+   ]
+  },
+  {
+   "part": "r_ankle_roll_bracket",
+   "link": "r_ankle_roll",
+   "group": "Sensors, brackets, screws",
+   "grams": 3.0,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    -22.0,
+    25.0
+   ]
+  },
+  {
+   "part": "l_shoulder_pitch_bracket",
+   "link": "l_shoulder_pitch",
+   "group": "Sensors, brackets, screws",
+   "grams": 1.5,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    50.0,
+    212.0
+   ]
+  },
+  {
+   "part": "l_shoulder_roll_bracket",
+   "link": "l_shoulder_roll",
+   "group": "Sensors, brackets, screws",
+   "grams": 1.5,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    55.0,
+    212.0
+   ]
+  },
+  {
+   "part": "l_elbow_bracket",
+   "link": "l_elbow",
+   "group": "Sensors, brackets, screws",
+   "grams": 1.5,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    55.0,
+    162.0
+   ]
+  },
+  {
+   "part": "r_shoulder_pitch_bracket",
+   "link": "r_shoulder_pitch",
+   "group": "Sensors, brackets, screws",
+   "grams": 1.5,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    -50.0,
+    212.0
+   ]
+  },
+  {
+   "part": "r_shoulder_roll_bracket",
+   "link": "r_shoulder_roll",
+   "group": "Sensors, brackets, screws",
+   "grams": 1.5,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    -55.0,
+    212.0
+   ]
+  },
+  {
+   "part": "r_elbow_bracket",
+   "link": "r_elbow",
+   "group": "Sensors, brackets, screws",
+   "grams": 1.5,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    -55.0,
+    162.0
+   ]
+  },
+  {
+   "part": "neck_yaw_bracket",
+   "link": "neck_yaw",
+   "group": "Sensors, brackets, screws",
+   "grams": 1.5,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    0.0,
+    225.0
+   ]
+  },
+  {
+   "part": "head_pitch_bracket",
+   "link": "head_pitch",
+   "group": "Sensors, brackets, screws",
+   "grams": 1.5,
+   "material": "catalogue",
+   "wall_mm": null,
+   "volume_cm3": null,
+   "area_cm2": null,
+   "com": [
+    0.0,
+    0.0,
+    247.0
+   ]
+  }
+ ],
+ "joints": [
+  {
+   "joint": "l_hip_yaw",
+   "servo": "MG90S",
+   "old": 0.002723286591337237,
+   "new": 0.006737384848990313,
+   "case": "one foot (left)",
+   "rated": 0.7339449541284404,
+   "margin": 108.9361778462799
+  },
+  {
+   "joint": "l_hip_roll",
+   "servo": "MG92B",
+   "old": 0.8261538297203119,
+   "new": 1.047851718848655,
+   "case": "one foot (left)",
+   "rated": 1.1654774040095142,
+   "margin": 1.112254131996942
+  },
+  {
+   "joint": "l_hip_pitch",
+   "servo": "MG92B",
+   "old": 0.022807999999999877,
+   "new": 0.047000336817648994,
+   "case": "one foot (left)",
+   "rated": 1.1654774040095142,
+   "margin": 24.79721386957951
+  },
+  {
+   "joint": "l_knee",
+   "servo": "MG92B",
+   "old": 0.5729999296992391,
+   "new": 0.7162850572255527,
+   "case": "squat, knee 78 deg",
+   "rated": 1.1654774040095142,
+   "margin": 1.627113943328451
+  },
+  {
+   "joint": "l_ankle_pitch",
+   "servo": "MG92B",
+   "old": 0.055759420131838724,
+   "new": 0.07773203094258581,
+   "case": "one foot (left)",
+   "rated": 1.1654774040095142,
+   "margin": 14.993528277555948
+  },
+  {
+   "joint": "l_ankle_roll",
+   "servo": "MG92B",
+   "old": 1.8543389046499212e-16,
+   "new": 0.0011160000000002338,
+   "case": "one foot (left)",
+   "rated": 1.1654774040095142,
+   "margin": 1044.3345914061558
+  },
+  {
+   "joint": "r_hip_yaw",
+   "servo": "MG90S",
+   "old": 0.0025571207974776937,
+   "new": 0.0026345589262032868,
+   "case": "one foot (left)",
+   "rated": 0.7339449541284404,
+   "margin": 278.58361672181024
+  },
+  {
+   "joint": "r_hip_roll",
+   "servo": "MG92B",
+   "old": 0.0877908735598332,
+   "new": 0.1095422441587955,
+   "case": "one foot (left)",
+   "rated": 1.1654774040095142,
+   "margin": 10.63952462321299
+  },
+  {
+   "joint": "r_hip_pitch",
+   "servo": "MG92B",
+   "old": 0.05906742013183859,
+   "new": 0.059492587009009126,
+   "case": "squat, knee 78 deg",
+   "rated": 1.1654774040095142,
+   "margin": 19.59029624704373
+  },
+  {
+   "joint": "r_knee",
+   "servo": "MG92B",
+   "old": 0.1481934341759516,
+   "new": 0.18488917342331113,
+   "case": "squat, knee 78 deg",
+   "rated": 1.1654774040095142,
+   "margin": 6.30365414280428
+  },
+  {
+   "joint": "r_ankle_pitch",
+   "servo": "MG92B",
+   "old": 0.0195,
+   "new": 0.017484,
+   "case": "arms forward",
+   "rated": 1.1654774040095142,
+   "margin": 66.65965477061967
+  },
+  {
+   "joint": "r_ankle_roll",
+   "servo": "MG92B",
+   "old": 2.1325517674553708e-19,
+   "new": 0.0011160000000000065,
+   "case": "one foot (left)",
+   "rated": 1.1654774040095142,
+   "margin": 1044.3345914063686
+  },
+  {
+   "joint": "l_shoulder_pitch",
+   "servo": "MG90S",
+   "old": 0.087275,
+   "new": 0.11119,
+   "case": "arms forward",
+   "rated": 0.7339449541284404,
+   "margin": 6.60081800637144
+  },
+  {
+   "joint": "l_shoulder_roll",
+   "servo": "SG90",
+   "old": 0.08727499999999999,
+   "new": 0.110006,
+   "case": "arms out to the side",
+   "rated": 0.601427115188583,
+   "margin": 5.467221016931649
+  },
+  {
+   "joint": "l_elbow",
+   "servo": "SG90",
+   "old": 0.010375000000000004,
+   "new": 0.012070000000000006,
+   "case": "arms forward",
+   "rated": 0.601427115188583,
+   "margin": 49.82826140750478
+  },
+  {
+   "joint": "r_shoulder_pitch",
+   "servo": "MG90S",
+   "old": 0.087275,
+   "new": 0.11119,
+   "case": "arms forward",
+   "rated": 0.7339449541284404,
+   "margin": 6.60081800637144
+  },
+  {
+   "joint": "r_shoulder_roll",
+   "servo": "SG90",
+   "old": 0.08727499999999999,
+   "new": 0.110006,
+   "case": "arms out to the side",
+   "rated": 0.601427115188583,
+   "margin": 5.467221016931649
+  },
+  {
+   "joint": "r_elbow",
+   "servo": "SG90",
+   "old": 0.010375000000000004,
+   "new": 0.012070000000000006,
+   "case": "arms forward",
+   "rated": 0.601427115188583,
+   "margin": 49.82826140750478
+  },
+  {
+   "joint": "neck_yaw",
+   "servo": "SG90",
+   "old": 0.001956734966277832,
+   "new": 0.006044214544048918,
+   "case": "one foot (left)",
+   "rated": 0.601427115188583,
+   "margin": 99.50459415454453
+  },
+  {
+   "joint": "head_pitch",
+   "servo": "SG90",
+   "old": 0.042057704833289834,
+   "new": 0.13758716824804693,
+   "case": "head down 32 deg",
+   "rated": 0.601427115188583,
+   "margin": 4.371244228998952
+  }
+ ],
+ "height_mm": 303.0
+}

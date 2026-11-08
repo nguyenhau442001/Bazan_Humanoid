@@ -1,0 +1,89 @@
+part,link,group,mass_g,material,wall_mm,volume_cm3,area_cm2
+torso,base,Printed shell,30.57,PLA,1.2,24.65,193.7
+waist,base,Printed shell,6.79,PLA,1.0,5.48,56.5
+pelvis,base,Printed shell,15.94,PLA,1.2,12.85,102.8
+collar,base,Printed shell,2.92,PLA,1.0,2.35,26.2
+neck_housing,neck_yaw,Printed shell,2.29,PLA,1.0,1.85,18.8
+head,head_pitch,Printed shell,33.12,PLA,1.2,26.71,211.0
+visor,head_pitch,Printed shell,7.14,PLA,1.0,5.76,59.0
+ear_1,head_pitch,Printed shell,0.91,PLA,1.0,0.73,8.1
+ear_-1,head_pitch,Printed shell,0.91,PLA,1.0,0.73,8.1
+l_shoulder,l_shoulder_pitch,Printed shell,5.91,PLA,1.0,4.76,47.5
+l_upper_arm,l_shoulder_roll,Printed shell,2.72,PLA,1.0,2.19,22.4
+l_elbow,l_elbow,Printed shell,2.75,PLA,1.0,2.22,22.8
+l_forearm,l_elbow,Printed shell,2.42,PLA,1.0,1.95,20.1
+l_hand,l_elbow,Printed shell,1.15,PLA,1.0,0.93,9.7
+l_thumb,l_elbow,Printed shell,0.19,PLA,1.0,0.15,2.0
+r_shoulder,r_shoulder_pitch,Printed shell,5.91,PLA,1.0,4.76,47.5
+r_upper_arm,r_shoulder_roll,Printed shell,2.72,PLA,1.0,2.19,22.4
+r_elbow,r_elbow,Printed shell,2.75,PLA,1.0,2.22,22.8
+r_forearm,r_elbow,Printed shell,2.42,PLA,1.0,1.95,20.1
+r_hand,r_elbow,Printed shell,1.15,PLA,1.0,0.93,9.7
+r_thumb,r_elbow,Printed shell,0.19,PLA,1.0,0.15,2.0
+l_hip,l_hip_roll,Printed shell,4.04,PLA,1.0,3.26,32.0
+l_thigh,l_hip_pitch,Printed shell,4.86,PLA,1.0,3.92,39.0
+l_knee,l_knee,Printed shell,3.08,PLA,1.0,2.49,25.4
+l_shin,l_knee,Printed shell,3.88,PLA,1.0,3.13,31.3
+l_ankle,l_ankle_pitch,Printed shell,2.79,PLA,1.0,2.25,22.7
+l_shoe,l_ankle_roll,Printed shell,6.72,PLA,1.0,5.42,54.5
+l_boot,l_ankle_roll,Printed shell,2.51,PLA,1.0,2.02,20.6
+l_sole,l_ankle_roll,Soles,8.98,TPU-sole,,19.95,63.6
+r_hip,r_hip_roll,Printed shell,4.04,PLA,1.0,3.26,32.0
+r_thigh,r_hip_pitch,Printed shell,4.86,PLA,1.0,3.92,39.0
+r_knee,r_knee,Printed shell,3.08,PLA,1.0,2.49,25.4
+r_shin,r_knee,Printed shell,3.88,PLA,1.0,3.13,31.3
+r_ankle,r_ankle_pitch,Printed shell,2.79,PLA,1.0,2.25,22.7
+r_shoe,r_ankle_roll,Printed shell,6.72,PLA,1.0,5.42,54.5
+r_boot,r_ankle_roll,Printed shell,2.51,PLA,1.0,2.02,20.6
+r_sole,r_ankle_roll,Soles,8.98,TPU-sole,,19.95,63.6
+battery_2s,base,Battery 2S,57.00,catalogue,,,
+electronics,base,Electronics,49.00,catalogue,,,
+ubec,base,Electronics,15.00,catalogue,,,
+l_shoulder_pitch_servo,base,Servos,13.40,catalogue,,,
+r_shoulder_pitch_servo,base,Servos,13.40,catalogue,,,
+neck_yaw_servo,base,Servos,9.00,catalogue,,,
+wiring,base,Wiring,30.00,catalogue,,,
+l_hip_yaw_servo,l_hip_yaw,Servos,13.40,catalogue,,,
+l_hip_roll_servo,l_hip_roll,Servos,14.00,catalogue,,,
+l_hip_pitch_servo,l_hip_pitch,Servos,14.00,catalogue,,,
+l_knee_servo,l_knee,Servos,14.00,catalogue,,,
+l_ankle_pitch_servo,l_ankle_pitch,Servos,14.00,catalogue,,,
+l_ankle_roll_servo,l_ankle_roll,Servos,14.00,catalogue,,,
+r_hip_yaw_servo,r_hip_yaw,Servos,13.40,catalogue,,,
+r_hip_roll_servo,r_hip_roll,Servos,14.00,catalogue,,,
+r_hip_pitch_servo,r_hip_pitch,Servos,14.00,catalogue,,,
+r_knee_servo,r_knee,Servos,14.00,catalogue,,,
+r_ankle_pitch_servo,r_ankle_pitch,Servos,14.00,catalogue,,,
+r_ankle_roll_servo,r_ankle_roll,Servos,14.00,catalogue,,,
+l_shoulder_roll_servo,l_shoulder_roll,Servos,9.00,catalogue,,,
+l_elbow_servo,l_elbow,Servos,9.00,catalogue,,,
+r_shoulder_roll_servo,r_shoulder_roll,Servos,9.00,catalogue,,,
+r_elbow_servo,r_elbow,Servos,9.00,catalogue,,,
+head_pitch_servo,neck_yaw,Servos,9.00,catalogue,,,
+camera,head_pitch,Electronics,6.00,catalogue,,,
+face_oled,head_pitch,"Sensors, brackets, screws",12.00,catalogue,,,
+tof_vl53l1x,head_pitch,"Sensors, brackets, screws",1.50,catalogue,,,
+l_mic,head_pitch,"Sensors, brackets, screws",1.00,catalogue,,,
+l_fsr_pair,l_ankle_roll,"Sensors, brackets, screws",2.00,catalogue,,,
+r_mic,head_pitch,"Sensors, brackets, screws",1.00,catalogue,,,
+r_fsr_pair,r_ankle_roll,"Sensors, brackets, screws",2.00,catalogue,,,
+l_hip_yaw_bracket,l_hip_yaw,"Sensors, brackets, screws",3.00,catalogue,,,
+l_hip_roll_bracket,l_hip_roll,"Sensors, brackets, screws",3.00,catalogue,,,
+l_hip_pitch_bracket,l_hip_pitch,"Sensors, brackets, screws",3.00,catalogue,,,
+l_knee_bracket,l_knee,"Sensors, brackets, screws",3.00,catalogue,,,
+l_ankle_pitch_bracket,l_ankle_pitch,"Sensors, brackets, screws",3.00,catalogue,,,
+l_ankle_roll_bracket,l_ankle_roll,"Sensors, brackets, screws",3.00,catalogue,,,
+r_hip_yaw_bracket,r_hip_yaw,"Sensors, brackets, screws",3.00,catalogue,,,
+r_hip_roll_bracket,r_hip_roll,"Sensors, brackets, screws",3.00,catalogue,,,
+r_hip_pitch_bracket,r_hip_pitch,"Sensors, brackets, screws",3.00,catalogue,,,
+r_knee_bracket,r_knee,"Sensors, brackets, screws",3.00,catalogue,,,
+r_ankle_pitch_bracket,r_ankle_pitch,"Sensors, brackets, screws",3.00,catalogue,,,
+r_ankle_roll_bracket,r_ankle_roll,"Sensors, brackets, screws",3.00,catalogue,,,
+l_shoulder_pitch_bracket,l_shoulder_pitch,"Sensors, brackets, screws",1.50,catalogue,,,
+l_shoulder_roll_bracket,l_shoulder_roll,"Sensors, brackets, screws",1.50,catalogue,,,
+l_elbow_bracket,l_elbow,"Sensors, brackets, screws",1.50,catalogue,,,
+r_shoulder_pitch_bracket,r_shoulder_pitch,"Sensors, brackets, screws",1.50,catalogue,,,
+r_shoulder_roll_bracket,r_shoulder_roll,"Sensors, brackets, screws",1.50,catalogue,,,
+r_elbow_bracket,r_elbow,"Sensors, brackets, screws",1.50,catalogue,,,
+neck_yaw_bracket,neck_yaw,"Sensors, brackets, screws",1.50,catalogue,,,
+head_pitch_bracket,head_pitch,"Sensors, brackets, screws",1.50,catalogue,,,

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mini Humanoid – A3 Pico</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1000px; height: 1180px; box-sizing: border-box; padding: 56px 56px 48px; background: #EEF3F8; display: flex; gap: 36px; font-family: Inter, system-ui, sans-serif; color: #14263D">
+<svg viewBox="-80 0 160 345" width="500" height="1078" role="img" aria-label="A3 Pico: A small astronaut on its first walk. Curious, brave, a bit clumsy." style="flex: none">
+<defs><linearGradient id="p_sh" x1="0.15" y1="0" x2="0.85" y2="1"><stop offset="0" stop-color="#FFFFFF"></stop><stop offset="1" stop-color="#E3E8EE"></stop></linearGradient><linearGradient id="p_or" x1="0.15" y1="0" x2="0.85" y2="1"><stop offset="0" stop-color="#FF9A4A"></stop><stop offset="1" stop-color="#F26A0F"></stop></linearGradient><linearGradient id="p_gl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2E5F8F"></stop><stop offset="0.55" stop-color="#132A45"></stop><stop offset="1" stop-color="#0B1A2C"></stop></linearGradient></defs>
+<line x1="-75" x2="75" y1="331" y2="331" stroke="#14263D" stroke-opacity="0.12" stroke-width="0.6"></line>
+<ellipse cx="0" cy="331" rx="60" ry="4" fill="#1F3A5F" fill-opacity="0.12"></ellipse><ellipse cx="0" cy="331" rx="40" ry="2.4" fill="#1F3A5F" fill-opacity="0.12"></ellipse><rect x="-44" y="106" width="88" height="62" rx="12" fill="#D5DCE4" stroke="#B7C1CC" stroke-width="0.8"></rect><g><rect x="1" y="318" width="44" height="13" rx="5" fill="#1F3A5F"></rect><rect x="4" y="306" width="36" height="14" rx="6" fill="url(#p_sh)" stroke="#B7C1CC" stroke-width="0.8"></rect><rect x="10" y="294" width="24" height="14" rx="5" fill="#D5DCE4" stroke="#B7C1CC" stroke-width="0.8"></rect><rect x="9" y="262" width="26" height="36" rx="11" fill="url(#p_sh)" stroke="#B7C1CC" stroke-width="0.8"></rect><rect x="9" y="284" width="26" height="4" fill="url(#p_or)"></rect><rect x="7" y="215" width="30" height="42" rx="13" fill="url(#p_sh)" stroke="#B7C1CC" stroke-width="0.8"></rect><rect x="12" y="250" width="20" height="18" rx="6" fill="#D5DCE4" stroke="#B7C1CC" stroke-width="0.8"></rect><rect x="43" y="121" width="16" height="36" rx="8" fill="url(#p_sh)" stroke="#B7C1CC" stroke-width="0.8"></rect><rect x="43" y="165" width="16" height="38" rx="8" fill="url(#p_sh)" stroke="#B7C1CC" stroke-width="0.8"></rect><rect x="42" y="196" width="18" height="6" rx="2" fill="url(#p_or)"></rect><circle cx="51" cy="163" r="6.5" fill="#D5DCE4" stroke="#B7C1CC" stroke-width="0.8"></circle><circle cx="51" cy="212" r="9.5" fill="url(#p_sh)" stroke="#B7C1CC" stroke-width="0.8"></circle><circle cx="48" cy="116" r="12" fill="url(#p_sh)" stroke="#B7C1CC" stroke-width="0.8"></circle><rect x="38" y="47" width="10" height="24" rx="4" fill="#D5DCE4" stroke="#B7C1CC" stroke-width="0.8"></rect></g><g transform="scale(-1 1)"><rect x="1" y="318" width="44" height="13" rx="5" fill="#1F3A5F"></rect><rect x="4" y="306" width="36" height="14" rx="6" fill="url(#p_sh)" stroke="#B7C1CC" stroke-width="0.8"></rect><rect x="10" y="294" width="24" height="14" rx="5" fill="#D5DCE4" stroke="#B7C1CC" stroke-width="0.8"></rect><rect x="9" y="262" width="26" height="36" rx="11" fill="url(#p_sh)" stroke="#B7C1CC" stroke-width="0.8"></rect><rect x="9" y="284" width="26" height="4" fill="url(#p_or)"></rect><rect x="7" y="215" width="30" height="42" rx="13" fill="url(#p_sh)" stroke="#B7C1CC" stroke-width="0.8"></rect><rect x="12" y="250" width="20" height="18" rx="6" fill="#D5DCE4" stroke="#B7C1CC" stroke-width="0.8"></rect><rect x="43" y="121" width="16" height="36" rx="8" fill="url(#p_sh)" stroke="#B7C1CC" stroke-width="0.8"></rect><rect x="43" y="165" width="16" height="38" rx="8" fill="url(#p_sh)" stroke="#B7C1CC" stroke-width="0.8"></rect><rect x="42" y="196" width="18" height="6" rx="2" fill="url(#p_or)"></rect><circle cx="51" cy="163" r="6.5" fill="#D5DCE4" stroke="#B7C1CC" stroke-width="0.8"></circle><circle cx="51" cy="212" r="9.5" fill="url(#p_sh)" stroke="#B7C1CC" stroke-width="0.8"></circle><circle cx="48" cy="116" r="12" fill="url(#p_sh)" stroke="#B7C1CC" stroke-width="0.8"></circle><rect x="38" y="47" width="10" height="24" rx="4" fill="#D5DCE4" stroke="#B7C1CC" stroke-width="0.8"></rect></g><rect x="-34" y="170" width="68" height="52" rx="14" fill="url(#p_sh)" stroke="#B7C1CC" stroke-width="0.8"></rect><rect x="-34" y="170" width="68" height="8" fill="url(#p_or)"></rect><rect x="-6" y="169" width="12" height="10" rx="2" fill="#D5DCE4" stroke="#B7C1CC" stroke-width="0.8"></rect><path d="M -34 104 C -42 118 -42 160 -34 176 L 34 176 C 42 160 42 118 34 104 Q 0 98 -34 104 Z" fill="url(#p_sh)" stroke="#B7C1CC" stroke-width="0.8"></path><rect x="-19" y="120" width="38" height="28" rx="5" fill="#E7ECF2" stroke="#B7C1CC" stroke-width="0.8"></rect><rect x="-14" y="124" width="18" height="9" rx="2" fill="url(#p_gl)"></rect><circle cx="11" cy="128.5" r="3" fill="#FF4D4D"></circle><circle cx="-9" cy="141" r="2.6" fill="#FF7A1A"></circle><circle cx="0" cy="141" r="2.6" fill="#3BB2FF"></circle><circle cx="9" cy="141" r="2.6" fill="#FFD23F"></circle><rect x="-31" y="112" width="9" height="6" fill="#1F3A5F"></rect><rect x="-31" y="114" width="9" height="2" fill="#FF4D4D"></rect><rect x="-18" y="86" width="36" height="10" rx="4" fill="url(#p_or)"></rect><line x1="44" y1="48" x2="50" y2="20" stroke="#9AA6B2" stroke-width="1.4" stroke-linecap="round"></line><circle cx="50" cy="18" r="3.4" fill="#FF7A1A"></circle><rect x="-38" y="24" width="76" height="66" rx="31" fill="url(#p_sh)" stroke="#B7C1CC" stroke-width="0.8"></rect><rect x="-31" y="35" width="62" height="45" rx="21" fill="url(#p_gl)" stroke="#9AA6B2" stroke-width="1.2"></rect><path d="M -24 47 Q -18 39 -6 38" fill="none" stroke="#FFFFFF" stroke-opacity="0.75" stroke-width="2.4" stroke-linecap="round"></path><path d="M 22 72 Q 26 68 27 62" fill="none" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="1.6" stroke-linecap="round"></path><rect x="-15" y="52" width="8" height="12" rx="4" fill="#7FE7FF"></rect><rect x="7" y="52" width="8" height="12" rx="4" fill="#7FE7FF"></rect><path d="M -4 70 Q 0 73 4 70" fill="none" stroke="#7FE7FF" stroke-width="1.2" stroke-linecap="round"></path>
+</svg>
+<div style="flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 22px; padding-top: 40px">
+<p style="margin: 0; font-size: 14px; font-weight: 600; letter-spacing: 0.16em; color: #FF7A1A">HERO SHELL · A3</p>
+<h1 style="margin: 0; font-family: 'Space Grotesk', Inter, sans-serif; font-size: 84px; line-height: 0.95; font-weight: 700; letter-spacing: -0.02em">Pico</h1>
+<p style="margin: 0; font-size: 20px; line-height: 1.45; color: #5B6B7E">A small astronaut on its first walk. Curious, brave, a bit clumsy.</p>
+<div style="display: flex; flex-direction: column; gap: 10px; padding-top: 10px">
+<p style="margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.12em; color: #5B6B7E">PALETTE</p>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: center; gap: 12px"><span style="width: 34px; height: 34px; border-radius: 10px; background: #FFFFFF; border: 1px solid rgba(0,0,0,0.12); flex: none"></span><span style="font-size: 16px; font-weight: 600">Suit white</span><span style="font-size: 14px; color: #5B6B7E; font-variant-numeric: tabular-nums">#FFFFFF</span></div>
+<div style="display: flex; align-items: center; gap: 12px"><span style="width: 34px; height: 34px; border-radius: 10px; background: #FF7A1A; border: 1px solid rgba(0,0,0,0.12); flex: none"></span><span style="font-size: 16px; font-weight: 600">Signal orange</span><span style="font-size: 14px; color: #5B6B7E; font-variant-numeric: tabular-nums">#FF7A1A</span></div>
+<div style="display: flex; align-items: center; gap: 12px"><span style="width: 34px; height: 34px; border-radius: 10px; background: #1F3A5F; border: 1px solid rgba(0,0,0,0.12); flex: none"></span><span style="font-size: 16px; font-weight: 600">Navy</span><span style="font-size: 14px; color: #5B6B7E; font-variant-numeric: tabular-nums">#1F3A5F</span></div>
+<div style="display: flex; align-items: center; gap: 12px"><span style="width: 34px; height: 34px; border-radius: 10px; background: #132A45; border: 1px solid rgba(0,0,0,0.12); flex: none"></span><span style="font-size: 16px; font-weight: 600">Visor</span><span style="font-size: 14px; color: #5B6B7E; font-variant-numeric: tabular-nums">#132A45</span></div>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px; padding-top: 10px">
+<p style="margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.12em; color: #5B6B7E">DESIGN NOTES</p>
+<div style="display: flex; gap: 10px; font-size: 16px; line-height: 1.45"><span style="width: 6px; height: 6px; border-radius: 3px; background: #FF7A1A; flex: none; margin-top: 9px"></span><span>Bubble visor in smoked PETG, camera sits behind it</span></div>
+<div style="display: flex; gap: 10px; font-size: 16px; line-height: 1.45"><span style="width: 6px; height: 6px; border-radius: 3px; background: #FF7A1A; flex: none; margin-top: 9px"></span><span>Chest control box holds the status LEDs and power button</span></div>
+<div style="display: flex; gap: 10px; font-size: 16px; line-height: 1.45"><span style="width: 6px; height: 6px; border-radius: 3px; background: #FF7A1A; flex: none; margin-top: 9px"></span><span>Backpack hides battery access, opens from the back</span></div>
+<div style="display: flex; gap: 10px; font-size: 16px; line-height: 1.45"><span style="width: 6px; height: 6px; border-radius: 3px; background: #FF7A1A; flex: none; margin-top: 9px"></span><span>Orange collar, belt and cuffs mark the joint lines</span></div>
+</div>
+<p style="margin: auto 0 0; font-size: 13px; line-height: 1.5; color: #5B6B7E">Same 20-DoF skeleton, joint axes and 303 mm height as A1. Only the shell changes.</p>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1000,"height":1180}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>
