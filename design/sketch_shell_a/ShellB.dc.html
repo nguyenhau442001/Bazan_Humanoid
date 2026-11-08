@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mini Humanoid – shell B</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1400px; height: 1180px; box-sizing: border-box; padding: 48px 56px; background: radial-gradient(ellipse at 50% 45%, #1B1F26 0%, #0C0E12 70%); display: flex; flex-direction: column; align-items: center; gap: 8px; font-family: Inter, system-ui, sans-serif; color: #E8ECF1">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 6px">
+<p style="margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.18em; color: {{accent}}">SKETCH · SHELL B · VILLAIN · v0.5</p>
+<h1 style="margin: 0; font-family: 'Space Grotesk', Inter, sans-serif; font-size: 52px; font-weight: 700; letter-spacing: 0.02em">MINI HUMANOID · ARMOR</h1>
+<p style="margin: 0; font-size: 17px; color: #9AA3AF">Same 20-DoF skeleton and joint axes as shell A, only the shell changes</p>
+</div>
+<div style="display: flex; align-items: flex-end; gap: 70px">
+<svg viewBox="-100 0 200 345" width="500" height="862" role="img" aria-label="Armored mini humanoid, front view: angular helmet with a glowing V visor and swept fins, pauldrons, chest core, knee guards and boots">
+<line x1="-90" x2="90" y1="330" y2="330" stroke="#2E343D" stroke-width="0.8"></line>
+<ellipse cx="0" cy="331" rx="58" ry="3.4" fill="{{accent}}" fill-opacity="0.10"></ellipse>
+<g stroke="#5A626E" stroke-width="0.7" stroke-linejoin="round">
+<!-- boots -->
+<path d="M 3 330 L 3 320 L 9 316 L 35 316 L 43 322 L 43 330 Z" fill="{{armor}}"></path>
+<path d="M -3 330 L -3 320 L -9 316 L -35 316 L -43 322 L -43 330 Z" fill="{{armor}}"></path>
+<rect x="11" y="295" width="22" height="22" rx="2" fill="#15181D"></rect>
+<rect x="-33" y="295" width="22" height="22" rx="2" fill="#15181D"></rect>
+<!-- shins -->
+<path d="M 10 264 L 34 264 L 37 286 L 33 298 L 11 298 L 7 286 Z" fill="{{armor}}"></path>
+<path d="M -10 264 L -34 264 L -37 286 L -33 298 L -11 298 L -7 286 Z" fill="{{armor}}"></path>
+<!-- thighs -->
+<path d="M 9 218 L 35 218 L 37 238 L 33 254 L 11 254 L 7 238 Z" fill="{{armor}}"></path>
+<path d="M -9 218 L -35 218 L -37 238 L -33 254 L -11 254 L -7 238 Z" fill="{{armor}}"></path>
+<!-- knee guards -->
+<path d="M 22 248 L 32 254 L 32 264 L 22 270 L 12 264 L 12 254 Z" fill="#3A414B"></path>
+<path d="M -22 248 L -32 254 L -32 264 L -22 270 L -12 264 L -12 254 Z" fill="#3A414B"></path>
+<!-- pelvis -->
+<path d="M -36 176 L 36 176 L 32 206 L 14 222 L -14 222 L -32 206 Z" fill="#20242B"></path>
+<path d="M -12 188 L 12 188 L 9 212 L 0 218 L -9 212 Z" fill="{{armor}}"></path>
+<!-- waist -->
+<rect x="-26" y="164" width="52" height="14" rx="2" fill="#15181D"></rect>
+<!-- torso -->
+<path d="M -42 106 L 42 106 L 46 128 L 36 166 L -36 166 L -46 128 Z" fill="{{armor}}"></path>
+<path d="M -30 112 L 30 112 L 33 128 L 22 156 L -22 156 L -33 128 Z" fill="#3A414B"></path>
+<!-- neck -->
+<rect x="-8" y="90" width="16" height="17" rx="2" fill="#15181D"></rect>
+<!-- arms -->
+<rect x="44" y="124" width="14" height="32" rx="2" fill="#15181D"></rect>
+<rect x="-58" y="124" width="14" height="32" rx="2" fill="#15181D"></rect>
+<path d="M 51 156 L 59 161 L 59 168 L 51 173 L 43 168 L 43 161 Z" fill="#3A414B"></path>
+<path d="M -51 156 L -59 161 L -59 168 L -51 173 L -43 168 L -43 161 Z" fill="#3A414B"></path>
+<path d="M 42 170 L 60 170 L 62 196 L 58 204 L 44 204 L 40 196 Z" fill="{{armor}}"></path>
+<path d="M -42 170 L -60 170 L -62 196 L -58 204 L -44 204 L -40 196 Z" fill="{{armor}}"></path>
+<rect x="44" y="205" width="14" height="14" rx="2" fill="#15181D"></rect>
+<rect x="-58" y="205" width="14" height="14" rx="2" fill="#15181D"></rect>
+<!-- pauldrons -->
+<path d="M 34 106 L 54 98 L 66 108 L 64 128 L 50 134 L 38 124 Z" fill="{{armor}}"></path>
+<path d="M -34 106 L -54 98 L -66 108 L -64 128 L -50 134 L -38 124 Z" fill="{{armor}}"></path>
+<!-- helmet -->
+<path d="M 38 40 L 48 20 L 44 44 Z" fill="#3A414B"></path>
+<path d="M -38 40 L -48 20 L -44 44 Z" fill="#3A414B"></path>
+<path d="M -26 27 L 26 27 L 35 40 L 38 70 L 28 91 L -28 91 L -38 70 L -35 40 Z" fill="{{armor}}"></path>
+<path d="M -20 33 L 20 33 L 14 42 L -14 42 Z" fill="#3A414B"></path>
+<path d="M -14 76 L 14 76 L 10 86 L -10 86 Z" fill="#3A414B"></path>
+<path d="M -30 70 L -20 74 M 30 70 L 20 74" stroke="#15181D" stroke-width="0.8"></path>
+</g>
+<!-- panel lines -->
+<g stroke="#15181D" stroke-width="0.6" fill="none">
+<path d="M 0 27 V 33 M -7 79 H 7 M -6 82 H 6"></path>
+<path d="M 0 112 V 156 M -44 128 H -33 M 44 128 H 33"></path>
+<path d="M 22 222 V 228 M -22 222 V 228 M 22 280 V 296 M -22 280 V 296"></path>
+<path d="M 51 176 V 198 M -51 176 V 198"></path>
+</g>
+<!-- glow: visor, core, accents -->
+<path d="M -27 50 L 27 50 L 23 60 L 0 66 L -23 60 Z" fill="#05070A" stroke="#5A626E" stroke-width="0.7"></path>
+<path d="M -23 54 L 23 54 L 20 58.5 L 0 63 L -20 58.5 Z" fill="{{accent}}"></path>
+<path d="M -23 54 L 23 54 L 20 58.5 L 0 63 L -20 58.5 Z" fill="{{accent}}" fill-opacity="0.35" transform="translate(0 0) scale(1.08 1.25)" transform-origin="0 57"></path>
+<circle cx="0" cy="134" r="8" fill="#05070A" stroke="#5A626E" stroke-width="0.7"></circle>
+<circle cx="0" cy="134" r="5" fill="{{accent}}"></circle>
+<circle cx="0" cy="134" r="10" fill="{{accent}}" fill-opacity="0.15"></circle>
+<path d="M -26 118 L -14 118 M 26 118 L 14 118" stroke="{{accent}}" stroke-width="1.4" stroke-linecap="round"></path>
+<path d="M 22 268 V 278 M -22 268 V 278" stroke="{{accent}}" stroke-width="1.4" stroke-linecap="round"></path>
+<path d="M 56 110 L 62 113 M -56 110 L -62 113" stroke="{{accent}}" stroke-width="1.4" stroke-linecap="round"></path>
+<path d="M 46 200 H 56 M -46 200 H -56" stroke="{{accent}}" stroke-width="1.2" stroke-linecap="round"></path>
+<text x="0" y="343" text-anchor="middle" font-size="5.5" font-weight="600" letter-spacing="1.2" fill="#9AA3AF">FRONT</text>
+</svg>
+<svg viewBox="-70 0 140 345" width="350" height="862" role="img" aria-label="Armored mini humanoid, side view: forward-raked helmet with visor slit, chest plate, backpack with vents, pointed knee guard and boot">
+<line x1="-60" x2="60" y1="330" y2="330" stroke="#2E343D" stroke-width="0.8"></line>
+<ellipse cx="10" cy="331" rx="42" ry="3" fill="{{accent}}" fill-opacity="0.10"></ellipse>
+<g stroke="#5A626E" stroke-width="0.7" stroke-linejoin="round">
+<path d="M -26 330 L -26 320 L -18 316 L 30 316 L 46 324 L 46 330 Z" fill="{{armor}}"></path>
+<rect x="-13" y="295" width="26" height="22" rx="2" fill="#15181D"></rect>
+<path d="M -12 264 L 13 264 L 17 286 L 13 298 L -12 298 Z" fill="{{armor}}"></path>
+<path d="M -14 218 L 14 218 L 16 240 L 12 254 L -12 254 L -14 238 Z" fill="{{armor}}"></path>
+<path d="M 2 248 L 20 256 L 15 268 L 2 266 Z" fill="#3A414B"></path>
+<path d="M -22 176 L 24 176 L 20 208 L 8 222 L -14 222 L -22 206 Z" fill="#15181D"></path>
+<rect x="-20" y="164" width="40" height="14" rx="2" fill="#15181D"></rect>
+<path d="M -34 110 L -22 106 L -22 168 L -32 166 Z" fill="#3A414B"></path>
+<path d="M -22 106 L 18 106 L 30 122 L 26 166 L -22 166 Z" fill="{{armor}}"></path>
+<rect x="-8" y="90" width="16" height="17" rx="2" fill="#15181D"></rect>
+<rect x="-7" y="124" width="14" height="32" rx="2" fill="#15181D"></rect>
+<path d="M 0 156 L 8 161 L 8 168 L 0 173 L -8 168 L -8 161 Z" fill="#3A414B"></path>
+<path d="M -9 170 L 9 170 L 11 196 L 7 204 L -7 204 L -9 196 Z" fill="{{armor}}"></path>
+<rect x="-7" y="205" width="14" height="14" rx="2" fill="#15181D"></rect>
+<path d="M -16 104 L 2 96 L 16 106 L 14 128 L 0 134 L -14 124 Z" fill="{{armor}}"></path>
+<path d="M -18 30 L -36 16 L -26 36 Z" fill="#3A414B"></path>
+<path d="M -18 27 L 20 27 L 33 44 L 35 66 L 28 82 L 16 91 L -24 91 L -30 70 L -28 36 Z" fill="{{armor}}"></path>
+<path d="M 18 76 L 30 74 L 24 86 L 14 86 Z" fill="#3A414B"></path>
+</g>
+<g stroke="#15181D" stroke-width="0.6" fill="none">
+<path d="M -30 120 H -26 M -30 128 H -26 M -30 136 H -26 M -30 144 H -26"></path>
+<path d="M -2 106 V 166 M 0 280 V 296"></path>
+</g>
+<path d="M 24 49 L 35 52 L 35 63 L 23 60 Z" fill="#05070A" stroke="#5A626E" stroke-width="0.7"></path>
+<path d="M 26 53 L 34 55 L 34 60 L 25 58 Z" fill="{{accent}}"></path>
+<path d="M 24 120 L 28 124" stroke="{{accent}}" stroke-width="1.4" stroke-linecap="round"></path>
+<path d="M 13 264 L 13 274" stroke="{{accent}}" stroke-width="1.4" stroke-linecap="round"></path>
+<path d="M -31 116 V 150" stroke="{{accent}}" stroke-width="1" stroke-linecap="round" stroke-opacity="0.8"></path>
+<text x="0" y="343" text-anchor="middle" font-size="5.5" font-weight="600" letter-spacing="1.2" fill="#9AA3AF">SIDE</text>
+</svg>
+</div>
+<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; font-size: 14px; color: #C9D0D8">
+<span style="padding: 6px 12px; border-radius: 6px; background: #161A20; border: 1px solid #2E343D">Faceted PLA plates, matte gunmetal</span>
+<span style="padding: 6px 12px; border-radius: 6px; background: #161A20; border: 1px solid #2E343D">V visor = LED strip, camera behind a clear window</span>
+<span style="padding: 6px 12px; border-radius: 6px; background: #161A20; border: 1px solid #2E343D">Pauldrons widen it to ~132 mm (A: 119)</span>
+<span style="padding: 6px 12px; border-radius: 6px; background: #161A20; border: 1px solid #2E343D">Mount pauldrons on the upper arm so shoulder roll stays free</span>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"armor":{"editor":"color","default":"#2B3038","options":["#2B3038","#E9ECEF","#3B4A3C","#5A1F1F"]},"accent":{"editor":"color","default":"#00E0FF","options":["#00E0FF","#FF3B3B","#FFB020","#7CFF6B"]},"$preview":{"width":1400,"height":1180}}'>
+class Component extends DCLogic {
+renderVals() {
+return { armor: this.props.armor ?? '#2B3038', accent: this.props.accent ?? '#00E0FF' };
+}
+}
+</script>
+</body>
+</html>
