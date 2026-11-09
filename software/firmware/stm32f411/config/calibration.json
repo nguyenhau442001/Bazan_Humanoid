@@ -1,0 +1,20 @@
+{
+  "_doc": "Per-joint calibration for the real robot. Defaults until the calibration procedure in firmware/mico_mcu/README.md is done. After editing, run: python firmware/mico_mcu/tools/gen_tables.py",
+  "pca_osc_hz": 25000000,
+  "servo_frame_hz": 50,
+  "servo_defaults": {
+    "MG92B": {"center_us": 1500, "us_per_rad": 636.6, "min_us": 500, "max_us": 2500},
+    "MG90S": {"center_us": 1500, "us_per_rad": 636.6, "min_us": 500, "max_us": 2500},
+    "SG90": {"center_us": 1500, "us_per_rad": 636.6, "min_us": 500, "max_us": 2500}
+  },
+  "joints": {
+    "_example": {"center_us": 1500, "us_per_rad": 636.6, "dir": 1, "pot": {"adc": [1200, 2900], "q": [-0.5, 0.5]}}
+  },
+  "ntc": {
+    "l_hip_roll": {"r0_ohm": 10000, "beta": 3950},
+    "r_hip_roll": {"r0_ohm": 10000, "beta": 3950}
+  },
+  "fsr": {
+    "l_heel": {"zero_adc": 0}, "l_toe": {"zero_adc": 0}, "r_heel": {"zero_adc": 0}, "r_toe": {"zero_adc": 0}
+  }
+}
