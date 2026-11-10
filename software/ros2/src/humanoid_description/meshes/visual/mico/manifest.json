@@ -1,0 +1,314 @@
+{
+ "colours": {
+  "white": [
+   0.957,
+   0.961,
+   0.969,
+   1.0
+  ],
+  "orange": [
+   1.0,
+   0.478,
+   0.102,
+   1.0
+  ],
+  "grey": [
+   0.788,
+   0.82,
+   0.863,
+   1.0
+  ],
+  "joint": [
+   0.165,
+   0.239,
+   0.369,
+   1.0
+  ],
+  "navy": [
+   0.118,
+   0.208,
+   0.341,
+   1.0
+  ],
+  "visor": [
+   0.075,
+   0.137,
+   0.239,
+   1.0
+  ],
+  "window": [
+   0.024,
+   0.031,
+   0.047,
+   1.0
+  ],
+  "cyan": [
+   0.357,
+   0.784,
+   0.961,
+   1.0
+  ],
+  "eye_glow": [
+   0.18,
+   0.525,
+   0.69,
+   1.0
+  ],
+  "pupil": [
+   0.055,
+   0.106,
+   0.188,
+   1.0
+  ],
+  "glint": [
+   1.0,
+   1.0,
+   1.0,
+   1.0
+  ],
+  "red": [
+   0.855,
+   0.145,
+   0.114,
+   1.0
+  ],
+  "yellow": [
+   1.0,
+   0.804,
+   0.0,
+   1.0
+  ]
+ },
+ "links": {
+  "base": [
+   {
+    "file": "base__cyan.stl",
+    "look": "cyan"
+   },
+   {
+    "file": "base__grey.stl",
+    "look": "grey"
+   },
+   {
+    "file": "base__joint.stl",
+    "look": "joint"
+   },
+   {
+    "file": "base__orange.stl",
+    "look": "orange"
+   },
+   {
+    "file": "base__red.stl",
+    "look": "red"
+   },
+   {
+    "file": "base__visor.stl",
+    "look": "visor"
+   },
+   {
+    "file": "base__white.stl",
+    "look": "white"
+   },
+   {
+    "file": "base__yellow.stl",
+    "look": "yellow"
+   }
+  ],
+  "head_pitch": [
+   {
+    "file": "head_pitch__cyan.stl",
+    "look": "cyan"
+   },
+   {
+    "file": "head_pitch__eye_glow.stl",
+    "look": "eye_glow"
+   },
+   {
+    "file": "head_pitch__glint.stl",
+    "look": "glint"
+   },
+   {
+    "file": "head_pitch__joint.stl",
+    "look": "joint"
+   },
+   {
+    "file": "head_pitch__orange.stl",
+    "look": "orange"
+   },
+   {
+    "file": "head_pitch__pupil.stl",
+    "look": "pupil"
+   },
+   {
+    "file": "head_pitch__visor.stl",
+    "look": "visor"
+   },
+   {
+    "file": "head_pitch__white.stl",
+    "look": "white"
+   },
+   {
+    "file": "head_pitch__window.stl",
+    "look": "window"
+   }
+  ],
+  "l_ankle_pitch": [
+   {
+    "file": "l_ankle_pitch__joint.stl",
+    "look": "joint"
+   }
+  ],
+  "l_ankle_roll": [
+   {
+    "file": "l_ankle_roll__navy.stl",
+    "look": "navy"
+   },
+   {
+    "file": "l_ankle_roll__orange.stl",
+    "look": "orange"
+   },
+   {
+    "file": "l_ankle_roll__white.stl",
+    "look": "white"
+   }
+  ],
+  "l_elbow": [
+   {
+    "file": "l_elbow__grey.stl",
+    "look": "grey"
+   },
+   {
+    "file": "l_elbow__joint.stl",
+    "look": "joint"
+   },
+   {
+    "file": "l_elbow__white.stl",
+    "look": "white"
+   }
+  ],
+  "l_hip_pitch": [
+   {
+    "file": "l_hip_pitch__white.stl",
+    "look": "white"
+   }
+  ],
+  "l_hip_roll": [
+   {
+    "file": "l_hip_roll__joint.stl",
+    "look": "joint"
+   }
+  ],
+  "l_knee": [
+   {
+    "file": "l_knee__joint.stl",
+    "look": "joint"
+   },
+   {
+    "file": "l_knee__orange.stl",
+    "look": "orange"
+   },
+   {
+    "file": "l_knee__white.stl",
+    "look": "white"
+   }
+  ],
+  "l_shoulder_pitch": [
+   {
+    "file": "l_shoulder_pitch__orange.stl",
+    "look": "orange"
+   },
+   {
+    "file": "l_shoulder_pitch__white.stl",
+    "look": "white"
+   }
+  ],
+  "l_shoulder_roll": [
+   {
+    "file": "l_shoulder_roll__white.stl",
+    "look": "white"
+   }
+  ],
+  "neck_yaw": [
+   {
+    "file": "neck_yaw__joint.stl",
+    "look": "joint"
+   }
+  ],
+  "r_ankle_pitch": [
+   {
+    "file": "r_ankle_pitch__joint.stl",
+    "look": "joint"
+   }
+  ],
+  "r_ankle_roll": [
+   {
+    "file": "r_ankle_roll__navy.stl",
+    "look": "navy"
+   },
+   {
+    "file": "r_ankle_roll__orange.stl",
+    "look": "orange"
+   },
+   {
+    "file": "r_ankle_roll__white.stl",
+    "look": "white"
+   }
+  ],
+  "r_elbow": [
+   {
+    "file": "r_elbow__grey.stl",
+    "look": "grey"
+   },
+   {
+    "file": "r_elbow__joint.stl",
+    "look": "joint"
+   },
+   {
+    "file": "r_elbow__white.stl",
+    "look": "white"
+   }
+  ],
+  "r_hip_pitch": [
+   {
+    "file": "r_hip_pitch__white.stl",
+    "look": "white"
+   }
+  ],
+  "r_hip_roll": [
+   {
+    "file": "r_hip_roll__joint.stl",
+    "look": "joint"
+   }
+  ],
+  "r_knee": [
+   {
+    "file": "r_knee__joint.stl",
+    "look": "joint"
+   },
+   {
+    "file": "r_knee__orange.stl",
+    "look": "orange"
+   },
+   {
+    "file": "r_knee__white.stl",
+    "look": "white"
+   }
+  ],
+  "r_shoulder_pitch": [
+   {
+    "file": "r_shoulder_pitch__orange.stl",
+    "look": "orange"
+   },
+   {
+    "file": "r_shoulder_pitch__white.stl",
+    "look": "white"
+   }
+  ],
+  "r_shoulder_roll": [
+   {
+    "file": "r_shoulder_roll__white.stl",
+    "look": "white"
+   }
+  ]
+ }
+}
