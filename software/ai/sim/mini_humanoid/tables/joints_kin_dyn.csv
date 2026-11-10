@@ -1,0 +1,21 @@
+joint,servo,range (deg),servo max speed (rad/s),gait peak speed (rad/s),gait peak accel (rad/s^2),stall (kg.cm),rated 1/3 (kg.cm),static worst (kg.cm),static case,MuJoCo gait p99 (kg.cm),MuJoCo gait RMS (kg.cm),margin rated/need
+l_hip_yaw,MG90S,-45…45,13.1,0.39,2,2.20,0.73,0.00,one foot (left),0.13,0.05,5.71
+r_hip_yaw,MG90S,-45…45,13.1,0.00,0,2.20,0.73,0.00,one foot (left),0.10,0.03,7.42
+l_shoulder_pitch,MG90S,-180…60,13.1,0.49,123,2.20,0.73,0.09,arms forward,0.10,0.04,6.99
+r_shoulder_pitch,MG90S,-180…60,13.1,2.60,123,2.20,0.73,0.09,arms forward,0.57,0.10,1.30
+neck_yaw,SG90,-90…90,10.5,0.63,2,1.80,0.60,0.00,one foot (left),0.13,0.03,4.76
+l_hip_roll,MG92B,-25…25,13.1,0.37,4,3.50,1.17,0.83,one foot (left),1.22,0.56,0.96
+l_hip_pitch,MG92B,-90…45,13.1,1.55,95,3.50,1.17,0.02,"squat, knee 78 deg",0.40,0.13,2.89
+l_knee,MG92B,0…120,13.1,2.46,190,3.50,1.17,0.57,"squat, knee 78 deg",1.02,0.41,1.14
+l_ankle_pitch,MG92B,-45…45,13.1,1.55,95,3.50,1.17,0.06,"squat, knee 78 deg",0.95,0.26,1.22
+l_ankle_roll,MG92B,-30…30,13.1,0.75,7,3.50,1.17,0.00,one foot (left),0.64,0.23,1.82
+r_hip_roll,MG92B,-25…25,13.1,0.37,4,3.50,1.17,0.09,one foot (left),1.22,0.56,0.95
+r_hip_pitch,MG92B,-90…45,13.1,1.55,95,3.50,1.17,0.06,"squat, knee 78 deg",0.32,0.11,3.62
+r_knee,MG92B,0…120,13.1,2.46,190,3.50,1.17,0.15,"squat, knee 78 deg",1.00,0.38,1.17
+r_ankle_pitch,MG92B,-45…45,13.1,1.55,95,3.50,1.17,0.02,arms forward,1.01,0.25,1.16
+r_ankle_roll,MG92B,-30…30,13.1,0.75,7,3.50,1.17,0.00,one foot (left),0.64,0.23,1.83
+l_shoulder_roll,SG90,-10…160,10.5,0.00,0,1.80,0.60,0.09,arms out to the side,0.01,0.01,6.89
+l_elbow,SG90,-130…0,10.5,0.60,2,1.80,0.60,0.01,arms forward,0.10,0.02,5.73
+r_shoulder_roll,SG90,-160…10,10.5,0.30,1,1.80,0.60,0.09,arms out to the side,0.06,0.01,6.89
+r_elbow,SG90,-130…0,10.5,1.89,12,1.80,0.60,0.01,arms forward,0.38,0.09,1.59
+head_pitch,SG90,-30…32,10.5,0.00,0,1.80,0.60,0.04,head down 32 deg,0.02,0.02,14.30
