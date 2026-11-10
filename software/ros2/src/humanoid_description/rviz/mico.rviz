@@ -1,0 +1,141 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+    Help Height: 0
+    Property Tree Widget:
+      Expanded:
+        - /Global Options1
+        - /RobotModel1
+      Splitter Ratio: 0.5
+    Tree Height: 520
+  - Class: rviz_common/Views
+    Name: Views
+    Expanded:
+      - /Current View1
+    Splitter Ratio: 0.5
+  - Class: rviz_common/Time
+    Name: Time
+    Experimental: false
+    SyncMode: 0
+    SyncSource: ""
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Name: Floor 5 cm
+      Enabled: true
+      Reference Frame: odom
+      Plane: XY
+      Plane Cell Count: 40
+      Cell Size: 0.05
+      Line Style:
+        Line Width: 0.03
+        Value: Lines
+      Color: 90; 140; 220
+      Alpha: 0.5
+      Normal Cell Count: 0
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Value: true
+    - Class: rviz_default_plugins/RobotModel
+      Name: RobotModel
+      Enabled: true
+      Alpha: 1
+      Collision Enabled: false
+      Visual Enabled: true
+      Update Interval: 0
+      Description Source: Topic
+      Description File: ""
+      Description Topic:
+        Depth: 5
+        Durability Policy: Transient Local
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /robot_description
+      TF Prefix: ""
+      Links:
+        All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
+      Mass Properties:
+        Inertia: false
+        Mass: false
+      Value: true
+    - Class: rviz_default_plugins/TF
+      Name: TF
+      Enabled: false
+      Frame Timeout: 15
+      Marker Scale: 0.15
+      Show Arrows: false
+      Show Axes: true
+      Show Names: false
+      Update Interval: 0
+      Value: false
+    - Class: rviz_default_plugins/Odometry
+      Name: Odometry trail
+      Enabled: false
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /odom
+      Keep: 300
+      Position Tolerance: 0.005
+      Angle Tolerance: 0.1
+      Shape:
+        Value: Axes
+        Axes Length: 0.03
+        Axes Radius: 0.002
+      Covariance:
+        Value: false
+      Value: false
+  Enabled: true
+  Global Options:
+    Background Color: 30; 33; 40
+    Fixed Frame: odom
+    Frame Rate: 60
+  Name: root
+  Tools:
+    - Class: rviz_default_plugins/Interact
+      Hide Inactive Objects: true
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Select
+    - Class: rviz_default_plugins/FocusCamera
+    - Class: rviz_default_plugins/Measure
+      Line color: 128; 128; 0
+  Transformation:
+    Current:
+      Class: rviz_default_plugins/TF
+  Value: true
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Name: Current View
+      Target Frame: base_link
+      Distance: 0.8
+      Focal Point:
+        X: 0
+        Y: 0
+        Z: 0.03
+      Focal Shape Fixed Size: true
+      Focal Shape Size: 0.02
+      Near Clip Distance: 0.005
+      Pitch: 0.3
+      Yaw: 2.4
+      Value: Orbit (rviz)
+    Saved: ~
+Window Geometry:
+  Displays:
+    collapsed: false
+  Height: 900
+  Width: 1400
+  Views:
+    collapsed: true
+  Time:
+    collapsed: false
