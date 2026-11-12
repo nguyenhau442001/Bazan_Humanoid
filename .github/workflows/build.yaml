@@ -1,0 +1,47 @@
+name: Build & Test
+
+on:
+  push:
+    branches: [jazzy, main]
+  pull_request:
+    branches: [jazzy, main]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  ubuntu:
+    name: Ubuntu 24.04 / ROS2 Jazzy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      DEBIAN_FRONTEND: noninteractive
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ros-tooling/setup-ros@v0.7
+        with:
+          required-ros-distributions: jazzy
+
+      - name: Install dependencies
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          sudo rosdep init || true
+          rosdep update
+          rosdep install --from-paths software/ros2/src --ignore-src --rosdistro jazzy -y
+
+      - name: Build
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release --event-handlers console_direct+
+
+      - name: Test
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          source install/setup.bash
+          colcon test --event-handlers console_direct+ --return-code-on-test-failure
+
+      - name: Test results
+        if: always()
+        run: colcon test-result --verbose || true

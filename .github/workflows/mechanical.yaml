@@ -1,0 +1,45 @@
+name: Mechanical - CAD
+
+on:
+  push:
+    branches: [jazzy, main]
+    paths: ["hardware/mechanical/**", "mechanical/**", "docs/mechanical/**",
+            "software/ros2/src/humanoid_control/scripts/mico_gait.py",
+            "src/humanoid_control/scripts/mico_gait.py",
+            ".github/workflows/mechanical.yaml"]
+  pull_request:
+    branches: [jazzy, main]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  cad:
+    name: Leg CAD checks and print files
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install CadQuery
+        run: pip install cadquery matplotlib
+
+      - name: Clearance, servo removal, tool access, both legs
+        working-directory: hardware/mechanical
+        run: python check.py --quick
+
+      - name: Assembly guide matches the CAD
+        working-directory: hardware/mechanical
+        run: python gen_docs.py --check
+
+      - name: Build print files
+        working-directory: hardware/mechanical
+        run: python -c "import gen_docs, leg; gen_docs.write_print_files(leg.Leg())"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mico-print-files
+          path: hardware/mechanical/out/
