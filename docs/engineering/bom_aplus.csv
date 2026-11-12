@@ -1,0 +1,6 @@
+part,qty,unit_vnd,shop,url,status,note,checked
+CD74HC4067 16-channel analog mux module,1,15000,icdayroi,https://icdayroi.com/module-giao-tiep-ky-thuat-so-cd74hc4067-cmos-16-kenh,listed,12 servo pots + 4 FSR into one ADC pin,2026-11-07
+INA226 current/voltage module CJMCU-226 (R010 shunt),2,65000,icdayroi,https://icdayroi.com/cam-bien-dong-cjmcu-226-ina226-i2c,listed,same price at Điện tử Tuyết Nga; check the shunt reads R010,2026-11-07
+NTC 10 kΩ thermistor MF52-103,4,1500,icdayroi,https://icdayroi.com/dien-tro-nhiet-ntc-mf52-103-dien-tro-nhiet-10k,listed,2 for the hip-roll servos + 2 spares,2026-11-07
+LMV358 dual op-amp SOIC-8,6,7000,icdayroi,https://icdayroi.com/lmv358idr,listed,"12 wiper buffers; MCP6002 (rail-to-rail input, Thế Giới IC) if P0 shows wipers near the supply",2026-11-07
+"Perfboard, headers, series resistors, clamp diodes",1,40000,Nhật Tảo,,estimate,monitoring board for P0 and P1,2026-11-07
