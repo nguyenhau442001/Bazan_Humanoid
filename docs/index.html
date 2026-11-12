@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Synapse Humanoid | RL Locomotion Benchmark & Control Dashboard</title>
+  <meta name="description" content="Bazan (BZN-01) · 20-DoF Autonomous Bipedal Humanoid Robot simulated in MuJoCo with ROS 2 Jazzy, Metal GPU RL Locomotion, and FreeRTOS.">
+  <!-- OpenGraph / Social Preview -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Synapse Humanoid · Bazan (20-DoF Bipedal Robot)">
+  <meta property="og:description" content="20-DoF Autonomous Bipedal Robot simulated in MuJoCo with ROS 2 Jazzy, Metal GPU Accelerated RL Locomotion, and FreeRTOS.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/nguyenhau442001/Synapse_Humanoid/main/docs/images/social_preview.png">
+  <meta property="og:image:width" content="1280">
+  <meta property="og:image:height" content="640">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Synapse Humanoid · Bazan (20-DoF Bipedal Robot)">
+  <meta name="twitter:description" content="20-DoF Autonomous Bipedal Robot simulated in MuJoCo with ROS 2 Jazzy, Metal GPU Accelerated RL Locomotion, and FreeRTOS.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/nguyenhau442001/Synapse_Humanoid/main/docs/images/social_preview.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#ebf5fc',
+              500: '#1f5fa8',
+              600: '#174a85',
+              700: '#103561',
+              accent: '#5bb0e8',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .radar-poly {
+      fill-opacity: 0.25;
+      stroke-width: 2.5;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .radar-poly:hover {
+      fill-opacity: 0.55;
+      stroke-width: 3.5;
+      filter: drop-shadow(0 0 8px rgba(31, 95, 168, 0.4));
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen antialiased transition-colors duration-200">
+
+  <!-- Top Navigation Bar -->
+  <header class="border-b border-slate-800 bg-slate-900/70 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-brand-500/20 border border-brand-500/40 flex items-center justify-center font-bold text-brand-accent text-lg shadow-sm">
+          ⚡
+        </div>
+        <div>
+          <span class="font-bold text-base tracking-tight text-white">Synapse_Humanoid</span>
+          <span class="text-xs text-slate-400 ml-2 font-mono">/ Bazan Humanoid RL</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <span class="hidden sm:inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-brand-500/10 text-brand-accent border border-brand-500/30">
+          ● Apple Silicon M4 Metal (MPS)
+        </span>
+        <a href="https://github.com/nguyenhau442001/Synapse_Humanoid" target="_blank" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          GitHub
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+    <!-- Hero Title -->
+    <div class="bg-gradient-to-br from-slate-900 to-slate-900/60 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div>
+          <div class="flex flex-wrap items-center gap-2 mb-3">
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-500/20 text-brand-accent border border-brand-500/30">
+              v2.0 Deep ResNet (2.14M params)
+            </span>
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/20 text-blue-400 border border-blue-500/30">
+              50 Hz ROS 2 Controller
+            </span>
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-500/20 text-purple-400 border border-purple-500/30">
+              MuJoCo 3.8.1 Physics
+            </span>
+          </div>
+          <h1 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+            Humanoid Locomotion & Violent Benchmark Suite
+          </h1>
+          <p class="text-slate-400 text-sm sm:text-base mt-2 max-w-3xl leading-relaxed">
+            Hardware-accelerated PPO training via Metal GPU (Apple Silicon M4) paired with a high-stress benchmark suite: omnidirectional kick disturbances, ice friction shocks, dynamic velocity reversals, and tilt drop recovery.
+          </p>
+        </div>
+
+        <!-- 3D Launcher Pill -->
+        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 w-full md:w-auto shadow-inner">
+          <div class="text-xs font-semibold text-slate-300 mb-2 flex items-center justify-between">
+            <span>🎮 Launch MuJoCo 3D Visualizer:</span>
+            <span class="text-[10px] text-brand-accent font-mono">60 FPS Native</span>
+          </div>
+          <div class="bg-slate-900 border border-slate-700/60 rounded-xl px-3 py-2 flex items-center justify-between gap-3 text-xs font-mono text-brand-accent">
+            <code>python3 src/humanoid_control/scripts/mico_visualizer.py</code>
+            <button onclick="navigator.clipboard.writeText('python3 src/humanoid_control/scripts/mico_visualizer.py'); alert('Command copied to clipboard!')" class="px-2 py-1 bg-brand-600 hover:bg-brand-500 text-white rounded text-xs font-sans font-medium transition">
+              Copy
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3D Simulation Controls & Keyboard Guide -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
+        <div>
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            🖥️ Interactive Hotkeys in MuJoCo 3D Window
+          </h2>
+          <p class="text-xs text-slate-400">
+            When the 3D window launches, the robot walks continuously. Press any of the following keys to perturb the robot:
+          </p>
+        </div>
+        <span class="px-3 py-1 rounded-lg text-xs font-mono bg-violet-500/10 text-violet-400 border border-violet-500/20">
+          GLFW / Metal Renderer
+        </span>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div class="p-3.5 rounded-xl border border-slate-800 bg-slate-950/60 text-center hover:border-red-500/40 transition">
+          <kbd class="px-2.5 py-1 rounded bg-slate-800 border border-slate-700 text-sm font-bold text-red-400 shadow">K</kbd>
+          <div class="text-xs font-bold text-white mt-2">Kick Pelvis</div>
+          <div class="text-[11px] text-slate-400 mt-0.5">Apply impulse force</div>
+        </div>
+
+        <div class="p-3.5 rounded-xl border border-slate-800 bg-slate-950/60 text-center hover:border-emerald-500/40 transition">
+          <div class="flex justify-center gap-1">
+            <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-xs font-bold text-emerald-400">1</kbd>
+            <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-xs font-bold text-emerald-400">2</kbd>
+            <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-xs font-bold text-emerald-400">3</kbd>
+          </div>
+          <div class="text-xs font-bold text-white mt-2">Kick Magnitude</div>
+          <div class="text-[11px] text-slate-400 mt-0.5">3N / 8N / 18N</div>
+        </div>
+
+        <div class="p-3.5 rounded-xl border border-slate-800 bg-slate-950/60 text-center hover:border-sky-500/40 transition">
+          <kbd class="px-2.5 py-1 rounded bg-slate-800 border border-slate-700 text-sm font-bold text-sky-400 shadow">I</kbd>
+          <div class="text-xs font-bold text-white mt-2">Ice Shock</div>
+          <div class="text-[11px] text-slate-400 mt-0.5">Drop friction μ = 0.15</div>
+        </div>
+
+        <div class="p-3.5 rounded-xl border border-slate-800 bg-slate-950/60 text-center hover:border-purple-500/40 transition">
+          <kbd class="px-2.5 py-1 rounded bg-slate-800 border border-slate-700 text-sm font-bold text-purple-400 shadow">D</kbd>
+          <div class="text-xs font-bold text-white mt-2">Tilt Drop Shock</div>
+          <div class="text-[11px] text-slate-400 mt-0.5">Drop from 6cm at 10°</div>
+        </div>
+
+        <div class="p-3.5 rounded-xl border border-slate-800 bg-slate-950/60 text-center hover:border-amber-500/40 transition">
+          <div class="flex justify-center gap-1">
+            <kbd class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-xs font-bold text-amber-400">+</kbd>
+            <kbd class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-xs font-bold text-amber-400">-</kbd>
+          </div>
+          <div class="text-xs font-bold text-white mt-2">Walking Speed</div>
+          <div class="text-[11px] text-slate-400 mt-0.5">1.0x / 1.5x / 2.0x</div>
+        </div>
+
+        <div class="p-3.5 rounded-xl border border-slate-800 bg-slate-950/60 text-center hover:border-blue-500/40 transition">
+          <kbd class="px-2.5 py-1 rounded bg-slate-800 border border-slate-700 text-sm font-bold text-blue-400 shadow">O</kbd>
+          <div class="text-xs font-bold text-white mt-2">Instant Reset</div>
+          <div class="text-[11px] text-slate-400 mt-0.5">Restore nominal stance</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leaderboard Table & Radar Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+      <!-- Leaderboard (2 cols) -->
+      <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg">
+        <h2 class="text-xl font-bold text-white mb-1">
+          📊 Benchmark Leaderboard (Head-to-Head)
+        </h2>
+        <p class="text-xs text-slate-400 mb-5">
+          Quantitative evaluation across 5 high-stress robotic locomotion tests
+        </p>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="border-b border-slate-800 text-slate-400">
+                <th class="py-3 px-3 font-semibold">Model / Architecture</th>
+                <th class="py-3 px-2 font-semibold text-center">Score (/100)</th>
+                <th class="py-3 px-2 font-semibold text-center">Kick (Ns)</th>
+                <th class="py-3 px-2 font-semibold text-center">Ice Slip</th>
+                <th class="py-3 px-2 font-semibold text-center">Reversal</th>
+                <th class="py-3 px-2 font-semibold text-center">P99 Latency</th>
+                <th class="py-3 px-3 font-semibold text-right">Parameters</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800">
+              <!-- v9.0 Titan Transformer (Current Reigning Champion) -->
+              <tr class="bg-cyan-500/15 hover:bg-cyan-500/20 transition border-l-4 border-cyan-400">
+                <td class="py-4 px-3">
+                  <div class="font-bold text-white flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span>
+                    v9.0_titan_transformer [ACTIVE]
+                  </div>
+                  <div class="text-[11px] text-cyan-400/90 font-medium">Multi-Stream Residual Transformer (6.67M actor, 13.1M total, 150 iters, Metal MPS)</div>
+                </td>
+                <td class="py-4 px-2 text-center font-extrabold text-cyan-300 text-base">96.2</td>
+                <td class="py-4 px-2 text-center font-semibold text-slate-200">0.08 Ns</td>
+                <td class="py-4 px-2 text-center font-semibold text-cyan-400">75.0%</td>
+                <td class="py-4 px-2 text-center font-semibold text-cyan-400">100.0%</td>
+                <td class="py-4 px-2 text-center font-mono text-slate-200">513 μs</td>
+                <td class="py-4 px-3 text-right font-mono font-bold text-cyan-400">6,674,828</td>
+              </tr>
+
+              <!-- v8.1 Apex Titan Deep ResNet -->
+              <tr class="hover:bg-slate-800/50 transition">
+                <td class="py-4 px-3">
+                  <div class="font-bold text-white flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
+                    v8.1_apex_titan
+                  </div>
+                  <div class="text-[11px] text-slate-400">Titan Deep ResNet (768-dim, 7.15M params, 350 iters)</div>
+                </td>
+                <td class="py-4 px-2 text-center font-bold text-slate-300 text-base">95.6</td>
+                <td class="py-4 px-2 text-center font-semibold text-slate-200">0.08 Ns</td>
+                <td class="py-4 px-2 text-center font-semibold text-slate-300">70.8%</td>
+                <td class="py-4 px-2 text-center font-semibold text-slate-300">100.0%</td>
+                <td class="py-4 px-2 text-center font-mono text-slate-200">484 μs</td>
+                <td class="py-4 px-3 text-right font-mono font-bold text-slate-300">7,153,164</td>
+              </tr>
+
+              <!-- v7.25 Evolved Deep ResNet -->
+              <tr class="hover:bg-slate-800/50 transition">
+                <td class="py-4 px-3">
+                  <div class="font-bold text-white flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                    v7.25_evolved
+                  </div>
+                  <div class="text-[11px] text-emerald-400/80">Evolved Deep ResNet (512-dim, 2.14M params, 300 iters)</div>
+                </td>
+                <td class="py-4 px-2 text-center font-extrabold text-emerald-400 text-base">95.2</td>
+                <td class="py-4 px-2 text-center font-semibold text-slate-200">0.08 Ns</td>
+                <td class="py-4 px-2 text-center font-semibold text-emerald-400">79.2%</td>
+                <td class="py-4 px-2 text-center font-semibold text-emerald-400">100.0%</td>
+                <td class="py-4 px-2 text-center font-mono text-slate-200">148 μs</td>
+                <td class="py-4 px-3 text-right font-mono font-bold text-emerald-400">2,141,196</td>
+              </tr>
+
+              <!-- v6.0 Apex Master Ultra ResNet -->
+              <tr class="hover:bg-slate-800/50 transition">
+                <td class="py-4 px-3">
+                  <div class="font-bold text-white flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-teal-400"></span>
+                    v6.0_apex_master
+                  </div>
+                  <div class="text-[11px] text-teal-400/80">Ultra ResNet (640-dim, 3.33M params, 300 iters)</div>
+                </td>
+                <td class="py-4 px-2 text-center font-bold text-teal-400 text-base">94.0</td>
+                <td class="py-4 px-2 text-center font-semibold text-slate-200">0.08 Ns</td>
+                <td class="py-4 px-2 text-center font-semibold text-teal-400">70.8%</td>
+                <td class="py-4 px-2 text-center font-semibold text-teal-400">100.0%</td>
+                <td class="py-4 px-2 text-center font-mono text-slate-200">232 μs</td>
+                <td class="py-4 px-3 text-right font-mono font-bold text-teal-400">3,331,852</td>
+              </tr>
+
+              <!-- v8.1 Apex Titan Deep ResNet -->
+              <tr class="hover:bg-slate-800/50 transition">
+                <td class="py-4 px-3">
+                  <div class="font-bold text-white flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+                    v8.1_apex_titan
+                  </div>
+                  <div class="text-[11px] text-cyan-400/80">Titan Deep ResNet (768-dim, 7.15M params, 14.3M total, 350 iters)</div>
+                </td>
+                <td class="py-4 px-2 text-center font-bold text-cyan-400 text-base">92.4</td>
+                <td class="py-4 px-2 text-center font-semibold text-slate-200">0.04 Ns</td>
+                <td class="py-4 px-2 text-center font-semibold text-cyan-400">62.5%</td>
+                <td class="py-4 px-2 text-center font-semibold text-cyan-400">80.0%</td>
+                <td class="py-4 px-2 text-center font-mono text-slate-200">488 μs</td>
+                <td class="py-4 px-3 text-right font-mono font-bold text-cyan-400">7,153,164</td>
+              </tr>
+
+              <!-- v6.1 Grandmaster Ultra ResNet -->
+              <tr class="hover:bg-slate-800/50 transition">
+                <td class="py-4 px-3">
+                  <div class="font-bold text-white flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-teal-400"></span>
+                    v6.1_grandmaster
+                  </div>
+                  <div class="text-[11px] text-slate-400">Ultra ResNet (640-dim, 3.33M params, 350 iters)</div>
+                </td>
+                <td class="py-4 px-2 text-center font-bold text-teal-400 text-base">89.8</td>
+                <td class="py-4 px-2 text-center font-semibold text-slate-300">0.08 Ns</td>
+                <td class="py-4 px-2 text-center font-semibold text-teal-400">70.8%</td>
+                <td class="py-4 px-2 text-center font-semibold text-teal-400">100.0%</td>
+                <td class="py-4 px-2 text-center font-mono text-slate-300">230 μs</td>
+                <td class="py-4 px-3 text-right font-mono font-bold text-teal-400">3,331,852</td>
+              </tr>
+
+              <!-- v2.5 Residual ResNet -->
+              <tr class="hover:bg-slate-800/50 transition">
+                <td class="py-4 px-3">
+                  <div class="font-bold text-white flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-teal-400"></span>
+                    v2.5_residual_res
+                  </div>
+                  <div class="text-[11px] text-slate-400">Residual Deep ResNet (100 iters)</div>
+                </td>
+                <td class="py-4 px-2 text-center font-bold text-teal-400 text-base">76.8</td>
+                <td class="py-4 px-2 text-center font-semibold text-slate-300">2.5 Ns</td>
+                <td class="py-4 px-2 text-center font-semibold text-teal-400">60.0%</td>
+                <td class="py-4 px-2 text-center font-semibold text-teal-400">80.0%</td>
+                <td class="py-4 px-2 text-center font-mono text-slate-300">130 μs</td>
+                <td class="py-4 px-3 text-right font-mono font-bold text-teal-400">2,140,172</td>
+              </tr>
+
+              <!-- v2.0 Deep ResNet -->
+              <tr class="hover:bg-slate-800/50 transition">
+                <td class="py-4 px-3">
+                  <div class="font-bold text-white flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-purple-400"></span>
+                    v2.0_deep_500iter
+                  </div>
+                  <div class="text-[11px] text-slate-400">Deep ResNet Pure RL (500 iters)</div>
+                </td>
+                <td class="py-4 px-2 text-center font-bold text-purple-400 text-base">45.0</td>
+                <td class="py-4 px-2 text-center font-semibold text-slate-400">1.0 Ns</td>
+                <td class="py-4 px-2 text-center font-semibold text-amber-400">20.0%</td>
+                <td class="py-4 px-2 text-center font-semibold text-amber-400">40.0%</td>
+                <td class="py-4 px-2 text-center font-mono text-slate-400">178 μs</td>
+                <td class="py-4 px-3 text-right font-mono text-purple-400">2,140,172</td>
+              </tr>
+
+              <!-- v1.0 Light MLP -->
+              <tr class="hover:bg-slate-800/50 transition">
+                <td class="py-4 px-3">
+                  <div class="font-bold text-white flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-blue-400"></span>
+                    v1.0_light_50iter
+                  </div>
+                  <div class="text-[11px] text-slate-400">Standard MLP (256, 128)</div>
+                </td>
+                <td class="py-4 px-2 text-center font-bold text-blue-400 text-base">26.7</td>
+                <td class="py-4 px-2 text-center font-semibold text-slate-400">0.5 Ns</td>
+                <td class="py-4 px-2 text-center font-semibold text-amber-400">20.0%</td>
+                <td class="py-4 px-2 text-center font-semibold text-amber-400">20.0%</td>
+                <td class="py-4 px-2 text-center font-mono text-slate-400">16 μs</td>
+                <td class="py-4 px-3 text-right font-mono text-slate-400">46,220</td>
+              </tr>
+
+              <!-- Baseline Kinematic -->
+              <tr class="hover:bg-slate-800/50 transition opacity-75">
+                <td class="py-4 px-3">
+                  <div class="font-bold text-white flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span>
+                    Baseline Kinematic
+                  </div>
+                  <div class="text-[11px] text-slate-400">mico_gait open-loop replay</div>
+                </td>
+                <td class="py-4 px-2 text-center font-bold text-rose-400 text-base">3.3</td>
+                <td class="py-4 px-2 text-center font-semibold text-rose-400">0.0 Ns</td>
+                <td class="py-4 px-2 text-center font-semibold text-rose-400">0.0%</td>
+                <td class="py-4 px-2 text-center font-semibold text-rose-400">0.0%</td>
+                <td class="py-4 px-2 text-center font-mono text-slate-400">&lt; 1 μs</td>
+                <td class="py-4 px-3 text-right font-mono text-slate-400">0 (IK)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Trade-off Box -->
+        <div class="mt-6 p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/5 flex items-start gap-3">
+          <div class="text-2xl">💡</div>
+          <div class="text-xs leading-relaxed text-slate-300">
+            <strong class="text-emerald-400">Trade-off Metrics on Apple Silicon M4:</strong> The Deep ResNet model has <strong>2.14M parameters</strong> (46× larger than MLP) yet takes only <strong>0.178 ms (178 μs)</strong> per inference step. Against the <strong>20 ms (50 Hz)</strong> ROS 2 control cycle, the model consumes just <strong>0.89% of the budget</strong>, leaving an enormous <strong>99.1% real-time headroom</strong>!
+          </div>
+        </div>
+      </div>
+
+      <!-- Radar Chart: Multi-axis Robustness (1 col) -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg flex flex-col justify-between">
+        <div>
+          <h2 class="text-xl font-bold text-white mb-1">
+            🎯 Multi-Axis Robustness Radar
+          </h2>
+          <p class="text-xs text-slate-400 mb-4">
+            Visual comparison of locomotion survivability
+          </p>
+
+          <div class="relative flex items-center justify-center py-2">
+            <svg viewBox="0 0 320 300" class="w-full max-w-[280px] h-auto">
+              <!-- Concentric Polygons -->
+              <polygon points="160,30 270,110 230,240 90,240 50,110" fill="none" stroke="#334155" stroke-width="1" />
+              <polygon points="160,70 235,125 205,215 115,215 85,125" fill="none" stroke="#334155" stroke-width="1" />
+              <polygon points="160,110 200,140 185,190 135,190 120,140" fill="none" stroke="#334155" stroke-width="1" />
+
+              <!-- Axes -->
+              <line x1="160" y1="150" x2="160" y2="30" stroke="#475569" stroke-dasharray="2,2" />
+              <line x1="160" y1="150" x2="270" y2="110" stroke="#475569" stroke-dasharray="2,2" />
+              <line x1="160" y1="150" x2="230" y2="240" stroke="#475569" stroke-dasharray="2,2" />
+              <line x1="160" y1="150" x2="90" y2="240" stroke="#475569" stroke-dasharray="2,2" />
+              <line x1="160" y1="150" x2="50" y2="110" stroke="#475569" stroke-dasharray="2,2" />
+
+              <!-- Labels -->
+              <text x="160" y="20" text-anchor="middle" font-size="10" fill="#94a3b8">Kick Resistance</text>
+              <text x="280" y="115" text-anchor="start" font-size="10" fill="#94a3b8">Ice Recovery</text>
+              <text x="235" y="255" text-anchor="middle" font-size="10" fill="#94a3b8">Speed Reversal</text>
+              <text x="85" y="255" text-anchor="middle" font-size="10" fill="#94a3b8">Drop Shock</text>
+              <text x="40" y="115" text-anchor="end" font-size="10" fill="#94a3b8">Upright Stance</text>
+
+              <!-- Polygon: Baseline Kinematic (Red) -->
+              <polygon points="160,150 160,150 160,150 145,170 160,135" class="radar-poly" fill="#ef4444" stroke="#ef4444" />
+
+              <!-- Polygon: v1.0 Light (Blue) -->
+              <polygon points="160,135 180,140 175,170 140,175 140,120" class="radar-poly" fill="#3b82f6" stroke="#3b82f6" />
+
+              <!-- Polygon: v2.0 Deep ResNet (Green) -->
+              <polygon points="160,45 250,115 220,230 100,225 65,115" class="radar-poly" fill="#10b981" stroke="#10b981" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="flex items-center justify-center gap-4 text-xs pt-4 border-t border-slate-800">
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+            <span class="font-medium text-slate-300">v2.0 Deep ResNet</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-3 rounded-full bg-blue-500"></span>
+            <span class="font-medium text-slate-300">v1.0 Light</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-3 rounded-full bg-rose-500"></span>
+            <span class="font-medium text-slate-300">Baseline</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Model Registry & Rollback Manager -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-5">
+        <div>
+          <h2 class="text-xl font-bold text-white">
+            🏷️ Model Registry & Semantic Rollback Manager
+          </h2>
+          <p class="text-xs text-slate-400">
+            Manage embedded ONNX metadata models; hot-swap or rollback active policies with a single command
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <!-- Active Model -->
+        <div class="border border-brand-500/30 bg-brand-500/5 rounded-2xl p-5 relative">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-0.5 rounded text-[11px] font-bold bg-brand-500 text-white">ACTIVE</span>
+              <span class="font-mono font-bold text-sm text-white">v2.0_deep_500iter</span>
+            </div>
+            <span class="text-xs font-mono text-brand-accent font-bold">Score: 88.5</span>
+          </div>
+          <p class="text-xs text-slate-300 mb-4 leading-relaxed">
+            Deep ResNet 4 Residual blocks, LayerNorm, GELU, 2,140,172 params, trained with violent kicks & friction drop on Apple Silicon M4 MPS.
+          </p>
+          <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 flex items-center justify-between text-xs font-mono text-slate-400">
+            <code class="text-brand-accent">python3 src/humanoid_control/scripts/model_registry.py activate v2.0_deep_500iter</code>
+            <button onclick="navigator.clipboard.writeText('python3 src/humanoid_control/scripts/model_registry.py activate v2.0_deep_500iter'); alert('Command copied to clipboard!')" class="px-2.5 py-1 bg-brand-600 hover:bg-brand-500 text-white rounded text-xs font-sans font-medium transition">
+              Copy
+            </button>
+          </div>
+        </div>
+
+        <!-- Standby / Rollback Model -->
+        <div class="border border-slate-800 bg-slate-950/40 rounded-2xl p-5">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-0.5 rounded text-[11px] font-bold bg-slate-800 text-slate-400">STANDBY</span>
+              <span class="font-mono font-bold text-sm text-white">v1.0_light_50iter</span>
+            </div>
+            <span class="text-xs font-mono text-slate-400 font-bold">Score: 26.7</span>
+          </div>
+          <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+            Lightweight MLP (256, 128), 46,220 params, 50 iterations baseline. Stored safely for comparative rollback.
+          </p>
+          <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 flex items-center justify-between text-xs font-mono text-slate-400">
+            <code class="text-blue-400">python3 src/humanoid_control/scripts/model_registry.py activate v1.0_light_50iter</code>
+            <button onclick="navigator.clipboard.writeText('python3 src/humanoid_control/scripts/model_registry.py activate v1.0_light_50iter'); alert('Command copied to clipboard!')" class="px-2.5 py-1 bg-slate-700 hover:bg-slate-600 text-white rounded text-xs font-sans font-medium transition">
+              Rollback
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="border-t border-slate-800 py-6 text-center text-xs text-slate-500">
+    Synapse_Humanoid &copy; 2026. Built with MuJoCo, PyTorch MPS & ROS 2 Jazzy.
+  </footer>
+
+</body>
+</html>
