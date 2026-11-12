@@ -1,0 +1,70 @@
+name: Code Quality - Lint
+
+on:
+  push:
+    branches: [jazzy, main]
+  pull_request:
+    branches: [jazzy, main]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  python-lint:
+    name: Python (flake8)
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install flake8
+        run: pip install flake8
+
+      - name: Run flake8
+        run: |
+          flake8 . \
+            --max-line-length=120 \
+            --exclude=build,install,log,__pycache__,.git \
+            --extend-ignore=W503 \
+            --statistics \
+            --count
+
+  xml-lint:
+    name: XML / URDF / package.xml
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install xmllint
+        run: sudo apt-get install -y libxml2-utils
+
+      - name: Validate XML files (package.xml, urdf, xacro)
+        run: |
+          find software/ros2/src -name "package.xml" -exec xmllint --noout {} +
+
+  engineering-docs:
+    name: Engineering docs match the sources
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install numpy and trimesh
+        run: pip install numpy trimesh
+
+      - name: Recompute the mass budget from the shell
+        run: python design/blender/mico_mass.py
+
+      - name: Check the generated tables in docs/engineering and README
+        run: python docs/engineering/gen_docs.py --check

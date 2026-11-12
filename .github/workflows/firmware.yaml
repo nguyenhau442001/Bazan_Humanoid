@@ -1,0 +1,91 @@
+name: Firmware - MCU
+
+on:
+  push:
+    branches: [jazzy, main]
+  pull_request:
+    branches: [jazzy, main]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  host-tests:
+    name: Core logic, safety and threads (host)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Generated headers match gen_robot, mico_gait and calibration.json
+        run: python software/firmware/stm32f411/tools/gen_tables.py --check
+
+      - name: Vendored HAL, CMSIS and FreeRTOS match their pinned commits
+        run: python software/firmware/stm32f411/tools/fetch_drivers.py --check
+
+      - name: lib/core tests (regression + safety under ASan/UBSan, threads under TSan)
+        run: make -C software/core test
+
+  integration:
+    name: FreeRTOS tasks on the POSIX port (M0 safety)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Overrun, hang, watchdog-reset and OE scenarios
+        run: make -C software/firmware/stm32f411/test/posix test
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: mico_link m0-accept against the simulated MCU (pty)
+        run: |
+          pip install pyserial
+          make -C software/firmware/stm32f411/test/posix accept-sim
+
+  build:
+    name: STM32F411 build (arm-none-eabi-gcc, CMake)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install the Arm GNU toolchain and Ninja
+        run: sudo apt-get update && sudo apt-get install -y gcc-arm-none-eabi libnewlib-arm-none-eabi ninja-build
+
+      - name: Build mico_mcu and mico_mcu_m0test
+        run: |
+          cmake -S software/firmware/stm32f411 -B build -G Ninja \
+            -DCMAKE_TOOLCHAIN_FILE=cmake/gcc-arm-none-eabi.cmake -DCMAKE_BUILD_TYPE=Release
+          cmake --build build
+
+      - name: Memory budget (at least 20% RAM free, no heap allocator linked)
+        run: |
+          python3 - <<'EOF'
+          import re, subprocess, sys
+          for img in ("mico_mcu", "mico_mcu_m0test"):
+              out = subprocess.run(["arm-none-eabi-size", "-A", f"build/{img}.elf"], capture_output=True,
+                                   text=True, check=True).stdout
+              sec = {m[0]: int(m[1]) for m in re.findall(r"^(\.\S+)\s+(\d+)", out, re.M)}
+              ram = sec.get(".data", 0) + sec.get(".bss", 0) + sec.get("._user_heap_stack", 0)
+              free = 1 - ram / (128 * 1024)
+              syms = subprocess.run(["arm-none-eabi-nm", f"build/{img}.elf"], capture_output=True, text=True,
+                                    check=True).stdout
+              libc_heap = re.search(r" T (malloc|_malloc_r|_sbrk_r)$", syms, re.M)
+              print(f"{img}: flash {sec['.text'] + sec['.isr_vector'] + sec.get('.data', 0)} B, "
+                    f"RAM {ram} B ({free:.1%} free), libc malloc linked: {bool(libc_heap)}")
+              if free < 0.20 or libc_heap:
+                  sys.exit(f"{img}: memory budget violated")
+          EOF
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mico_mcu-images
+          path: |
+            build/*.elf
+            build/*.hex
+            build/*.bin
+            build/*.map
