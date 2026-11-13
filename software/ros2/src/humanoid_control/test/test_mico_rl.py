@@ -146,19 +146,20 @@ def test_model_registry_functions():
     assert "models" in reg
 
 
-def test_perceptive_env_60dim(check_prerequisites):
+def test_perceptive_env_64dim(check_prerequisites):
     env = env_mod.MicoEnv(decimation=2, max_episode_steps=50, use_perception=True)
     obs = env.reset(command=[0.2, 0.0, 0.0])
 
-    assert env.obs_dim == 60
-    assert obs.shape == (60,)
+    assert env.obs_dim == 64
+    assert env.act_dim == 32
+    assert obs.shape == (64,)
     assert obs.dtype == np.float32
 
     # Step with zero actions
-    action = np.zeros(12)
+    action = np.zeros(32)
     next_obs, rew, term, trunc, info = env.step(action)
 
-    assert next_obs.shape == (60,)
+    assert next_obs.shape == (64,)
     assert isinstance(rew, (float, np.floating))
 
 
