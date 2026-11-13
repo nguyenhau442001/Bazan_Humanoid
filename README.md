@@ -397,6 +397,40 @@ flowchart LR
 
   IN ==> W1
   W4 ==> OUT
+
+  %% Vibrant High-Contrast Visual Palette
+  style IN fill:#042f2e,stroke:#14b8a6,stroke-width:2.5px,color:#ccfbf1
+  style I1 fill:#0e7490,stroke:#38bdf8,stroke-width:1.5px,color:#ffffff
+  style I2 fill:#b45309,stroke:#f59e0b,stroke-width:1.5px,color:#ffffff
+  style I3 fill:#1e40af,stroke:#60a5fa,stroke-width:1.5px,color:#ffffff
+  style I4 fill:#1e3a8a,stroke:#3b82f6,stroke-width:1.5px,color:#ffffff
+  style I5 fill:#581c87,stroke:#c084fc,stroke-width:1.5px,color:#ffffff
+  style I6 fill:#1e293b,stroke:#94a3b8,stroke-width:1.5px,color:#ffffff
+  style I7 fill:#065f46,stroke:#10b981,stroke-width:1.5px,color:#ffffff
+  style I8 fill:#115e59,stroke:#14b8a6,stroke-width:1.5px,color:#ffffff
+  style I9 fill:#881337,stroke:#f43f5e,stroke-width:1.5px,color:#ffffff
+  style I10 fill:#7c2d12,stroke:#f97316,stroke-width:1.5px,color:#ffffff
+  style I11 fill:#0369a1,stroke:#0ea5e9,stroke-width:1.5px,color:#ffffff
+  style I12 fill:#713f12,stroke:#eab308,stroke-width:1.5px,color:#ffffff
+  style I13 fill:#7f1d1d,stroke:#ef4444,stroke-width:1.5px,color:#ffffff
+
+  style MLP fill:#2e1065,stroke:#a855f7,stroke-width:3px,color:#faf5ff
+  style W1 fill:#4c1d95,stroke:#c084fc,stroke-width:2px,color:#ffffff
+  style W2 fill:#312e81,stroke:#818cf8,stroke-width:2px,color:#ffffff
+  style W3 fill:#1e3a8a,stroke:#60a5fa,stroke-width:2px,color:#ffffff
+  style W4 fill:#064e3b,stroke:#34d399,stroke-width:2.5px,color:#ffffff
+
+  style OUT fill:#022c22,stroke:#10b981,stroke-width:2.5px,color:#f0fdf4
+  style WB fill:#064e3b,stroke:#059669,stroke-width:2px,color:#ecfdf5
+  style O1 fill:#047857,stroke:#6ee7b7,stroke-width:1.5px,color:#ffffff
+  style O2 fill:#6b21a8,stroke:#d8b4fe,stroke-width:1.5px,color:#ffffff
+  style O3 fill:#1d4ed8,stroke:#93c5fd,stroke-width:1.5px,color:#ffffff
+
+  style AC fill:#451a03,stroke:#d97706,stroke-width:2px,color:#fffbeb
+  style A1 fill:#92400e,stroke:#fcd34d,stroke-width:1.5px,color:#ffffff
+  style A2 fill:#0f766e,stroke:#5eead4,stroke-width:1.5px,color:#ffffff
+  style A3 fill:#9f1239,stroke:#fda4af,stroke-width:1.5px,color:#ffffff
+  style A4 fill:#3730a3,stroke:#a5b4fc,stroke-width:1.5px,color:#ffffff
 ```
 
 #### 1. Layer Weight Matrices ($64 \to 256 \to 128 \to 64 \to 32$)
