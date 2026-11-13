@@ -346,39 +346,107 @@ To solve the bipedal sway problem inherent in narrow support polygons ($45 \time
 | **Quasi-Static Baseline** (`mico_gait.py`) | $\pm 11.46^\circ$ ($\pm 0.20\text{ rad}$) | $11.46^\circ$ | High lateral torso sway | Forces CoM shift directly over stance foot to avoid tipping |
 | **Dynamic Policy** (`v9.1_upright_anti_sway`) | **$5.75^\circ$** | **$2.67^\circ$** | **Upright, steady walk (76.7% sway reduction)** | Momentum transfer & Capture Point foot placement to catch falling CoM |
 
-### 🔢 Mathematical Formulation: End-to-End ONNX Locomotion Inference
+### 🔢 Mathematical Formulation: Peak 64-In / 32-Out Whole-Body Neural Policy
 
-The locomotion policy is deployed via **ONNX Runtime** at 50 Hz on the Radxa Zero 3W (or host macOS/Linux), executing a continuous mapping from sensory observations to joint target angles:
+The policy network is deployed via **ONNX Runtime** at 50 Hz on the Radxa Zero 3W (or host macOS/Linux), executing an end-to-end mapping from a **64-dimensional sensory observation vector ($2^6 = 64$)** to a **32-dimensional whole-body action and adaptive control vector ($2^5 = 32$)**:
 
-$$\mathbf{a}_t = \pi_{\boldsymbol{\theta}}(\mathbf{o}_t) \in [-1.0, 1.0]^{12}, \qquad \mathbf{q}_{\text{target}} = \mathbf{q}_{\text{nominal}} + \mathbf{a}_t \odot \Delta \mathbf{q}_{\text{scale}}$$
+$$\mathbf{y}_t = \pi_{\boldsymbol{\theta}}(\mathbf{x}_t) \in [-1.0, 1.0]^{32}$$
 
-#### 1. Observation Vector Anatomy ($\mathbf{o}_t \in \mathbb{R}^{47}$)
+```mermaid
+flowchart LR
+  subgraph IN["📥 Sensory Input Vector (X ∈ ℝ⁶⁴ · 256 Bytes · 2⁶)"]
+    direction TB
+    I1["<b>MPU6050 Balance:</b> Gravity (3) + Gyro (3)"]
+    I2["<b>MPU6050 Impact:</b> Heel-Strike az Shock (1)"]
+    I3["<b>12 Leg Joint Errors:</b> Δq (12)"]
+    I4["<b>12 Leg Joint Velocities:</b> dq (12)"]
+    I5["<b>4 Arm Joint Positions:</b> Swing Balance (4)"]
+    I6["<b>Action History:</b> a_{t-1} Memory (12)"]
+    I7["<b>ROS 2 Nav2:</b> /cmd_vel [vx, vy, wz] (3)"]
+    I8["<b>Gait Clock:</b> [sin(φ), cos(φ)] (2)"]
+    I9["<b>Foot Contacts:</b> 4× FSR402 + LMV358 (4)"]
+    I10["<b>Laser Distance:</b> VL53L0X ToF (1)"]
+    I11["<b>Camera Tracking:</b> Target + Angle + Dist (3)"]
+    I12["<b>Power Telemetry:</b> INA226 Voltage & Current (2)"]
+    I13["<b>Thermal Guard:</b> 2× NTC 10k Hip Servos (2)"]
+  end
 
-Every 20 ms, the state estimator packs a 47-dimensional float32 vector:
+  subgraph MLP["🧠 Neural Policy Architecture (59,392 Parameters · ~232 KB)"]
+    direction TB
+    W1["<b>Dense Layer 1: W₁ [256 × 64]</b><br/>H₁ = ELU(W₁·X + b₁) · Proprioceptive Fusion"]
+    W2["<b>Dense Layer 2: W₂ [128 × 256]</b><br/>H₂ = ELU(W₂·H₁ + b₂) · Balance Coordination"]
+    W3["<b>Dense Layer 3: W₃ [64 × 128]</b><br/>H₃ = ELU(W₃·H₂ + b₃) · Joint Synergy"]
+    W4["<b>Output Layer: W_out [32 × 64]</b><br/>Y = Tanh(W_out·H₃ + b_out)"]
+    W1 --> W2 --> W3 --> W4
+  end
 
-| Feature Dimension | Quantity | Source / Sensor | Description |
-| :--- | :---: | :--- | :--- |
-| $\mathbf{g}_{\text{proj}} \in \mathbb{R}^3$ | 3 | MPU-6050 IMU | Projected gravity vector in robot base frame: $\mathbf{R}^T \begin{bmatrix} 0 & 0 & -1 \end{bmatrix}^T$ |
-| $\boldsymbol{\omega}_{\text{base}} \in \mathbb{R}^3$ | 3 | MPU-6050 Gyro | Base angular velocity in robot coordinates: $\mathbf{R}^T \boldsymbol{\omega}_{\text{world}}$ |
-| $\Delta \mathbf{q} \in \mathbb{R}^{12}$ | 12 | Joint Encoders / Pots | Joint angle error relative to nominal stance: $\mathbf{q}_{\text{meas}} - \mathbf{q}_{\text{nominal}}$ |
-| $\dot{\mathbf{q}} \in \mathbb{R}^{12}$ | 12 | Derivative / Velocity | Measured joint angular velocities |
-| $\mathbf{a}_{t-1} \in \mathbb{R}^{12}$ | 12 | Controller Memory | Previous action vector (enforces continuous, chatter-free trajectories) |
-| $\mathbf{v}_{\text{cmd}} \in \mathbb{R}^3$ | 3 | ROS 2 `/cmd_vel` | Commanded target velocity: $[v_x, v_y, \dot{\psi}]$ |
-| $\boldsymbol{\phi} \in \mathbb{R}^2$ | 2 | Phase Clock | Normalized cyclical gait phase: $[\sin(2\pi \phi), \cos(2\pi \phi)]$ |
+  subgraph OUT["📤 Action & Adaptive Output (Y ∈ ℝ³² · 128 Bytes · 2⁵)"]
+    direction TB
+    subgraph WB["🦾 20-DoF Whole-Body Actuation [0..19]"]
+      O1["<b>12 Leg Joints:</b> Hip/Knee/Ankle (12)"]
+      O2["<b>6 Arm Joints:</b> Pitch/Roll/Elbow (6)"]
+      O3["<b>2 Neck Joints:</b> Yaw/Pitch Gaze (2)"]
+    end
+    subgraph AC["⚙️ 12 Adaptive Controls [20..31]"]
+      A1["<b>4× Anti-Backlash:</b> Pre-tension offsets (4)"]
+      A2["<b>2× Vibration Filter:</b> α_legs, α_arms (2)"]
+      A3["<b>4× Gait Modifiers:</b> Cadence, Lift, Height, Lean (4)"]
+      A4["<b>2× Safety & Gimbal:</b> Torque cap, Camera gain (2)"]
+    end
+  end
 
-#### 2. Forward Feed-Forward Execution
+  IN ==> W1
+  W4 ==> OUT
+```
 
-Inside `models/mico_policy.onnx`, the input vector passes through layer-normalized residual blocks:
+#### 1. Layer Weight Matrices ($64 \to 256 \to 128 \to 64 \to 32$)
 
-$$\mathbf{h}_1 = \text{GELU}(\text{LayerNorm}(\mathbf{W}_1 \mathbf{o}_t + \mathbf{b}_1)), \qquad \mathbf{h}_{k+1} = \mathbf{h}_k + \text{GELU}(\text{LayerNorm}(\mathbf{W}_k \mathbf{h}_k + \mathbf{b}_k))$$
+All layers are powers of two, aligning with CPU L1/L2 cache lines (64 bytes) and GPU warp execution (32 threads):
 
-$$\mathbf{a}_t = \tanh(\mathbf{W}_{\text{out}} \mathbf{h}_{\text{final}} + \mathbf{b}_{\text{out}}) \in [-1.0, 1.0]^{12}$$
+| Layer | Dimensions | Weight Matrix Size | Bias | Activation | Role |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| **Layer 1** | $64 \to 256$ | $\mathbf{W}_1 \in \mathbb{R}^{256 \times 64}$ (16,384) | $\mathbf{b}_1 \in \mathbb{R}^{256}$ | ELU | Multi-modal proprioceptive & sensor fusion |
+| **Layer 2** | $256 \to 128$ | $\mathbf{W}_2 \in \mathbb{R}^{128 \times 256}$ (32,768) | $\mathbf{b}_2 \in \mathbb{R}^{128}$ | ELU | Whole-body dynamic balance & momentum transfer |
+| **Layer 3** | $128 \to 64$ | $\mathbf{W}_3 \in \mathbb{R}^{64 \times 128}$ (8,192) | $\mathbf{b}_3 \in \mathbb{R}^{64}$ | ELU | Inter-joint synergy & coordination vector |
+| **Output Layer** | $64 \to 32$ | $\mathbf{W}_{\text{out}} \in \mathbb{R}^{32 \times 64}$ (2,048) | $\mathbf{b}_{\text{out}} \in \mathbb{R}^{32}$ | Tanh | 20-DoF joint targets + 12 software adaptive parameters |
 
-#### 3. Actuator Target Translation to Microcontroller PWM
+$$\mathbf{Y} = \operatorname{Tanh}\Big( \mathbf{W}_{\text{out}} \cdot \operatorname{ELU}\big( \mathbf{W}_3 \cdot \operatorname{ELU}( \mathbf{W}_2 \cdot \operatorname{ELU}( \mathbf{W}_1 \cdot \mathbf{X} + \mathbf{b}_1 ) + \mathbf{b}_2 ) + \mathbf{b}_3 \big) + \mathbf{b}_{\text{out}} \Big)$$
 
-With an action scaling factor $\Delta q_{\text{scale}} = 0.25\text{ rad} \approx 14.3^\circ$, the joint command and corresponding 50 Hz PWM pulse width sent across the PCA9685 driver are:
+#### 2. Sensory Observation Decomposition ($\mathbf{X} \in \mathbb{R}^{64}$)
 
-$$\mathbf{q}_{\text{target}, i} = \mathbf{q}_{\text{nominal}, i} + \mathbf{a}_{t, i} \cdot 0.25$$
+| Index | Signal Name | Qty | Hardware Sensor | Functional Purpose |
+| :---: | :--- | :---: | :--- | :--- |
+| `0..5` | `imu_gravity_[x,y,z]`, `imu_gyro_[r,p,y]` | 6 | MPU6050 (Head Crown) | Base gravity projection & angular rates |
+| `6` | `imu_accel_z_impact` | 1 | MPU6050 ($a_z$ LPF 25 Hz) | Zero-latency heel-strike impact detection |
+| `7..18` | `l/r_joint_pos_err_[0..5]` | 12 | Joint Potentiometers | 12 Leg position tracking errors ($\mathbf{q} - \mathbf{q}_{\text{nom}}$) |
+| `19..30` | `l/r_joint_vel_[0..5]` | 12 | Numerical Differentiation | 12 Leg joint angular velocities |
+| `31..34` | `l/r_arm_pos_[pitch,elbow]` | 4 | Arm Servos Encoders | Arm posture sensing for counter-yaw momentum |
+| `35..46` | `prev_action_[0..11]` | 12 | Controller RAM Buffer | Previous leg action history (chatter suppression) |
+| `47..49` | `cmd_vel_[vx,vy,wz]` | 3 | ROS 2 Nav2 (`/cmd_vel`) | High-level velocity locomotion target |
+| `50..51` | `gait_phase_[sin,cos]` | 2 | Internal Phase Oscillator | Normalized cyclic gait clock ($[\sin\phi, \cos\phi]$) |
+| `52..55` | `fsr_[l_heel,l_toe,r_heel,r_toe]` | 4 | FSR402 + LMV358 Op-Amp | Sigmoidal 4-point sole contact force |
+| `56` | `tof_distance_obstacle` | 1 | VL53L0X ToF Laser | Ahead obstacle clearance (kinematic tilt compensated) |
+| `57..59` | `cam_[detected,angle_x,distance]` | 3 | Radxa Zero 3W NPU Camera | Visual target tracking & waypoint bearing |
+| `60..61` | `battery_voltage`, `total_current` | 2 | INA226 $I^2C$ Power Telemetry | Internal resistance ($R_{\text{int}} = 0.08\,\Omega$) sag compensation |
+| `62..63` | `temp_[l,r]_hip_servo` | 2 | NTC 10 kΩ Thermistors | Hip-roll aluminum case thermal overload guard |
+
+#### 3. Action Vector & 12 Software Adaptive Controls ($\mathbf{Y} \in \mathbb{R}^{32}$)
+
+| Index | Target / Parameter Name | Qty | Execution Mechanism | Hardware Role |
+| :---: | :--- | :---: | :--- | :--- |
+| `0..11` | `leg_joints_[0..11]` | 12 | Position Offset ($\pm 0.15\text{ rad}$) | 12 Leg servo trajectories (Hip/Knee/Ankle) |
+| `12..17` | `arm_joints_[0..5]` | 6 | Position Offset ($\pm 0.22\text{ rad}$) | 6 Arm servos (Pitch vung, Roll dang, Elbow co) |
+| `18..19` | `neck_joints_[0..1]` | 2 | Position Offset + Gimbal | 2 Neck servos (Yaw orientation + Pitch stabilization) |
+| `20..23` | `backlash_comp_[l/r_hip,l/r_ank]` | 4 | Pre-Tension Bias ($\pm 0.015\text{ rad}$) | Eliminates gear play during gait direction reversal |
+| `24..25` | `filter_alpha_[legs,arms]` | 2 | Dynamic Low-Pass Filter $\alpha$ | Virtual software shock absorber suppressing resonance |
+| `26` | `gait_cadence_scale` | 1 | Phase Step Modulator | Dynamically tunes walking tempo to floor traction |
+| `27` | `step_clearance_lift` | 1 | Swing Trajectory Modifier | Raises foot clearance (up to $+3.5\text{ cm}$) over hurdles |
+| `28` | `pelvis_height_offset` | 1 | CoM Height Modulation | Crouches pelvis during sprint to lower center of mass |
+| `29` | `torso_lean_pitch` | 1 | Body Lean Bias | Adjusts forward lean for slope climbing/braking |
+| `30` | `max_torque_compliance` | 1 | Motor Force Envelope | Compliant torque relaxation against joint stalls |
+| `31` | `camera_gimbal_gain` | 1 | Dynamic Pitch Compensator | Stabilizes horizon for the forehead camera |
+
+$$\mathbf{q}_{\text{target}} = \mathbf{q}_{\text{nominal}} + (\mathbf{Y}_{0..19} \odot \Delta \mathbf{q}_{\text{scale}}) + \mathbf{\Delta}_{\text{backlash}}$$
 
 $$\text{PWM}_i (\mu\text{s}) = 1500 + \left( \mathbf{q}_{\text{target}, i} \times \frac{180}{\pi} \right) \cdot \frac{1000}{180}$$
 
