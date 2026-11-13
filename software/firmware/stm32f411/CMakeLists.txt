@@ -15,8 +15,8 @@ endif()
 set(CMAKE_C_FLAGS_RELEASE "-O2 -g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2 -g")
 
-set(REPO ${CMAKE_CURRENT_SOURCE_DIR}/../..)
-set(CORE ${REPO}/lib/core)
+set(REPO ${CMAKE_CURRENT_SOURCE_DIR}/../../..)
+set(CORE ${CMAKE_CURRENT_SOURCE_DIR}/../../core)
 set(HAL ${CMAKE_CURRENT_SOURCE_DIR}/Drivers/STM32F4xx_HAL_Driver)
 set(RTOS ${CMAKE_CURRENT_SOURCE_DIR}/FreeRTOS/Source)
 

@@ -1,7 +1,7 @@
 # M0 integration test: the firmware's FreeRTOS tasks on the FreeRTOS POSIX port.
 #   make -C firmware/stm32f411/test/posix test
 FW = ../..
-CORE = ../../../../lib/core
+CORE = $(FW)/../../core
 RTOS = $(FW)/FreeRTOS/Source
 CXX ?= g++
 CC ?= gcc
