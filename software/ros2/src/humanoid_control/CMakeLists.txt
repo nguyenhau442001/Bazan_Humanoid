@@ -50,10 +50,7 @@ install(PROGRAMS
   scripts/mico_mujoco_bridge.py
   scripts/mico_rl_node.py
   scripts/train_mico_ppo.py
-  scripts/benchmark_mico_sim.py
-  scripts/eval_mico_benchmark.py
   scripts/mico_visualizer.py
-  scripts/auto_train_mico_evolution.py
   DESTINATION lib/${PROJECT_NAME}
 )
 # imported by bazan_mujoco_bridge.py and bazan_rl_node.py from the same folder
