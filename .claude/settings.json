@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__gemini",
+      "mcp__gemini__ask_gemini",
+      "mcp__gemini__gemini_chat",
+      "mcp__gemini__gemini_review_files"
+    ]
+  }
+}

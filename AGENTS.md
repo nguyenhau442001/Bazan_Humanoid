@@ -68,3 +68,20 @@ Whenever an agent completes a task, milestone, or bug fix:
 4. **Verification Before Push:**
    - Run `python3 -m flake8 . --max-line-length=120 --exclude=build,install,log,__pycache__,.git` to ensure CI linting passes.
    - Ensure `package.xml` dependencies match `CMakeLists.txt` targets.
+
+---
+
+## 🤖 3. Delegating to Gemini
+
+The repository provides a project-scoped Model Context Protocol (MCP) server for Google Gemini (`tools/gemini_mcp/gemini_mcp.py`), configured in `.mcp.json`.
+
+1. **Available MCP Tools:**
+   - `mcp__gemini__ask_gemini(prompt, model)`: Direct single-prompt queries for architectural advice, mathematical derivations, or algorithmic second opinions.
+   - `mcp__gemini__gemini_chat(messages, model)`: Multi-turn reasoning for iterative problem solving and design brainstorming.
+   - `mcp__gemini__gemini_review_files(files, prompt, model)`: In-depth code reviews, safety audits, and cross-file verification strictly sandboxed within the repository.
+
+2. **Security & Governance:**
+   - **No Secret Leaks:** `tools/gemini_mcp/.env` is strictly git-ignored. Never stage or commit API keys.
+   - **Repository Sandbox:** `gemini_review_files` strictly forbids path traversal outside the repository root.
+   - **Default Model:** `gemini-2.5-pro` (configurable via `GEMINI_MODEL` in `.env`).
+

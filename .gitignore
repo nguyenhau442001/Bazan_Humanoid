@@ -75,3 +75,7 @@ src/humanoid_control/models/mico_policy_v7.*.onnx
 src/humanoid_control/models/mico_policy_v8.*.onnx
 !src/humanoid_control/models/mico_policy_v8.3_transformer_hybrid.onnx
 *.wav
+
+# Gemini MCP Server Secrets
+tools/gemini_mcp/.env
+

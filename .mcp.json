@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "gemini": {
+      "command": "uv",
+      "args": ["run", "--script", "tools/gemini_mcp/gemini_mcp.py"]
+    }
+  }
+}
