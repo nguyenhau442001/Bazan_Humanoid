@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- MoveIt 2 Semantic Robot Description Format (SRDF) for Bazan Humanoid -->
+<robot name="bazan">
+  <!-- GROUPS: Representation of sets of joints and links -->
+  <group name="left_arm">
+    <chain base_link="base_link" tip_link="l_gripper"/>
+  </group>
+
+  <group name="right_arm">
+    <chain base_link="base_link" tip_link="r_gripper"/>
+  </group>
+
+  <group name="both_arms">
+    <group name="left_arm"/>
+    <group name="right_arm"/>
+  </group>
+
+  <group name="head">
+    <joint name="neck_yaw"/>
+    <joint name="head_pitch"/>
+  </group>
+
+  <group name="upper_body">
+    <group name="both_arms"/>
+    <group name="head"/>
+  </group>
+
+  <!-- GROUP STATES: Purpose: Define a named state for a particular group -->
+  <group_state name="home" group="left_arm">
+    <joint name="l_shoulder_pitch" value="0.0"/>
+    <joint name="l_shoulder_roll" value="0.0"/>
+    <joint name="l_elbow" value="0.0"/>
+  </group_state>
+
+  <group_state name="ready" group="left_arm">
+    <joint name="l_shoulder_pitch" value="0.5236"/>
+    <joint name="l_shoulder_roll" value="0.2618"/>
+    <joint name="l_elbow" value="-0.7854"/>
+  </group_state>
+
+  <group_state name="reach_forward" group="left_arm">
+    <joint name="l_shoulder_pitch" value="-1.5708"/>
+    <joint name="l_shoulder_roll" value="0.0"/>
+    <joint name="l_elbow" value="0.0"/>
+  </group_state>
+
+  <group_state name="wave" group="left_arm">
+    <joint name="l_shoulder_pitch" value="-2.0944"/>
+    <joint name="l_shoulder_roll" value="1.0472"/>
+    <joint name="l_elbow" value="-1.2217"/>
+  </group_state>
+
+  <group_state name="tuck" group="left_arm">
+    <joint name="l_shoulder_pitch" value="-0.3491"/>
+    <joint name="l_shoulder_roll" value="0.1745"/>
+    <joint name="l_elbow" value="-1.5708"/>
+  </group_state>
+
+  <!-- Right Arm States -->
+  <group_state name="home" group="right_arm">
+    <joint name="r_shoulder_pitch" value="0.0"/>
+    <joint name="r_shoulder_roll" value="0.0"/>
+    <joint name="r_elbow" value="0.0"/>
+  </group_state>
+
+  <group_state name="ready" group="right_arm">
+    <joint name="r_shoulder_pitch" value="0.5236"/>
+    <joint name="r_shoulder_roll" value="-0.2618"/>
+    <joint name="r_elbow" value="-0.7854"/>
+  </group_state>
+
+  <group_state name="reach_forward" group="right_arm">
+    <joint name="r_shoulder_pitch" value="-1.5708"/>
+    <joint name="r_shoulder_roll" value="0.0"/>
+    <joint name="r_elbow" value="0.0"/>
+  </group_state>
+
+  <group_state name="wave" group="right_arm">
+    <joint name="r_shoulder_pitch" value="-2.0944"/>
+    <joint name="r_shoulder_roll" value="-1.0472"/>
+    <joint name="r_elbow" value="-1.2217"/>
+  </group_state>
+
+  <group_state name="tuck" group="right_arm">
+    <joint name="r_shoulder_pitch" value="-0.3491"/>
+    <joint name="r_shoulder_roll" value="-0.1745"/>
+    <joint name="r_elbow" value="-1.5708"/>
+  </group_state>
+
+  <!-- Head States -->
+  <group_state name="center" group="head">
+    <joint name="neck_yaw" value="0.0"/>
+    <joint name="head_pitch" value="0.0"/>
+  </group_state>
+
+  <group_state name="look_down" group="head">
+    <joint name="neck_yaw" value="0.0"/>
+    <joint name="head_pitch" value="-0.3491"/>
+  </group_state>
+
+  <group_state name="look_up" group="head">
+    <joint name="neck_yaw" value="0.0"/>
+    <joint name="head_pitch" value="0.3491"/>
+  </group_state>
+
+  <group_state name="look_left" group="head">
+    <joint name="neck_yaw" value="0.7854"/>
+    <joint name="head_pitch" value="0.0"/>
+  </group_state>
+
+  <group_state name="look_right" group="head">
+    <joint name="neck_yaw" value="-0.7854"/>
+    <joint name="head_pitch" value="0.0"/>
+  </group_state>
+
+  <!-- END EFFECTORS -->
+  <end_effector name="left_hand" parent_link="l_gripper" group="left_arm"/>
+  <end_effector name="right_hand" parent_link="r_gripper" group="right_arm"/>
+
+  <!-- VIRTUAL JOINT: World attachment -->
+  <virtual_joint name="virtual_joint" type="floating" parent_frame="world" child_link="base_link"/>
+
+  <!-- DISABLE COLLISIONS: Adjacent links and non-colliding components -->
+  <disable_collisions link1="base_link" link2="l_shoulder_pitch_link" reason="Adjacent"/>
+  <disable_collisions link1="base_link" link2="r_shoulder_pitch_link" reason="Adjacent"/>
+  <disable_collisions link1="base_link" link2="neck_yaw_link" reason="Adjacent"/>
+  <disable_collisions link1="base_link" link2="l_hip_yaw_link" reason="Adjacent"/>
+  <disable_collisions link1="base_link" link2="r_hip_yaw_link" reason="Adjacent"/>
+
+  <disable_collisions link1="l_shoulder_pitch_link" link2="l_shoulder_roll_link" reason="Adjacent"/>
+  <disable_collisions link1="l_shoulder_roll_link" link2="l_elbow_link" reason="Adjacent"/>
+  <disable_collisions link1="l_shoulder_pitch_link" link2="l_elbow_link" reason="Never"/>
+
+  <disable_collisions link1="r_shoulder_pitch_link" link2="r_shoulder_roll_link" reason="Adjacent"/>
+  <disable_collisions link1="r_shoulder_roll_link" link2="r_elbow_link" reason="Adjacent"/>
+  <disable_collisions link1="r_shoulder_pitch_link" link2="r_elbow_link" reason="Never"/>
+
+  <disable_collisions link1="neck_yaw_link" link2="head_pitch_link" reason="Adjacent"/>
+  <disable_collisions link1="base_link" link2="head_pitch_link" reason="Never"/>
+
+  <!-- Arms with Head and Legs -->
+  <disable_collisions link1="l_shoulder_pitch_link" link2="neck_yaw_link" reason="Never"/>
+  <disable_collisions link1="r_shoulder_pitch_link" link2="neck_yaw_link" reason="Never"/>
+  <disable_collisions link1="l_shoulder_pitch_link" link2="head_pitch_link" reason="Never"/>
+  <disable_collisions link1="r_shoulder_pitch_link" link2="head_pitch_link" reason="Never"/>
+  <disable_collisions link1="l_shoulder_pitch_link" link2="r_shoulder_pitch_link" reason="Never"/>
+</robot>
