@@ -11,7 +11,7 @@ All cables pass through the designed mechanical channels, tie slots, and deck cu
 import cadquery as cq
 import numpy as np
 
-from OCP.BRepBuilderAPI import BRepBuilderAPI_MakeEdge, BRepBuilderAPI_MakeWire
+from OCP.BRepBuilderAPI import BRepBuilderAPI_MakeEdge, BRepBuilderAPI_MakeFace, BRepBuilderAPI_MakeWire
 from OCP.BRepOffsetAPI import BRepOffsetAPI_MakePipe
 from OCP.gp import gp_Ax2, gp_Circ, gp_Dir, gp_Pnt
 
@@ -22,15 +22,17 @@ def make_pipe(points, radius=1.2):
     spline_edge = cq.Edge.makeSpline(cq_pts)
     wire = cq.Wire.assembleEdges([spline_edge])
 
-    # Circular profile at start perpendicular to initial tangent
+    # Circular solid face at start perpendicular to initial tangent
     p0 = cq_pts[0]
     p1 = cq_pts[1]
     tan = (p1 - p0).normalized()
     circ = gp_Circ(gp_Ax2(gp_Pnt(p0.x, p0.y, p0.z), gp_Dir(tan.x, tan.y, tan.z)), radius)
     circ_edge = BRepBuilderAPI_MakeEdge(circ).Edge()
     circ_wire = BRepBuilderAPI_MakeWire(circ_edge).Wire()
+    circ_face = BRepBuilderAPI_MakeFace(circ_wire).Face()
 
-    pipe = BRepOffsetAPI_MakePipe(wire.wrapped, circ_wire).Shape()
+    # Sweeping a Face along a Wire produces a watertight True Solid (Solids: 1)
+    pipe = BRepOffsetAPI_MakePipe(wire.wrapped, circ_face).Shape()
     return cq.Solid(pipe)
 
 
