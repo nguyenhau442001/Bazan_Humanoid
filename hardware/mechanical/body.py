@@ -427,7 +427,7 @@ class Body:
         cc = face0 + 24.0 * up
         for k, (hy, hz) in enumerate(cam.holes):
             q = cc + hy * np.array([0, 1.0, 0]) + hz * up
-            s = s.fuse(cyl(2.5, q, q + 2.5 * n)).cut(cyl(1.6, q - 2.5 * n, q + 3.0 * n))
+            s = s.fuse(cyl(2.5, q - 0.5 * n, q + 2.5 * n)).cut(cyl(1.6, q - 2.5 * n, q + 3.0 * n))
             self._hole("cam_mount", f"cam{k + 1}", "boss_m2", "INS-M2 (pressed from the front), M2x6 through the "
                        "camera", tuple(q + 2.5 * n), 3.2, 5.0, tuple(np.round(-n, 4)))
         s = s.cut(cyl(4.5, cc - 4 * n, cc + 4 * n))                       # lens and ribbon clearance
@@ -435,9 +435,11 @@ class Body:
         tc = face0 + 7.0 * up
         for k, (hy, hz) in enumerate(tof.holes):
             q = tc + hy * np.array([0, 1.0, 0]) + hz * up
-            s = s.fuse(cyl(2.5, q, q + 2.5 * n)).cut(cyl(1.6, q - 2.5 * n, q + 3.0 * n))
+            s = s.fuse(cyl(2.5, q - 0.5 * n, q + 2.5 * n)).cut(cyl(1.6, q - 2.5 * n, q + 3.0 * n))
             self._hole("cam_mount", f"tof{k + 1}", "boss_m2", "INS-M2 (pressed from the front), M2x6 through the "
                        "ToF board", tuple(q + 2.5 * n), 3.2, 5.0, tuple(np.round(-n, 4)))
+        # Cut flush at hd to eliminate knife-edge protruding below the mount base
+        s = s.cut(bx((-50.0, 50.0), (-50.0, 50.0), (hd - 10.0, hd)))
         return s.clean()
 
     # ------------------------------------------------------------------ bought parts placed
