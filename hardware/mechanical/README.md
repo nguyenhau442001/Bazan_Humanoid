@@ -15,6 +15,7 @@ the checks and documents generated from it. Start at [docs/mechanical/leg_v3.md]
 | `electronics.py` | Board and module envelopes (holes, heights) for the sleds. **Measure your boards** |
 | `body.py` | Body v4: pelvis plate, deck 1 and 2 on standoffs, board sleds and bays, arms, neck, head |
 | `robot.py` | Whole robot: both legs on the body, static fit, arm/neck/head sweeps, tool access, servo removal |
+| `shell.py` | Shell v1 (`BazanShell`): chest/back clamshell, helmet front/back, visor, on the 16 shell inserts; checked against `robot.py` sweeps, writes `out/shell_*.step/.stl` (about 15 min, `--quick` 11) |
 | `pic.py`, `gen_manual.py` | Step pictures and the whole-robot manual (`docs/mechanical/mico_v4_lap_rap.md` + `.html`) |
 
 ```bash
