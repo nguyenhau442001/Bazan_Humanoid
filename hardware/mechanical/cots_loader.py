@@ -33,25 +33,26 @@ def _load_step(filename):
     return _CACHE[filename]
 
 
-def get_cots_servo():
+def get_cots_servo(optimized=True):
     """Get TowerPro MG90S servo aligned to joint local frame (origin at shaft axis / case top)."""
-    if "servo_local" not in _CACHE:
-        raw = _load_step("mg90s.step")
-        # In mg90s.step:
-        # Shaft axis is at X=5.375, Z=0.0, pointing along +Y
-        # Case top plane is at Y=11.275
-        # Servo body points along -X
-        # In Joint local frame (b, w, a):
-        # a (shaft) = +Z_local = Y - 11.275
-        # b (body)  = +X_local = -(X - 5.375) = -X + 5.375
-        # w (width) = +Y_local = Z
-        trsf = gp_Trsf()
-        trsf.SetValues(-1.0, 0.0, 0.0, 5.375,
-                       0.0, 0.0, 1.0, 0.000,
-                       0.0, 1.0, 0.0, -11.275)
-        local_shape = cq.Shape(raw.wrapped.Moved(cq.Location(trsf).wrapped))
-        _CACHE["servo_local"] = local_shape
-    return _CACHE["servo_local"]
+    key = "servo_local_opt" if optimized else "servo_local"
+    if key not in _CACHE:
+        if optimized:
+            raw = _load_step("mg90s_opt.step")
+            trsf = gp_Trsf()
+            trsf.SetValues(1.0, 0.0, 0.0, 5.5,
+                           0.0, 1.0, 0.0, 0.0,
+                           0.0, 0.0, 1.0, -22.7)
+            local_shape = cq.Shape(raw.wrapped.Moved(cq.Location(trsf).wrapped))
+        else:
+            raw = _load_step("mg90s.step")
+            trsf = gp_Trsf()
+            trsf.SetValues(-1.0, 0.0, 0.0, 5.375,
+                           0.0, 0.0, 1.0, 0.000,
+                           0.0, 1.0, 0.0, -11.275)
+            local_shape = cq.Shape(raw.wrapped.Moved(cq.Location(trsf).wrapped))
+        _CACHE[key] = local_shape
+    return _CACHE[key]
 
 
 def place_servo_in_joint(joint, q_angle=0.0):
