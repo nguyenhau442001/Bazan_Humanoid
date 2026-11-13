@@ -53,6 +53,31 @@
 
 ---
 
+## 📑 Table of Contents
+
+- [🌋 Why Bazan?](#why-bazan)
+- [🏛️ System Architecture](#system-architecture)
+  - [1. High-Level Layered Architecture](#1-high-level-layered-architecture)
+  - [2. Hardware Interconnect & Power Grid](#2-hardware-interconnect--power-grid)
+  - [3. Dataflow & Firmware Pipeline (Deep-Dive)](#3-dataflow--firmware-pipeline-deep-dive)
+- [🧠 SOTA RL Locomotion Policies](#sota-rl-locomotion-policies)
+  - [Autonomous Evolution Counter & Stagnation Self-Review](#autonomous-evolution-counter--stagnation-self-review)
+  - [Foundation Model Evaluation Matrix (Multi-Dimensional Benchmarking)](#foundation-model-evaluation-matrix-multi-dimensional-benchmarking)
+  - [20-Motion Canonical Benchmark & Biomechanical HLI-20](#20-motion-canonical-benchmark--biomechanical-hli-20)
+  - [Quasi-Static vs. Dynamic Locomotion (Anti-Sway Benchmark)](#quasi-static-vs-dynamic-locomotion-anti-sway-benchmark)
+  - [Mathematical Formulation: Peak 64-In / 32-Out Whole-Body Neural Policy](#mathematical-formulation-peak-64-in--32-out-whole-body-neural-policy)
+  - [Kinematic Singularity Mitigation](#kinematic-singularity-mitigation)
+- [📐 Kinematics & Coordinate Frames](#kinematics--coordinate-frames)
+- [⚡ Quick Start](#quick-start)
+- [📁 Repository Structure](#repository-structure)
+- [🗺️ Roadmap & Embodied AI Engineering Curriculum](#roadmap--embodied-ai-engineering-curriculum)
+  - [1. Platform Engineering Milestones](#1-platform-engineering-milestones)
+  - [2. Personal Action Plan: 4-Month Embodied AI Curriculum](#2-personal-action-plan-4-month-embodied-ai-curriculum-todo-list)
+- [📄 License](#license)
+
+---
+
+<a id="why-bazan"></a>
 ### 🌋 Why Bazan?
 
 **Bazan** (model code **BZN-01**) draws its name from the fertile, ancient red volcanic basalt soil (*đất đỏ bazan*) characteristic of the Kon Tum and Central Highlands (*Tây Nguyên*) plateau of Vietnam.
@@ -64,10 +89,12 @@ Just as the basalt earth anchors the ancient forests with grounded firmness and 
 
 ---
 
+<a id="system-architecture"></a>
 ## 🏛️ System Architecture
 
 Core principle: **The application domain plans, the real-time domain acts.**
 
+<a id="1-high-level-layered-architecture"></a>
 ### 🌐 1. High-Level Layered Architecture
 
 The platform architecture is structured into **5 decoupled vertical tiers**, strictly separating high-level AI cognition and robotic middleware from hard real-time execution and physical mechatronics:
@@ -88,6 +115,7 @@ The platform architecture is structured into **5 decoupled vertical tiers**, str
 
 ---
 
+<a id="2-hardware-interconnect--power-grid"></a>
 ### ⚡ 2. Hardware Interconnect & Power Grid
 
 Subsystems are visually color-coded: Host Compute (Blue), Real-Time MCU (Amber), PWM Actuator Drivers (Coral), and Telemetry Sensors (Purple).
@@ -172,6 +200,7 @@ flowchart LR
 
 ---
 
+<a id="3-dataflow--firmware-pipeline-deep-dive"></a>
 ### 🔍 3. Dataflow & Firmware Pipeline (Deep-Dive)
 
 <details>
@@ -238,8 +267,7 @@ flowchart LR
 
 ---
 
----
-
+<a id="sota-rl-locomotion-policies"></a>
 ## 🧠 SOTA RL Locomotion Policies
 
 End-to-End Goal-Conditioned RL Policy trained with hardware-accelerated MuJoCo and Apple Silicon Metal GPU (PyTorch MPS).
@@ -272,6 +300,7 @@ flowchart LR
 ```
 
 <!-- evolution:telemetry:start -->
+<a id="autonomous-evolution-counter--stagnation-self-review"></a>
 ### ⏱️ Autonomous Evolution Counter & Stagnation Self-Review
 | Evolutionary Metric | Live Counter Value | Status / Description |
 | :--- | :---: | :--- |
@@ -283,6 +312,7 @@ flowchart LR
 | **Latest Stagnation Audit**       | [`docs/engineering/evolution_reviews/stagnation_review_gen_218.md`](docs/engineering/evolution_reviews/stagnation_review_gen_218.md) (5 Pain Points Analyzed & Solved) | Comprehensive diagnostic report on file |
 <!-- evolution:telemetry:end -->
 
+<a id="foundation-model-evaluation-matrix-multi-dimensional-benchmarking"></a>
 ### 🏆 Foundation Model Evaluation Matrix (Multi-Dimensional Benchmarking)
 
 Mirroring frontier AI evaluation protocols (e.g. Anthropic Claude 3.5 Sonnet / OpenAI GPT-4o model cards), Bazan policies are benchmarked across a multi-dimensional matrix spanning **Environmental Disturbance Robustness (10 Criteria)**, **Biomechanical Human-Likeness (HLI-20 Suite)**, and **Edge Computational Latency**:
@@ -313,6 +343,7 @@ python3 src/humanoid_control/scripts/eval_mico_benchmark.py --compare baseline \
 ```
 *Full 10-criteria suite, 20-motion breakdown & throughput specs in [docs/engineering/rl_benchmark.md](docs/engineering/rl_benchmark.md).*
 
+<a id="20-motion-canonical-benchmark--biomechanical-hli-20"></a>
 ### 🧬 20-Motion Canonical Benchmark & Biomechanical HLI-20
 
 To evaluate true embodied humanoid agility, the robot is benchmarked across **20 canonical motions** measuring **20 biomechanical human-likeness parameters** (HLI-20 composite index):
@@ -333,6 +364,7 @@ python3 src/humanoid_control/scripts/humanoid_benchmark_20motions.py
 python3 src/humanoid_control/scripts/autonomous_locomotion_loop.py --nonstop --target-hli 85.0
 ```
 
+<a id="quasi-static-vs-dynamic-locomotion-anti-sway-benchmark"></a>
 ### ⚖️ Quasi-Static vs. Dynamic Locomotion (Anti-Sway Benchmark)
 
 To solve the bipedal sway problem inherent in narrow support polygons ($45 \times 32\text{ mm}$ feet), the policy was trained with an upright tilt penalty $R_{\text{upright}} = -0.50 \cdot (\theta_{\text{roll}})^2 - 0.05 \cdot (\omega_{\text{roll}})^2$:
@@ -346,6 +378,7 @@ To solve the bipedal sway problem inherent in narrow support polygons ($45 \time
 | **Quasi-Static Baseline** (`mico_gait.py`) | $\pm 11.46^\circ$ ($\pm 0.20\text{ rad}$) | $11.46^\circ$ | High lateral torso sway | Forces CoM shift directly over stance foot to avoid tipping |
 | **Dynamic Policy** (`v9.1_upright_anti_sway`) | **$5.75^\circ$** | **$2.67^\circ$** | **Upright, steady walk (76.7% sway reduction)** | Momentum transfer & Capture Point foot placement to catch falling CoM |
 
+<a id="mathematical-formulation-peak-64-in--32-out-whole-body-neural-policy"></a>
 ### 🔢 Mathematical Formulation: Peak 64-In / 32-Out Whole-Body Neural Policy
 
 The policy network is deployed via **ONNX Runtime** at 50 Hz on the Radxa Zero 3W (or host macOS/Linux), executing an end-to-end mapping from a **64-dimensional sensory observation vector ($2^6 = 64$)** to a **32-dimensional whole-body action and adaptive control vector ($2^5 = 32$)**:
@@ -486,6 +519,7 @@ $$\text{PWM}_i (\mu\text{s}) = 1500 + \left( \mathbf{q}_{\text{target}, i} \time
 
 ---
 
+<a id="kinematic-singularity-mitigation"></a>
 ### ⚠️ Kinematic Singularity Mitigation
 
 Kinematic singularities occur when the leg Jacobian matrix $\mathbf{J}(\mathbf{q}) \in \mathbb{R}^{3 \times 3}$ loses rank ($\det(\mathbf{J}) \to 0$), demanding infinite joint velocity ($\dot{\mathbf{q}} = \mathbf{J}^{-1} \dot{\mathbf{x}} \to \infty$) for finite foot Cartesian velocity. Bazan implements a **4-tier defense architecture** against singularities:
@@ -515,6 +549,7 @@ flowchart TD
 
 ---
 
+<a id="kinematics--coordinate-frames"></a>
 ## 📐 Kinematics & Coordinate Frames
 
 <p align="center">
@@ -530,6 +565,7 @@ Conforms to REP-103 (x forward, y left, z up) and REP-120. `base_link` sits at t
 
 ---
 
+<a id="quick-start"></a>
 ## ⚡ Quick Start
 
 ```bash
@@ -547,6 +583,7 @@ open docs/index.html   # or visit https://nguyenhau442001.github.io/Synapse_Huma
 
 ---
 
+<a id="repository-structure"></a>
 ## 📁 Repository Structure
 
 | Path | Description |
@@ -562,8 +599,10 @@ open docs/index.html   # or visit https://nguyenhau442001.github.io/Synapse_Huma
 
 ---
 
+<a id="roadmap--embodied-ai-engineering-curriculum"></a>
 ## 🗺️ Roadmap & Embodied AI Engineering Curriculum
 
+<a id="1-platform-engineering-milestones"></a>
 ### 1. Platform Engineering Milestones
 
 - [x] 20-DoF kinematic model, TF tree, and URDF/Xacro generators
@@ -576,6 +615,7 @@ open docs/index.html   # or visit https://nguyenhau442001.github.io/Synapse_Huma
 - [ ] ZMP / LIPM footstep trajectory planner & closed-form leg IK
 - [ ] micro-ROS UART communication between Radxa Zero 3W and STM32F411
 
+<a id="2-personal-action-plan-4-month-embodied-ai-curriculum-todo-list"></a>
 ### 2. Personal Action Plan: 4-Month Embodied AI Curriculum (Todo-List)
 
 A structured technical roadmap from spatial kinematics to hardware-in-the-loop Embodied AI deployment:
@@ -589,6 +629,7 @@ A structured technical roadmap from spatial kinematics to hardware-in-the-loop E
 
 ---
 
+<a id="license"></a>
 ## 📄 License
 
 Apache 2.0.
