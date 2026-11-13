@@ -22,7 +22,7 @@ REPO_ROOT = SCRIPT_DIR.parents[1]
 # Load environment configuration
 load_dotenv(ENV_PATH)
 
-DEFAULT_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-pro")
+DEFAULT_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 
 mcp = FastMCP("gemini")
 
