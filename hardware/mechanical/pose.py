@@ -41,13 +41,13 @@ def owner(leg, name):
     return LINK_OF.get(link, link)
 
 
-def posed(leg, q, include=("parts", "servos", "horns", "caps")):
+def posed(leg, q, include=("parts", "servos", "horns", "caps"), cots=False):
     locs = link_locations(leg, q)
     comps = {}
     if "parts" in include:
         comps.update(leg.parts)
     if "servos" in include:
-        comps.update(leg.servos())
+        comps.update(leg.servos(cots=cots))
     if "horns" in include:
         comps.update(leg.horns())
     if "caps" in include:

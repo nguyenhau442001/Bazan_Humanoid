@@ -308,8 +308,8 @@ class Leg:
         return out
 
     # ------------------------------------------------------------ bought parts placed for display and checks
-    def servos(self):
-        return {f"servo_{n}": j.servo_solid() for n, j in self.joints.items()}
+    def servos(self, cots=False):
+        return {f"servo_{n}": j.servo_solid(cots=cots) for n, j in self.joints.items()}
 
     def horns(self):
         return {f"horn_{n}": j.horn_solid() for n, j in self.joints.items()}

@@ -20,14 +20,14 @@ import robot as ROBOT
 import sensors as SENS
 
 
-def build_assembly(q=None, include_electronics=True, include_servos=True, include_cables=True):
+def build_assembly(q=None, include_electronics=True, include_servos=True, include_cables=True, use_cots=True):
     """Build a cq.Assembly containing all parts with human-readable names and colors."""
     print("Initializing Body and Leg models...")
     body = B.Body()
     leg = LEG.Leg()
 
-    print("Assembling whole-body geometry...")
-    parts = ROBOT.assemble(body, leg, q=q, include_legs=True)
+    print(f"Assembling whole-body geometry (use_cots={use_cots})...")
+    parts = ROBOT.assemble(body, leg, q=q, include_legs=True, use_cots=use_cots)
 
     assy = cq.Assembly(name="Bazan_Humanoid_v4")
 
@@ -38,6 +38,8 @@ def build_assembly(q=None, include_electronics=True, include_servos=True, includ
     COLOR_HORN = cq.Color(0.90, 0.90, 0.90, 1.0)          # White nylon horn
     COLOR_STANDOFF = cq.Color(0.80, 0.70, 0.20, 1.0)      # Brass / gold standoff
     COLOR_PCB = cq.Color(0.10, 0.55, 0.25, 1.0)           # Green PCB boards
+    COLOR_PCA = cq.Color(0.05, 0.25, 0.65, 1.0)           # Blue Adafruit PCA9685
+    COLOR_TOF = cq.Color(0.45, 0.15, 0.60, 1.0)           # Purple VL53L0X breakout
     COLOR_BATT = cq.Color(0.15, 0.35, 0.85, 1.0)          # Blue LiPo battery
     COLOR_CAP = cq.Color(0.10, 0.20, 0.50, 1.0)           # Navy cap
     COLOR_CABLE = cq.Color(0.12, 0.12, 0.14, 1.0)         # Charcoal black braided wire harness
@@ -49,7 +51,8 @@ def build_assembly(q=None, include_electronics=True, include_servos=True, includ
         cad_name = name.replace(".", "_")
 
         # Skip bought parts if requested
-        if not include_electronics and (cad_name.startswith("board_") or cad_name == "battery"):
+        if not include_electronics and (cad_name.startswith("board_") or cad_name.startswith("cots_")
+                                        or cad_name == "battery"):
             continue
         if not include_servos and (cad_name.find("servo_") != -1 or cad_name.find("horn_") != -1):
             continue
@@ -63,7 +66,11 @@ def build_assembly(q=None, include_electronics=True, include_servos=True, includ
             col = COLOR_CAP
         elif cad_name.startswith("so35_") or cad_name.startswith("so40_"):
             col = COLOR_STANDOFF
-        elif cad_name.startswith("board_"):
+        elif "PCA" in cad_name:
+            col = COLOR_PCA
+        elif "vl53l0x" in cad_name or "TOF" in cad_name:
+            col = COLOR_TOF
+        elif cad_name.startswith("board_") or "RADXA" in cad_name or "camera" in cad_name:
             col = COLOR_PCB
         elif cad_name == "battery":
             col = COLOR_BATT

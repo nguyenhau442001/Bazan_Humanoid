@@ -129,7 +129,13 @@ class Joint:
                                depth, self.name))
 
     # ---------------------------------------------------------- the servo itself
-    def servo_solid(self):
+    def servo_solid(self, cots=False):
+        if cots:
+            try:
+                import cots_loader
+                return cots_loader.place_servo_in_joint(self)
+            except Exception:
+                pass
         s = box((CB0, CB), (-S.width / 2, S.width / 2), CASE)
         s = s.fuse(box((CMID - S.tab_span / 2, CMID + S.tab_span / 2), (-S.width / 2, S.width / 2), TAB_A))
         s = s.fuse(cyl(S.tower_d / 2, 0, S.tower_h))

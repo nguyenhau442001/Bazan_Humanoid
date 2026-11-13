@@ -60,7 +60,7 @@ def owner(body, name):
     return "torso" if link in TORSO else link
 
 
-def assemble(body, leg, q=None, include_legs=True):
+def assemble(body, leg, q=None, include_legs=True, use_cots=False):
     """{name: solid} for the whole robot in pose q. Names carry L./R. for sided parts."""
     q = q or {}
     out = {}
@@ -68,7 +68,7 @@ def assemble(body, leg, q=None, include_legs=True):
               "R": {k[2:]: v for k, v in q.items() if k.startswith("r_")}}
     head_q = {k: v for k, v in q.items() if k in ("neck_yaw", "head_pitch")}
     comps = dict(body.parts)
-    comps.update(body.servos())
+    comps.update(body.servos(cots=use_cots))
     comps.update(body.horns())
     arm_names = [n for n in comps if owner(body, n) in ("shoulder_link", "upper_arm", "forearm")
                  or n in ("servo_shoulder_pitch",)]
@@ -96,12 +96,26 @@ def assemble(body, leg, q=None, include_legs=True):
     for i, s in body.standoffs().items():
         out[i] = s
     out["battery"] = body.battery()
-    for k, s in body.boards.items():
-        out[f"board_{k}"] = s.moved(locs["head_frame"]) if k == "DISP" else s
+    if use_cots:
+        try:
+            import cots_loader
+            cots_boards = cots_loader.get_all_cots_electronics(body)
+            for k, s in cots_boards.items():
+                if "camera" in k or "vl53l0x" in k:
+                    out[k] = s.moved(locs["head_frame"])
+                else:
+                    out[k] = s
+        except Exception as e:
+            print(f"Warning: could not load COTS electronics: {e}")
+            for k, s in body.boards.items():
+                out[f"board_{k}"] = s.moved(locs["head_frame"]) if k == "DISP" else s
+    else:
+        for k, s in body.boards.items():
+            out[f"board_{k}"] = s.moved(locs["head_frame"]) if k == "DISP" else s
     if include_legs:
         for side, sy in (("L", 1), ("R", -1)):
             lq = {k: v for k, v in side_q[side].items() if k in LEG.Leg().joints} if False else side_q[side]
-            posed = P.posed(leg, {k: v for k, v in lq.items() if k in P.AXIS})
+            posed = P.posed(leg, {k: v for k, v in lq.items() if k in P.AXIS}, cots=use_cots)
             for n, s in posed.items():
                 s2 = s if sy > 0 else s.mirror("XZ")
                 out[f"{side}.leg.{n}"] = s2.moved(cq.Location(cq.Vector(0, sy * LEG.HIP_Y, 0)))
