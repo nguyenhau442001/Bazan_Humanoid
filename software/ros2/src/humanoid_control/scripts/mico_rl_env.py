@@ -39,10 +39,29 @@ LEG_JOINTS = [
 ]
 
 ARM_JOINTS = [
-    "l_shoulder_pitch", "l_elbow", "r_shoulder_pitch", "r_elbow"
+    "l_shoulder_pitch", "l_shoulder_roll", "l_elbow",
+    "r_shoulder_pitch", "r_shoulder_roll", "r_elbow"
 ]
 
-CONTROL_JOINTS = LEG_JOINTS + ARM_JOINTS
+NECK_JOINTS = [
+    "neck_yaw", "head_pitch"
+]
+
+ALL_20_JOINTS = LEG_JOINTS + ARM_JOINTS + NECK_JOINTS
+
+# 12 Adaptive Controls (Pure Software / Hardware-Grounded Optimization Parameters)
+ADAPTIVE_12_NAMES = [
+    # Anti-backlash dead-band pre-tension offsets (4)
+    "backlash_comp_l_hip", "backlash_comp_r_hip",
+    "backlash_comp_l_ankle", "backlash_comp_r_ankle",
+    # Dynamic vibration suppression filter alphas (2)
+    "filter_alpha_legs", "filter_alpha_arms",
+    # Dynamic adaptive gait modifiers (4)
+    "gait_cadence_scale", "step_clearance_lift",
+    "pelvis_height_offset", "torso_lean_pitch",
+    # Safety compliance & camera gimbal stabilization (2)
+    "max_torque_compliance", "camera_gimbal_gain",
+]
 
 # Comprehensive 64-dim Observation Space (2^6 = 64, exact 256 bytes)
 OBS_64_NAMES = [
@@ -87,15 +106,9 @@ OBS_64_NAMES = [
 ]
 assert len(OBS_64_NAMES) == 64
 
-# Whole-Body 16-dim Action Space (2^4 = 16, exact 64 bytes)
-ACTION_16_NAMES = [
-    # 12 Leg Joint Position Offsets
-    "l_hip_yaw", "l_hip_roll", "l_hip_pitch", "l_knee", "l_ankle_pitch", "l_ankle_roll",
-    "r_hip_yaw", "r_hip_roll", "r_hip_pitch", "r_knee", "r_ankle_pitch", "r_ankle_roll",
-    # 4 Arm Swing Position Offsets
-    "l_shoulder_pitch", "l_elbow", "r_shoulder_pitch", "r_elbow",
-]
-assert len(ACTION_16_NAMES) == 16
+# Peak Standard 32-dim Action Space (2^5 = 32, exact 128 bytes: 20 Whole-Body + 12 Adaptive Controls)
+ACTION_32_NAMES = ALL_20_JOINTS + ADAPTIVE_12_NAMES
+assert len(ACTION_32_NAMES) == 32
 
 
 def build_mico_model():
@@ -160,21 +173,10 @@ class MicoEnv:
         else:
             self.action_scale = action_scale
         if self.use_perception:
-            # Whole-Body 64-dim observation space (2^6 = 64) and 16-dim action space (2^4 = 16):
-            # 6 MPU6050 (Gravity 3 + Gyro 3)
-            # + 1 Heel-Strike Impact Accel az
-            # + 24 Leg Joints (Pos error 12 + Velocity 12)
-            # + 4 Arm Joints (Positions 4)
-            # + 12 Previous Leg Actions
-            # + 3 ROS 2 /cmd_vel Command [vx, vy, wz]
-            # + 2 Gait Phase Clock [sin, cos]
-            # + 4 Foot FSR Contact [L_heel, L_toe, R_heel, R_toe]
-            # + 1 Head VL53L0X ToF laser distance
-            # + 3 Camera Yang Jian Target Tracking [flag, angle_x, dist]
-            # + 2 INA226 Telemetry (Bus Voltage + Current)
-            # + 2 NTC 10k Thermistors (L & R Hip-roll servo case temps)
+            # Whole-Body 64-dim observation space (2^6 = 64) and 32-dim action space (2^5 = 32):
+            # 20 Whole-Body Joints (12 legs, 6 arms, 2 neck) + 12 Adaptive Controls
             self.obs_dim = 64
-            self.act_dim = 16
+            self.act_dim = 32
         elif self.use_fsr:
             self.obs_dim = 51 if self.use_phase else 49
             self.act_dim = 12
@@ -192,8 +194,11 @@ class MicoEnv:
         self.leg_joint_qadr = np.array([m.jnt_qposadr[m.joint(j).id] for j in LEG_JOINTS])
         self.leg_joint_dadr = np.array([m.jnt_dofadr[m.joint(j).id] for j in LEG_JOINTS])
         self.leg_act_ids = np.array([m.actuator(j).id for j in LEG_JOINTS])
-        self.arm_joint_qadr = np.array([m.jnt_qposadr[m.joint(j).id] for j in ARM_JOINTS])
-        self.arm_act_ids = np.array([m.actuator(j).id for j in ARM_JOINTS])
+        self.arm_6_act_ids = np.array([m.actuator(j).id for j in ARM_JOINTS])
+        self.neck_act_ids = np.array([m.actuator(j).id for j in NECK_JOINTS])
+        self.obs_arm_joint_qadr = np.array([
+            m.jnt_qposadr[m.joint(j).id] for j in ["l_shoulder_pitch", "l_elbow", "r_shoulder_pitch", "r_elbow"]
+        ])
         self.all_act_ids = np.array([m.actuator(j).id for j in gait.JOINTS])
 
         # Foot collision geoms for FSR contact measurement
@@ -225,6 +230,7 @@ class MicoEnv:
 
         self.leg_q_nominal = np.array([self.q_nominal[gait.JOINTS.index(j)] for j in LEG_JOINTS])
         self.arm_q_nominal = np.array([self.q_nominal[gait.JOINTS.index(j)] for j in ARM_JOINTS])
+        self.neck_q_nominal = np.array([self.q_nominal[gait.JOINTS.index(j)] for j in NECK_JOINTS])
         self.nominal_height = 0.112
         self.target_prob = 0.0
 
@@ -419,7 +425,7 @@ class MicoEnv:
             # 4. 12 Leg joint velocities (12 dims: leg_dq)
 
             # 5. 4 Arm joint positions for dynamic balance (4 dims)
-            arm_q = self.data.qpos[self.arm_joint_qadr].astype(np.float32)
+            arm_q = self.data.qpos[self.obs_arm_joint_qadr].astype(np.float32)
 
             # 6. Previous leg actions (12 dims)
             prev_leg_act = self.prev_action[:12].astype(np.float32)
@@ -589,7 +595,7 @@ class MicoEnv:
                     self.data.xfrc_applied[self.base_id, 0] -= float(np.random.uniform(1.0, 2.5))
                     self.data.qpos[2] += 0.005
 
-        # Compute target position for 12 leg joints
+        # Compute target position for 12 leg joints, 6 arm joints, and 2 neck joints
         if self.use_residual:
             t_sec = self.step_count * 0.02
             cmd_vx = float(self.command[0])
@@ -617,15 +623,45 @@ class MicoEnv:
         else:
             target_leg_q = self.leg_q_nominal + exec_action[:12] * self.action_scale
 
-        full_ctrl = self.q_nominal.copy()
-        for idx, act_id in enumerate(self.leg_act_ids):
-            full_ctrl[act_id] = target_leg_q[idx]
+        # Whole-Body 32-dim Action Space handling (20 joints + 12 adaptive controls)
+        if len(exec_action) >= 32:
+            # 1. Anti-Backlash Pre-Tension Offsets [20..23]
+            backlash = exec_action[20:24] * 0.015  # rad pre-tension
+            target_leg_q[1] += backlash[0]   # l_hip_roll
+            target_leg_q[7] += backlash[1]   # r_hip_roll
+            target_leg_q[4] += backlash[2]   # l_ankle_pitch
+            target_leg_q[10] += backlash[3]  # r_ankle_pitch
 
-        # 4 Arm Swing joints for whole-body coordination (16-dim action space)
-        if self.use_perception and len(exec_action) >= 16:
-            target_arm_q = self.arm_q_nominal + exec_action[12:16] * (self.action_scale * 1.5)
-            for idx, act_id in enumerate(self.arm_act_ids):
+            # 2. 6 Arm Joints [12..17] (Pitch, Roll, Elbow for dynamic balance & flaring)
+            target_arm_q = self.arm_q_nominal + exec_action[12:18] * (self.action_scale * 1.5)
+
+            # 3. 2 Neck Joints [18..19] with Gimbal Stabilization [31]
+            gimbal_gain = float(np.clip(0.5 + exec_action[31] * 0.5, 0.0, 1.0))
+            torso_lean = float(np.clip(exec_action[29] * 0.08, -0.08, 0.08))
+            target_neck_q = self.neck_q_nominal + exec_action[18:20] * self.action_scale
+            target_neck_q[1] += float(-torso_lean * gimbal_gain)
+
+            full_ctrl = self.q_nominal.copy()
+            for idx, act_id in enumerate(self.leg_act_ids):
+                full_ctrl[act_id] = target_leg_q[idx]
+            for idx, act_id in enumerate(self.arm_6_act_ids):
                 full_ctrl[act_id] = target_arm_q[idx]
+            for idx, act_id in enumerate(self.neck_act_ids):
+                full_ctrl[act_id] = target_neck_q[idx]
+
+        elif len(exec_action) >= 16:
+            # Backward-compatible 16-dim action space (12 legs + 4 arm swing joints)
+            target_arm_q = self.arm_q_nominal[:4] + exec_action[12:16] * (self.action_scale * 1.5)
+            full_ctrl = self.q_nominal.copy()
+            for idx, act_id in enumerate(self.leg_act_ids):
+                full_ctrl[act_id] = target_leg_q[idx]
+            for idx, act_id in enumerate(self.arm_6_act_ids[:4]):
+                full_ctrl[act_id] = target_arm_q[idx]
+        else:
+            # Backward-compatible 12-dim action space (12 leg joints only)
+            full_ctrl = self.q_nominal.copy()
+            for idx, act_id in enumerate(self.leg_act_ids):
+                full_ctrl[act_id] = target_leg_q[idx]
 
         self.data.ctrl[self.all_act_ids] = full_ctrl
 

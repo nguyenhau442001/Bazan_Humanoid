@@ -38,7 +38,16 @@ LEG_JOINTS = [
     "r_hip_yaw", "r_hip_roll", "r_hip_pitch", "r_knee", "r_ankle_pitch", "r_ankle_roll"
 ]
 
-ARM_JOINTS = [
+ARM_6_JOINTS = [
+    "l_shoulder_pitch", "l_shoulder_roll", "l_elbow",
+    "r_shoulder_pitch", "r_shoulder_roll", "r_elbow"
+]
+
+NECK_JOINTS = [
+    "neck_yaw", "head_pitch"
+]
+
+OBS_ARM_JOINTS = [
     "l_shoulder_pitch", "l_elbow", "r_shoulder_pitch", "r_elbow"
 ]
 
@@ -138,7 +147,8 @@ def make_rl_node():
             self.q_nominal[gait.JOINTS.index("r_elbow")] = -0.4
 
             self.leg_q_nominal = np.array([self.q_nominal[gait.JOINTS.index(j)] for j in LEG_JOINTS])
-            self.arm_q_nominal = np.array([self.q_nominal[gait.JOINTS.index(j)] for j in ARM_JOINTS])
+            self.arm_6_q_nominal = np.array([self.q_nominal[gait.JOINTS.index(j)] for j in ARM_6_JOINTS])
+            self.neck_q_nominal = np.array([self.q_nominal[gait.JOINTS.index(j)] for j in NECK_JOINTS])
 
             # State cache
             self.prev_action = np.zeros(self.expected_act_dim, dtype=np.float32)
@@ -215,7 +225,7 @@ def make_rl_node():
             leg_q_err = leg_q - self.leg_q_nominal
 
             if self.expected_obs_dim == 64:
-                arm_q = np.array([self.joint_positions[j] for j in ARM_JOINTS], dtype=np.float32)
+                arm_q = np.array([self.joint_positions[j] for j in OBS_ARM_JOINTS], dtype=np.float32)
                 prev_leg_act = self.prev_action[:12]
                 cmd_vec = self.command
                 phase = (self.step_count * self.dt) % 1.6 / 1.6
@@ -269,10 +279,34 @@ def make_rl_node():
                 j_idx = gait.JOINTS.index(joint_name)
                 full_positions[j_idx] = float(target_leg_q[idx])
 
-            # Map 4 arm swing actions if 16-dim action space
-            if self.expected_act_dim >= 16:
-                target_arm_q = self.arm_q_nominal + action[12:16] * (self.action_scale * 1.5)
-                for idx, joint_name in enumerate(ARM_JOINTS):
+            # Whole-Body 32-dim action space (20 joints + 12 adaptive controls)
+            if self.expected_act_dim >= 32:
+                # 1. Anti-Backlash Pre-Tension Offsets [20..23]
+                backlash = action[20:24] * 0.015
+                target_leg_q[1] += backlash[0]   # l_hip_roll
+                target_leg_q[7] += backlash[1]   # r_hip_roll
+                target_leg_q[4] += backlash[2]   # l_ankle_pitch
+                target_leg_q[10] += backlash[3]  # r_ankle_pitch
+
+                # 2. 6 Arm Joints [12..17] (Pitch, Roll, Elbow for balance & flaring)
+                target_arm_q = self.arm_6_q_nominal + action[12:18] * (self.action_scale * 1.5)
+                for idx, joint_name in enumerate(ARM_6_JOINTS):
+                    j_idx = gait.JOINTS.index(joint_name)
+                    full_positions[j_idx] = float(target_arm_q[idx])
+
+                # 3. 2 Neck Joints [18..19] with Gimbal Stabilization [31]
+                gimbal_gain = float(np.clip(0.5 + action[31] * 0.5, 0.0, 1.0))
+                torso_lean = float(np.clip(action[29] * 0.08, -0.08, 0.08))
+                target_neck_q = self.neck_q_nominal + action[18:20] * self.action_scale
+                target_neck_q[1] += float(-torso_lean * gimbal_gain)
+                for idx, joint_name in enumerate(NECK_JOINTS):
+                    j_idx = gait.JOINTS.index(joint_name)
+                    full_positions[j_idx] = float(target_neck_q[idx])
+
+            elif self.expected_act_dim >= 16:
+                # Backward-compatible 16-dim action space
+                target_arm_q = self.arm_6_q_nominal[[0, 2, 3, 5]] + action[12:16] * (self.action_scale * 1.5)
+                for idx, joint_name in enumerate(OBS_ARM_JOINTS):
                     j_idx = gait.JOINTS.index(joint_name)
                     full_positions[j_idx] = float(target_arm_q[idx])
 
