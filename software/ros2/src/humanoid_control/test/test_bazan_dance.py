@@ -18,11 +18,20 @@ while REPO.parent != REPO and not (REPO / ".git").exists() and not (REPO / "AGEN
 sys.path.insert(0, str(HERE.parent / "scripts"))
 
 try:
-    import mico_dance as dance
-    import mico_rl_env as env_mod
+    import bazan_dance as dance
 except ImportError:
-    dance = None
-    env_mod = None
+    try:
+        import mico_dance as dance
+    except ImportError:
+        dance = None
+
+try:
+    import bazan_rl_env as env_mod
+except ImportError:
+    try:
+        import mico_rl_env as env_mod
+    except ImportError:
+        env_mod = None
 
 
 @pytest.fixture(scope="module")
@@ -64,7 +73,7 @@ def test_soundtrack_synthesis(check_prerequisites):
 
 def test_dance_simulation_short(check_prerequisites):
     """Verify robot dances for 150 steps (3.0s) without falling."""
-    env = env_mod.MicoEnv()
+    env = env_mod.BazanEnv()
     env.reset()
 
     curr_ctrl = env.q_nominal.copy()

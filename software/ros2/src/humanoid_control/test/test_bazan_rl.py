@@ -17,9 +17,12 @@ while REPO.parent != REPO and not (REPO / ".git").exists() and not (REPO / "AGEN
 sys.path.insert(0, str(HERE.parent / "scripts"))
 
 try:
-    import mico_rl_env as env_mod
+    import bazan_rl_env as env_mod
 except ImportError:
-    env_mod = None
+    try:
+        import mico_rl_env as env_mod
+    except ImportError:
+        env_mod = None
 
 try:
     import model_registry as reg_mod
@@ -32,13 +35,21 @@ except ImportError:
     ort = None
 
 try:
-    from mico_rl_node import quat_to_rot_matrix
+    from bazan_rl_node import quat_to_rot_matrix
 except ImportError:
-    quat_to_rot_matrix = None
+    try:
+        from mico_rl_node import quat_to_rot_matrix
+    except ImportError:
+        quat_to_rot_matrix = None
 
 try:
-    from train_mico_ppo import DeepResidualActorCritic, PerceptiveTitanTransformerActorCritic
+    from train_bazan_ppo import DeepResidualActorCritic, PerceptiveTitanTransformerActorCritic
 except ImportError:
+    try:
+        from train_mico_ppo import DeepResidualActorCritic, PerceptiveTitanTransformerActorCritic
+    except ImportError:
+        DeepResidualActorCritic = None
+        PerceptiveTitanTransformerActorCritic = None
     DeepResidualActorCritic = None
     PerceptiveTitanTransformerActorCritic = None
 
@@ -60,7 +71,7 @@ def test_quat_to_rot_matrix():
 
 
 def test_single_env(check_prerequisites):
-    env = env_mod.MicoEnv(decimation=2, max_episode_steps=50)
+    env = env_mod.BazanEnv(decimation=2, max_episode_steps=50)
     obs = env.reset(command=[0.2, 0.0, 0.0])
 
     assert obs.shape == (45,)
@@ -79,7 +90,7 @@ def test_single_env(check_prerequisites):
 
 def test_vector_env(check_prerequisites):
     num_envs = 2
-    vec = env_mod.VectorMicoEnv(num_envs=num_envs, decimation=2, max_episode_steps=50)
+    vec = env_mod.VectorBazanEnv(num_envs=num_envs, decimation=2, max_episode_steps=50)
     obs = vec.reset()
 
     assert obs.shape == (num_envs, 45)
@@ -96,9 +107,9 @@ def test_vector_env(check_prerequisites):
 def test_onnx_inference(check_prerequisites):
     if ort is None:
         pytest.skip("onnxruntime not installed")
-    onnx_path = REPO / "src/humanoid_control/models/mico_policy.onnx"
+    onnx_path = REPO / "src/humanoid_control/models/bazan_policy.onnx"
     if not onnx_path.exists():
-        pytest.skip("mico_policy.onnx not yet generated")
+        pytest.skip("bazan_policy.onnx not yet generated")
 
     sess = ort.InferenceSession(str(onnx_path))
     input_name = sess.get_inputs()[0].name
@@ -111,7 +122,7 @@ def test_onnx_inference(check_prerequisites):
 
 
 def test_env_perturbation(check_prerequisites):
-    env = env_mod.MicoEnv(decimation=2, max_episode_steps=50, domain_rand=True)
+    env = env_mod.BazanEnv(decimation=2, max_episode_steps=50, domain_rand=True)
     env.reset()
 
     # Test friction adjustment
@@ -147,7 +158,7 @@ def test_model_registry_functions():
 
 
 def test_perceptive_env_64dim(check_prerequisites):
-    env = env_mod.MicoEnv(decimation=2, max_episode_steps=50, use_perception=True)
+    env = env_mod.BazanEnv(decimation=2, max_episode_steps=50, use_perception=True)
     obs = env.reset(command=[0.2, 0.0, 0.0])
 
     assert env.obs_dim == 64

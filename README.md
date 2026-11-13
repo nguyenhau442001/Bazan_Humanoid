@@ -24,19 +24,19 @@
   </tr>
   <tr>
     <td align="center" valign="middle">
-      <img src="docs/images/mico.png" width="220" alt="Bazan humanoid robot in MuJoCo">
+      <img src="docs/images/bazan.png" width="220" alt="Bazan humanoid robot in MuJoCo">
     </td>
     <td align="center" valign="middle">
       <img src="docs/images/dynamic_walk.gif" width="260" alt="Bazan dynamic upright walking in MuJoCo">
     </td>
     <td align="center" valign="middle">
-      <img src="docs/images/mico_wave.gif" width="260" alt="Bazan waving in MuJoCo">
+      <img src="docs/images/bazan_wave.gif" width="260" alt="Bazan waving in MuJoCo">
     </td>
   </tr>
 </table>
 
 <p>
-  🎬 <b><a href="docs/images/mico_demo.mp4">▶️ Watch Full MuJoCo Simulation Demo (Walk · Turn · Wave · 60fps MP4)</a></b>
+  🎬 <b><a href="docs/images/bazan_demo.mp4">▶️ Watch Full MuJoCo Simulation Demo (Walk · Turn · Wave · 60fps MP4)</a></b>
 </p>
 
 </div>
@@ -214,11 +214,11 @@ flowchart LR
 flowchart TB
   subgraph APP["Application Domain · ROS 2 Jazzy (Mac / Ubuntu VM / Radxa Zero 3W)"]
     direction TB
-    GAIT["<b>mico_gait.py</b><br/>demo gait: walk 8 steps, turn 60°, wave"]
+    GAIT["<b>bazan_gait.py</b><br/>demo gait: walk 8 steps, turn 60°, wave"]
     RL_NODE["<b>rl_locomotion_node</b><br/>ONNX Policy inference @ 50 Hz"]
-    PLAY["<b>mico_playback.py</b><br/>kinematic playback, no physics"]
-    RSP["<b>robot_state_publisher</b><br/>mico.urdf.xacro"]
-    RVIZ["<b>RViz2</b><br/>rviz/mico.rviz · fixed frame odom"]
+    PLAY["<b>bazan_playback.py</b><br/>kinematic playback, no physics"]
+    RSP["<b>robot_state_publisher</b><br/>bazan.urdf.xacro"]
+    RVIZ["<b>RViz2</b><br/>rviz/bazan.rviz · fixed frame odom"]
     subgraph PERC["humanoid_perception"]
       CAM["camera_subscriber_node<br/>RGB-D sync"]
       ONNX["onnx_inference_node<br/>ONNX Runtime"]
@@ -228,7 +228,7 @@ flowchart TB
   end
 
   subgraph SIM["Physics Backends · Interchangeable Topics"]
-    MJ["<b>MuJoCo 3.8+</b><br/>mico_mujoco_bridge.py · 1 ms steps"]
+    MJ["<b>MuJoCo 3.8+</b><br/>bazan_mujoco_bridge.py · 1 ms steps"]
   end
 
   subgraph MCU["Real-Time Domain · STM32F411 · FreeRTOS"]
@@ -287,7 +287,7 @@ flowchart LR
   end
 
   subgraph DEPLOY["Deployment & Runtime"]
-    ONNX_MODEL["mico_policy.onnx<br/>(< 1.0 ms inference)"]
+    ONNX_MODEL["bazan_policy.onnx<br/>(< 1.0 ms inference)"]
     ROS_CTRL["ROS 2 Locomotion Node<br/>50 Hz JointTrajectory"]
   end
 
@@ -325,7 +325,7 @@ Mirroring frontier AI evaluation protocols (e.g. Anthropic Claude 3.5 Sonnet / O
 | ⚡ **`v1.0_light_50iter`** *(Compact MLP Baseline)* | **97.5** | 56.8 / 100 | 13 / 20 (65%) | 3.6° | **83%** | 100% | 100% | 100% | 100% | 100% | **6 μs** | **46k** |
 | 📐 **`Baseline Kinematic`** *(Analytical LIPM IK)* | 95.2 | 59.6 / 100 | 18 / 20 (90%) | 11.5° | 79% | 100% | 100% | 100% | 100% | 100% | 0.3 μs | N/A |
 
-> **Active Model Symlink:** `models/mico_policy.onnx` points to **`v12.0_adaptive_pitch_sprint`** — achieving the lowest torso roll sway ($2.5^\circ$), agile forward sprint ($0.5\text{ m/s}$), and full slope compensation.
+> **Active Model Symlink:** `models/bazan_policy.onnx` points to **`v12.0_adaptive_pitch_sprint`** — achieving the lowest torso roll sway ($2.5^\circ$), agile forward sprint ($0.5\text{ m/s}$), and full slope compensation.
 
 ```bash
 # Model Registry CLI:
@@ -335,7 +335,7 @@ python3 src/humanoid_control/scripts/model_registry.py activate v8.1_apex_titan 
 python3 src/humanoid_control/scripts/model_registry.py list                                  # List all registered policies
 
 # Run 10-Criteria Violent Disturbance Benchmark across all models:
-python3 src/humanoid_control/scripts/eval_mico_benchmark.py --compare baseline \
+python3 src/humanoid_control/scripts/eval_bazan_benchmark.py --compare baseline \
   src/humanoid_control/models/mico_policy_v1.0_light_50iter.onnx \
   src/humanoid_control/models/mico_policy_v8.1_apex_titan.onnx \
   src/humanoid_control/models/mico_policy_v9.0_titan_transformer.onnx \
@@ -375,7 +375,7 @@ To solve the bipedal sway problem inherent in narrow support polygons ($45 \time
 
 | Gait Strategy | Max Roll Tilt ($\theta_{\text{roll, max}}$) | RMS Roll Sway | Dynamic Behavior | Physical Mechanism |
 | :--- | :---: | :---: | :--- | :--- |
-| **Quasi-Static Baseline** (`mico_gait.py`) | $\pm 11.46^\circ$ ($\pm 0.20\text{ rad}$) | $11.46^\circ$ | High lateral torso sway | Forces CoM shift directly over stance foot to avoid tipping |
+| **Quasi-Static Baseline** (`bazan_gait.py`) | $\pm 11.46^\circ$ ($\pm 0.20\text{ rad}$) | $11.46^\circ$ | High lateral torso sway | Forces CoM shift directly over stance foot to avoid tipping |
 | **Dynamic Policy** (`v9.1_upright_anti_sway`) | **$5.75^\circ$** | **$2.67^\circ$** | **Upright, steady walk (76.7% sway reduction)** | Momentum transfer & Capture Point foot placement to catch falling CoM |
 
 <a id="mathematical-formulation-peak-64-in--32-out-whole-body-neural-policy"></a>
@@ -536,7 +536,7 @@ flowchart TD
 
 1. **Nominal Crouch Geometry ($H_0 < L_1 + L_2$):**
    Nominal hip-to-ankle height is clamped at $H_0 = 87\text{ mm}$ while total leg length is $L_1 + L_2 = 45 + 45 = 90\text{ mm}$. The knee is mechanically prevented from locking straight ($\theta_{\text{knee}} = 0$), preserving continuous non-zero Jacobian determinant $\det(\mathbf{J}) > 0$.
-2. **Analytical IK Clamping (`mico_gait.py`):**
+2. **Analytical IK Clamping (`bazan_gait.py`):**
    ```python
    d = min(math.hypot(x, z), L1 + L2 - 1e-6)
    beta = math.acos(d / (2 * L1))  # Clamped argument strictly in [0, 1), preventing NaN
@@ -560,7 +560,7 @@ Conforms to REP-103 (x forward, y left, z up) and REP-120. `base_link` sits at t
 
 | Model Target | Source File |
 | :--- | :--- |
-| ROS 2, RViz2 (URDF / Xacro) | [`src/humanoid_description/urdf/mico.urdf.xacro`](src/humanoid_description/urdf/mico.urdf.xacro) |
+| ROS 2, RViz2 (URDF / Xacro) | [`src/humanoid_description/urdf/bazan.urdf.xacro`](src/humanoid_description/urdf/bazan.urdf.xacro) |
 | MuJoCo Engine | [`sim/mini_humanoid/humanoid.urdf`](sim/mini_humanoid/humanoid.urdf) |
 
 ---
@@ -570,11 +570,11 @@ Conforms to REP-103 (x forward, y left, z up) and REP-120. `base_link` sits at t
 
 ```bash
 # 1. Interactive 3D Simulation (Keys: K = kick, 1/2/3 = force, I = ice, +/- = speed):
-python3 src/humanoid_control/scripts/mico_visualizer.py
+python3 src/humanoid_control/scripts/bazan_visualizer.py
 
 # 2. Native macOS MuJoCo + RViz2 Demo:
 conda activate ros2_jazzy && source .mac/install/setup.zsh
-ros2 launch humanoid_description mico_mujoco.launch.py gait:=true
+ros2 launch humanoid_description bazan_mujoco.launch.py gait:=true
 
 # 3. Interactive Web Dashboard:
 open docs/index.html   # or visit https://nguyenhau442001.github.io/Synapse_Humanoid/
@@ -622,9 +622,9 @@ A structured technical roadmap from spatial kinematics to hardware-in-the-loop E
 
 | Phase | Core Domain | Key Checklists & Hands-On Deliverables | Code Reference |
 | :---: | :--- | :--- | :--- |
-| **Month 1** | **Level 1 & 2: 3D Spatial Geometry & ROS 2** | • Master $3 \times 3$ Rotation Matrices, Shepperd Quaternions & SE(3) Homogeneous Transforms.<br/>• Derive closed-form leg IK geometrically ($\beta = \arccos\frac{d}{2L_1}$), verify singularity bounds.<br/>• Inspect URDF/Xacro, link coordinate trees (`REP-103`/`REP-120`) and RViz2 TF broadcasting. | [`mico_playback.py`](src/humanoid_control/scripts/mico_playback.py)<br/>[`mico_gait.py`](src/humanoid_control/scripts/mico_gait.py)<br/>[`mico.urdf.xacro`](src/humanoid_description/urdf/mico.urdf.xacro) |
-| **Month 2** | **Level 4: Bipedal Dynamics & MuJoCo Physics** | • Analyze Linear Inverted Pendulum Model ($T_c = \sqrt{z_c/g} = 121\text{ ms}$) and Pratt Capture Point.<br/>• Study Zero Moment Point (ZMP) stability criterion during single-support stance.<br/>• Run MuJoCo 1 kHz simulation (`mico.xml`), experiment with contact solvers, friction, and crash scenarios. | [`mass_budget.md`](docs/engineering/mass_budget.md)<br/>[`check_mujoco.py`](sim/mujoco/check_mujoco.py)<br/>[`mico.xml`](sim/mujoco/mico.xml) |
-| **Month 3** | **Level 5: Deep RL (PPO) & Sim-to-Real Transfer** | • Master Markov Decision Processes, Advantage Estimation (GAE), and PPO clipped objective.<br/>• Analyze 47-dim observation construction, reward shaping, and action rate filtering in `mico_rl_env.py`.<br/>• Train custom policy on Apple Silicon MPS; export and benchmark ONNX Runtime (< 500 μs latency). | [`train_mico_ppo.py`](src/humanoid_control/scripts/train_mico_ppo.py)<br/>[`mico_rl_env.py`](src/humanoid_control/scripts/mico_rl_env.py)<br/>[`model_registry.py`](src/humanoid_control/scripts/model_registry.py) |
+| **Month 1** | **Level 1 & 2: 3D Spatial Geometry & ROS 2** | • Master $3 \times 3$ Rotation Matrices, Shepperd Quaternions & SE(3) Homogeneous Transforms.<br/>• Derive closed-form leg IK geometrically ($\beta = \arccos\frac{d}{2L_1}$), verify singularity bounds.<br/>• Inspect URDF/Xacro, link coordinate trees (`REP-103`/`REP-120`) and RViz2 TF broadcasting. | [`bazan_playback.py`](src/humanoid_control/scripts/bazan_playback.py)<br/>[`bazan_gait.py`](src/humanoid_control/scripts/bazan_gait.py)<br/>[`bazan.urdf.xacro`](src/humanoid_description/urdf/bazan.urdf.xacro) |
+| **Month 2** | **Level 4: Bipedal Dynamics & MuJoCo Physics** | • Analyze Linear Inverted Pendulum Model ($T_c = \sqrt{z_c/g} = 121\text{ ms}$) and Pratt Capture Point.<br/>• Study Zero Moment Point (ZMP) stability criterion during single-support stance.<br/>• Run MuJoCo 1 kHz simulation (`bazan.xml`), experiment with contact solvers, friction, and crash scenarios. | [`mass_budget.md`](docs/engineering/mass_budget.md)<br/>[`check_mujoco.py`](sim/mujoco/check_mujoco.py)<br/>[`bazan.xml`](sim/mujoco/bazan.xml) |
+| **Month 3** | **Level 5: Deep RL (PPO) & Sim-to-Real Transfer** | • Master Markov Decision Processes, Advantage Estimation (GAE), and PPO clipped objective.<br/>• Analyze 47-dim observation construction, reward shaping, and action rate filtering in `bazan_rl_env.py`.<br/>• Train custom policy on Apple Silicon MPS; export and benchmark ONNX Runtime (< 500 μs latency). | [`train_bazan_ppo.py`](src/humanoid_control/scripts/train_bazan_ppo.py)<br/>[`bazan_rl_env.py`](src/humanoid_control/scripts/bazan_rl_env.py)<br/>[`model_registry.py`](src/humanoid_control/scripts/model_registry.py) |
 | **Month 4** | **Level 3: Real-Time Embedded Systems (M0/M1)** | • Study heterogeneous 2-domain architecture: Radxa Linux (planning) vs STM32 FreeRTOS (action).<br/>• Verify 200 Hz control loop, zero-allocation lock-free SPSC rings, and 1 ms IWDG safety supervisor.<br/>• Run automated `m0-accept` test suite over UART 921600 baud, confirm zero missed deadlines. | [`hardware_architecture.md`](docs/engineering/hardware_architecture.md)<br/>[`m0_report.md`](docs/engineering/m0_report.md)<br/>[`firmware/stm32f411`](firmware/stm32f411) |
 
 ---

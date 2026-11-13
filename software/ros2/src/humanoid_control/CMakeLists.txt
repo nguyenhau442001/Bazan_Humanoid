@@ -35,20 +35,31 @@ install(TARGETS joint_trajectory_bridge_node
 )
 
 install(PROGRAMS
+  scripts/bazan_gait.py
+  scripts/bazan_playback.py
+  scripts/bazan_mujoco_bridge.py
+  scripts/bazan_rl_node.py
+  scripts/train_bazan_ppo.py
+  scripts/benchmark_bazan_sim.py
+  scripts/model_registry.py
+  scripts/eval_bazan_benchmark.py
+  scripts/bazan_visualizer.py
+  scripts/auto_train_bazan_evolution.py
   scripts/mico_gait.py
   scripts/mico_playback.py
   scripts/mico_mujoco_bridge.py
   scripts/mico_rl_node.py
   scripts/train_mico_ppo.py
   scripts/benchmark_mico_sim.py
-  scripts/model_registry.py
   scripts/eval_mico_benchmark.py
   scripts/mico_visualizer.py
   scripts/auto_train_mico_evolution.py
   DESTINATION lib/${PROJECT_NAME}
 )
-# imported by mico_mujoco_bridge.py and mico_rl_node.py from the same folder
+# imported by bazan_mujoco_bridge.py and bazan_rl_node.py from the same folder
 install(FILES
+  scripts/bazan_mujoco.py
+  scripts/bazan_rl_env.py
   scripts/mico_mujoco.py
   scripts/mico_rl_env.py
   DESTINATION lib/${PROJECT_NAME}
@@ -63,13 +74,10 @@ install(DIRECTORY config launch models
 )
 
 if(BUILD_TESTING)
-  # FK and stance-foot odometry of mico_playback.py, numpy only
   find_package(ament_cmake_pytest REQUIRED)
-  ament_add_pytest_test(test_mico_playback test/test_mico_playback.py TIMEOUT 120)
-  # MuJoCo bridge core; skips itself where MuJoCo is not installed (the Ubuntu CI)
-  ament_add_pytest_test(test_mico_mujoco test/test_mico_mujoco.py TIMEOUT 300)
-  # Reinforcement learning env & ONNX policy
-  ament_add_pytest_test(test_mico_rl test/test_mico_rl.py TIMEOUT 120)
+  ament_add_pytest_test(test_bazan_playback test/test_bazan_playback.py TIMEOUT 120)
+  ament_add_pytest_test(test_bazan_mujoco test/test_bazan_mujoco.py TIMEOUT 300)
+  ament_add_pytest_test(test_bazan_rl test/test_bazan_rl.py TIMEOUT 120)
 endif()
 
 ament_export_include_directories(include)

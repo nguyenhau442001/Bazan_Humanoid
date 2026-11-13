@@ -13,10 +13,16 @@ REPO = HERE
 while REPO.parent != REPO and not (REPO / ".git").exists() and not (REPO / "AGENTS.md").exists():
     REPO = REPO.parent
 sys.path.insert(0, str(HERE.parent / "scripts"))
-import mico_gait as gait  # noqa: E402
-import mico_playback as mp  # noqa: E402
+try:
+    import bazan_gait as gait
+except ImportError:
+    import mico_gait as gait  # noqa: E402
+try:
+    import bazan_playback as mp
+except ImportError:
+    import mico_playback as mp  # noqa: E402
 
-XACRO = HERE.parents[1] / "humanoid_description" / "urdf" / "mico.urdf.xacro"
+XACRO = HERE.parents[1] / "humanoid_description" / "urdf" / "bazan.urdf.xacro"
 URDF = REPO / "software" / "ai" / "sim" / "mini_humanoid" / "humanoid.urdf"
 DT = 0.02       # 50 Hz, as the node
 MM = 1e-3

@@ -17,10 +17,16 @@ REPO = HERE
 while REPO.parent != REPO and not (REPO / ".git").exists() and not (REPO / "AGENTS.md").exists():
     REPO = REPO.parent
 sys.path.insert(0, str(HERE.parent / "scripts"))
-import mico_gait as gait  # noqa: E402
+try:
+    import bazan_gait as gait
+except ImportError:
+    import mico_gait as gait  # noqa: E402
 
 try:                       # skip test by test (a module-level skip collects nothing: pytest exit 5, ament fails)
-    import mico_mujoco as mm
+    try:
+        import bazan_mujoco as mm
+    except ImportError:
+        import mico_mujoco as mm
 except ImportError:
     mm = None
 
@@ -38,14 +44,14 @@ def mjcf():
     exe = shutil.which("xacro")
     if exe is None:
         pytest.skip("xacro not found")
-    urdf = subprocess.run([exe, str(DESCRIPTION / "urdf" / "mico.urdf.xacro"), "look:=mico",
+    urdf = subprocess.run([exe, str(DESCRIPTION / "urdf" / "bazan.urdf.xacro"), "look:=bazan",
                            "mass:=sim"],
                           check=True, capture_output=True, text=True).stdout
     return mm.build_mjcf(urdf, resolve)
 
 
 def test_model(mjcf):
-    sim = mm.MicoSim(mjcf)
+    sim = mm.BazanSim(mjcf)
     m = sim.model
     assert m.nu == 20 and m.nmesh == 48 and m.opt.timestep == pytest.approx(0.001)
     stall = {j: abs(m.actuator_forcerange[m.actuator(j).id, 1]) for j in gait.JOINTS}
@@ -54,7 +60,7 @@ def test_model(mjcf):
 
 
 def test_stands_still(mjcf):
-    sim = mm.MicoSim(mjcf)
+    sim = mm.BazanSim(mjcf)
     sim.reset()
     assert sim.base_pose()[0][2] == pytest.approx(0.116, abs=0.001), "spawned with the soles 1 mm above the floor"
     sim.step(2000)
@@ -66,7 +72,7 @@ def test_stands_still(mjcf):
 
 
 def test_trajectory_interpolates_like_jtc(mjcf):
-    sim = mm.MicoSim(mjcf)
+    sim = mm.BazanSim(mjcf)
     sim.reset()
     sim.step(100)
     t0 = sim.time
@@ -84,7 +90,7 @@ def test_trajectory_interpolates_like_jtc(mjcf):
 
 def test_demo_walks_and_turns(mjcf):
     """The trajectory mico_gait.py sends: no fall, about the expected distance and heading."""
-    sim = mm.MicoSim(mjcf)
+    sim = mm.BazanSim(mjcf)
     sim.reset()
     sim.step(1000)
     times, positions = gait.trajectory_points(50.0, 2.0)
