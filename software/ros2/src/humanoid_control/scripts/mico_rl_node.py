@@ -38,6 +38,10 @@ LEG_JOINTS = [
     "r_hip_yaw", "r_hip_roll", "r_hip_pitch", "r_knee", "r_ankle_pitch", "r_ankle_roll"
 ]
 
+ARM_JOINTS = [
+    "l_shoulder_pitch", "l_elbow", "r_shoulder_pitch", "r_elbow"
+]
+
 
 def find_default_model():
     """Locate mico_policy.onnx across install directory or source repository."""
@@ -114,6 +118,8 @@ def make_rl_node():
                 raise RuntimeError("onnxruntime is required to run MicoRLNode")
             self.session = ort.InferenceSession(model_path)
             self.input_name = self.session.get_inputs()[0].name
+            self.expected_obs_dim = int(self.session.get_inputs()[0].shape[1])
+            self.expected_act_dim = int(self.session.get_outputs()[0].shape[1])
             self.action_scale = float(self.get_parameter("action_scale").value)
             rate_hz = float(self.get_parameter("control_rate").value)
             self.dt = 1.0 / rate_hz
@@ -132,12 +138,14 @@ def make_rl_node():
             self.q_nominal[gait.JOINTS.index("r_elbow")] = -0.4
 
             self.leg_q_nominal = np.array([self.q_nominal[gait.JOINTS.index(j)] for j in LEG_JOINTS])
+            self.arm_q_nominal = np.array([self.q_nominal[gait.JOINTS.index(j)] for j in ARM_JOINTS])
 
             # State cache
-            self.prev_action = np.zeros(12, dtype=np.float32)
+            self.prev_action = np.zeros(self.expected_act_dim, dtype=np.float32)
             self.command = np.array([0.0, 0.0, 0.0], dtype=np.float32)
             self.proj_gravity = np.array([0.0, 0.0, -1.0], dtype=np.float32)
             self.omega_base = np.zeros(3, dtype=np.float32)
+            self.step_count = 0
 
             self.has_joint_state = False
             self.has_imu = False
@@ -201,19 +209,52 @@ def make_rl_node():
                 self.pub_pos.publish(pos_msg)
                 return
 
-            # Assemble observation vector (45-dim)
+            self.step_count += 1
             leg_q = np.array([self.joint_positions[j] for j in LEG_JOINTS], dtype=np.float32)
             leg_dq = np.array([self.joint_velocities[j] for j in LEG_JOINTS], dtype=np.float32)
             leg_q_err = leg_q - self.leg_q_nominal
 
-            obs = np.concatenate([
-                self.proj_gravity,       # 3
-                self.omega_base,         # 3
-                leg_q_err,               # 12
-                leg_dq,                  # 12
-                self.prev_action,        # 12
-                self.command,            # 3
-            ]).reshape(1, 45).astype(np.float32)
+            if self.expected_obs_dim == 64:
+                arm_q = np.array([self.joint_positions[j] for j in ARM_JOINTS], dtype=np.float32)
+                prev_leg_act = self.prev_action[:12]
+                cmd_vec = self.command
+                phase = (self.step_count * self.dt) % 1.6 / 1.6
+                phase_vec = np.array([
+                    math.sin(2.0 * math.pi * phase),
+                    math.cos(2.0 * math.pi * phase)
+                ], dtype=np.float32)
+                fsr_vec = np.zeros(4, dtype=np.float32)
+                tof_val = np.float32(1.0)
+                cam_vec = np.array([0.0, 0.0, 1.0], dtype=np.float32)
+                power_vec = np.array([0.5, 0.2], dtype=np.float32)
+                temp_vec = np.array([0.35, 0.35], dtype=np.float32)
+                accel_z_impact = np.float32(0.0)
+
+                obs = np.concatenate([
+                    self.proj_gravity,       # 3
+                    self.omega_base,         # 3
+                    [accel_z_impact],        # 1
+                    leg_q_err,               # 12
+                    leg_dq,                  # 12
+                    arm_q,                   # 4
+                    prev_leg_act,            # 12
+                    cmd_vec,                 # 3
+                    phase_vec,               # 2
+                    fsr_vec,                 # 4
+                    [tof_val],               # 1
+                    cam_vec,                 # 3
+                    power_vec,               # 2
+                    temp_vec,                # 2
+                ]).reshape(1, 64).astype(np.float32)
+            else:
+                obs = np.concatenate([
+                    self.proj_gravity,       # 3
+                    self.omega_base,         # 3
+                    leg_q_err,               # 12
+                    leg_dq,                  # 12
+                    self.prev_action[:12],   # 12
+                    self.command,            # 3
+                ]).reshape(1, self.expected_obs_dim).astype(np.float32)
 
             # ONNX Inference (< 0.3 ms)
             outputs = self.session.run(None, {self.input_name: obs})
@@ -221,12 +262,19 @@ def make_rl_node():
             self.prev_action = action.copy()
 
             # Map 12 leg actions to target angles
-            target_leg_q = self.leg_q_nominal + action * self.action_scale
+            target_leg_q = self.leg_q_nominal + action[:12] * self.action_scale
 
             full_positions = self.q_nominal.copy()
             for idx, joint_name in enumerate(LEG_JOINTS):
                 j_idx = gait.JOINTS.index(joint_name)
                 full_positions[j_idx] = float(target_leg_q[idx])
+
+            # Map 4 arm swing actions if 16-dim action space
+            if self.expected_act_dim >= 16:
+                target_arm_q = self.arm_q_nominal + action[12:16] * (self.action_scale * 1.5)
+                for idx, joint_name in enumerate(ARM_JOINTS):
+                    j_idx = gait.JOINTS.index(joint_name)
+                    full_positions[j_idx] = float(target_arm_q[idx])
 
             # 1. Publish directly to position commands (instant in MuJoCo bridge)
             pos_msg = Float64MultiArray(data=[float(p) for p in full_positions])

@@ -38,6 +38,65 @@ LEG_JOINTS = [
     "r_hip_yaw", "r_hip_roll", "r_hip_pitch", "r_knee", "r_ankle_pitch", "r_ankle_roll"
 ]
 
+ARM_JOINTS = [
+    "l_shoulder_pitch", "l_elbow", "r_shoulder_pitch", "r_elbow"
+]
+
+CONTROL_JOINTS = LEG_JOINTS + ARM_JOINTS
+
+# Comprehensive 64-dim Observation Space (2^6 = 64, exact 256 bytes)
+OBS_64_NAMES = [
+    # Group 1: IMU MPU6050 Balance & Gravity (6)
+    "imu_gravity_x", "imu_gravity_y", "imu_gravity_z",
+    "imu_gyro_roll", "imu_gyro_pitch", "imu_gyro_yaw",
+    # Group 2: Heel-Strike Impact Acceleration (1)
+    "imu_accel_z_impact",
+    # Group 3: 12 Leg Joint Position Errors (12)
+    "l_hip_yaw_err", "l_hip_roll_err", "l_hip_pitch_err",
+    "l_knee_err", "l_ankle_pitch_err", "l_ankle_roll_err",
+    "r_hip_yaw_err", "r_hip_roll_err", "r_hip_pitch_err",
+    "r_knee_err", "r_ankle_pitch_err", "r_ankle_roll_err",
+    # Group 4: 12 Leg Joint Velocities (12)
+    "l_hip_yaw_vel", "l_hip_roll_vel", "l_hip_pitch_vel",
+    "l_knee_vel", "l_ankle_pitch_vel", "l_ankle_roll_vel",
+    "r_hip_yaw_vel", "r_hip_roll_vel", "r_hip_pitch_vel",
+    "r_knee_vel", "r_ankle_pitch_vel", "r_ankle_roll_vel",
+    # Group 5: 4 Arm Joint Positions for Dynamic Balance (4)
+    "l_shoulder_pitch_pos", "l_elbow_pos",
+    "r_shoulder_pitch_pos", "r_elbow_pos",
+    # Group 6: Previous Leg Actions (12)
+    "prev_action_0", "prev_action_1", "prev_action_2",
+    "prev_action_3", "prev_action_4", "prev_action_5",
+    "prev_action_6", "prev_action_7", "prev_action_8",
+    "prev_action_9", "prev_action_10", "prev_action_11",
+    # Group 7: ROS 2 /cmd_vel Command (3)
+    "cmd_vel_vx", "cmd_vel_vy", "cmd_vel_yaw_rate",
+    # Group 8: Gait Phase Clock (2)
+    "gait_phase_sin", "gait_phase_cos",
+    # Group 9: Foot FSR Ground Contact Points (4)
+    "fsr_left_heel", "fsr_left_toe",
+    "fsr_right_heel", "fsr_right_toe",
+    # Group 10: ToF Laser Obstacle Distance (1)
+    "tof_distance_obstacle",
+    # Group 11: Camera Yang Jian Visual Target Tracking (3)
+    "cam_target_detected", "cam_target_angle_x", "cam_target_distance",
+    # Group 12: INA226 Power Bus Telemetry (2)
+    "battery_bus_voltage", "total_load_current",
+    # Group 13: NTC 10k Hip Servo Thermal Guard (2)
+    "temp_left_hip_servo", "temp_right_hip_servo",
+]
+assert len(OBS_64_NAMES) == 64
+
+# Whole-Body 16-dim Action Space (2^4 = 16, exact 64 bytes)
+ACTION_16_NAMES = [
+    # 12 Leg Joint Position Offsets
+    "l_hip_yaw", "l_hip_roll", "l_hip_pitch", "l_knee", "l_ankle_pitch", "l_ankle_roll",
+    "r_hip_yaw", "r_hip_roll", "r_hip_pitch", "r_knee", "r_ankle_pitch", "r_ankle_roll",
+    # 4 Arm Swing Position Offsets
+    "l_shoulder_pitch", "l_elbow", "r_shoulder_pitch", "r_elbow",
+]
+assert len(ACTION_16_NAMES) == 16
+
 
 def build_mico_model():
     """Build Mico MuJoCo model from xacro description."""
@@ -100,24 +159,30 @@ class MicoEnv:
             self.action_scale = 0.15
         else:
             self.action_scale = action_scale
-        self.filtered_action = np.zeros(12, dtype=np.float64)
-
         if self.use_perception:
-            # Hardware-grounded 60-dim observation space:
-            # 9 MPU9250 (Gravity 3 + Gyro 3 + Mag 3)
-            # + 24 Leg Joints (Pots error 12 + Velocity 12)
-            # + 17 Control State (Actions 12 + Cmd 3 + Phase 2)
-            # + 4 Foot FSR Contact (L_heel, L_toe, R_heel, R_toe)
+            # Whole-Body 64-dim observation space (2^6 = 64) and 16-dim action space (2^4 = 16):
+            # 6 MPU6050 (Gravity 3 + Gyro 3)
+            # + 1 Heel-Strike Impact Accel az
+            # + 24 Leg Joints (Pos error 12 + Velocity 12)
+            # + 4 Arm Joints (Positions 4)
+            # + 12 Previous Leg Actions
+            # + 3 ROS 2 /cmd_vel Command [vx, vy, wz]
+            # + 2 Gait Phase Clock [sin, cos]
+            # + 4 Foot FSR Contact [L_heel, L_toe, R_heel, R_toe]
             # + 1 Head VL53L0X ToF laser distance
+            # + 3 Camera Yang Jian Target Tracking [flag, angle_x, dist]
             # + 2 INA226 Telemetry (Bus Voltage + Current)
             # + 2 NTC 10k Thermistors (L & R Hip-roll servo case temps)
-            # + 1 Camera Visual Detection Flag from Radxa NPU
-            self.obs_dim = 60
+            self.obs_dim = 64
+            self.act_dim = 16
         elif self.use_fsr:
             self.obs_dim = 51 if self.use_phase else 49
+            self.act_dim = 12
         else:
             self.obs_dim = 47 if self.use_phase else 45
-        self.act_dim = 12
+            self.act_dim = 12
+
+        self.filtered_action = np.zeros(self.act_dim, dtype=np.float64)
 
         # Cache IDs
         m = self.model
@@ -127,6 +192,8 @@ class MicoEnv:
         self.leg_joint_qadr = np.array([m.jnt_qposadr[m.joint(j).id] for j in LEG_JOINTS])
         self.leg_joint_dadr = np.array([m.jnt_dofadr[m.joint(j).id] for j in LEG_JOINTS])
         self.leg_act_ids = np.array([m.actuator(j).id for j in LEG_JOINTS])
+        self.arm_joint_qadr = np.array([m.jnt_qposadr[m.joint(j).id] for j in ARM_JOINTS])
+        self.arm_act_ids = np.array([m.actuator(j).id for j in ARM_JOINTS])
         self.all_act_ids = np.array([m.actuator(j).id for j in gait.JOINTS])
 
         # Foot collision geoms for FSR contact measurement
@@ -157,6 +224,7 @@ class MicoEnv:
         self.q_nominal[gait.JOINTS.index("r_elbow")] = -0.4
 
         self.leg_q_nominal = np.array([self.q_nominal[gait.JOINTS.index(j)] for j in LEG_JOINTS])
+        self.arm_q_nominal = np.array([self.q_nominal[gait.JOINTS.index(j)] for j in ARM_JOINTS])
         self.nominal_height = 0.112
         self.target_prob = 0.0
 
@@ -330,7 +398,7 @@ class MicoEnv:
         return self._get_obs()
 
     def _get_obs(self):
-        """Build 45-dim observation vector."""
+        """Build observation vector (64-dim when use_perception=True, else legacy 45-51 dim)."""
         r_mat = self.data.xmat[self.base_id].reshape(3, 3)
         proj_gravity = r_mat.T @ np.array([0.0, 0.0, -1.0])
 
@@ -341,23 +409,31 @@ class MicoEnv:
         leg_q_err = current_leg_q - self.leg_q_nominal
         leg_dq = self.data.qvel[self.leg_joint_dadr]
 
-        obs = np.concatenate([
-            proj_gravity,       # 3
-            omega_base,         # 3
-            leg_q_err,          # 12
-            leg_dq,             # 12
-            self.prev_action,   # 12
-            self.command,       # 3
-        ]).astype(np.float32)
+        if self.use_perception:
+            # 1. IMU MPU6050 Balance & Gravity (6 dims: proj_gravity 3 + omega_base 3)
+            # 2. Heel-strike impact acceleration from MPU6050 (1 dim: vertical shock offset)
+            accel_z_raw = float(self.data.qacc[2] + 9.81) / 9.81
+            accel_z_impact = np.float32(np.clip(accel_z_raw - 1.0, -1.0, 3.0) / 3.0)
 
-        if self.use_phase:
+            # 3. 12 Leg joint position errors (12 dims: leg_q_err)
+            # 4. 12 Leg joint velocities (12 dims: leg_dq)
+
+            # 5. 4 Arm joint positions for dynamic balance (4 dims)
+            arm_q = self.data.qpos[self.arm_joint_qadr].astype(np.float32)
+
+            # 6. Previous leg actions (12 dims)
+            prev_leg_act = self.prev_action[:12].astype(np.float32)
+
+            # 7. ROS 2 /cmd_vel Command [vx, vy, wz] (3 dims)
+            cmd_vec = self.command.astype(np.float32)
+
+            # 8. Gait phase clock [sin, cos] (2 dims)
             phase = (self.step_count * 0.02) % 1.6 / 1.6
             phase_sin = np.sin(2.0 * np.pi * phase)
             phase_cos = np.cos(2.0 * np.pi * phase)
-            obs = np.concatenate([obs, [phase_sin, phase_cos]]).astype(np.float32)
+            phase_vec = np.array([phase_sin, phase_cos], dtype=np.float32)
 
-        # Foot FSR Contact Force Sensing (4 dims: L Heel, L Toe, R Heel, R Toe via CD74HC4067)
-        if self.use_fsr or self.use_perception:
+            # 9. Foot FSR Contact Force Sensing (4 dims: L Heel, L Toe, R Heel, R Toe via CD74HC4067)
             fsr = np.zeros(4, dtype=np.float32)
             if self.l_foot_geom is not None and self.r_foot_geom is not None:
                 l_spos = self.data.xpos[self.sole_ids[0]]
@@ -378,57 +454,97 @@ class MicoEnv:
                             fsr[3] += f_n  # R Toe
                         else:
                             fsr[2] += f_n  # R Heel
-            # Hardware LMV358 Op-Amp Sigmoid Contact Conditioning (smooth [0, 1] ground detection)
             fsr_normalized = (1.0 / (1.0 + np.exp(-0.8 * (fsr - 2.5)))).astype(np.float32)
-            obs = np.concatenate([obs, fsr_normalized]).astype(np.float32)
 
-        if self.use_perception:
-            # 1. MPU9250 3-axis Magnetometer (3 dims) on head crown (isolated from hip servos)
-            # Dynamic Trust Factor: attenuates magnet readings when total bus current spikes > 5A
-            current_amps = float(np.clip(np.sum(np.abs(leg_dq)) * 0.5 + 0.6, 0.5, 9.5))
-            mag_trust = float(np.clip(1.0 - max(0.0, (current_amps - 5.0)) * 0.15, 0.4, 1.0))
-            mag_world = np.array([0.8, 0.0, -0.6], dtype=np.float32)
-            mag_base = ((r_mat.T @ mag_world) * mag_trust).astype(np.float32)
-
-            # 2. VL53L0X ToF Laser Distance (1 dim on head with kinematic pitch compensation)
+            # 10. VL53L0X ToF Laser Distance (1 dim on head with kinematic pitch compensation)
             tof_pos = self.data.xpos[self.tof_id]
             tof_dir = self.data.xmat[self.tof_id].reshape(3, 3)[:, 0]
             tof_dist = mujoco.mj_ray(
                 self.model, self.data, tof_pos, tof_dir, None, 1, self.head_pitch_link_id, self._geomid_buf
             )
             raw_dist = float(tof_dist if tof_dist >= 0 else 2.0)
-            # Kinematic tilt compensation: project along vertical to eliminate walking pitch oscillation false alarms
             pitch_tilt = float(np.clip(r_mat[2, 2], 0.7, 1.0))
             comp_dist = raw_dist * pitch_tilt
             tof_val = np.float32(np.clip(comp_dist / 2.0, 0.0, 1.0))
 
-            # 3. INA226 Telemetry (2 dims: Bus Voltage with Load Sag + Total Current)
-            # 2S LiPo internal resistance sag: Delta V = I * R_int (R_int ~ 0.08 Ohm)
-            v_sag = current_amps * 0.08
-            v_bus = float(np.clip(7.4 - v_sag, 6.8, 8.4))
-            v_norm = np.float32((v_bus - 6.8) / (8.4 - 6.8))
-            i_norm = np.float32(current_amps / 10.0)
-
-            # 4. NTC 10 kΩ Thermistors (2 dims: L & R Hip Roll case temps with thermal lag)
-            temp_l = np.float32(np.clip(35.0 + np.abs(leg_q_err[1]) * 12.0, 25.0, 85.0) / 85.0)
-            temp_r = np.float32(np.clip(35.0 + np.abs(leg_q_err[7]) * 12.0, 25.0, 85.0) / 85.0)
-
-            # 5. Camera Visual Target Detected Flag with Leaky Integrator Debouncing
+            # 11. Camera Yang Jian Visual Target Tracking (3 dims: target_detected, angle_x, distance)
             raw_target = 1.0 if tof_val < 0.4 else 0.0
             if raw_target > 0.5:
                 self.target_prob = min(1.0, self.target_prob + 0.25)
             else:
                 self.target_prob = max(0.0, self.target_prob - 0.05)
-            target_flag = np.float32(self.target_prob)
+            cam_detected = np.float32(self.target_prob)
+            cam_angle_x = np.float32(0.0)
+            cam_distance = np.float32(np.clip(comp_dist / 3.0, 0.0, 1.0))
 
-            obs = np.concatenate([
-                obs,
-                mag_base,
-                [tof_val],
-                [v_norm, i_norm],
-                [temp_l, temp_r],
-                [target_flag],
+            # 12. INA226 Telemetry (2 dims: Bus Voltage with Load Sag + Total Current)
+            current_amps = float(np.clip(np.sum(np.abs(leg_dq)) * 0.5 + 0.6, 0.5, 9.5))
+            v_sag = current_amps * 0.08
+            v_bus = float(np.clip(7.4 - v_sag, 6.8, 8.4))
+            v_norm = np.float32((v_bus - 6.8) / (8.4 - 6.8))
+            i_norm = np.float32(current_amps / 10.0)
+
+            # 13. NTC 10 kΩ Thermistors (2 dims: L & R Hip Roll case temps with thermal lag)
+            temp_l = np.float32(np.clip(35.0 + np.abs(leg_q_err[1]) * 12.0, 25.0, 85.0) / 85.0)
+            temp_r = np.float32(np.clip(35.0 + np.abs(leg_q_err[7]) * 12.0, 25.0, 85.0) / 85.0)
+
+            obs_64 = np.concatenate([
+                proj_gravity,                               # 3
+                omega_base,                                 # 3
+                [accel_z_impact],                           # 1
+                leg_q_err,                                  # 12
+                leg_dq,                                     # 12
+                arm_q,                                      # 4
+                prev_leg_act,                               # 12
+                cmd_vec,                                    # 3
+                phase_vec,                                  # 2
+                fsr_normalized,                             # 4
+                [tof_val],                                  # 1
+                [cam_detected, cam_angle_x, cam_distance],  # 3
+                [v_norm, i_norm],                           # 2
+                [temp_l, temp_r],                           # 2
             ]).astype(np.float32)
+            return obs_64
+
+        obs = np.concatenate([
+            proj_gravity,       # 3
+            omega_base,         # 3
+            leg_q_err,          # 12
+            leg_dq,             # 12
+            self.prev_action[:12],  # 12
+            self.command,       # 3
+        ]).astype(np.float32)
+
+        if self.use_phase:
+            phase = (self.step_count * 0.02) % 1.6 / 1.6
+            phase_sin = np.sin(2.0 * np.pi * phase)
+            phase_cos = np.cos(2.0 * np.pi * phase)
+            obs = np.concatenate([obs, [phase_sin, phase_cos]]).astype(np.float32)
+
+        # Foot FSR Contact Force Sensing (4 dims: L Heel, L Toe, R Heel, R Toe via CD74HC4067)
+        if self.use_fsr:
+            fsr = np.zeros(4, dtype=np.float32)
+            if self.l_foot_geom is not None and self.r_foot_geom is not None:
+                l_spos = self.data.xpos[self.sole_ids[0]]
+                r_spos = self.data.xpos[self.sole_ids[1]]
+                for i in range(self.data.ncon):
+                    c = self.data.contact[i]
+                    if c.geom1 == self.l_foot_geom or c.geom2 == self.l_foot_geom:
+                        mujoco.mj_contactForce(self.model, self.data, i, self._cforce_buf)
+                        f_n = float(abs(self._cforce_buf[0]))
+                        if c.pos[0] >= l_spos[0]:
+                            fsr[1] += f_n  # L Toe
+                        else:
+                            fsr[0] += f_n  # L Heel
+                    elif c.geom1 == self.r_foot_geom or c.geom2 == self.r_foot_geom:
+                        mujoco.mj_contactForce(self.model, self.data, i, self._cforce_buf)
+                        f_n = float(abs(self._cforce_buf[0]))
+                        if c.pos[0] >= r_spos[0]:
+                            fsr[3] += f_n  # R Toe
+                        else:
+                            fsr[2] += f_n  # R Heel
+            fsr_normalized = (1.0 / (1.0 + np.exp(-0.8 * (fsr - 2.5)))).astype(np.float32)
+            obs = np.concatenate([obs, fsr_normalized]).astype(np.float32)
 
         return obs
 
@@ -497,13 +613,19 @@ class MicoEnv:
                 q_dict = gait.walk_continuous(t_sec)
 
             ref_leg_q = np.array([q_dict.get(j, 0.0) for j in LEG_JOINTS], dtype=np.float64)
-            target_leg_q = ref_leg_q + exec_action * self.action_scale
+            target_leg_q = ref_leg_q + exec_action[:12] * self.action_scale
         else:
-            target_leg_q = self.leg_q_nominal + exec_action * self.action_scale
+            target_leg_q = self.leg_q_nominal + exec_action[:12] * self.action_scale
 
         full_ctrl = self.q_nominal.copy()
         for idx, act_id in enumerate(self.leg_act_ids):
             full_ctrl[act_id] = target_leg_q[idx]
+
+        # 4 Arm Swing joints for whole-body coordination (16-dim action space)
+        if self.use_perception and len(exec_action) >= 16:
+            target_arm_q = self.arm_q_nominal + exec_action[12:16] * (self.action_scale * 1.5)
+            for idx, act_id in enumerate(self.arm_act_ids):
+                full_ctrl[act_id] = target_arm_q[idx]
 
         self.data.ctrl[self.all_act_ids] = full_ctrl
 
