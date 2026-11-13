@@ -11,7 +11,7 @@ Tables between `gen:` markers are written by `python docs/engineering/gen_docs.p
 `docs/design/blender/mass_report.json`. Do not edit them by hand; CI fails if they drift.
 
 <!-- gen:stamp -->
-Generated from `design/blender/mico_parts.py`, `design/blender/mico_mass.py`, `sim/mini_humanoid/gen_robot.py`, `sim/mini_humanoid/tables/mj_servo_loads.csv`, `src/humanoid_control/scripts/mico_gait.py`, `docs/engineering/bom_aplus.csv` · source hash `3389b8746293`
+Generated from `design/blender/mico_parts.py`, `design/blender/mico_mass.py`, `sim/mini_humanoid/gen_robot.py`, `sim/mini_humanoid/tables/mj_servo_loads.csv`, `src/humanoid_control/scripts/mico_gait.py`, `docs/engineering/bom_aplus.csv` · source hash `eef8fd498b39`
 <!-- /gen:stamp -->
 
 ## Current configuration

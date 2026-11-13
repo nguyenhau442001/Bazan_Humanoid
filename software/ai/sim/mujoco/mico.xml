@@ -9,54 +9,54 @@
   </visual>
 
   <asset>
-    <mesh name="base__cyan" file="../../src/humanoid_description/meshes/visual/mico/base__cyan.stl"/>
-    <mesh name="base__grey" file="../../src/humanoid_description/meshes/visual/mico/base__grey.stl"/>
-    <mesh name="base__joint" file="../../src/humanoid_description/meshes/visual/mico/base__joint.stl"/>
-    <mesh name="base__orange" file="../../src/humanoid_description/meshes/visual/mico/base__orange.stl"/>
-    <mesh name="base__red" file="../../src/humanoid_description/meshes/visual/mico/base__red.stl"/>
-    <mesh name="base__visor" file="../../src/humanoid_description/meshes/visual/mico/base__visor.stl"/>
-    <mesh name="base__white" file="../../src/humanoid_description/meshes/visual/mico/base__white.stl"/>
-    <mesh name="base__yellow" file="../../src/humanoid_description/meshes/visual/mico/base__yellow.stl"/>
-    <mesh name="l_hip_roll__joint" file="../../src/humanoid_description/meshes/visual/mico/l_hip_roll__joint.stl"/>
-    <mesh name="l_hip_pitch__white" file="../../src/humanoid_description/meshes/visual/mico/l_hip_pitch__white.stl"/>
-    <mesh name="l_knee__joint" file="../../src/humanoid_description/meshes/visual/mico/l_knee__joint.stl"/>
-    <mesh name="l_knee__orange" file="../../src/humanoid_description/meshes/visual/mico/l_knee__orange.stl"/>
-    <mesh name="l_knee__white" file="../../src/humanoid_description/meshes/visual/mico/l_knee__white.stl"/>
-    <mesh name="l_ankle_pitch__joint" file="../../src/humanoid_description/meshes/visual/mico/l_ankle_pitch__joint.stl"/>
-    <mesh name="l_ankle_roll__navy" file="../../src/humanoid_description/meshes/visual/mico/l_ankle_roll__navy.stl"/>
-    <mesh name="l_ankle_roll__orange" file="../../src/humanoid_description/meshes/visual/mico/l_ankle_roll__orange.stl"/>
-    <mesh name="l_ankle_roll__white" file="../../src/humanoid_description/meshes/visual/mico/l_ankle_roll__white.stl"/>
-    <mesh name="r_hip_roll__joint" file="../../src/humanoid_description/meshes/visual/mico/r_hip_roll__joint.stl"/>
-    <mesh name="r_hip_pitch__white" file="../../src/humanoid_description/meshes/visual/mico/r_hip_pitch__white.stl"/>
-    <mesh name="r_knee__joint" file="../../src/humanoid_description/meshes/visual/mico/r_knee__joint.stl"/>
-    <mesh name="r_knee__orange" file="../../src/humanoid_description/meshes/visual/mico/r_knee__orange.stl"/>
-    <mesh name="r_knee__white" file="../../src/humanoid_description/meshes/visual/mico/r_knee__white.stl"/>
-    <mesh name="r_ankle_pitch__joint" file="../../src/humanoid_description/meshes/visual/mico/r_ankle_pitch__joint.stl"/>
-    <mesh name="r_ankle_roll__navy" file="../../src/humanoid_description/meshes/visual/mico/r_ankle_roll__navy.stl"/>
-    <mesh name="r_ankle_roll__orange" file="../../src/humanoid_description/meshes/visual/mico/r_ankle_roll__orange.stl"/>
-    <mesh name="r_ankle_roll__white" file="../../src/humanoid_description/meshes/visual/mico/r_ankle_roll__white.stl"/>
-    <mesh name="l_shoulder_pitch__orange" file="../../src/humanoid_description/meshes/visual/mico/l_shoulder_pitch__orange.stl"/>
-    <mesh name="l_shoulder_pitch__white" file="../../src/humanoid_description/meshes/visual/mico/l_shoulder_pitch__white.stl"/>
-    <mesh name="l_shoulder_roll__white" file="../../src/humanoid_description/meshes/visual/mico/l_shoulder_roll__white.stl"/>
-    <mesh name="l_elbow__grey" file="../../src/humanoid_description/meshes/visual/mico/l_elbow__grey.stl"/>
-    <mesh name="l_elbow__joint" file="../../src/humanoid_description/meshes/visual/mico/l_elbow__joint.stl"/>
-    <mesh name="l_elbow__white" file="../../src/humanoid_description/meshes/visual/mico/l_elbow__white.stl"/>
-    <mesh name="r_shoulder_pitch__orange" file="../../src/humanoid_description/meshes/visual/mico/r_shoulder_pitch__orange.stl"/>
-    <mesh name="r_shoulder_pitch__white" file="../../src/humanoid_description/meshes/visual/mico/r_shoulder_pitch__white.stl"/>
-    <mesh name="r_shoulder_roll__white" file="../../src/humanoid_description/meshes/visual/mico/r_shoulder_roll__white.stl"/>
-    <mesh name="r_elbow__grey" file="../../src/humanoid_description/meshes/visual/mico/r_elbow__grey.stl"/>
-    <mesh name="r_elbow__joint" file="../../src/humanoid_description/meshes/visual/mico/r_elbow__joint.stl"/>
-    <mesh name="r_elbow__white" file="../../src/humanoid_description/meshes/visual/mico/r_elbow__white.stl"/>
-    <mesh name="neck_yaw__joint" file="../../src/humanoid_description/meshes/visual/mico/neck_yaw__joint.stl"/>
-    <mesh name="head_pitch__cyan" file="../../src/humanoid_description/meshes/visual/mico/head_pitch__cyan.stl"/>
-    <mesh name="head_pitch__eye_glow" file="../../src/humanoid_description/meshes/visual/mico/head_pitch__eye_glow.stl"/>
-    <mesh name="head_pitch__glint" file="../../src/humanoid_description/meshes/visual/mico/head_pitch__glint.stl"/>
-    <mesh name="head_pitch__joint" file="../../src/humanoid_description/meshes/visual/mico/head_pitch__joint.stl"/>
-    <mesh name="head_pitch__orange" file="../../src/humanoid_description/meshes/visual/mico/head_pitch__orange.stl"/>
-    <mesh name="head_pitch__pupil" file="../../src/humanoid_description/meshes/visual/mico/head_pitch__pupil.stl"/>
-    <mesh name="head_pitch__visor" file="../../src/humanoid_description/meshes/visual/mico/head_pitch__visor.stl"/>
-    <mesh name="head_pitch__white" file="../../src/humanoid_description/meshes/visual/mico/head_pitch__white.stl"/>
-    <mesh name="head_pitch__window" file="../../src/humanoid_description/meshes/visual/mico/head_pitch__window.stl"/>
+    <mesh name="base__cyan" file="../../../ros2/src/humanoid_description/meshes/visual/mico/base__cyan.stl"/>
+    <mesh name="base__grey" file="../../../ros2/src/humanoid_description/meshes/visual/mico/base__grey.stl"/>
+    <mesh name="base__joint" file="../../../ros2/src/humanoid_description/meshes/visual/mico/base__joint.stl"/>
+    <mesh name="base__orange" file="../../../ros2/src/humanoid_description/meshes/visual/mico/base__orange.stl"/>
+    <mesh name="base__red" file="../../../ros2/src/humanoid_description/meshes/visual/mico/base__red.stl"/>
+    <mesh name="base__visor" file="../../../ros2/src/humanoid_description/meshes/visual/mico/base__visor.stl"/>
+    <mesh name="base__white" file="../../../ros2/src/humanoid_description/meshes/visual/mico/base__white.stl"/>
+    <mesh name="base__yellow" file="../../../ros2/src/humanoid_description/meshes/visual/mico/base__yellow.stl"/>
+    <mesh name="l_hip_roll__joint" file="../../../ros2/src/humanoid_description/meshes/visual/mico/l_hip_roll__joint.stl"/>
+    <mesh name="l_hip_pitch__white" file="../../../ros2/src/humanoid_description/meshes/visual/mico/l_hip_pitch__white.stl"/>
+    <mesh name="l_knee__joint" file="../../../ros2/src/humanoid_description/meshes/visual/mico/l_knee__joint.stl"/>
+    <mesh name="l_knee__orange" file="../../../ros2/src/humanoid_description/meshes/visual/mico/l_knee__orange.stl"/>
+    <mesh name="l_knee__white" file="../../../ros2/src/humanoid_description/meshes/visual/mico/l_knee__white.stl"/>
+    <mesh name="l_ankle_pitch__joint" file="../../../ros2/src/humanoid_description/meshes/visual/mico/l_ankle_pitch__joint.stl"/>
+    <mesh name="l_ankle_roll__navy" file="../../../ros2/src/humanoid_description/meshes/visual/mico/l_ankle_roll__navy.stl"/>
+    <mesh name="l_ankle_roll__orange" file="../../../ros2/src/humanoid_description/meshes/visual/mico/l_ankle_roll__orange.stl"/>
+    <mesh name="l_ankle_roll__white" file="../../../ros2/src/humanoid_description/meshes/visual/mico/l_ankle_roll__white.stl"/>
+    <mesh name="r_hip_roll__joint" file="../../../ros2/src/humanoid_description/meshes/visual/mico/r_hip_roll__joint.stl"/>
+    <mesh name="r_hip_pitch__white" file="../../../ros2/src/humanoid_description/meshes/visual/mico/r_hip_pitch__white.stl"/>
+    <mesh name="r_knee__joint" file="../../../ros2/src/humanoid_description/meshes/visual/mico/r_knee__joint.stl"/>
+    <mesh name="r_knee__orange" file="../../../ros2/src/humanoid_description/meshes/visual/mico/r_knee__orange.stl"/>
+    <mesh name="r_knee__white" file="../../../ros2/src/humanoid_description/meshes/visual/mico/r_knee__white.stl"/>
+    <mesh name="r_ankle_pitch__joint" file="../../../ros2/src/humanoid_description/meshes/visual/mico/r_ankle_pitch__joint.stl"/>
+    <mesh name="r_ankle_roll__navy" file="../../../ros2/src/humanoid_description/meshes/visual/mico/r_ankle_roll__navy.stl"/>
+    <mesh name="r_ankle_roll__orange" file="../../../ros2/src/humanoid_description/meshes/visual/mico/r_ankle_roll__orange.stl"/>
+    <mesh name="r_ankle_roll__white" file="../../../ros2/src/humanoid_description/meshes/visual/mico/r_ankle_roll__white.stl"/>
+    <mesh name="l_shoulder_pitch__orange" file="../../../ros2/src/humanoid_description/meshes/visual/mico/l_shoulder_pitch__orange.stl"/>
+    <mesh name="l_shoulder_pitch__white" file="../../../ros2/src/humanoid_description/meshes/visual/mico/l_shoulder_pitch__white.stl"/>
+    <mesh name="l_shoulder_roll__white" file="../../../ros2/src/humanoid_description/meshes/visual/mico/l_shoulder_roll__white.stl"/>
+    <mesh name="l_elbow__grey" file="../../../ros2/src/humanoid_description/meshes/visual/mico/l_elbow__grey.stl"/>
+    <mesh name="l_elbow__joint" file="../../../ros2/src/humanoid_description/meshes/visual/mico/l_elbow__joint.stl"/>
+    <mesh name="l_elbow__white" file="../../../ros2/src/humanoid_description/meshes/visual/mico/l_elbow__white.stl"/>
+    <mesh name="r_shoulder_pitch__orange" file="../../../ros2/src/humanoid_description/meshes/visual/mico/r_shoulder_pitch__orange.stl"/>
+    <mesh name="r_shoulder_pitch__white" file="../../../ros2/src/humanoid_description/meshes/visual/mico/r_shoulder_pitch__white.stl"/>
+    <mesh name="r_shoulder_roll__white" file="../../../ros2/src/humanoid_description/meshes/visual/mico/r_shoulder_roll__white.stl"/>
+    <mesh name="r_elbow__grey" file="../../../ros2/src/humanoid_description/meshes/visual/mico/r_elbow__grey.stl"/>
+    <mesh name="r_elbow__joint" file="../../../ros2/src/humanoid_description/meshes/visual/mico/r_elbow__joint.stl"/>
+    <mesh name="r_elbow__white" file="../../../ros2/src/humanoid_description/meshes/visual/mico/r_elbow__white.stl"/>
+    <mesh name="neck_yaw__joint" file="../../../ros2/src/humanoid_description/meshes/visual/mico/neck_yaw__joint.stl"/>
+    <mesh name="head_pitch__cyan" file="../../../ros2/src/humanoid_description/meshes/visual/mico/head_pitch__cyan.stl"/>
+    <mesh name="head_pitch__eye_glow" file="../../../ros2/src/humanoid_description/meshes/visual/mico/head_pitch__eye_glow.stl"/>
+    <mesh name="head_pitch__glint" file="../../../ros2/src/humanoid_description/meshes/visual/mico/head_pitch__glint.stl"/>
+    <mesh name="head_pitch__joint" file="../../../ros2/src/humanoid_description/meshes/visual/mico/head_pitch__joint.stl"/>
+    <mesh name="head_pitch__orange" file="../../../ros2/src/humanoid_description/meshes/visual/mico/head_pitch__orange.stl"/>
+    <mesh name="head_pitch__pupil" file="../../../ros2/src/humanoid_description/meshes/visual/mico/head_pitch__pupil.stl"/>
+    <mesh name="head_pitch__visor" file="../../../ros2/src/humanoid_description/meshes/visual/mico/head_pitch__visor.stl"/>
+    <mesh name="head_pitch__white" file="../../../ros2/src/humanoid_description/meshes/visual/mico/head_pitch__white.stl"/>
+    <mesh name="head_pitch__window" file="../../../ros2/src/humanoid_description/meshes/visual/mico/head_pitch__window.stl"/>
   </asset>
 
   <worldbody>
@@ -246,10 +246,10 @@
           <body name="tof_link" pos="0.031 0.008 0.045" quat="0.984808 0 0.173648 0"/>
           <body name="l_mic_link" pos="0.002 0.0385 0.024" quat="0.707107 0 0 0.707107"/>
           <body name="r_mic_link" pos="0.002 -0.0385 0.024" quat="0.707107 0 0 -0.707107"/>
+          <body name="imu_link" pos="0.002 0 0.048">
+            <site name="imu" pos="0 0 0"/>
+          </body>
         </body>
-      </body>
-      <body name="imu_link" pos="0 0 0.03">
-        <site name="imu" pos="0 0 0"/>
       </body>
     </body>
   </worldbody>

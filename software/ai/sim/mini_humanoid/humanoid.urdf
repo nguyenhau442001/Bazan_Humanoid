@@ -182,7 +182,7 @@
   <joint name="r_elbow" type="revolute"><parent link="r_shoulder_roll_link"/><child link="r_elbow_link"/><origin xyz="0.0000 0.0000 -0.0500"/><axis xyz="0 1 0"/><limit lower="-2.2689" upper="0.0000" effort="0.177" velocity="10.47"/><dynamics damping="0.02" friction="0"/></joint>
   <joint name="head_pitch" type="revolute"><parent link="neck_yaw_link"/><child link="head_pitch_link"/><origin xyz="0.0000 0.0000 0.0220"/><axis xyz="0 1 0"/><limit lower="-0.5236" upper="0.5585" effort="0.177" velocity="10.47"/><dynamics damping="0.02" friction="0"/></joint>
   <link name="imu_link"/>
-  <joint name="imu_link_joint" type="fixed"><parent link="base_link"/><child link="imu_link"/><origin xyz="0.0000 0.0000 0.0300" rpy="0.000000 0.000000 0.000000"/></joint>
+  <joint name="imu_link_joint" type="fixed"><parent link="head_pitch_link"/><child link="imu_link"/><origin xyz="0.0020 0.0000 0.0480" rpy="0.000000 0.000000 0.000000"/></joint>
   <link name="camera_link"/>
   <joint name="camera_link_joint" type="fixed"><parent link="head_pitch_link"/><child link="camera_link"/><origin xyz="0.0310 0.0000 0.0420" rpy="0.000000 0.261799 0.000000"/></joint>
   <link name="tof_link"/>

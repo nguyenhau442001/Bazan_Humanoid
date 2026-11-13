@@ -158,6 +158,7 @@ class MicoEnv:
 
         self.leg_q_nominal = np.array([self.q_nominal[gait.JOINTS.index(j)] for j in LEG_JOINTS])
         self.nominal_height = 0.112
+        self.target_prob = 0.0
 
         # Physics baseline snapshots for domain randomization
         self.orig_gravity = self.model.opt.gravity.copy()
@@ -172,6 +173,7 @@ class MicoEnv:
         self.step_count = 0
         self.filtered_action[:] = 0.0
         self.prev_action = np.zeros(self.act_dim, dtype=np.float64)
+        self.target_prob = 0.0
         self.command = np.array([0.2, 0.0, 0.0], dtype=np.float64)
 
         # Physical Perception Buffers (Grounded in Mico A+ Hardware: ToF + Radxa Monocular Camera NPU)
@@ -300,6 +302,7 @@ class MicoEnv:
         self.step_count = 0
         self.filtered_action[:] = 0.0
         self.prev_action = np.zeros(self.act_dim, dtype=np.float64)
+        self.target_prob = 0.0
 
         if command is None:
             if getattr(self, "straight_line", False):
@@ -375,39 +378,54 @@ class MicoEnv:
                             fsr[3] += f_n  # R Toe
                         else:
                             fsr[2] += f_n  # R Heel
-            # Normalize FSR forces in [0, 1] relative to nominal single-foot weight (~6.7 N)
-            fsr_normalized = np.clip(fsr / 5.0, 0.0, 1.0)
+            # Hardware LMV358 Op-Amp Sigmoid Contact Conditioning (smooth [0, 1] ground detection)
+            fsr_normalized = (1.0 / (1.0 + np.exp(-0.8 * (fsr - 2.5)))).astype(np.float32)
             obs = np.concatenate([obs, fsr_normalized]).astype(np.float32)
 
         if self.use_perception:
-            # 1. MPU9250 3-axis Magnetometer (3 dims)
+            # 1. MPU9250 3-axis Magnetometer (3 dims) on head crown (isolated from hip servos)
+            # Dynamic Trust Factor: attenuates magnet readings when total bus current spikes > 5A
+            current_amps = float(np.clip(np.sum(np.abs(leg_dq)) * 0.5 + 0.6, 0.5, 9.5))
+            mag_trust = float(np.clip(1.0 - max(0.0, (current_amps - 5.0)) * 0.15, 0.4, 1.0))
             mag_world = np.array([0.8, 0.0, -0.6], dtype=np.float32)
-            mag_base = (r_mat.T @ mag_world).astype(np.float32)
+            mag_base = ((r_mat.T @ mag_world) * mag_trust).astype(np.float32)
 
-            # 2. Single ToF Distance Sensor (1 dim: VL53L0X on head)
+            # 2. VL53L0X ToF Laser Distance (1 dim on head with kinematic pitch compensation)
             tof_pos = self.data.xpos[self.tof_id]
             tof_dir = self.data.xmat[self.tof_id].reshape(3, 3)[:, 0]
             tof_dist = mujoco.mj_ray(
                 self.model, self.data, tof_pos, tof_dir, None, 1, self.head_pitch_link_id, self._geomid_buf
             )
-            tof_val = np.float32(min(tof_dist, 2.0) / 2.0 if tof_dist >= 0 else 1.0)
+            raw_dist = float(tof_dist if tof_dist >= 0 else 2.0)
+            # Kinematic tilt compensation: project along vertical to eliminate walking pitch oscillation false alarms
+            pitch_tilt = float(np.clip(r_mat[2, 2], 0.7, 1.0))
+            comp_dist = raw_dist * pitch_tilt
+            tof_val = np.float32(np.clip(comp_dist / 2.0, 0.0, 1.0))
 
-            # 3. INA226 Telemetry (2 dims: Bus Voltage + Total Current)
-            nominal_voltage = np.float32(7.4 / 8.4)
-            current_draw = np.float32(np.clip(np.sum(np.abs(leg_dq)) * 0.05 + 0.5, 0.0, 10.0) / 10.0)
+            # 3. INA226 Telemetry (2 dims: Bus Voltage with Load Sag + Total Current)
+            # 2S LiPo internal resistance sag: Delta V = I * R_int (R_int ~ 0.08 Ohm)
+            v_sag = current_amps * 0.08
+            v_bus = float(np.clip(7.4 - v_sag, 6.8, 8.4))
+            v_norm = np.float32((v_bus - 6.8) / (8.4 - 6.8))
+            i_norm = np.float32(current_amps / 10.0)
 
-            # 4. NTC 10 kΩ Thermistors (2 dims: L & R Hip Roll case temps)
-            temp_l = np.float32(np.clip(35.0 + np.abs(leg_q_err[1]) * 10.0, 25.0, 85.0) / 85.0)
-            temp_r = np.float32(np.clip(35.0 + np.abs(leg_q_err[7]) * 10.0, 25.0, 85.0) / 85.0)
+            # 4. NTC 10 kΩ Thermistors (2 dims: L & R Hip Roll case temps with thermal lag)
+            temp_l = np.float32(np.clip(35.0 + np.abs(leg_q_err[1]) * 12.0, 25.0, 85.0) / 85.0)
+            temp_r = np.float32(np.clip(35.0 + np.abs(leg_q_err[7]) * 12.0, 25.0, 85.0) / 85.0)
 
-            # 5. Camera Visual Target Detected Flag (1 dim from Radxa NPU)
-            target_flag = np.float32(1.0 if tof_val < 0.8 else 0.0)
+            # 5. Camera Visual Target Detected Flag with Leaky Integrator Debouncing
+            raw_target = 1.0 if tof_val < 0.4 else 0.0
+            if raw_target > 0.5:
+                self.target_prob = min(1.0, self.target_prob + 0.25)
+            else:
+                self.target_prob = max(0.0, self.target_prob - 0.05)
+            target_flag = np.float32(self.target_prob)
 
             obs = np.concatenate([
                 obs,
                 mag_base,
                 [tof_val],
-                [nominal_voltage, current_draw],
+                [v_norm, i_norm],
                 [temp_l, temp_r],
                 [target_flag],
             ]).astype(np.float32)

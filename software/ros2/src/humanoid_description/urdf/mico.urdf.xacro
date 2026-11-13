@@ -440,7 +440,7 @@
     <joint name="head_pitch_link__window_joint" type="fixed"><parent link="head_pitch_link"/><child link="head_pitch_link__window"/><origin xyz="0 0 0" rpy="0 0 0"/></joint>
   </xacro:if>
   <link name="imu_link"/>
-  <joint name="imu_link_joint" type="fixed"><parent link="base_link"/><child link="imu_link"/><origin xyz="0.0000 0.0000 0.0300" rpy="0.000000 0.000000 0.000000"/></joint>
+  <joint name="imu_link_joint" type="fixed"><parent link="head_pitch_link"/><child link="imu_link"/><origin xyz="0.0020 0.0000 0.0480" rpy="0.000000 0.000000 0.000000"/></joint>
   <link name="camera_link"/>
   <joint name="camera_link_joint" type="fixed"><parent link="head_pitch_link"/><child link="camera_link"/><origin xyz="0.0310 0.0000 0.0420" rpy="0.000000 0.261799 0.000000"/></joint>
   <link name="tof_link"/>

@@ -171,7 +171,7 @@ ROBOT = Body("base", (0, 0, HIP_Z), None, [
 CAM_TILT = 15 * pi / 180   # camera pitched down so the floor is visible from ~0.35 m
 TOF_TILT = 20 * pi / 180   # ToF pitched down so its beam meets the floor at 0.46-2.2 m
 FRAMES = [
-    ("imu_link", "base", (0, 0, 30), (0, 0, 0)),             # MPU6050 on the pelvis top plate, under the battery
+    ("imu_link", "head_pitch", (2, 0, 48), (0, 0, 0)),             # MPU9250 9-DOF IMU on head crown (no hip EMF)
     ("camera_link", "head_pitch", (31, 0, 42), (0, CAM_TILT, 0)),
     ("tof_link", "head_pitch", (31, 8, 45), (0, TOF_TILT, 0)),
     ("l_mic_link", "head_pitch", (2, 38.5, 24), (0, 0, pi / 2)),   # mic faces +y (out of the left ear)
