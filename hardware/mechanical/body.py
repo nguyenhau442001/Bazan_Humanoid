@@ -460,6 +460,10 @@ class Body:
         return bx((c[0] - b.size[0] / 2, c[0] + b.size[0] / 2), (-b.size[1] / 2, b.size[1] / 2),
                   (Z0T + 0.01, Z0T + b.top))
 
+    def sensors(self):
+        import sensors as sens
+        return sens.get_body_sensors(self)
+
     def summary(self):
         return dict(Z0=Z0, Z0T=round(Z0T, 2), Z1=round(Z1, 2), Z1T=round(Z1T, 2), Z2=round(Z2, 2), Z2T=round(Z2T, 2),
                     shoulder_axis_z=round(SH_Z, 2), roll_axis=(ROLL_CT_X, round(ROLL_Y, 2), round(ROLL_Z, 2)),

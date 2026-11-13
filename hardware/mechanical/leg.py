@@ -321,6 +321,10 @@ class Leg:
                 out[f"cap_{n}_{'horn' if i == 0 else 'idler'}"] = c
         return out
 
+    def sensors(self, side="l"):
+        import sensors as sens
+        return sens.get_leg_sensors(self, side=side)
+
     def summary(self):
         return dict(hip_roll_up=HIP_ROLL_UP, ankle_roll_down=ANKLE_ROLL_DOWN, L1=L1, L2=L2, hip_y=HIP_Y,
                     yaw_case_top=round(self.yaw_case_top(), 2),

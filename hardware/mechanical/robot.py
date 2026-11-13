@@ -255,10 +255,6 @@ def main():
     return 1 if bad else 0
 
 
-if __name__ == "__main__":
-    sys.exit(main())
-
-
 def service_paths(body, leg):
     """Each upper-body servo (with its horn) slides out along its shaft once its driven link (and everything after
     it) is off, in the service pose of that joint. {joint: None or what blocks it}."""
@@ -290,3 +286,7 @@ def service_paths(body, leg):
                 out[jn] = f"{hit} after {d:.0f} mm"
                 break
     return out
+
+
+if __name__ == "__main__":
+    sys.exit(main())
