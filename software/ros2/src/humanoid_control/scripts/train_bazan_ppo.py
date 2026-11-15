@@ -818,11 +818,9 @@ def train(args):
     batch_size = num_envs * rollout_len
     minibatch_size = args.minibatch_size
 
-    if args.arch == "perceptive_transformer" or getattr(args, "perception", False):
+    if args.arch in ("perceptive_transformer", "perceptive_titan") or getattr(args, "perception", False):
         args.perception = True
         args.use_phase = True
-        if args.arch == "titan_transformer":
-            args.arch = "perceptive_transformer"
 
     vec_env = env_mod.VectorMicoEnv(
         num_envs=num_envs,

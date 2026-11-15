@@ -36,8 +36,8 @@ import eval_bazan_benchmark as eval_mod  # noqa: E402
 import model_registry as reg_mod  # noqa: E402
 
 MODELS_DIR = REPO / "software" / "ai" / "models"
-CHAIN_LATEST_CKPT = MODELS_DIR / "mico_policy_v16.0_perceptive_transformer_evolution_chain_latest.pt"
-CHAIN_BEST_CKPT = MODELS_DIR / "mico_policy_v16.0_perceptive_transformer_evolution_chain_best.pt"
+CHAIN_LATEST_CKPT = MODELS_DIR / "mico_policy_v17.0_titan_transformer_evolution_chain_latest.pt"
+CHAIN_BEST_CKPT = MODELS_DIR / "mico_policy_v17.0_titan_transformer_evolution_chain_best.pt"
 
 
 def update_readme_leaderboard(registry):
@@ -194,40 +194,38 @@ def print_champion_comparison(cand_tag, cand_score, cand_rep, champ_tag, champ_s
 def synthesize_error_curriculum_config(last_report, gen_idx, chain_ckpt_path):
     """Synthesize next generation hyperparameters specifically targeting weaknesses of the last run.
 
+    Scales to 10.01M Titan Transformer (6 Residual Blocks + 3 Transformer Attention Layers).
     Guarantees the model learns from mistakes rather than restarting from scratch.
     """
-    kick_surv = last_report.get("kick", {}).get("survival_rate", 100.0) if last_report else 54.2
+    kick_surv = last_report.get("kick", {}).get("survival_rate", 100.0) if last_report else 58.3
     drop_surv = last_report.get("drop", {}).get("drop_survival_rate", 100.0) if last_report else 66.7
-    rev_rmse = last_report.get("reversal", {}).get("rmse_vx", 0.0) if last_report else 0.214
+    rev_rmse = last_report.get("reversal", {}).get("rmse_vx", 0.0) if last_report else 0.213
 
-    tag = f"v16.0_perceptive_transformer_gen{gen_idx}"
+    tag = f"v17.0_titan_transformer_wholebody_10M_gen{gen_idx}"
 
     # 1. Target Kick Disturbance Deficit: scale perturbation probability
     perturb_prob = min(0.08, 0.04 + (0.01 * min(4, gen_idx)))
 
-    # 2. Target Drop / Tilt Shock Deficit: lock straight line upright posture
-    straight_line = True
-
-    # 3. Fine learning rate for continuous refinement
-    lr = "6e-5" if gen_idx > 1 else "8e-5"
+    # 2. Fine learning rate for continuous refinement on 10M Transformer
+    lr = "7e-5" if gen_idx > 1 else "8e-5"
 
     fixes = []
     if kick_surv < 75.0:
         fixes.append(f"KickDeficit({kick_surv:.0f}%->perturb={perturb_prob:.3f})")
     if drop_surv < 85.0:
-        fixes.append(f"DropDeficit({drop_surv:.0f}%->straight_line)")
+        fixes.append(f"DropDeficit({drop_surv:.0f}%->compliance)")
     if rev_rmse > 0.15:
         fixes.append(f"TrackingDeficit(rmse={rev_rmse:.3f}->lr={lr})")
 
-    desc_fixes = ", ".join(fixes) if fixes else "Whole-Body Continuous Refinement"
+    desc_fixes = ", ".join(fixes) if fixes else "Whole-Body 10.01M Titan Transformer Refinement"
 
     return {
         "tag": tag,
-        "arch": "perceptive_transformer",
+        "arch": "titan_transformer",
         "hidden_dim": 512,
-        "num_layers": 2,
+        "num_layers": 3,
         "num_heads": 4,
-        "num_blocks": 3,
+        "num_blocks": 6,
         "iterations": 80,
         "num_envs": 8,
         "rollout_length": 32,
@@ -236,10 +234,10 @@ def synthesize_error_curriculum_config(last_report, gen_idx, chain_ckpt_path):
         "residual": True,
         "use_phase": True,
         "perception": True,
-        "straight_line": straight_line,
+        "straight_line": False,
         "lr": lr,
         "resume_checkpoint": str(chain_ckpt_path),
-        "desc": f"Whole-Body 64-in/32-out Perceptive Transformer Gen {gen_idx} (Fixes: {desc_fixes})",
+        "desc": f"Whole-Body 64-in/32-out 10.01M Titan Transformer Gen {gen_idx} (Fixes: {desc_fixes})",
     }
 
 
@@ -317,9 +315,9 @@ def main():
     parser.add_argument(
         "--arch",
         type=str,
-        default="perceptive_transformer",
-        choices=["perceptive_transformer", "titan_transformer", "transformer", "all"],
-        help="Target architecture family to evolve (default: perceptive_transformer)",
+        default="titan_transformer",
+        choices=["titan_transformer", "perceptive_transformer", "transformer", "all"],
+        help="Target architecture family to evolve (default: titan_transformer)",
     )
     parser.add_argument("--iterations", type=int, default=None, help="Override iterations per generation")
     parser.add_argument("--force", action="store_true", default=False, help="Force retrain registered generations")
@@ -353,8 +351,8 @@ def main():
     if best_tag is not None:
         print(f"[*] Current Best '{target_arch}' Model: '{best_tag}' with Score: {best_score:.1f} / 100")
     else:
-        best_tag = "v16.0_wholebody_perceptive_64in_32out"
-        best_score = 89.8
+        best_tag = "v16.0_perceptive_transformer_gen1"
+        best_score = 90.4
         print(f"[*] Defaulting Champion to '{best_tag}' ({best_score:.1f} / 100)")
 
     # Benchmark initial champion to obtain baseline report if needed
@@ -377,10 +375,10 @@ def main():
     # Determine starting chain checkpoint
     chain_ckpt = CHAIN_LATEST_CKPT
     if not chain_ckpt.exists():
-        initial_pt = MODELS_DIR / f"mico_policy_{best_tag}.pt"
+        initial_pt = MODELS_DIR / "mico_policy_v16.0_perceptive_transformer_gen1.pt"
         if initial_pt.exists():
             shutil.copyfile(initial_pt, chain_ckpt)
-            print(f"[🔗 CHAIN] Initialized continuous learning chain from: {initial_pt.name}")
+            print(f"[🔗 CHAIN] Initialized continuous learning chain from champion: {initial_pt.name}")
 
     last_report = champ_report
     generations_trained = 0
@@ -389,13 +387,13 @@ def main():
     reg_now = reg_mod.load_registry()
     existing_gen_nums = []
     for ver in reg_now.get("models", {}):
-        if ver.startswith("v16.0_perceptive_transformer_gen"):
+        if "titan_transformer_wholebody_10M_gen" in ver:
             try:
                 num = int(ver.split("_gen")[-1])
                 existing_gen_nums.append(num)
             except ValueError:
                 pass
-    next_gen_num = (max(existing_gen_nums) + 1) if existing_gen_nums else 2
+    next_gen_num = (max(existing_gen_nums) + 1) if existing_gen_nums else 1
 
     while generations_trained < args.max_generations and best_score < effective_target:
         # Synthesize adaptive config targeting mistakes from the previous run
