@@ -1,8 +1,8 @@
 {
-  "total_wall_time_sec": 77356.36720468657,
-  "total_generations": 218,
-  "total_training_steps": 44523520,
-  "consecutive_stagnant_gens": 0,
+  "total_wall_time_sec": 77414.8908658232,
+  "total_generations": 219,
+  "total_training_steps": 44564480,
+  "consecutive_stagnant_gens": 1,
   "champion_tag": "v13.5_bidirectional_sprint_champion_rev96",
   "champion_score": 65.29,
   "champion_passed_motions": 19,
@@ -1757,6 +1757,17 @@
       "iterations": 160,
       "steps": 163840,
       "hli_score": 54.57,
+      "passed_motions": 7,
+      "is_new_champion": false
+    },
+    {
+      "gen_id": 219,
+      "tag": "v16.0_perceptive_transformer_evolution_rev1",
+      "timestamp": "2026-11-15T16:52:11.211307",
+      "wall_time_s": 58.52,
+      "iterations": 40,
+      "steps": 40960,
+      "hli_score": 56.89,
       "passed_motions": 7,
       "is_new_champion": false
     }

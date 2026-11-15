@@ -47,15 +47,19 @@ EVO_DIR.mkdir(parents=True, exist_ok=True)
 CURRICULUM = [
     {
         "stage": 1,
-        "tag": "v15.0_titan_transformer_evolution",
-        "arch": "titan_transformer",
-        "iterations": 160,
+        "tag": "v16.0_perceptive_transformer_evolution",
+        "arch": "perceptive_transformer",
+        "perception": True,
+        "iterations": 80,
         "target_speed": 0.35,
-        "perturb_prob": 0.035,
+        "perturb_prob": 0.04,
+        "num_envs": 8,
+        "rollout_length": 32,
+        "minibatch_size": 128,
         "lr": "8e-5",
         "clip_coef": "0.15",
-        "resume_from": "v9.0_titan_transformer",
-        "desc": "Titan Multi-Stream Residual Transformer Policy (MHSA 4-Head + Decoupled Specialty Heads)",
+        "resume_from": "v16.0_wholebody_perceptive_64in_32out",
+        "desc": "Whole-Body Perceptive Titan Transformer Policy (64-in, 32-out, MHSA 4-Head + 6 Specialty Heads)",
     },
 ]
 
@@ -168,7 +172,11 @@ def train_stage(cfg):
         if candidate.exists():
             resume_path = candidate
     if resume_path is None:
-        if cfg.get("arch") == "titan_transformer":
+        if cfg.get("perception") or cfg.get("arch") == "perceptive_transformer":
+            active_pt = (
+                REPO / "src" / "humanoid_control" / "models" / "mico_policy_v16.0_wholebody_perceptive_64in_32out.pt"
+            )
+        elif cfg.get("arch") == "titan_transformer":
             active_pt = REPO / "src" / "humanoid_control" / "models" / "mico_policy_v9.0_titan_transformer.pt"
         else:
             active_pt = REPO / "src" / "humanoid_control" / "models" / "mico_policy_v12.0_adaptive_pitch_sprint.pt"
@@ -180,24 +188,28 @@ def train_stage(cfg):
     print("   Trajectory:   Locked Straight-Track (y=0, yaw=0) & 20-Motion Robustness")
     print("=" * 80)
 
+    train_script = HERE / "train_bazan_ppo.py" if (HERE / "train_bazan_ppo.py").exists() else HERE / "train_mico_ppo.py"
     cmd = [
         sys.executable,
-        str(HERE / "train_mico_ppo.py"),
+        str(train_script),
         "--arch", cfg["arch"],
         "--iterations", str(cfg["iterations"]),
-        "--num-envs", "16",
-        "--minibatch-size", "512",
+        "--num-envs", str(cfg.get("num_envs", 8)),
+        "--rollout-length", str(cfg.get("rollout_length", 32)),
+        "--minibatch-size", str(cfg.get("minibatch_size", 128)),
         "--residual",
         "--use-phase",
         "--straight-line",
         "--target-speed", str(cfg["target_speed"]),
-        "--lr", str(cfg.get("lr", "7e-5")),
+        "--lr", str(cfg.get("lr", "8e-5")),
         "--clip-coef", str(cfg.get("clip_coef", "0.15")),
         "--domain-rand",
         "--perturb-prob", str(cfg["perturb_prob"]),
         "--version-tag", tag,
-        "--log-interval", "40",
+        "--log-interval", "20",
     ]
+    if cfg.get("perception", False):
+        cmd.append("--perception")
     if resume_path:
         cmd.extend(["--resume-checkpoint", str(resume_path)])
 
@@ -211,6 +223,8 @@ def train_stage(cfg):
 def main():
     parser = argparse.ArgumentParser(description="Autonomous Continuous Humanoid Training Loop")
     parser.add_argument("--stages", type=str, default="1", help="Comma-separated stage indices to run")
+    parser.add_argument("--loops", type=int, default=1, help="Number of evolution loops to execute (default: 1)")
+    parser.add_argument("--iterations", type=int, default=None, help="Override iterations per stage")
     parser.add_argument("--nonstop", action="store_true", help="Run indefinitely in a nonstop loop")
     parser.add_argument("--target-hli", type=float, default=85.0, help="Target HLI-20 score out of 100")
     args = parser.parse_args()
@@ -247,8 +261,10 @@ def main():
     ]
     loop_idx = max(existing_revs) if existing_revs else 0
     best_arch_scores = {}
+    loop_count = 0
 
     while True:
+        loop_count += 1
         loop_idx += 1
         for stage_idx in selected_stages:
             cfg = next((c for c in CURRICULUM if c["stage"] == stage_idx), None)
@@ -259,6 +275,8 @@ def main():
             tag = f"{base_tag}_rev{loop_idx}"
             cfg = dict(cfg)
             cfg["tag"] = tag
+            if args.iterations is not None:
+                cfg["iterations"] = args.iterations
 
             # Life-long Continuous Learning Chain: always inherit from latest/best checkpoint
             chain_ckpt = REPO / "src" / "humanoid_control" / "models" / f"mico_policy_{base_tag}_chain_latest.pt"
@@ -367,7 +385,7 @@ def main():
                 print(f"\n🏆 TARGET HLI-20 SCORE REACHED ({champion_score:.1f} >= {args.target_hli})! Halting.")
                 return
 
-        if not args.nonstop:
+        if not args.nonstop and loop_count >= args.loops:
             break
 
     print("\n" + "=" * 80)

@@ -32,36 +32,40 @@ import model_registry as reg_mod  # noqa: E402
 
 GENERATIONS = [
     {
-        "tag": "v8.0_massive_res_17M",
-        "arch": "deep_res",
-        "hidden_dim": 1024,
-        "num_blocks": 8,
-        "iterations": 250,
+        "tag": "v16.0_perceptive_transformer_gen1",
+        "arch": "perceptive_transformer",
+        "hidden_dim": 512,
+        "num_blocks": 3,
+        "num_layers": 2,
+        "num_heads": 4,
+        "iterations": 80,
+        "num_envs": 8,
+        "rollout_length": 32,
+        "minibatch_size": 128,
         "perturb_prob": 0.04,
         "residual": True,
         "use_phase": True,
-        "desc": "Massive Ultra ResNet (16.9M actor params, 33.8M total, 8 blocks, Metal MPS)",
+        "perception": True,
+        "resume_from": "v16.0_wholebody_perceptive_64in_32out",
+        "desc": "Whole-Body Perceptive Transformer (64-in, 32-out, MHSA 4-Head + 6 Decoupled Heads, Metal MPS)",
     },
     {
-        "tag": "v8.1_massive_res_34M",
-        "arch": "deep_res",
-        "hidden_dim": 1024,
-        "num_blocks": 16,
-        "iterations": 300,
+        "tag": "v16.1_perceptive_transformer_deep",
+        "arch": "perceptive_transformer",
+        "hidden_dim": 512,
+        "num_blocks": 4,
+        "num_layers": 3,
+        "num_heads": 4,
+        "iterations": 100,
+        "num_envs": 8,
+        "rollout_length": 32,
+        "minibatch_size": 128,
         "perturb_prob": 0.05,
         "residual": True,
         "use_phase": True,
-        "desc": "Titan Ultra ResNet (33.7M actor params, 67.4M total, 16 blocks, Metal MPS)",
-    },
-    {
-        "tag": "v6.0_apex_master",
-        "arch": "deep_res",
-        "hidden_dim": 640,
-        "iterations": 300,
-        "perturb_prob": 0.04,
-        "residual": True,
-        "use_phase": True,
-        "desc": "Apex Ultra ResNet (3.33M params) trained with drop, ice, and kick domain rand (300 iters)",
+        "perception": True,
+        "resume_from": "v16.0_wholebody_perceptive_64in_32out",
+        "desc": "Deep Perceptive Transformer (64-in, 32-out, 3-layer MHSA + 4 ResBlocks, Metal MPS)",
     },
 ]
 
@@ -129,23 +133,28 @@ def run_training_generation(gen_cfg):
     tag = gen_cfg["tag"]
     print("\n" + "=" * 80)
     print(f"🚀 LAUNCHING AUTONOMOUS TRAINING: {tag.upper()}")
-    print(f"   Architecture: {gen_cfg['arch']} (hidden={gen_cfg['hidden_dim']}) | Iterations: {gen_cfg['iterations']}")
-    print(f"   Disturbance Prob: {gen_cfg['perturb_prob']} | Residual Gait: {gen_cfg['residual']}")
+    print(f"   Architecture: {gen_cfg['arch']} (hidden={gen_cfg.get('hidden_dim', 512)}) | "
+          f"Iterations: {gen_cfg['iterations']}")
+    print(f"   Disturbance Prob: {gen_cfg['perturb_prob']} | Residual Gait: {gen_cfg.get('residual', False)}")
     print("=" * 80)
 
+    train_script = HERE / "train_bazan_ppo.py" if (HERE / "train_bazan_ppo.py").exists() else HERE / "train_mico_ppo.py"
     cmd = [
         sys.executable,
-        str(HERE / "train_mico_ppo.py"),
+        str(train_script),
         "--arch", gen_cfg["arch"],
-        "--hidden-dim", str(gen_cfg["hidden_dim"]),
+        "--hidden-dim", str(gen_cfg.get("hidden_dim", 512)),
         "--iterations", str(gen_cfg["iterations"]),
-        "--num-envs", "16",
-        "--minibatch-size", "512",
+        "--num-envs", str(gen_cfg.get("num_envs", 8)),
+        "--rollout-length", str(gen_cfg.get("rollout_length", 32)),
+        "--minibatch-size", str(gen_cfg.get("minibatch_size", 128)),
         "--domain-rand",
         "--perturb-prob", str(gen_cfg["perturb_prob"]),
         "--version-tag", tag,
-        "--log-interval", "50",
+        "--log-interval", "20",
     ]
+    if gen_cfg.get("perception", False):
+        cmd.append("--perception")
     if gen_cfg.get("residual", False):
         cmd.append("--residual")
     if gen_cfg.get("use_phase", False):
@@ -156,6 +165,10 @@ def run_training_generation(gen_cfg):
         cmd.extend(["--num-heads", str(gen_cfg["num_heads"])])
     if "num_blocks" in gen_cfg:
         cmd.extend(["--num-blocks", str(gen_cfg["num_blocks"])])
+    if gen_cfg.get("resume_from"):
+        candidate = REPO / "src" / "humanoid_control" / "models" / f"mico_policy_{gen_cfg['resume_from']}.pt"
+        if candidate.exists():
+            cmd.extend(["--resume-checkpoint", str(candidate)])
 
     t0 = time.time()
     subprocess.run(cmd, check=True)
@@ -166,7 +179,12 @@ def run_training_generation(gen_cfg):
 def evaluate_generation(tag):
     """Run benchmark suite as a subprocess and return composite score."""
     print(f"\n[🥊] Benchmarking Generation '{tag}'...")
-    cmd = [sys.executable, str(HERE / "eval_mico_benchmark.py"), "--model", tag]
+    eval_script = (
+        HERE / "eval_bazan_benchmark.py"
+        if (HERE / "eval_bazan_benchmark.py").exists()
+        else HERE / "eval_mico_benchmark.py"
+    )
+    cmd = [sys.executable, str(eval_script), "--model", tag]
     subprocess.run(cmd, check=True)
 
     # Read updated score from registry
@@ -205,22 +223,28 @@ def main():
         if gen_idx < len(GENERATIONS):
             gen_cfg = GENERATIONS[gen_idx]
         else:
-            # Dynamically synthesized next-gen configs (v8+ Transformer)
+            # Dynamically synthesized next-gen configs (v16+ Perceptive Transformer)
             reg_now = reg_mod.load_registry()
             v_idx = 2
-            while f"v8.{v_idx}_transformer" in reg_now.get("models", {}):
+            while f"v16.{v_idx}_perceptive_transformer" in reg_now.get("models", {}):
                 v_idx += 1
             gen_cfg = {
-                "tag": f"v8.{v_idx}_transformer",
-                "arch": "transformer",
-                "hidden_dim": 1024 if v_idx % 2 == 1 else 768,
-                "num_layers": 4 if v_idx % 2 == 1 else 6,
-                "num_heads": 8,
-                "iterations": 350,
+                "tag": f"v16.{v_idx}_perceptive_transformer",
+                "arch": "perceptive_transformer",
+                "hidden_dim": 512,
+                "num_layers": 2 if v_idx % 2 == 0 else 3,
+                "num_heads": 4,
+                "num_blocks": 3 if v_idx % 2 == 0 else 4,
+                "iterations": 100,
+                "num_envs": 8,
+                "rollout_length": 32,
+                "minibatch_size": 128,
                 "perturb_prob": min(0.08, 0.04 + (v_idx * 0.005)),
                 "residual": True,
                 "use_phase": True,
-                "desc": f"Auto-evolved Transformer generation {v_idx} with multi-domain physics randomization",
+                "perception": True,
+                "resume_from": "v16.0_wholebody_perceptive_64in_32out",
+                "desc": f"Auto-evolved Whole-Body Perceptive Transformer generation {v_idx} (64-in, 32-out)",
             }
 
         tag = gen_cfg["tag"]
