@@ -1,0 +1,101 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-11-15T18:20:39.993278",
+  "champion_tag": "v17.0_titan_transformer_wholebody_10M_gen1",
+  "champion_score": 91.0,
+  "total_cycles_recorded": 1,
+  "active_heuristics": {
+    "arch": "titan_transformer",
+    "hidden_dim": 512,
+    "num_blocks": 6,
+    "num_layers": 3,
+    "num_heads": 4,
+    "action_scale": 0.08,
+    "min_iterations": 80,
+    "perturb_prob": 0.065,
+    "lr": "7e-5",
+    "clip_coef": "0.15",
+    "straight_line": false
+  },
+  "validated_successes": [
+    {
+      "id": "VAL-01",
+      "lesson": "Pre-LayerNorm with direct residual shortcut prevents attention saturation during PPO.",
+      "origin_model": "v8.3_transformer_hybrid",
+      "impact": "+43.8 pts stability gain"
+    },
+    {
+      "id": "VAL-02",
+      "lesson": "Sigmoid FSR normalization prevents raw contact spikes from drowning proprioception.",
+      "origin_model": "v16.0_wholebody_perceptive",
+      "impact": "+66.1 pts perception robustness"
+    },
+    {
+      "id": "VAL-03",
+      "lesson": "Decoupled 6-Head specialty architecture allows independent sagittal/lateral balance.",
+      "origin_model": "v16.0_gen1",
+      "impact": "Decoupled Whole-Body 20 DOF + 12 Adaptive Controls"
+    },
+    {
+      "id": "VAL-04",
+      "lesson": "10.01M Titan Transformer (6 blocks, 3 layers) achieves < 1.0 ms P99 latency on M4.",
+      "origin_model": "v17.0_gen1",
+      "impact": "987 μs P99 latency (> 11x real-time headroom)"
+    }
+  ],
+  "avoided_mistakes": [
+    {
+      "id": "ERR-01",
+      "mistake": "Setting action_scale > 0.10 when resuming pre-trained weights causes joint flaring.",
+      "observed_in": "mico_rl_env legacy straight_line override",
+      "mitigation": "Strictly lock action_scale = 0.08 across all training and evaluation runs."
+    },
+    {
+      "id": "ERR-02",
+      "mistake": "Running < 60 iterations on 10M Transformer policy causes PPO gradient under-convergence.",
+      "observed_in": "v16.0_gen2 (20 iters -> 31.4 pts)",
+      "mitigation": "Enforce minimum 80 iterations per evolutionary cycle."
+    },
+    {
+      "id": "ERR-03",
+      "mistake": "Narrow foot stance (y < 4 cm) leaves zero margin for ankle roll torque against kicks.",
+      "observed_in": "v3.1, v5.5 (survival < 50%)",
+      "mitigation": "Dynamic arm flaring + hip roll pre-tension via decoupled lateral head."
+    }
+  ],
+  "persistent_weaknesses": [
+    {
+      "criterion": "Kick Disturbance",
+      "current_survival": 62.5,
+      "target_survival": 85.0,
+      "consecutive_failures": 3,
+      "action_plan": "Incrementally scale perturb_prob from 0.065 to 0.080 and boost hip damping."
+    },
+    {
+      "criterion": "Drop Impact & Tilt",
+      "current_survival": 66.7,
+      "target_survival": 85.0,
+      "consecutive_failures": 3,
+      "action_plan": "Reinforce spine pitch posture compliance during landing shock."
+    },
+    {
+      "criterion": "Velocity Reversal Agility",
+      "current_rmse": 0.213,
+      "target_rmse": 0.15,
+      "consecutive_failures": 2,
+      "action_plan": "Tune fine learning rate (7e-5) with cosine annealing."
+    }
+  ],
+  "cycle_history": [
+    {
+      "cycle": 1,
+      "tag": "v17.0_titan_transformer_wholebody_10M_gen1",
+      "score": 91.0,
+      "delta": 0.0,
+      "kick_surv": 62.5,
+      "drop_surv": 66.7,
+      "rev_rmse": 0.213,
+      "status": "CHAMPION_BASELINE"
+    }
+  ]
+}

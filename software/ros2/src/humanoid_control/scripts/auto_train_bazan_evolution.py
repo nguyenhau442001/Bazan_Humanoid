@@ -33,6 +33,7 @@ while REPO.parent != REPO and not (REPO / ".git").exists() and not (REPO / "AGEN
     REPO = REPO.parent
 sys.path.insert(0, str(HERE))
 import eval_bazan_benchmark as eval_mod  # noqa: E402
+import evolution_knowledge_base as kb_mod  # noqa: E402
 import model_registry as reg_mod  # noqa: E402
 
 MODELS_DIR = REPO / "software" / "ai" / "models"
@@ -97,6 +98,29 @@ def fmt_status(txt):
     elif "IMPROVED" in txt:
         return f"{C.BOLD}{C.GREEN}{txt}{C.RESET}"
     return f"{C.YELLOW}{txt}{C.RESET}"
+
+
+def print_knowledge_base_summary(kb):
+    """Print executive summary of loaded persistent lessons and heuristics."""
+    data = kb.data
+    val_count = len(data.get("validated_successes", []))
+    err_count = len(data.get("avoided_mistakes", []))
+    heuristics = data.get("active_heuristics", {})
+
+    print(f"{C.CYAN}╔{'═' * 78}╗{C.RESET}")
+    title = "🧠 EVOLUTION KNOWLEDGE BASE ACTIVE (PERSISTENT LESSONS & FIXES)"
+    print(f"{C.CYAN}║{C.RESET}  {C.BOLD}{C.WHITE}{title:<74}{C.RESET}  {C.CYAN}║{C.RESET}")
+    print(f"{C.CYAN}╠{'═' * 78}╣{C.RESET}")
+    print(f"{C.CYAN}║{C.RESET}  {C.GREEN}• Validated Successes:{C.RESET} {C.BOLD}{val_count}{C.RESET} "
+          f"proven rules loaded (Pre-LN, Sigmoid FSR, Heads) {C.CYAN}║{C.RESET}")
+    print(f"{C.CYAN}║{C.RESET}  {C.RED}• Avoided Mistakes:{C.RESET}    {C.BOLD}{err_count}{C.RESET} "
+          f"failure modes blocked (action_scale, min_iters)   {C.CYAN}║{C.RESET}")
+    h_str = (f"perturb_prob={heuristics.get('perturb_prob')}, lr={heuristics.get('lr')}, "
+             f"min_iters={heuristics.get('min_iterations')}")
+    print(f"{C.CYAN}║{C.RESET}  {C.YELLOW}• Active Heuristics:{C.RESET}   {h_str:<54} {C.CYAN}║{C.RESET}")
+    print(f"{C.CYAN}║{C.RESET}  {C.MAGENTA}• Persistent Targets:{C.RESET}  "
+          f"Kick Surv (62.5%->85%), Drop Shock (66.7%->85%)      {C.CYAN}║{C.RESET}")
+    print(f"{C.CYAN}╚{'═' * 78}╝{C.RESET}\n")
 
 
 def update_readme_leaderboard(registry):
@@ -399,6 +423,7 @@ def main():
     parser = argparse.ArgumentParser(description="Autonomous Continuous Humanoid Evolution Trainer")
     parser.add_argument("--target-score", type=float, default=95.0, help="Target score to reach before halting")
     parser.add_argument("--max-generations", type=int, default=5, help="Maximum evolution generations to train")
+    parser.add_argument("--nonstop", action="store_true", help="Run indefinitely in an autonomous nonstop loop")
     parser.add_argument(
         "--arch",
         type=str,
@@ -410,6 +435,9 @@ def main():
     parser.add_argument("--force", action="store_true", default=False, help="Force retrain registered generations")
     args = parser.parse_args()
 
+    # Initialize Persistent Knowledge Base
+    kb = kb_mod.EvolutionKnowledgeBase()
+
     print("\n" + f"{C.MAGENTA}╔{'═' * 78}╗{C.RESET}")
     title_str = "SYNAPSE HUMANOID AUTONOMOUS EVOLUTION & CONTINUOUS IMPROVEMENT"
     print(f"{C.MAGENTA}║{C.RESET}  {C.BOLD}{C.WHITE}{title_str:<68}{C.RESET} {C.MAGENTA}║{C.RESET}")
@@ -418,11 +446,14 @@ def main():
           f"{C.CYAN}(64 inputs, 32 outputs | 10.01M params){C.RESET}       {C.MAGENTA}║{C.RESET}")
     print(f"{C.MAGENTA}║{C.RESET}  Target Score:    {C.BOLD}{C.YELLOW}{args.target_score:.1f} / 100{C.RESET}"
           f"                                                 {C.MAGENTA}║{C.RESET}")
-    print(f"{C.MAGENTA}║{C.RESET}  Max Generations: {C.BOLD}{C.WHITE}{args.max_generations}{C.RESET}"
-          f"                                                        {C.MAGENTA}║{C.RESET}")
+    max_gen_str = "NONSTOP (Indefinite evolution)" if args.nonstop else str(args.max_generations)
+    print(f"{C.MAGENTA}║{C.RESET}  Generations:     {C.BOLD}{C.WHITE}{max_gen_str:<58}{C.RESET} {C.MAGENTA}║{C.RESET}")
     print(f"{C.MAGENTA}║{C.RESET}  Strategy:        "
           f"{C.GREEN}Continuous Weight Chaining & Failure-Driven Adaptive Curriculum{C.RESET} {C.MAGENTA}║{C.RESET}")
     print(f"{C.MAGENTA}╚{'═' * 78}╝{C.RESET}\n")
+
+    # Display Persistent Knowledge Base Summary
+    print_knowledge_base_summary(kb)
 
     target_arch = args.arch
     best_score = 0.0
@@ -474,7 +505,6 @@ def main():
             print(f"{C.CYAN}[🔗 CHAIN] Initialized continuous learning chain from champion: "
                   f"{initial_pt.name}{C.RESET}")
 
-    last_report = champ_report
     generations_trained = 0
 
     # Find highest existing generation number
@@ -489,10 +519,12 @@ def main():
                 pass
     next_gen_num = (max(existing_gen_nums) + 1) if existing_gen_nums else 1
 
-    while generations_trained < args.max_generations and best_score < effective_target:
-        # Synthesize adaptive config targeting mistakes from the previous run
-        gen_cfg = synthesize_error_curriculum_config(
-            last_report=last_report,
+    while True:
+        if not args.nonstop:
+            if generations_trained >= args.max_generations or best_score >= effective_target:
+                break
+        # Synthesize adaptive config leveraging all accumulated knowledge & lessons
+        gen_cfg = kb.get_adaptive_recipe(
             gen_idx=next_gen_num,
             chain_ckpt_path=chain_ckpt,
         )
@@ -521,9 +553,18 @@ def main():
             champ_rep=champ_report,
         )
 
+        # 4. Record lessons into Persistent Knowledge Base
+        kb.record_cycle_result(
+            tag=tag,
+            score=score,
+            report=report,
+            champ_score=best_score,
+            fixes_applied=gen_cfg.get("fixes_applied", []),
+        )
+
         cand_pt = MODELS_DIR / f"mico_policy_{tag}.pt"
 
-        # 4. Check if new champion
+        # 5. Check if new champion
         if score > best_score:
             print(f"\n{C.BG_GREEN} 🎉 NEW CHAMPION! '{tag}' scored {score:.1f} "
                   f"(surpassing previous best {best_score:.1f}) {C.RESET}")
@@ -546,20 +587,23 @@ def main():
                 print(f"{C.CYAN}[🛡️ SAFEGUARD] Re-anchored continuous chain to Champion '{best_tag}' "
                       f"({best_score:.1f} pts) to prevent divergence.{C.RESET}")
 
-        # Update last report for next generation's adaptive synthesis
-        last_report = report
         next_gen_num += 1
 
         reg_latest = reg_mod.load_registry()
         update_readme_leaderboard(reg_latest)
 
         if best_score >= effective_target:
-            print("\n" + "🏆" * 40)
-            print(f"{C.BOLD}{C.GREEN}🎉 GOAL ACHIEVED! Model '{best_tag}' reached "
-                  f"{best_score:.1f} >= {effective_target:.1f} points!{C.RESET}")
-            print("Ready to expand benchmark criteria to stairs, slope climbing, and rough terrain!")
-            print("🏆" * 40 + "\n")
-            break
+            if args.nonstop:
+                effective_target = min(100.0, best_score + 2.0)
+                print(f"\n{C.BOLD}{C.GREEN}[🎯 NONSTOP ELEVATION] Target score auto-elevated to "
+                      f"{effective_target:.1f} / 100! Continuing nonstop evolution.{C.RESET}\n")
+            else:
+                print("\n" + "🏆" * 40)
+                print(f"{C.BOLD}{C.GREEN}🎉 GOAL ACHIEVED! Model '{best_tag}' reached "
+                      f"{best_score:.1f} >= {effective_target:.1f} points!{C.RESET}")
+                print("Ready to expand benchmark criteria to stairs, slope climbing, and rough terrain!")
+                print("🏆" * 40 + "\n")
+                break
 
     print(f"\n{C.BOLD}{C.GREEN}[*] Evolution session completed. Final Champion: '{best_tag}' "
           f"({best_score:.1f} / 100){C.RESET}")
