@@ -1,12 +1,12 @@
 {
-  "total_wall_time_sec": 77534.81500889914,
-  "total_generations": 220,
-  "total_training_steps": 44646400,
-  "consecutive_stagnant_gens": 2,
+  "total_wall_time_sec": 79979.37328602927,
+  "total_generations": 251,
+  "total_training_steps": 47185920,
+  "consecutive_stagnant_gens": 3,
   "champion_tag": "v13.5_bidirectional_sprint_champion_rev96",
   "champion_score": 65.29,
   "champion_passed_motions": 19,
-  "last_review_report": "docs/engineering/evolution_reviews/stagnation_review_gen_218.md",
+  "last_review_report": "docs/engineering/evolution_reviews/stagnation_review_gen_248.md",
   "review_history": [
     {
       "gen_num": 85,
@@ -147,6 +147,42 @@
       "pain_points": [
         "Heading Stability & Directional Drift (P05_speed_tracking)",
         "Action Chatter & Joint Jerk (P12_jerk_smoothness)",
+        "High-Impulse Push Recovery (P15_getup_recovery)",
+        "Forward Velocity Tracking & Reverse Gait (P03_yaw_drift)",
+        "Foot-Ground Impact Shock & Soft Landing (P14_impact_shock)"
+      ]
+    },
+    {
+      "gen_num": 228,
+      "timestamp": "2026-11-15 17:08:56",
+      "report": "docs/engineering/evolution_reviews/stagnation_review_gen_228.md",
+      "pain_points": [
+        "Heading Stability & Directional Drift (P01_roll_sway)",
+        "Action Chatter & Joint Jerk (P05_speed_tracking)",
+        "High-Impulse Push Recovery (P15_getup_recovery)",
+        "Forward Velocity Tracking & Reverse Gait (P04_lateral_drift)",
+        "Foot-Ground Impact Shock & Soft Landing (P03_yaw_drift)"
+      ]
+    },
+    {
+      "gen_num": 238,
+      "timestamp": "2026-11-15 17:22:10",
+      "report": "docs/engineering/evolution_reviews/stagnation_review_gen_238.md",
+      "pain_points": [
+        "Heading Stability & Directional Drift (P01_roll_sway)",
+        "Action Chatter & Joint Jerk (P05_speed_tracking)",
+        "High-Impulse Push Recovery (P15_getup_recovery)",
+        "Forward Velocity Tracking & Reverse Gait (P03_yaw_drift)",
+        "Foot-Ground Impact Shock & Soft Landing (P04_lateral_drift)"
+      ]
+    },
+    {
+      "gen_num": 248,
+      "timestamp": "2026-11-15 17:35:56",
+      "report": "docs/engineering/evolution_reviews/stagnation_review_gen_248.md",
+      "pain_points": [
+        "Heading Stability & Directional Drift (P01_roll_sway)",
+        "Action Chatter & Joint Jerk (P05_speed_tracking)",
         "High-Impulse Push Recovery (P15_getup_recovery)",
         "Forward Velocity Tracking & Reverse Gait (P03_yaw_drift)",
         "Foot-Ground Impact Shock & Soft Landing (P14_impact_shock)"
@@ -1780,6 +1816,347 @@
       "steps": 81920,
       "hli_score": 58.34,
       "passed_motions": 11,
+      "is_new_champion": false
+    },
+    {
+      "gen_id": 221,
+      "tag": "v16.0_perceptive_transformer_evolution_rev3",
+      "timestamp": "2026-11-15T16:59:41.223867",
+      "wall_time_s": 108.45,
+      "iterations": 80,
+      "steps": 81920,
+      "hli_score": 56.62,
+      "passed_motions": 6,
+      "is_new_champion": false
+    },
+    {
+      "gen_id": 222,
+      "tag": "v16.0_perceptive_transformer_evolution_rev4",
+      "timestamp": "2026-11-15T17:01:00.898473",
+      "wall_time_s": 76.61,
+      "iterations": 80,
+      "steps": 81920,
+      "hli_score": 54.96,
+      "passed_motions": 5,
+      "is_new_champion": false
+    },
+    {
+      "gen_id": 223,
+      "tag": "v16.0_perceptive_transformer_evolution_rev5",
+      "timestamp": "2026-11-15T17:02:19.147472",
+      "wall_time_s": 75.13,
+      "iterations": 80,
+      "steps": 81920,
+      "hli_score": 55.87,
+      "passed_motions": 5,
+      "is_new_champion": false
+    },
+    {
+      "gen_id": 224,
+      "tag": "v16.0_perceptive_transformer_evolution_rev6",
+      "timestamp": "2026-11-15T17:03:37.653472",
+      "wall_time_s": 75.26,
+      "iterations": 80,
+      "steps": 81920,
+      "hli_score": 56.73,
+      "passed_motions": 7,
+      "is_new_champion": false
+    },
+    {
+      "gen_id": 225,
+      "tag": "v16.0_perceptive_transformer_evolution_rev7",
+      "timestamp": "2026-11-15T17:04:57.208026",
+      "wall_time_s": 76.22,
+      "iterations": 80,
+      "steps": 81920,
+      "hli_score": 57.42,
+      "passed_motions": 7,
+      "is_new_champion": false
+    },
+    {
+      "gen_id": 226,
+      "tag": "v16.0_perceptive_transformer_evolution_rev8",
+      "timestamp": "2026-11-15T17:06:17.139234",
+      "wall_time_s": 76.72,
+      "iterations": 80,
+      "steps": 81920,
+      "hli_score": 56.36,
+      "passed_motions": 6,
+      "is_new_champion": false
+    },
+    {
+      "gen_id": 227,
+      "tag": "v16.0_perceptive_transformer_evolution_rev9",
+      "timestamp": "2026-11-15T17:07:35.341016",
+      "wall_time_s": 75.05,
+      "iterations": 80,
+      "steps": 81920,
+      "hli_score": 56.53,
+      "passed_motions": 6,
+      "is_new_champion": false
+    },
+    {
+      "gen_id": 228,
+      "tag": "v16.0_perceptive_transformer_evolution_rev10",
+      "timestamp": "2026-11-15T17:08:53.687540",
+      "wall_time_s": 75.15,
+      "iterations": 80,
+      "steps": 81920,
+      "hli_score": 57.02,
+      "passed_motions": 7,
+      "is_new_champion": false
+    },
+    {
+      "gen_id": 229,
+      "tag": "v16.0_perceptive_transformer_evolution_rev11",
+      "timestamp": "2026-11-15T17:10:15.111609",
+      "wall_time_s": 75.05,
+      "iterations": 80,
+      "steps": 81920,
+      "hli_score": 55.48,
+      "passed_motions": 6,
+      "is_new_champion": false
+    },
+    {
+      "gen_id": 230,
+      "tag": "v16.0_perceptive_transformer_evolution_rev12",
+      "timestamp": "2026-11-15T17:11:32.950065",
+      "wall_time_s": 74.97,
+      "iterations": 80,
+      "steps": 81920,
+      "hli_score": 55.6,
+      "passed_motions": 6,
+      "is_new_champion": false
+    },
+    {
+      "gen_id": 231,
+      "tag": "v16.0_perceptive_transformer_evolution_rev13",
+      "timestamp": "2026-11-15T17:12:51.083345",
+      "wall_time_s": 75.18,
+      "iterations": 80,
+      "steps": 81920,
+      "hli_score": 54.7,
+      "passed_motions": 5,
+      "is_new_champion": false
+    },
+    {
+      "gen_id": 232,
+      "tag": "v16.0_perceptive_transformer_evolution_rev14",
+      "timestamp": "2026-11-15T17:14:09.998330",
+      "wall_time_s": 75.91,
+      "iterations": 80,
+      "steps": 81920,
+      "hli_score": 54.83,
+      "passed_motions": 4,
+      "is_new_champion": false
+    },
+    {
+      "gen_id": 233,
+      "tag": "v16.0_perceptive_transformer_evolution_rev15",
+      "timestamp": "2026-11-15T17:15:27.769566",
+      "wall_time_s": 74.8,
+      "iterations": 80,
+      "steps": 81920,
+      "hli_score": 56.33,
+      "passed_motions": 4,
+      "is_new_champion": false
+    },
+    {
+      "gen_id": 234,
+      "tag": "v16.0_perceptive_transformer_evolution_rev16",
+      "timestamp": "2026-11-15T17:16:45.842145",
+      "wall_time_s": 75.05,
+      "iterations": 80,
+      "steps": 81920,
+      "hli_score": 55.65,
+      "passed_motions": 5,
+      "is_new_champion": false
+    },
+    {
+      "gen_id": 235,
+      "tag": "v16.0_perceptive_transformer_evolution_rev17",
+      "timestamp": "2026-11-15T17:18:03.610209",
+      "wall_time_s": 74.82,
+      "iterations": 80,
+      "steps": 81920,
+      "hli_score": 53.96,
+      "passed_motions": 4,
+      "is_new_champion": false
+    },
+    {
+      "gen_id": 236,
+      "tag": "v16.0_perceptive_transformer_evolution_rev18",
+      "timestamp": "2026-11-15T17:19:24.684306",
+      "wall_time_s": 78.12,
+      "iterations": 80,
+      "steps": 81920,
+      "hli_score": 54.41,
+      "passed_motions": 4,
+      "is_new_champion": false
+    },
+    {
+      "gen_id": 237,
+      "tag": "v16.0_perceptive_transformer_evolution_rev19",
+      "timestamp": "2026-11-15T17:20:45.895325",
+      "wall_time_s": 78.18,
+      "iterations": 80,
+      "steps": 81920,
+      "hli_score": 54.24,
+      "passed_motions": 6,
+      "is_new_champion": false
+    },
+    {
+      "gen_id": 238,
+      "tag": "v16.0_perceptive_transformer_evolution_rev20",
+      "timestamp": "2026-11-15T17:22:07.221046",
+      "wall_time_s": 78.58,
+      "iterations": 80,
+      "steps": 81920,
+      "hli_score": 55.21,
+      "passed_motions": 4,
+      "is_new_champion": false
+    },
+    {
+      "gen_id": 239,
+      "tag": "v16.0_perceptive_transformer_evolution_rev21",
+      "timestamp": "2026-11-15T17:23:31.171716",
+      "wall_time_s": 78.0,
+      "iterations": 80,
+      "steps": 81920,
+      "hli_score": 55.25,
+      "passed_motions": 4,
+      "is_new_champion": false
+    },
+    {
+      "gen_id": 240,
+      "tag": "v16.0_perceptive_transformer_evolution_rev22",
+      "timestamp": "2026-11-15T17:24:51.723532",
+      "wall_time_s": 77.91,
+      "iterations": 80,
+      "steps": 81920,
+      "hli_score": 55.06,
+      "passed_motions": 4,
+      "is_new_champion": false
+    },
+    {
+      "gen_id": 241,
+      "tag": "v16.0_perceptive_transformer_evolution_rev23",
+      "timestamp": "2026-11-15T17:26:13.042312",
+      "wall_time_s": 78.62,
+      "iterations": 80,
+      "steps": 81920,
+      "hli_score": 55.39,
+      "passed_motions": 4,
+      "is_new_champion": false
+    },
+    {
+      "gen_id": 242,
+      "tag": "v16.0_perceptive_transformer_evolution_rev24",
+      "timestamp": "2026-11-15T17:27:34.261683",
+      "wall_time_s": 78.55,
+      "iterations": 80,
+      "steps": 81920,
+      "hli_score": 55.44,
+      "passed_motions": 4,
+      "is_new_champion": false
+    },
+    {
+      "gen_id": 243,
+      "tag": "v16.0_perceptive_transformer_evolution_rev25",
+      "timestamp": "2026-11-15T17:28:55.541408",
+      "wall_time_s": 78.39,
+      "iterations": 80,
+      "steps": 81920,
+      "hli_score": 55.42,
+      "passed_motions": 4,
+      "is_new_champion": false
+    },
+    {
+      "gen_id": 244,
+      "tag": "v16.0_perceptive_transformer_evolution_rev26",
+      "timestamp": "2026-11-15T17:30:17.921234",
+      "wall_time_s": 79.41,
+      "iterations": 80,
+      "steps": 81920,
+      "hli_score": 56.57,
+      "passed_motions": 5,
+      "is_new_champion": false
+    },
+    {
+      "gen_id": 245,
+      "tag": "v16.0_perceptive_transformer_evolution_rev27",
+      "timestamp": "2026-11-15T17:31:40.660461",
+      "wall_time_s": 79.7,
+      "iterations": 80,
+      "steps": 81920,
+      "hli_score": 55.54,
+      "passed_motions": 4,
+      "is_new_champion": false
+    },
+    {
+      "gen_id": 246,
+      "tag": "v16.0_perceptive_transformer_evolution_rev28",
+      "timestamp": "2026-11-15T17:33:04.690223",
+      "wall_time_s": 80.56,
+      "iterations": 80,
+      "steps": 81920,
+      "hli_score": 55.79,
+      "passed_motions": 4,
+      "is_new_champion": false
+    },
+    {
+      "gen_id": 247,
+      "tag": "v16.0_perceptive_transformer_evolution_rev29",
+      "timestamp": "2026-11-15T17:34:29.657997",
+      "wall_time_s": 82.22,
+      "iterations": 80,
+      "steps": 81920,
+      "hli_score": 54.98,
+      "passed_motions": 2,
+      "is_new_champion": false
+    },
+    {
+      "gen_id": 248,
+      "tag": "v16.0_perceptive_transformer_evolution_rev30",
+      "timestamp": "2026-11-15T17:35:53.404469",
+      "wall_time_s": 80.71,
+      "iterations": 80,
+      "steps": 81920,
+      "hli_score": 55.17,
+      "passed_motions": 2,
+      "is_new_champion": false
+    },
+    {
+      "gen_id": 249,
+      "tag": "v16.0_perceptive_transformer_evolution_rev31",
+      "timestamp": "2026-11-15T17:37:21.018072",
+      "wall_time_s": 81.3,
+      "iterations": 80,
+      "steps": 81920,
+      "hli_score": 55.7,
+      "passed_motions": 2,
+      "is_new_champion": false
+    },
+    {
+      "gen_id": 250,
+      "tag": "v16.0_perceptive_transformer_evolution_rev32",
+      "timestamp": "2026-11-15T17:38:51.059107",
+      "wall_time_s": 87.23,
+      "iterations": 80,
+      "steps": 81920,
+      "hli_score": 55.7,
+      "passed_motions": 3,
+      "is_new_champion": false
+    },
+    {
+      "gen_id": 251,
+      "tag": "v16.0_perceptive_transformer_evolution_rev33",
+      "timestamp": "2026-11-15T17:40:16.654458",
+      "wall_time_s": 82.75,
+      "iterations": 80,
+      "steps": 81920,
+      "hli_score": 54.93,
+      "passed_motions": 3,
       "is_new_champion": false
     }
   ]

@@ -182,10 +182,7 @@ class BazanEnv:
         self.terrain_roughness = float(terrain_roughness)
         self.straight_line = straight_line
         self.target_speed = target_speed
-        if straight_line and action_scale == 0.08:
-            self.action_scale = 0.15
-        else:
-            self.action_scale = action_scale
+        self.action_scale = float(action_scale)
         if self.use_perception:
             # Whole-Body 64-dim observation space (2^6 = 64) and 32-dim action space (2^5 = 32):
             # 20 Whole-Body Joints (12 legs, 6 arms, 2 neck) + 12 Adaptive Controls

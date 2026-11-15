@@ -300,11 +300,25 @@ def main():
             score, p_scores, telem, motion_res = evaluator.evaluate_20_parameters(model_path)
 
             passed_count = sum(1 for _, r in motion_res if r["survived"])
+            hli_delta = score - champion_score
+            delta_str = f"+{hli_delta:.1f}" if hli_delta > 0 else f"{hli_delta:.1f}"
             print(f"[✓] Candidate '{tag}' HLI-20 Score: {score:.1f} / 100.0 (Passed: {passed_count}/20 motions)")
+            print(f"    • Score Delta vs Champion '{champion_tag}': {delta_str} pts "
+                  f"({score:.1f} vs {champion_score:.1f})")
             print(f"    • Posture: Roll {telem['P01_roll_sway_deg']:.1f}°, Pitch {telem['P02_pitch_posture_deg']:.1f}°")
             print(f"    • Track:   Y-Drift {telem['P04_lateral_drift_cm']:.1f} cm, "
                   f"Bobbing {telem['P06_pelvis_bobbing_mm']:.1f} mm")
             print(f"    • Safety:  Zero-Fall Rate {telem['P16_zero_fall_rate_pct']:.0f}%")
+
+            # Identify failure modes to overcome
+            failed_motions = [m["name"] for m, r in motion_res if not r["survived"]]
+            weak_params = [f"{p} ({s:.2f}/5.0)" for p, s in p_scores.items() if s < 2.5]
+            if failed_motions or weak_params:
+                print("    🎯 Failure Telemetry to Learn From:")
+                if failed_motions:
+                    print(f"       Failed Motions ({len(failed_motions)}): {', '.join(failed_motions[:4])}...")
+                if weak_params:
+                    print(f"       Weakest Biomechanical Parameters: {', '.join(weak_params[:4])}")
 
             # 3. Always maintain and chain the latest checkpoint
             candidate_pt = model_path.with_suffix(".pt")

@@ -10,8 +10,8 @@
 [![MuJoCo](https://img.shields.io/badge/MuJoCo-3.8%2B-orange?style=for-the-badge&logo=google)](https://mujoco.org)
 [![RViz2](https://img.shields.io/badge/RViz2-native_macOS-purple?style=for-the-badge)](docs/getting_started.md)
 [![PyTorch](https://img.shields.io/badge/PyTorch-MPS_Metal-EE4C2C?style=for-the-badge&logo=pytorch)](docs/engineering/rl_benchmark.md)
-[![Generations](https://img.shields.io/badge/Evolved_Generations-220_Gen-success?style=for-the-badge&logo=dna)](docs/engineering/rl_benchmark.md)
-[![Training Time](https://img.shields.io/badge/Cumulative_Training-21.5_Hours-blueviolet?style=for-the-badge&logo=clockify)](docs/engineering/rl_benchmark.md)
+[![Generations](https://img.shields.io/badge/Evolved_Generations-251_Gen-success?style=for-the-badge&logo=dna)](docs/engineering/rl_benchmark.md)
+[![Training Time](https://img.shields.io/badge/Cumulative_Training-22.2_Hours-blueviolet?style=for-the-badge&logo=clockify)](docs/engineering/rl_benchmark.md)
 [![License](https://img.shields.io/badge/License-Apache_2.0-lightgrey?style=for-the-badge)](LICENSE)
 
 <br/>
@@ -303,12 +303,12 @@ flowchart LR
 ### ⏱️ Autonomous Evolution Counter & Stagnation Self-Review
 | Evolutionary Metric | Live Counter Value | Status / Description |
 | :--- | :---: | :--- |
-| **Cumulative Training Wall-Time** | **`21h 32m 15s`** | Total physical learning time across all generations |
-| **Total Evolutionary Generations**| **`220 Generations`** | Number of candidate policies trained & evaluated |
-| **Physics Experience Transitions**| **`44,646,400 steps`** | Total MuJoCo simulation steps gathered on Apple Metal |
+| **Cumulative Training Wall-Time** | **`22h 12m 59s`** | Total physical learning time across all generations |
+| **Total Evolutionary Generations**| **`251 Generations`** | Number of candidate policies trained & evaluated |
+| **Physics Experience Transitions**| **`47,185,920 steps`** | Total MuJoCo simulation steps gathered on Apple Metal |
 | **Active World Champion Policy**  | **`v13.5_bidirectional_sprint_champion_rev96`** | **HLI-20: 65.3 / 100** · **19/20 Passed** |
 | **10-Gen Stagnation Sentinel**    | **ACTIVE** | Auto-triggers 5 Pain Points &rarr; 25 Solutions &rarr; 5 Fixes |
-| **Latest Stagnation Audit**       | [`docs/engineering/evolution_reviews/stagnation_review_gen_218.md`](docs/engineering/evolution_reviews/stagnation_review_gen_218.md) (5 Pain Points Analyzed & Solved) | Comprehensive diagnostic report on file |
+| **Latest Stagnation Audit**       | [`docs/engineering/evolution_reviews/stagnation_review_gen_248.md`](docs/engineering/evolution_reviews/stagnation_review_gen_248.md) (5 Pain Points Analyzed & Solved) | Comprehensive diagnostic report on file |
 <!-- evolution:telemetry:end -->
 
 <a id="foundation-model-evaluation-matrix-multi-dimensional-benchmarking"></a>

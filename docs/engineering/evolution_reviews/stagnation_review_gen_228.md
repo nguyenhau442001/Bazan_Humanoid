@@ -1,6 +1,6 @@
 # 🔍 Autonomous Stagnation Audit & Bottleneck Review (Generation #228)
 
-*Generated on 2026-11-11 18:43:07 by the Autonomous Evolution Sentinel.*
+*Generated on 2026-11-15 17:08:56 by the Autonomous Evolution Sentinel.*
 
 ---
 
@@ -8,14 +8,14 @@
 - **Current Champion Policy:** `v13.5_bidirectional_sprint_champion_rev96`
 - **Champion Composite HLI-20 Score:** **65.3 / 100.0**
 - **Trigger Event:** 10 consecutive evolutionary generations without score improvement.
-- **Failed Canonical Motions:** High-Speed Sprint, 10N Push Shock Recovery
+- **Failed Canonical Motions:** Straight Nominal Walk, High-Speed Sprint, Backward Walk, Uphill Slope Climb (+10 deg), Downhill Slope Descent (-10 deg), Crouch Walk (Low CoM), Hurdle Obstacle Clearance, Emergency Brake Stop, 10N Push Shock Recovery
 
 ---
 
 ## 🛑 Top 5 Identified Pain Points & 25 Candidate Solutions
 
-### Pain Point #1: Heading Stability & Directional Drift (P05_speed_tracking)
-**Current Score:** `0.88 / 5.00 pts` | **Focus Category:** *Reward Shaping*
+### Pain Point #1: Heading Stability & Directional Drift (P01_roll_sway)
+**Current Score:** `0.29 / 5.00 pts` | **Focus Category:** *Reward Shaping*
 
 > **Diagnosis:** Torso yaw orientation drifts over extended straight-line strides.
 
@@ -30,8 +30,8 @@
 
 ---
 
-### Pain Point #2: Action Chatter & Joint Jerk (P03_yaw_drift)
-**Current Score:** `1.31 / 5.00 pts` | **Focus Category:** *Action Smoothing*
+### Pain Point #2: Action Chatter & Joint Jerk (P05_speed_tracking)
+**Current Score:** `0.45 / 5.00 pts` | **Focus Category:** *Action Smoothing*
 
 > **Diagnosis:** High-frequency joint target chatter reduces actuator lifespan and smooth motion.
 
@@ -62,8 +62,8 @@
 
 ---
 
-### Pain Point #4: Forward Velocity Tracking & Reverse Gait (P12_jerk_smoothness)
-**Current Score:** `1.59 / 5.00 pts` | **Focus Category:** *Kinematics & Gait*
+### Pain Point #4: Forward Velocity Tracking & Reverse Gait (P04_lateral_drift)
+**Current Score:** `1.71 / 5.00 pts` | **Focus Category:** *Kinematics & Gait*
 
 > **Diagnosis:** Velocity tracking error on extreme sprint (0.5 m/s) and backward steps.
 
@@ -78,8 +78,8 @@
 
 ---
 
-### Pain Point #5: Foot-Ground Impact Shock & Soft Landing (P14_impact_shock)
-**Current Score:** `2.25 / 5.00 pts` | **Focus Category:** *Biomechanical Reward*
+### Pain Point #5: Foot-Ground Impact Shock & Soft Landing (P03_yaw_drift)
+**Current Score:** `1.86 / 5.00 pts` | **Focus Category:** *Biomechanical Reward*
 
 > **Diagnosis:** Hard heel strike impacts cause ground rebound and transient attitude jitter.
 
