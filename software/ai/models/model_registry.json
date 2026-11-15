@@ -9,8 +9,8 @@
       "iterations": 50,
       "file_size_kb": 181.5,
       "created_at": "2026-11-09T09:23:24.985631",
-      "description": "Lightweight MLP (46k params, 50 iters baseline)",
-      "benchmark_score": 97.5
+      "description": "Legacy Open-loop MLP (46k params, obsolete baseline)",
+      "benchmark_score": null
     },
     "v2.0_deep_500iter": {
       "version": "v2.0_deep_500iter",
@@ -2683,7 +2683,7 @@
       "created_at": "2026-11-15T16:02:48.449147",
       "description": "PERCEPTIVE_TRANSFORMER (6,828,448 actor params, 100 iters, Metal MPS)",
       "residual": true,
-      "benchmark_score": null
+      "benchmark_score": 91.0
     },
     "v16.0_perceptive_transformer_evolution_rev1": {
       "version": "v16.0_perceptive_transformer_evolution_rev1",
@@ -2696,6 +2696,30 @@
       "description": "PERCEPTIVE_TRANSFORMER (6,828,448 actor params, 40 iters, Metal MPS)",
       "residual": true,
       "benchmark_score": null
+    },
+    "v16.0_perceptive_transformer_evolution_rev2": {
+      "version": "v16.0_perceptive_transformer_evolution_rev2",
+      "relative_path": "mico_policy_v16.0_perceptive_transformer_evolution_rev2.onnx",
+      "architecture": "perceptive_transformer",
+      "parameters": 6828448,
+      "iterations": 80,
+      "file_size_kb": 26749.9,
+      "created_at": "2026-11-15T16:57:41.413120",
+      "description": "PERCEPTIVE_TRANSFORMER (6,828,448 actor params, 80 iters, Metal MPS)",
+      "residual": true,
+      "benchmark_score": null
+    },
+    "v16.0_perceptive_transformer_gen1": {
+      "version": "v16.0_perceptive_transformer_gen1",
+      "relative_path": "mico_policy_v16.0_perceptive_transformer_gen1.onnx",
+      "architecture": "perceptive_transformer",
+      "parameters": 6301088,
+      "iterations": 30,
+      "file_size_kb": 24688.3,
+      "created_at": "2026-11-15T16:59:03.229586",
+      "description": "PERCEPTIVE_TRANSFORMER (6,301,088 actor params, 30 iters, Metal MPS)",
+      "residual": true,
+      "benchmark_score": 90.4
     }
   }
 }

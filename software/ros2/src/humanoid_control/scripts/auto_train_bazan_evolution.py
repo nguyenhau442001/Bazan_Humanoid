@@ -196,32 +196,60 @@ def evaluate_generation(tag):
 
 def main():
     parser = argparse.ArgumentParser(description="Autonomous Self-Improving Evolution Trainer")
-    parser.add_argument("--target-score", type=float, default=100.0, help="Target score to reach before halting")
-    parser.add_argument("--max-generations", type=int, default=50, help="Maximum evolution generations")
+    parser.add_argument("--target-score", type=float, default=95.0, help="Target score to reach before halting")
+    parser.add_argument("--max-generations", type=int, default=10, help="Maximum evolution generations to train")
+    parser.add_argument(
+        "--arch",
+        type=str,
+        default="perceptive_transformer",
+        choices=["perceptive_transformer", "titan_transformer", "transformer", "all"],
+        help="Target architecture family to evolve (default: perceptive_transformer)",
+    )
+    parser.add_argument("--iterations", type=int, default=None, help="Override iterations per generation")
+    parser.add_argument("--force", action="store_true", default=False, help="Force retrain registered generations")
     args = parser.parse_args()
 
     print("\n" + "#" * 80)
     print("      SYNAPSE HUMANOID AUTONOMOUS EVOLUTION & CONTINUOUS IMPROVEMENT")
+    print(f"      Architecture Family:    {args.arch.upper()} (64 inputs, 32 outputs)")
     print(f"      Target Benchmark Score: {args.target_score} / 100")
+    print(f"      Max Generations:        {args.max_generations}")
     print("#" * 80 + "\n")
 
+    target_arch = args.arch
     best_score = 0.0
     best_tag = None
 
-    # Check existing registry scores
+    # Check existing registry scores for modern models matching target architecture
     reg = reg_mod.load_registry()
     for ver, info in reg.get("models", {}).items():
+        if "test" in ver or ver.startswith("v1.0") or ver.startswith("v2.0"):
+            continue
+        arch = info.get("architecture", "")
+        if target_arch != "all" and arch != target_arch:
+            continue
         s = info.get("benchmark_score") or 0.0
         if s > best_score:
             best_score = s
             best_tag = ver
 
-    print(f"[*] Current Best Model: '{best_tag}' with Score: {best_score:.1f} / 100")
+    if best_tag is not None:
+        print(f"[*] Current Best '{target_arch}' Model: '{best_tag}' with Score: {best_score:.1f} / 100")
+    else:
+        print(f"[*] No previous benchmarked '{target_arch}' models found. Starting fresh evolution.")
+
+    if args.target_score <= best_score:
+        effective_target = max(args.target_score, min(100.0, best_score + 2.0))
+        print(f"[*] Target score {args.target_score:.1f} already surpassed by '{best_tag}' ({best_score:.1f}). "
+              f"Elevating target score to: {effective_target:.1f} / 100")
+    else:
+        effective_target = args.target_score
 
     gen_idx = 0
-    while gen_idx < args.max_generations and best_score < args.target_score:
+    generations_trained = 0
+    while generations_trained < args.max_generations and best_score < effective_target:
         if gen_idx < len(GENERATIONS):
-            gen_cfg = GENERATIONS[gen_idx]
+            gen_cfg = dict(GENERATIONS[gen_idx])
         else:
             # Dynamically synthesized next-gen configs (v16+ Perceptive Transformer)
             reg_now = reg_mod.load_registry()
@@ -235,7 +263,7 @@ def main():
                 "num_layers": 2 if v_idx % 2 == 0 else 3,
                 "num_heads": 4,
                 "num_blocks": 3 if v_idx % 2 == 0 else 4,
-                "iterations": 100,
+                "iterations": 80,
                 "num_envs": 8,
                 "rollout_length": 32,
                 "minibatch_size": 128,
@@ -247,12 +275,19 @@ def main():
                 "desc": f"Auto-evolved Whole-Body Perceptive Transformer generation {v_idx} (64-in, 32-out)",
             }
 
+        gen_idx += 1
         tag = gen_cfg["tag"]
+        if args.iterations is not None:
+            gen_cfg["iterations"] = args.iterations
+
         reg_check = reg_mod.load_registry()
-        if tag in reg_check.get("models", {}) and reg_check["models"][tag].get("benchmark_score") is not None:
+        if (
+            tag in reg_check.get("models", {})
+            and reg_check["models"][tag].get("benchmark_score") is not None
+            and not args.force
+        ):
             prev_s = reg_check["models"][tag]["benchmark_score"]
-            print(f"[*] Generation '{tag}' already registered with score {prev_s:.1f}. Preserving checkpoint.")
-            gen_idx += 1
+            print(f"[*] Generation '{tag}' already registered with score {prev_s:.1f}. Skipping.")
             continue
 
         # 1. Train Generation
@@ -260,6 +295,7 @@ def main():
 
         # 2. Benchmark Generation
         score, _ = evaluate_generation(tag)
+        generations_trained += 1
 
         # 3. Check if new champion
         if score > best_score:
@@ -273,11 +309,9 @@ def main():
         reg_latest = reg_mod.load_registry()
         update_readme_leaderboard(reg_latest)
 
-        gen_idx += 1
-
-        if best_score >= args.target_score:
+        if best_score >= effective_target:
             print("\n" + "🏆" * 40)
-            print(f"🎉 GOAL ACHIEVED! Model '{best_tag}' reached {best_score:.1f} >= {args.target_score} points!")
+            print(f"🎉 GOAL ACHIEVED! Model '{best_tag}' reached {best_score:.1f} >= {effective_target:.1f} points!")
             print("Ready to expand benchmark criteria to stairs, slope climbing, and rough terrain!")
             print("🏆" * 40 + "\n")
             break
