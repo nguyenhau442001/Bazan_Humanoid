@@ -31,7 +31,7 @@ import gen_robot  # noqa: E402
 G = 9.81
 BOM_APLUS = HERE / "bom_aplus.csv"
 BASE_BOM_VND = 5_650_000      # total of docs/design/sketch_shell_a/BOM.dc.html (P3 robot, before A+)
-SOURCES = [BLENDER / "mico_parts.py", BLENDER / "mico_mass.py", SIM / "gen_robot.py",
+SOURCES = [BLENDER / "bazan_parts.py", BLENDER / "bazan_mass.py", SIM / "gen_robot.py",
            SIM / "tables" / "mj_servo_loads.csv", GAIT, BOM_APLUS]
 LEG = ("hip_yaw", "hip_roll", "hip_pitch", "knee", "ankle_pitch", "ankle_roll")
 PEAK_FLAG, RMS_FLAG, TIME_FLAG = 0.80, 0.60, 0.10

@@ -221,15 +221,15 @@ class Leg:
         for i, (px, py) in enumerate([(-20.0, -10.0), (-20.0, 10.0), (10.0, -10.0), (10.0, 10.0)]):
             body = body.cut(cq.Solid.makeCylinder(spec.d / 2, spec.depth, cq.Vector(px, py, top - spec.depth)))
             self.extra_holes.append(J.Hole("hip_mount", f"pelvis.ins{i + 1}", "ins_m2",
-                                           "INS-M2 + M2x8 from the pelvis floor (leg module)", (px, py, round(top, 3)),
+                                           "INS-M2 + M2x6 from the pelvis floor (leg module)", (px, py, round(top, 3)),
                                            (0, 0, -1), spec.d, spec.depth, "pelvis"))
         for i, sy in enumerate((-1, 1)):
             px, py = -4.0, sy * 14.5
             body = body.cut(cq.Solid.makeCylinder(spec.d / 2, spec.depth, cq.Vector(px, py, ct - 0.1)))
             self.extra_holes.append(J.Hole("hip_mount", f"ring.ins{i + 1}", "ins_m2", "INS-M2 + M2x6 (thrust ring)",
                                            (px, py, round(ct - 0.1, 3)), (0, 0, 1), spec.d, spec.depth, "thrust_ring"))
-        # cable window at the back for the five leg servo leads
-        body = body.cut(bx((-25.0, -19.5), (-6.0, 6.0), (ct + 1.0, top - 3.5)))
+        # cable window at the back for the yaw lead, kept below the far ear's insert (J.TAB_A, 1.6 of wall under it)
+        body = body.cut(bx((-25.0, -19.5), (-6.0, 6.0), (ct - J.TAB_A[0] + hw.HOLES["ins_m2"].depth + 1.6, top - 3.5)))
         return body
 
     def _thrust_ring(self):
@@ -291,21 +291,37 @@ class Leg:
         """Lead length per servo: from its exit at the far end of the case, through crossing points just behind
         each joint it passes (where a joint's motion changes the length least), to the cable window of the hip
         mount, plus a slack loop per joint crossed and an allowance from the pelvis to the PCA9685."""
-        ct = self.yaw_case_top()
-        window = np.array([-22.0, 0.0, ct + 10.0])
-        cross = {"ankle_pitch": (-14.0, 0.0, A), "knee": (-14.0, 0.0, K), "hip_pitch": (-14.0, 0.0, 0.0),
-                 "hip_roll": (-24.0, 0.0, HIP_ROLL_UP), "hip_yaw": (-22.0, 0.0, ct)}
-        order = ["ankle_roll", "ankle_pitch", "knee", "hip_pitch", "hip_roll", "hip_yaw"]
+        window = self.window()
         out = {}
-        for i, jn in enumerate(order[:-1]):
+        for jn in ("ankle_roll", "ankle_pitch", "knee", "hip_pitch", "hip_roll"):
             j = self.joints[jn]
             pts = [np.array(j.world((J.CB, 0, J.CASE[0] + 3.5)))]
-            crossed = [c for c in order[i + 1:]]
-            pts += [np.array(cross[c]) for c in crossed if c in cross]
+            # a lead crosses every joint between the link that holds its servo and the pelvis
+            crossed = [c for c in ("ankle_pitch", "knee", "hip_pitch", "hip_roll", "hip_yaw")
+                       if self._below(c, j.holder)]
+            pts += [np.array(self.CROSS[c]) for c in crossed]
             pts.append(window)
             run = sum(np.linalg.norm(b - a) for a, b in zip(pts, pts[1:]))
-            out[jn] = dict(run=round(run), loops=len(crossed), total=round(run + loop * len(crossed) + to_board))
+            out[jn] = dict(run=round(run), loops=len(crossed), crossed=crossed,
+                           total=round(run + loop * len(crossed) + to_board))
         return out
+
+    LINKS = ["yaw_bracket", "hip_block", "thigh", "shin", "ankle_block", "foot"]     # pelvis outward
+    CHILD = {"hip_yaw": "yaw_bracket", "hip_roll": "hip_block", "hip_pitch": "thigh", "knee": "shin",
+             "ankle_pitch": "ankle_block", "ankle_roll": "foot"}
+
+    def _below(self, joint, link):
+        """True if `link` hangs below `joint` (the joint is between it and the pelvis)."""
+        return self.LINKS.index(self.CHILD[joint]) <= self.LINKS.index(link)
+
+    @property
+    def CROSS(self):
+        ct = self.yaw_case_top()
+        return {"ankle_pitch": (-14.0, 0.0, A), "knee": (-14.0, 0.0, K), "hip_pitch": (-14.0, 0.0, 0.0),
+                "hip_roll": (-24.0, 0.0, HIP_ROLL_UP), "hip_yaw": (-22.0, 0.0, ct)}
+
+    def window(self):
+        return np.array([-22.0, 0.0, self.yaw_case_top() + 10.0])
 
     # ------------------------------------------------------------ bought parts placed for display and checks
     def servos(self, cots=False):

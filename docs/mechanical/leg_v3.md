@@ -50,21 +50,20 @@ Printed parts:
 | --- | --- | --- | --- | --- | --- |
 | `foot` | PLA | 12.2 | 15.1 | sole plate down; uprights vertical | [drawing](drawings/foot.png) |
 | `sole` | TPU 95A | 8.5 | 10.3 | flat, 3 walls, 30 % gyroid | [drawing](drawings/sole.png) |
-| `ankle_block` | PLA | 9.9 | 12.3 | as the hip block: −y face down | [drawing](drawings/ankle_block.png) |
+| `ankle_block` | PLA | 9.8 | 12.2 | as the hip block: −y face down | [drawing](drawings/ankle_block.png) |
 | `shin` | PLA | 8.1 | 10.1 | lying on its −y side: all four plate holes print round | [drawing](drawings/shin.png) |
-| `thigh` | PLA | 14.6 | 18.1 | lying on its −y side (idler plate down): both bearing seats print as round holes | [drawing](drawings/thigh.png) |
-| `hip_block` | PLA | 9.9 | 12.3 | idler wall of the hip pitch pocket (−y face) down; no supports inside the pockets | [drawing](drawings/hip_block.png) |
+| `thigh` | PLA | 14.5 | 18.0 | lying on its −y side (idler plate down): both bearing seats print as round holes | [drawing](drawings/thigh.png) |
+| `hip_block` | PLA | 9.8 | 12.2 | idler wall of the hip pitch pocket (−y face) down; no supports inside the pockets | [drawing](drawings/hip_block.png) |
 | `yaw_bracket` | PLA | 12.0 | 14.8 | top plate down on the bed; supports only under the roll horn recess | [drawing](drawings/yaw_bracket.png) |
 | `thrust_ring` | PLA | 3.9 | 4.8 | thrust face down on the bed (smooth face against the yaw bracket) | [drawing](drawings/thrust_ring.png) |
-| `hip_mount` | PLA | 10.4 | 12.9 | top flange down on the bed: the yaw pocket opens upward, no supports | [drawing](drawings/hip_mount.png) |
-| **Total** | | 89.4 | **110.6** | upper bound: printed at 4 walls, 40 % infill they come out about 30 % lighter | |
+| `hip_mount` | PLA | 10.5 | 13.0 | top flange down on the bed: the yaw pocket opens upward, no supports | [drawing](drawings/hip_mount.png) |
+| **Total** | | 89.2 | **110.4** | upper bound: printed at 4 walls, 40 % infill they come out about 30 % lighter | |
 
 Bought parts (servos: 5 × MG92B and the hip-yaw MG90S, which sits in `hip_mount`):
 
 | Code | Qty | Part | Ask the shop for |
 | --- | --- | --- | --- |
-| M2x6 | 18 | M2×6 socket head cap screw, ISO 4762, stainless | ốc lục giác M2×6 inox |
-| M2x8 | 4 | M2×8 socket head cap screw, ISO 4762, stainless | ốc lục giác M2×8 inox |
+| M2x6 | 22 | M2×6 socket head cap screw, ISO 4762, stainless | ốc lục giác M2×6 inox |
 | M3x6B | 5 | M3×6 button head, ISO 7380 (idler pivot) | ốc đầu dù M3×6 inox |
 | ST2x4 | 12 | 2×4 self-tapping pan head (horn to plate) | vít tự ren đầu tròn 2×4 |
 | INS-M2 | 22 | M2 brass heat-set insert, 3 long, 3.2 OD | tán cấy nhiệt M2 L3 OD3.2 |
@@ -193,10 +192,10 @@ is for checking a print and for pressing the inserts in the right place.
 | --- | --- | --- | --- | --- | --- | --- |
 | H1 | `hip_yaw.ear1` | 3.20 | 4.0 | (+8.4, +0.0, -4.4) | +z | INS-M2 + M2x6 (servo ear) |
 | H2 | `hip_yaw.ear2` | 3.20 | 4.0 | (-19.4, +0.0, -4.4) | +z | INS-M2 + M2x6 (servo ear) |
-| H3 | `pelvis.ins1` | 3.20 | 4.0 | (-20.0, -10.0, +15.3) | −z | INS-M2 + M2x8 from the pelvis floor (leg module) |
-| H4 | `pelvis.ins2` | 3.20 | 4.0 | (-20.0, +10.0, +15.3) | −z | INS-M2 + M2x8 from the pelvis floor (leg module) |
-| H5 | `pelvis.ins3` | 3.20 | 4.0 | (+10.0, -10.0, +15.3) | −z | INS-M2 + M2x8 from the pelvis floor (leg module) |
-| H6 | `pelvis.ins4` | 3.20 | 4.0 | (+10.0, +10.0, +15.3) | −z | INS-M2 + M2x8 from the pelvis floor (leg module) |
+| H3 | `pelvis.ins1` | 3.20 | 4.0 | (-20.0, -10.0, +15.3) | −z | INS-M2 + M2x6 from the pelvis floor (leg module) |
+| H4 | `pelvis.ins2` | 3.20 | 4.0 | (-20.0, +10.0, +15.3) | −z | INS-M2 + M2x6 from the pelvis floor (leg module) |
+| H5 | `pelvis.ins3` | 3.20 | 4.0 | (+10.0, -10.0, +15.3) | −z | INS-M2 + M2x6 from the pelvis floor (leg module) |
+| H6 | `pelvis.ins4` | 3.20 | 4.0 | (+10.0, +10.0, +15.3) | −z | INS-M2 + M2x6 from the pelvis floor (leg module) |
 | H7 | `ring.ins1` | 3.20 | 4.0 | (-4.0, -14.5, -11.3) | +z | INS-M2 + M2x6 (thrust ring) |
 | H8 | `ring.ins2` | 3.20 | 4.0 | (-4.0, +14.5, -11.3) | +z | INS-M2 + M2x6 (thrust ring) |
 
@@ -214,9 +213,10 @@ centre of every servo.
    foot ×1). It must spin freely.
 3. **Horns to plates.** Open the two horn holes at radius 7 to Ø2.1 so the screws pass the horn. Screw each round
    horn to its horn plate from the servo side with 2 × ST2×4 (heads end up between horn and case).
-4. **Servos into pockets.** Slide each servo into its pocket from the shaft side, cable first through the notch at
-   the far end, and fix the ears with 2 × M2×6: ankle roll and ankle pitch into `ankle_block`, knee into `thigh`,
-   hip roll and hip pitch into `hip_block`, hip yaw (MG90S) into `hip_mount` from below.
+4. **Servos into pockets.** Feed the plug flat through the window at the far end of the pocket (it is cut for the
+   3-pin plug), then slide the servo in from the shaft side while drawing the lead through, and fix the ears with
+   2 × M2×6: ankle roll and ankle pitch into `ankle_block`, knee into `thigh`, hip roll and hip pitch into
+   `hip_block`, hip yaw (MG90S) into `hip_mount` from below.
 
    ![pockets](images/step_03_pockets.jpg)
 5. **Foot.** Screw the TPU `sole` under `foot` with 4 × M2×6 from below.
@@ -242,12 +242,13 @@ centre of every servo.
     bracket must turn freely with 0.2 mm between its top face and the ring; a drop of lithium grease on the face.
 12. **Caps.** Press the navy caps into the horn and idler recesses.
 13. **Cables.** See the cable route below; tie each lead in the slots, leave the slack loops.
-14. **Onto the pelvis.** Set the module under the pelvis floor and drive 4 × M2×8 from inside the pelvis.
+14. **Onto the pelvis.** Set the module under the pelvis floor and drive 4 × M2×6 from inside the pelvis (an M2×8
+    bottoms out in the 4 mm insert hole before it clamps).
 
 
 ## The leg is a module
 
-`hip_mount` carries the hip-yaw servo and bolts to the pelvis floor with 4 × M2×8 from inside the pelvis into
+`hip_mount` carries the hip-yaw servo and bolts to the pelvis floor with 4 × M2×6 from inside the pelvis into
 its heat-set inserts. The `thrust_ring` under it carries the robot's weight on the yaw bracket's top face, so the
 yaw servo's spline only turns the leg and never holds the robot up. To take a whole leg off: open the pelvis,
 unplug the six leads at their extensions, undo the 4 screws. The other leg, the torso and the electronics are not
@@ -277,19 +278,19 @@ shaft. Fit the new servo centred, then reverse. About 5 minutes and 6 screws per
 
 ## Cable route
 
-Each lead leaves its pocket through the notch at the far end of the case and runs up the back of the leg,
+Each lead leaves its pocket through the window at the far end of the case and runs up the back of the leg,
 crossing every joint just behind its axis (where the joint moves it least), with a slack loop at each crossing,
 through the tie slots (2.5 mm cable ties) in the thigh spine, the shin spine and the yaw bracket's back arm,
-into the pelvis through the window at the back of `hip_mount`. Lengths to the PCA9685 (allowing 30 mm per
-joint crossed and 80 mm inside the pelvis):
+up behind `hip_mount` and into the torso through the slot in the pelvis plate. Lengths to the PCA9685
+(allowing 30 mm per joint crossed and 80 mm inside the pelvis):
 
 | Servo | Run (mm) | Joints crossed | Lead needed (mm) | Stock lead about 250 mm (MEASURE) |
 | --- | --- | --- | --- | --- |
 | ankle_roll | 182 | 5 | 412 | add a 200 mm extension |
-| ankle_pitch | 142 | 4 | 342 | add a 200 mm extension |
+| ankle_pitch | 178 | 5 | 408 | add a 200 mm extension |
 | knee | 94 | 3 | 264 | add a 100 mm extension |
 | hip_pitch | 81 | 2 | 221 | fits |
-| hip_roll | 44 | 1 | 154 | fits |
+| hip_roll | 60 | 2 | 200 | fits |
 
 Extensions also give each servo its own plug near the pelvis: a servo is unplugged there, not at the PCA9685.
 

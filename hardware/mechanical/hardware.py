@@ -49,6 +49,9 @@ class Horn:
 
 HORN = Horn()
 
+# 3-pin servo plug (JR / Dupont housing, 3 x 2.54 pitch): it has to pass every opening the lead goes through
+PLUG = (7.7, 2.6)        # width, thickness (MEASURE)
+
 
 # ---------------------------------------------------------------- fasteners (ISO metric, sold in HCMC hardware shops)
 @dataclass(frozen=True)

@@ -2,7 +2,8 @@
 
     holder link   carries the servo in a pocket: the servo slides in from the shaft side and is held by its two
                   ears (2 × M2×6 into heat-set inserts). The pocket wall behind the servo carries an M3 insert
-                  for the idler screw.
+                  for the idler screw. The lead leaves through a window in the end wall, wide enough for its
+                  plug, so a servo goes in and out with the plug on.
     driven link   two plates on the joint axis: the horn plate on the shaft side (the servo's round horn sits in a
                   recess, 2 self-tapping screws), and the idler plate on the other side with an MR63ZZ bearing on
                   an M3 button-head screw that threads into the holder. Both plates take a press-fit navy cap.
@@ -46,6 +47,8 @@ HP = (HP[0], HEAD_TOP + 0.2 + CAP_T)
 CENTER = (HP[1] + IP[0]) / 2                        # middle of the stack: the link's centre plane
 HALF = (HP[1] - IP[0]) / 2
 HORN_R = 12.0
+# cable window in the end wall of the pocket (across w, along a): the lead and its plug go through it flat
+WINDOW = (max(S.cable_w, hw.PLUG[0]) + 0.6, S.cable_z[1] - S.cable_z[0] + 1.0)
 CAP_R = 5.0                                        # navy cap over the horn centre screw
 IDLER_R = 7.5
 
@@ -165,7 +168,7 @@ class Joint:
         cav = box((CB0 - C, CB + C), (-S.width / 2 - C, S.width / 2 + C), (CASE[0] - C, big))
         ears = box((CMID - S.tab_span / 2 - C, CMID + S.tab_span / 2 + C), (-S.width / 2 - C, S.width / 2 + C),
                    (TAB_A[0], big))
-        cable = box((CB, CB + C + hw.WALL + 5), (-S.cable_w / 2 - 0.3, S.cable_w / 2 + 0.3),
+        cable = box((CB, CB + C + hw.WALL + 5), (-WINDOW[0] / 2, WINDOW[0] / 2),
                     (CASE[0] + S.cable_z[0] - 0.5, CASE[0] + S.cable_z[1] + 0.5))
         s = cav.fuse(ears).fuse(cable)
         spec = hw.HOLES["ins_m2"]

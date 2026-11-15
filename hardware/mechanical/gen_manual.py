@@ -1,7 +1,7 @@
 """Generate the whole-robot assembly manual (Vietnamese) from leg.py + body.py:
 
-    docs/mechanical/mico_v4_lap_rap.md          the manual (BOM, parts, holes, steps, wiring, service)
-    docs/mechanical/mico_v4_lap_rap.html        the same, one self-contained printable page
+    docs/mechanical/bazan_v4_lap_rap.md          the manual (BOM, parts, holes, steps, wiring, service)
+    docs/mechanical/bazan_v4_lap_rap.html        the same, one self-contained printable page
     docs/mechanical/v4/drawings/<part>.png      3-view drawing per printed part, holes labelled H1…
     docs/mechanical/v4/steps/<step>.png         one picture per assembly step, new parts orange, screws red
     mechanical/out/{L,R}_<part>.{step,stl}       print files for the body parts (legs: gen_docs.py)
@@ -188,7 +188,7 @@ def count_leg(leg):
         f = h.fastener
         if f.startswith("INS-M2"):
             cnt["INS-M2"] += 1
-            if "M2x8" not in f:               # the hip_mount screws come from the pelvis (counted there)
+            if "pelvis floor" not in f:       # the hip_mount screws come from the pelvis (counted there)
                 cnt["M2x6"] += 1
         elif f.startswith("INS-M3"):
             cnt["INS-M3"] += 1
@@ -473,7 +473,7 @@ def write(body, leg, steps, holes_by, tot, cb, cl, shell_screws, S, floor, top):
     md = []
     a = md.append
     H = -floor
-    a("# Mico v4 · Whole-Robot Assembly Manual")
+    a("# Bazan v4 · Whole-Robot Assembly Manual")
     a("")
     a("Sinh tự động bởi `mechanical/gen_manual.py` từ `leg.py` + `body.py` — không sửa tay. Đơn vị mm. Hệ trục robot: "
       "gốc ở giữa hai điểm hông H, x ra trước, y sang TRÁI robot, z lên trên, robot đứng thẳng. Bên phải là ảnh gương "
@@ -701,8 +701,8 @@ def write(body, leg, steps, holes_by, tot, cb, cl, shell_screws, S, floor, top):
     a("5. Vỏ Design C phải vẽ lại quanh khung này, bắt vào 16 tán vỏ đã chừa sẵn.")
     a("")
     text = "\n".join(md) + "\n"
-    (DOCS / "mico_v4_lap_rap.md").write_text(text)
-    (DOCS / "mico_v4_lap_rap.html").write_text(to_html(text))
+    (DOCS / "bazan_v4_lap_rap.md").write_text(text)
+    (DOCS / "bazan_v4_lap_rap.html").write_text(to_html(text))
 
 
 def to_html(md):
@@ -762,7 +762,7 @@ td,th{border:1px solid #d6dce6;padding:4px 6px;vertical-align:top}th{background:
 img{max-width:100%;border:1px solid #e3e7ee;border-radius:6px}code{background:#F3F5F8;padding:1px 4px;border-radius:3px;
 font-size:12px}.li{margin:4px 0 4px 18px}figure{margin:10px 0;page-break-inside:avoid}
 @media print{h3{page-break-before:always}body{max-width:none}}"""
-    return (f"<!DOCTYPE html><html lang='vi'><head><meta charset='utf-8'><title>Mico v4 · Assembly Manual</title>"
+    return (f"<!DOCTYPE html><html lang='vi'><head><meta charset='utf-8'><title>Bazan v4 · Assembly Manual</title>"
             f"<style>{css}</style></head><body>{''.join(out)}</body></html>")
 
 

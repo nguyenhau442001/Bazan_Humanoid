@@ -17,7 +17,7 @@ Sinh tự động bởi `mechanical/gen_manual.py` từ `leg.py` + `body.py` —
 | Trục vai (pitch) trên H | 169.83 (y ±60.5 = mặt đầu servo) |
 | Trục roll vai / khuỷu trên H | 155.83 / 120.33 |
 | Trục cổ (yaw) x / trục gật đầu trên H | -3.0 / 207.53 |
-| Bề rộng qua 2 khuỷu (ngoài ổ servo) | 192.4 |
+| Bề rộng qua 2 khuỷu (ngoài ổ servo) | 204.4 |
 | Chân: L1, L2, khoảng cách 2 chân | 48, 48, y ±28 |
 
 So với bản 303 mm cũ: robot cao hơn khoảng 100 mm vì (1) chân v3 đặt mọi trục servo đúng trục khớp và tách trục roll khỏi trục pitch 20 mm, (2) thân thành 3 tầng để mỗi mạch có chỗ riêng và tháo được độc lập. Phải chạy lại mô hình URDF/khối lượng/mô-men trước khi mua servo (xem mục 11).
@@ -114,23 +114,23 @@ Cộng thêm cho vỏ (Design C, bắt sau): 16 × M2×6 vào các tán vỏ đ�
 | S4 | `L_sled_ubec` | UBEC Sled | 1 | PLA | 6.9 | đế phẳng xuống bàn | [bản vẽ](v4/drawings/sled_ubec.png) |
 | S5 | `L_sled_buck` | 5 V Buck Sled | 1 | PLA | 2.6 | đế phẳng xuống bàn | [bản vẽ](v4/drawings/sled_buck.png) |
 | S6 | `L_sled_ina` + `R_sled_ina` | INA226 Sled (L/R) | 2 | PLA | 2.1 | đế phẳng xuống bàn | [bản vẽ](v4/drawings/sled_ina.png) |
-| A1 | `L_shoulder_mount` + `R_shoulder_mount` | Shoulder Mount (L/R) | 2 | PLA | 9.3 | mặt bích xuống bàn, ổ servo mở lên trên | [bản vẽ](v4/drawings/shoulder_mount.png) |
-| A2 | `L_shoulder_link` + `R_shoulder_link` | Shoulder Link (L/R) | 2 | PLA | 8.1 | nằm mặt đĩa horn xuống bàn, có support trong ổ | [bản vẽ](v4/drawings/shoulder_link.png) |
-| A3 | `L_upper_arm` + `R_upper_arm` | Upper Arm (L/R) | 2 | PLA | 15.0 | nằm nghiêng mặt đĩa horn xuống bàn | [bản vẽ](v4/drawings/upper_arm.png) |
+| A1 | `L_shoulder_mount` + `R_shoulder_mount` | Shoulder Mount (L/R) | 2 | PLA | 9.2 | mặt bích xuống bàn, ổ servo mở lên trên | [bản vẽ](v4/drawings/shoulder_mount.png) |
+| A2 | `L_shoulder_link` + `R_shoulder_link` | Shoulder Link (L/R) | 2 | PLA | 8.9 | nằm mặt đĩa horn xuống bàn, có support trong ổ | [bản vẽ](v4/drawings/shoulder_link.png) |
+| A3 | `L_upper_arm` + `R_upper_arm` | Upper Arm (L/R) | 2 | PLA | 14.9 | nằm nghiêng mặt đĩa horn xuống bàn | [bản vẽ](v4/drawings/upper_arm.png) |
 | A4 | `L_forearm` + `R_forearm` | Forearm and Mitten (L/R) | 2 | PLA | 11.1 | nằm mặt đĩa horn xuống bàn | [bản vẽ](v4/drawings/forearm.png) |
-| N1 | `L_neck_mount` | Neck Mount | 1 | PLA | 10.1 | mặt bích xuống bàn | [bản vẽ](v4/drawings/neck_mount.png) |
+| N1 | `L_neck_mount` | Neck Mount | 1 | PLA | 10.0 | mặt bích xuống bàn | [bản vẽ](v4/drawings/neck_mount.png) |
 | N2 | `L_neck_link` | Neck Link | 1 | PLA | 7.6 | đĩa horn cổ xuống bàn | [bản vẽ](v4/drawings/neck_link.png) |
 | N3 | `L_head_frame` | Head Frame | 1 | PLA | 19.1 | mặt sàn đầu úp xuống bàn, support dưới 2 đĩa | [bản vẽ](v4/drawings/head_frame.png) |
 | N4 | `L_cam_mount` | Camera + ToF Mount (15° Tilt) | 1 | PLA | 7.0 | đế xuống bàn | [bản vẽ](v4/drawings/cam_mount.png) |
-| L1 | `L_foot` + `R_foot` | Foot | 2 | PLA | 17.0 | xem leg_v3.md | [bản vẽ](drawings/foot.png) |
-| L2 | `L_sole` + `R_sole` | TPU Sole | 2 | TPU 95A | 12.3 | xem leg_v3.md | [bản vẽ](drawings/sole.png) |
-| L3 | `L_ankle_block` + `R_ankle_block` | Ankle Block | 2 | PLA | 12.3 | xem leg_v3.md | [bản vẽ](drawings/ankle_block.png) |
+| L1 | `L_foot` + `R_foot` | Foot | 2 | PLA | 15.1 | xem leg_v3.md | [bản vẽ](drawings/foot.png) |
+| L2 | `L_sole` + `R_sole` | TPU Sole | 2 | TPU 95A | 10.3 | xem leg_v3.md | [bản vẽ](drawings/sole.png) |
+| L3 | `L_ankle_block` + `R_ankle_block` | Ankle Block | 2 | PLA | 12.2 | xem leg_v3.md | [bản vẽ](drawings/ankle_block.png) |
 | L4 | `L_shin` + `R_shin` | Shin | 2 | PLA | 10.1 | xem leg_v3.md | [bản vẽ](drawings/shin.png) |
-| L5 | `L_thigh` + `R_thigh` | Thigh | 2 | PLA | 18.1 | xem leg_v3.md | [bản vẽ](drawings/thigh.png) |
-| L6 | `L_hip_block` + `R_hip_block` | Hip Block | 2 | PLA | 12.3 | xem leg_v3.md | [bản vẽ](drawings/hip_block.png) |
+| L5 | `L_thigh` + `R_thigh` | Thigh | 2 | PLA | 18.0 | xem leg_v3.md | [bản vẽ](drawings/thigh.png) |
+| L6 | `L_hip_block` + `R_hip_block` | Hip Block | 2 | PLA | 12.2 | xem leg_v3.md | [bản vẽ](drawings/hip_block.png) |
 | L7 | `L_yaw_bracket` + `R_yaw_bracket` | Yaw Bracket | 2 | PLA | 14.8 | xem leg_v3.md | [bản vẽ](drawings/yaw_bracket.png) |
 | L8 | `L_thrust_ring` + `R_thrust_ring` | Thrust Ring | 2 | PLA | 4.8 | xem leg_v3.md | [bản vẽ](drawings/thrust_ring.png) |
-| L9 | `L_hip_mount` + `R_hip_mount` | Hip Mount | 2 | PLA | 12.9 | xem leg_v3.md | [bản vẽ](drawings/hip_mount.png) |
+| L9 | `L_hip_mount` + `R_hip_mount` | Hip Mount | 2 | PLA | 13.0 | xem leg_v3.md | [bản vẽ](drawings/hip_mount.png) |
 
 Cài đặt in đề xuất: lớp 0.2, 4 viền cho chi tiết khớp (A2–A4, N2–N3, L1–L9), 2 viền + 15 % gyroid cho 3 tầng và đế mạch, 40 % infill cho chi tiết khớp. Khối lượng in thực tế ≈ 60–70 % cột "đặc".
 
@@ -351,7 +351,7 @@ Toạ độ = điểm vào của lỗ, so với điểm tham chiếu của chi t
 
 #### A4 · `forearm` — Forearm and Mitten (L/R)
 
-Điểm tham chiếu: điểm trục khuỷu trên mặt đầu servo = robot (+0.0, +69.7, +120.3).
+Điểm tham chiếu: điểm trục khuỷu trên mặt đầu servo = robot (+0.0, +75.7, +120.3).
 
 ![forearm](v4/drawings/forearm.png)
 
@@ -448,15 +448,15 @@ Toạ độ = điểm vào của lỗ, so với điểm tham chiếu của chi t
 
 #### A2 · `shoulder_link` — Shoulder Link (L/R)
 
-Điểm tham chiếu: điểm trục roll trên mặt đầu servo = robot (+9.5, +80.0, +155.8).
+Điểm tham chiếu: điểm trục roll trên mặt đầu servo = robot (+9.5, +86.0, +155.8).
 
 ![shoulder_link](v4/drawings/shoulder_link.png)
 
 | # | Lỗ | Loại | Ø | Sâu | Vị trí (x, y, z) | Hướng | Dùng cho |
 | --- | --- | --- | ---: | --- | --- | --- | --- |
-| H1 | `shoulder_pitch.access` | access | 5.20 | xuyên | (-9.5, -8.3, +14.0) | −y | horn centre screw (comes with the servo) |
-| H2 | `shoulder_pitch.horn1` | pilot_st2 | 1.60 | 2.4 | (-9.5, -11.1, +7.0) | +y | ST2x4 through the horn (plate to horn) |
-| H3 | `shoulder_pitch.horn2` | pilot_st2 | 1.60 | 2.4 | (-9.5, -11.1, +21.0) | +y | ST2x4 through the horn (plate to horn) |
+| H1 | `shoulder_pitch.access` | access | 5.20 | xuyên | (-9.5, -14.3, +14.0) | −y | horn centre screw (comes with the servo) |
+| H2 | `shoulder_pitch.horn1` | pilot_st2 | 1.60 | 2.4 | (-9.5, -17.1, +7.0) | +y | ST2x4 through the horn (plate to horn) |
+| H3 | `shoulder_pitch.horn2` | pilot_st2 | 1.60 | 2.4 | (-9.5, -17.1, +21.0) | +y | ST2x4 through the horn (plate to horn) |
 | H4 | `shoulder_pitch.service` | access | 6.00 | xuyên | (-9.5, +8.3, +14.0) | −y | horn screw of shoulder pitch, under the roll pocket |
 | H5 | `shoulder_roll.ear1` | ins_m2 | 3.20 | 4.0 | (-6.8, +0.0, +8.4) | −x | INS-M2 + M2x6 (servo ear) |
 | H6 | `shoulder_roll.ear2` | ins_m2 | 3.20 | 4.0 | (-6.8, +0.0, -19.4) | −x | INS-M2 + M2x6 (servo ear) |
@@ -568,7 +568,7 @@ Toạ độ = điểm vào của lỗ, so với điểm tham chiếu của chi t
 
 #### A3 · `upper_arm` — Upper Arm (L/R)
 
-Điểm tham chiếu: điểm trục khuỷu trên mặt đầu servo = robot (+0.0, +69.7, +120.3).
+Điểm tham chiếu: điểm trục khuỷu trên mặt đầu servo = robot (+0.0, +75.7, +120.3).
 
 ![upper_arm](v4/drawings/upper_arm.png)
 

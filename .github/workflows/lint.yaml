@@ -64,7 +64,7 @@ jobs:
         run: pip install numpy trimesh
 
       - name: Recompute the mass budget from the shell
-        run: python design/blender/mico_mass.py
+        run: python design/blender/bazan_mass.py
 
       - name: Check the generated tables in docs/engineering and README
         run: python docs/engineering/gen_docs.py --check

@@ -16,6 +16,7 @@ the checks and documents generated from it. Start at [docs/mechanical/leg_v3.md]
 | `body.py` | Body v4: pelvis plate, deck 1 and 2 on standoffs, board sleds and bays, arms, neck, head |
 | `robot.py` | Whole robot: both legs on the body, static fit, arm/neck/head sweeps, tool access, servo removal |
 | `shell.py` | Shell v1 (`BazanShell`): chest/back clamshell, helmet front/back, visor, on the 16 shell inserts; checked against `robot.py` sweeps, writes `out/shell_*.step/.stl` (about 15 min, `--quick` 11) |
+| `audit.py` | Audit beyond the three checks: CAD against the URDF, joints at the URDF limits, motion matrix with clearances, walls round holes, fits, print orientation, mass and CoM, lead stretch, screw access. Results in [docs/engineering/mechanical_verification.md](../../docs/engineering/mechanical_verification.md) |
 | `pic.py`, `gen_manual.py` | Step pictures and the whole-robot manual (`docs/mechanical/mico_v4_lap_rap.md` + `.html`) |
 
 ```bash
@@ -26,6 +27,7 @@ python render.py           # about 5 min
 python gen_docs.py         # out/*.step, out/*.stl, docs/mechanical/
 python robot.py            # about 4 min (--quick: 2 min)
 python gen_manual.py       # about 1 min
+python audit.py            # about 15 min; `python audit.py twin fits walls` for single sections
 ```
 
 On Windows run the same in PowerShell (`py -m pip install ...`, `py check.py`). The STL/STEP files are not
