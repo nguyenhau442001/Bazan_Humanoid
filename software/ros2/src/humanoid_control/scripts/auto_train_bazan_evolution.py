@@ -40,6 +40,65 @@ CHAIN_LATEST_CKPT = MODELS_DIR / "mico_policy_v17.0_titan_transformer_evolution_
 CHAIN_BEST_CKPT = MODELS_DIR / "mico_policy_v17.0_titan_transformer_evolution_chain_best.pt"
 
 
+# ANSI Terminal Colors & Styling for Rich Telemetry Highlighting
+class C:
+    RESET = "\033[0m"
+    BOLD = "\033[1m"
+    DIM = "\033[2m"
+    ITALIC = "\033[3m"
+    UNDERLINE = "\033[4m"
+
+    # Foreground colors
+    RED = "\033[91m"
+    GREEN = "\033[92m"
+    YELLOW = "\033[93m"
+    BLUE = "\033[94m"
+    MAGENTA = "\033[95m"
+    CYAN = "\033[96m"
+    WHITE = "\033[97m"
+    GRAY = "\033[90m"
+
+    # Background styles
+    BG_GREEN = "\033[42m\033[97m"
+    BG_RED = "\033[41m\033[97m"
+    BG_BLUE = "\033[44m\033[97m"
+    BG_MAGENTA = "\033[45m\033[97m"
+    BG_CYAN = "\033[46m\033[30m"
+
+
+def fmt_score(score):
+    """Format benchmark score with color gradient."""
+    if score >= 90.0:
+        return f"{C.BOLD}{C.GREEN}{score:.1f}{C.RESET}"
+    elif score >= 80.0:
+        return f"{C.BOLD}{C.YELLOW}{score:.1f}{C.RESET}"
+    else:
+        return f"{C.BOLD}{C.RED}{score:.1f}{C.RESET}"
+
+
+def fmt_pct(val, good=80.0, warn=60.0):
+    """Format percentage value with color gradient."""
+    if val >= good:
+        return f"{C.GREEN}{val:>5.1f}%{C.RESET}"
+    elif val >= warn:
+        return f"{C.YELLOW}{val:>5.1f}%{C.RESET}"
+    else:
+        return f"{C.BOLD}{C.RED}{val:>5.1f}%{C.RESET}"
+
+
+def fmt_status(txt):
+    """Format status badge with appropriate styling."""
+    if "PASSED" in txt or "RECORD" in txt or "HIGHEST" in txt:
+        return f"{C.BOLD}{C.GREEN}{txt}{C.RESET}"
+    elif "GOOD" in txt or "REAL-TIME" in txt:
+        return f"{C.CYAN}{txt}{C.RESET}"
+    elif "CRITICAL" in txt or "DEFICIT" in txt or "FAILED" in txt:
+        return f"{C.BOLD}{C.RED}{txt}{C.RESET}"
+    elif "IMPROVED" in txt:
+        return f"{C.BOLD}{C.GREEN}{txt}{C.RESET}"
+    return f"{C.YELLOW}{txt}{C.RESET}"
+
+
 def update_readme_leaderboard(registry):
     """Automatically update README.md with the latest leaderboard."""
     readme_path = REPO / "README.md"
@@ -99,96 +158,118 @@ def update_readme_leaderboard(registry):
 
 
 def print_champion_comparison(cand_tag, cand_score, cand_rep, champ_tag, champ_score, champ_rep):
-    """Display comprehensive side-by-side delta comparison vs champion."""
+    """Display comprehensive side-by-side delta comparison vs champion with full ANSI colors."""
     score_gap = cand_score - champ_score
     pct_gap = (score_gap / champ_score * 100.0) if champ_score > 0 else 0.0
 
-    print("\n" + "=" * 80)
-    print(" 📊 HEAD-TO-HEAD BENCHMARK COMPARISON vs ALL-TIME CHAMPION")
-    print("=" * 80)
-    print(f" Candidate Model:    {cand_tag}  -->  Score: {cand_score:.1f} / 100")
-    print(f" All-Time Champion:  {champ_tag}  -->  Score: {champ_score:.1f} / 100")
+    print("\n" + f"{C.CYAN}═" * 80 + f"{C.RESET}")
+    print(f" {C.BOLD}{C.CYAN}📊 HEAD-TO-HEAD BENCHMARK COMPARISON vs ALL-TIME CHAMPION{C.RESET}")
+    print(f"{C.CYAN}═" * 80 + f"{C.RESET}")
+    print(f" {C.WHITE}Candidate Model:   {C.BOLD}{C.MAGENTA}{cand_tag}{C.RESET}  -->  Score: {fmt_score(cand_score)} "
+          f"{C.DIM}/ 100{C.RESET}")
+    print(f" {C.WHITE}All-Time Champion: {C.BOLD}{C.CYAN}{champ_tag}{C.RESET}  -->  Score: {fmt_score(champ_score)} "
+          f"{C.DIM}/ 100{C.RESET}")
 
     if score_gap > 0:
-        gap_str = f"🎉 +{score_gap:.1f} pts (+{pct_gap:.1f}%) [NEW CHAMPION! HIGHEST SCORE!]"
+        gap_str = f"{C.BOLD}{C.GREEN}🎉 +{score_gap:.1f} pts (+{pct_gap:.1f}%) [NEW CHAMPION! HIGHEST SCORE!]{C.RESET}"
     elif abs(score_gap) < 1e-4:
-        gap_str = "🤝 0.0 pts (Tied with Champion)"
+        gap_str = f"{C.CYAN}🤝 0.0 pts (Tied with Champion){C.RESET}"
     else:
-        gap_str = f"🔻 {score_gap:.1f} pts ({pct_gap:.1f}%) [GAP TO OVERCOME]"
-    print(f" Score Delta:        {gap_str}")
-    print("-" * 80)
+        gap_str = f"{C.BOLD}{C.RED}🔻 {score_gap:.1f} pts ({pct_gap:.1f}%) [GAP TO OVERCOME]{C.RESET}"
+    print(f" {C.WHITE}Score Delta:       {gap_str}")
+    print(f"{C.GRAY}─" * 80 + f"{C.RESET}")
 
     # 10 Criteria Side-by-Side Table
-    print(f" {'CRITERION':<28} | {'CANDIDATE':<12} | {'CHAMPION':<12} | {'GAP / STATUS':<18}")
-    print("-" * 80)
+    print(f" {C.BOLD}{C.WHITE}{'CRITERION':<28}{C.RESET} | {C.BOLD}{C.MAGENTA}{'CANDIDATE':<12}{C.RESET} | "
+          f"{C.BOLD}{C.CYAN}{'CHAMPION':<12}{C.RESET} | {C.BOLD}{C.YELLOW}{'GAP / STATUS':<18}{C.RESET}")
+    print(f"{C.GRAY}─" * 80 + f"{C.RESET}")
 
     c_k = cand_rep.get("kick", {}).get("survival_rate", 0.0) if cand_rep else 0.0
     ch_k = champ_rep.get("kick", {}).get("survival_rate", 0.0) if champ_rep else c_k
     k_diff = c_k - ch_k
     k_status = "[CRITICAL DEFICIT]" if c_k < 70.0 else "[GOOD]"
-    print(f" 1. Kick Disturbance (Omni)  | {c_k:>9.1f}%   | {ch_k:>9.1f}%   | {k_diff:+5.1f}% {k_status}")
+    diff_k_str = (f"{C.GREEN}+{k_diff:.1f}%{C.RESET}" if k_diff > 0
+                  else (f"{C.RED}{k_diff:.1f}%{C.RESET}" if k_diff < 0 else f"{C.DIM}+0.0%{C.RESET}"))
+    print(f" 1. Kick Disturbance (Omni)  |    {fmt_pct(c_k)}   |    {fmt_pct(ch_k)}   | {diff_k_str} "
+          f"{fmt_status(k_status)}")
 
     c_i = cand_rep.get("ice", {}).get("ice_survival_rate", 0.0) if cand_rep else 0.0
     ch_i = champ_rep.get("ice", {}).get("ice_survival_rate", 0.0) if champ_rep else c_i
-    print(f" 2. Ice Drop (mu=0.15)       | {c_i:>9.1f}%   | {ch_i:>9.1f}%   | {c_i - ch_i:+5.1f}% [PASSED]")
+    i_diff = c_i - ch_i
+    diff_i_str = f"{C.GREEN}+{i_diff:.1f}%{C.RESET}" if i_diff >= 0 else f"{C.RED}{i_diff:.1f}%{C.RESET}"
+    print(f" 2. Ice Drop (mu=0.15)       |    {fmt_pct(c_i)}   |    {fmt_pct(ch_i)}   | {diff_i_str} "
+          f"{fmt_status('[PASSED]' if c_i >= 90 else '[FAILED]')}")
 
     c_r = cand_rep.get("reversal", {}).get("reversal_survival_rate", 0.0) if cand_rep else 0.0
     ch_r = champ_rep.get("reversal", {}).get("reversal_survival_rate", 0.0) if champ_rep else c_r
     c_rmse = cand_rep.get("reversal", {}).get("rmse_vx", 0.0) if cand_rep else 0.0
-    print(f" 3. Velocity Reversal Agility| {c_r:>9.1f}%   | {ch_r:>9.1f}%   | RMSE: {c_rmse:.3f} m/s")
+    rmse_str = f"{C.GREEN}{c_rmse:.3f}{C.RESET}" if c_rmse <= 0.15 else f"{C.YELLOW}{c_rmse:.3f}{C.RESET}"
+    print(f" 3. Velocity Reversal Agility|    {fmt_pct(c_r)}   |    {fmt_pct(ch_r)}   | RMSE: {rmse_str} m/s")
 
     c_d = cand_rep.get("drop", {}).get("drop_survival_rate", 0.0) if cand_rep else 0.0
     ch_d = champ_rep.get("drop", {}).get("drop_survival_rate", 0.0) if champ_rep else c_d
     d_diff = c_d - ch_d
     d_status = "[CRITICAL DEFICIT]" if c_d < 75.0 else "[GOOD]"
-    print(f" 4. Drop Impact & Tilt       | {c_d:>9.1f}%   | {ch_d:>9.1f}%   | {d_diff:+5.1f}% {d_status}")
+    diff_d_str = (f"{C.GREEN}+{d_diff:.1f}%{C.RESET}" if d_diff > 0
+                  else (f"{C.RED}{d_diff:.1f}%{C.RESET}" if d_diff < 0 else f"{C.DIM}+0.0%{C.RESET}"))
+    print(f" 4. Drop Impact & Tilt       |    {fmt_pct(c_d)}   |    {fmt_pct(ch_d)}   | {diff_d_str} "
+          f"{fmt_status(d_status)}")
 
     c_s = cand_rep.get("slope", {}).get("slope_survival_rate", 0.0) if cand_rep else 0.0
     ch_s = champ_rep.get("slope", {}).get("slope_survival_rate", 0.0) if champ_rep else c_s
-    print(f" 5. Slope & Ramp (+-12 deg)  | {c_s:>9.1f}%   | {ch_s:>9.1f}%   | {c_s - ch_s:+5.1f}% [PASSED]")
+    print(f" 5. Slope & Ramp (+-12 deg)  |    {fmt_pct(c_s)}   |    {fmt_pct(ch_s)}   | {c_s - ch_s:+5.1f}% "
+          f"{fmt_status('[PASSED]' if c_s >= 90 else '[FAILED]')}")
 
     c_ro = cand_rep.get("rough", {}).get("rough_survival_rate", 0.0) if cand_rep else 0.0
     ch_ro = champ_rep.get("rough", {}).get("rough_survival_rate", 0.0) if champ_rep else c_ro
-    print(f" 6. Rough Micro-Bumps        | {c_ro:>9.1f}%   | {ch_ro:>9.1f}%   | {c_ro - ch_ro:+5.1f}% [PASSED]")
+    print(f" 6. Rough Micro-Bumps        |    {fmt_pct(c_ro)}   |    {fmt_pct(ch_ro)}   | {c_ro - ch_ro:+5.1f}% "
+          f"{fmt_status('[PASSED]' if c_ro >= 90 else '[FAILED]')}")
 
     c_p = cand_rep.get("payload", {}).get("payload_survival_rate", 0.0) if cand_rep else 0.0
     ch_p = champ_rep.get("payload", {}).get("payload_survival_rate", 0.0) if champ_rep else c_p
-    print(f" 7. Payload Mass (+0.28kg)   | {c_p:>9.1f}%   | {ch_p:>9.1f}%   | {c_p - ch_p:+5.1f}% [PASSED]")
+    print(f" 7. Payload Mass (+0.28kg)   |    {fmt_pct(c_p)}   |    {fmt_pct(ch_p)}   | {c_p - ch_p:+5.1f}% "
+          f"{fmt_status('[PASSED]' if c_p >= 90 else '[FAILED]')}")
 
     c_t = cand_rep.get("torque", {}).get("torque_survival_rate", 0.0) if cand_rep else 0.0
     ch_t = champ_rep.get("torque", {}).get("torque_survival_rate", 0.0) if champ_rep else c_t
-    print(f" 8. Torque Sag (60%)         | {c_t:>9.1f}%   | {ch_t:>9.1f}%   | {c_t - ch_t:+5.1f}% [PASSED]")
+    print(f" 8. Torque Sag (60%)         |    {fmt_pct(c_t)}   |    {fmt_pct(ch_t)}   | {c_t - ch_t:+5.1f}% "
+          f"{fmt_status('[PASSED]' if c_t >= 90 else '[FAILED]')}")
 
     c_sn = cand_rep.get("sensor", {}).get("sensor_survival_rate", 0.0) if cand_rep else 0.0
     ch_sn = champ_rep.get("sensor", {}).get("sensor_survival_rate", 0.0) if champ_rep else c_sn
-    print(f" 9. Sensor Noise & Lag       | {c_sn:>9.1f}%   | {ch_sn:>9.1f}%   | {c_sn - ch_sn:+5.1f}% [PASSED]")
+    print(f" 9. Sensor Noise & Lag       |    {fmt_pct(c_sn)}   |    {fmt_pct(ch_sn)}   | {c_sn - ch_sn:+5.1f}% "
+          f"{fmt_status('[PASSED]' if c_sn >= 90 else '[FAILED]')}")
 
     c_lat = cand_rep.get("latency", {}).get("p99_us", 0.0) if cand_rep else 0.0
     ch_lat = champ_rep.get("latency", {}).get("p99_us", 0.0) if champ_rep else c_lat
-    print(f" 10. Apple Silicon M4 Latency| {c_lat:>8.0f} μs | {ch_lat:>8.0f} μs | [REAL-TIME OK]")
-    print("-" * 80)
+    lat_str = f"{C.GREEN}{c_lat:>5.0f} μs{C.RESET}" if c_lat < 2000 else f"{C.YELLOW}{c_lat:>5.0f} μs{C.RESET}"
+    ch_lat_str = f"{ch_lat:>5.0f} μs"
+    print(f" 10. Apple Silicon M4 Latency|   {lat_str} |   {ch_lat_str} | {fmt_status('[REAL-TIME OK]')}")
+    print(f"{C.GRAY}─" * 80 + f"{C.RESET}")
 
     # Detailed Weakness Telemetry
     deficits = []
     if c_k < 75.0:
         pts_loss = (100.0 - c_k) * 0.10
-        deficits.append(f"• Kick Disturbance: Survival only {c_k:.1f}% (loses ~{pts_loss:.2f} pts). "
-                        f"Requires increased perturb_prob & hip damping.")
+        deficits.append(f"{C.BOLD}{C.RED}• Kick Disturbance:{C.RESET} Survival only {C.RED}{c_k:.1f}%{C.RESET} "
+                        f"(loses {C.RED}~{pts_loss:.2f} pts{C.RESET}). "
+                        f"{C.CYAN}Requires increased perturb_prob & hip damping.{C.RESET}")
     if c_d < 80.0:
         pts_loss = (100.0 - c_d) * 0.10
-        deficits.append(f"• Drop Impact & Tilt: Survival only {c_d:.1f}% (loses ~{pts_loss:.2f} pts). "
-                        f"Requires straight-line spine stabilization.")
+        deficits.append(f"{C.BOLD}{C.RED}• Drop Impact & Tilt:{C.RESET} Survival only {C.RED}{c_d:.1f}%{C.RESET} "
+                        f"(loses {C.RED}~{pts_loss:.2f} pts{C.RESET}). "
+                        f"{C.CYAN}Requires straight-line spine stabilization.{C.RESET}")
     if c_rmse > 0.15:
-        deficits.append(f"• Velocity Reversal: RMSE {c_rmse:.3f} m/s exceeds 0.150 m/s threshold. "
-                        f"Requires tuned fine learning rate.")
+        deficits.append(f"{C.BOLD}{C.YELLOW}• Velocity Reversal:{C.RESET} RMSE {C.YELLOW}{c_rmse:.3f} m/s{C.RESET} "
+                        f"exceeds 0.150 m/s threshold. {C.CYAN}Requires tuned fine learning rate.{C.RESET}")
 
     if deficits:
-        print(" 🎯 DIAGNOSED FAILURE POINTS (LEARNING TARGETS FOR NEXT GENERATION):")
+        print(f" {C.BOLD}{C.YELLOW}🎯 DIAGNOSED FAILURE POINTS (LEARNING TARGETS FOR NEXT GENERATION):{C.RESET}")
         for d in deficits:
             print(f"   {d}")
     else:
-        print(" 🎯 ALL BENCHMARK CRITERIA MET OR EXCEEDED!")
-    print("=" * 80 + "\n")
+        print(f" {C.BOLD}{C.GREEN}🎯 ALL BENCHMARK CRITERIA MET OR EXCEEDED!{C.RESET}")
+    print(f"{C.CYAN}═" * 80 + f"{C.RESET}\n")
 
 
 def synthesize_error_curriculum_config(last_report, gen_idx, chain_ckpt_path):
@@ -244,14 +325,20 @@ def synthesize_error_curriculum_config(last_report, gen_idx, chain_ckpt_path):
 def run_training_generation(gen_cfg):
     """Run training command for a single generation with continuous checkpoint resuming."""
     tag = gen_cfg["tag"]
-    print("\n" + "=" * 80)
-    print(f"🚀 LAUNCHING AUTONOMOUS TRAINING: {tag.upper()}")
-    print(f"   Architecture: {gen_cfg['arch']} (hidden={gen_cfg.get('hidden_dim', 512)}) | "
-          f"Iterations: {gen_cfg['iterations']}")
-    print(f"   Disturbance Prob: {gen_cfg['perturb_prob']} | Residual Gait: {gen_cfg.get('residual', False)}")
+    print("\n" + f"{C.BLUE}┌{'─' * 78}┐{C.RESET}")
+    print(f"{C.BLUE}│{C.RESET} 🚀 {C.BOLD}{C.WHITE}LAUNCHING AUTONOMOUS TRAINING:{C.RESET} "
+          f"{C.BOLD}{C.CYAN}{tag.upper()}{C.RESET}")
+    arch_str = f"{C.BOLD}{C.MAGENTA}{gen_cfg['arch'].upper()}{C.RESET}"
+    dims_str = f"hidden={gen_cfg.get('hidden_dim', 512)}, blocks={gen_cfg.get('num_blocks', 6)}"
+    print(f"{C.BLUE}│{C.RESET}    {C.WHITE}Architecture:{C.RESET} {arch_str} "
+          f"({C.CYAN}{dims_str}, layers={gen_cfg.get('num_layers', 3)}{C.RESET})")
+    print(f"{C.BLUE}│{C.RESET}    {C.WHITE}Iterations:{C.RESET} {C.BOLD}{C.YELLOW}{gen_cfg['iterations']}{C.RESET} | "
+          f"{C.WHITE}Disturbance Prob:{C.RESET} {C.YELLOW}{gen_cfg['perturb_prob']}{C.RESET} | "
+          f"{C.WHITE}Residual Gait:{C.RESET} {C.GREEN}{gen_cfg.get('residual', False)}{C.RESET}")
     if gen_cfg.get("resume_checkpoint"):
-        print(f"   Continuous Checkpoint: {Path(gen_cfg['resume_checkpoint']).name}")
-    print("=" * 80)
+        print(f"{C.BLUE}│{C.RESET}    {C.WHITE}Continuous Checkpoint:{C.RESET} "
+              f"{C.GREEN}{Path(gen_cfg['resume_checkpoint']).name}{C.RESET}")
+    print(f"{C.BLUE}└{'─' * 78}┘{C.RESET}")
 
     train_script = HERE / "train_bazan_ppo.py" if (HERE / "train_bazan_ppo.py").exists() else HERE / "train_mico_ppo.py"
     cmd = [
@@ -295,16 +382,16 @@ def run_training_generation(gen_cfg):
     t0 = time.time()
     subprocess.run(cmd, check=True)
     dt = time.time() - t0
-    print(f"[✓] Generation '{tag}' training complete in {dt:.1f}s!")
+    print(f"{C.BOLD}{C.GREEN}[✓] Generation '{tag}' training complete in {dt:.1f}s!{C.RESET}")
 
 
 def evaluate_generation(tag):
     """Run benchmark suite and return composite score and detailed report."""
-    print(f"\n[🥊] Benchmarking Generation '{tag}'...")
+    print(f"\n[🥊] {C.BOLD}{C.YELLOW}Benchmarking Generation '{tag}'...{C.RESET}")
     evaluator = eval_mod.BenchmarkEvaluator(model_target=tag)
     report = evaluator.run_full_suite()
     score = report.get("composite_score", 0.0)
-    print(f"[✓] Benchmark Score for '{tag}': {score:.1f} / 100")
+    print(f"{C.BOLD}{C.GREEN}[✓] Benchmark Score for '{tag}': {fmt_score(score)} {C.DIM}/ 100{C.RESET}")
     return score, report
 
 
@@ -323,13 +410,19 @@ def main():
     parser.add_argument("--force", action="store_true", default=False, help="Force retrain registered generations")
     args = parser.parse_args()
 
-    print("\n" + "#" * 80)
-    print("      SYNAPSE HUMANOID AUTONOMOUS EVOLUTION & CONTINUOUS IMPROVEMENT")
-    print(f"      Architecture Family:    {args.arch.upper()} (64 inputs, 32 outputs)")
-    print(f"      Target Benchmark Score: {args.target_score} / 100")
-    print(f"      Max Generations:        {args.max_generations}")
-    print("      Learning Strategy:      Continuous Weight Chaining & Failure-Driven Adaptive Curriculum")
-    print("#" * 80 + "\n")
+    print("\n" + f"{C.MAGENTA}╔{'═' * 78}╗{C.RESET}")
+    title_str = "SYNAPSE HUMANOID AUTONOMOUS EVOLUTION & CONTINUOUS IMPROVEMENT"
+    print(f"{C.MAGENTA}║{C.RESET}  {C.BOLD}{C.WHITE}{title_str:<68}{C.RESET} {C.MAGENTA}║{C.RESET}")
+    print(f"{C.MAGENTA}╠{'═' * 78}╣{C.RESET}")
+    print(f"{C.MAGENTA}║{C.RESET}  Architecture:    {C.BOLD}{C.MAGENTA}{args.arch.upper()}{C.RESET} "
+          f"{C.CYAN}(64 inputs, 32 outputs | 10.01M params){C.RESET}       {C.MAGENTA}║{C.RESET}")
+    print(f"{C.MAGENTA}║{C.RESET}  Target Score:    {C.BOLD}{C.YELLOW}{args.target_score:.1f} / 100{C.RESET}"
+          f"                                                 {C.MAGENTA}║{C.RESET}")
+    print(f"{C.MAGENTA}║{C.RESET}  Max Generations: {C.BOLD}{C.WHITE}{args.max_generations}{C.RESET}"
+          f"                                                        {C.MAGENTA}║{C.RESET}")
+    print(f"{C.MAGENTA}║{C.RESET}  Strategy:        "
+          f"{C.GREEN}Continuous Weight Chaining & Failure-Driven Adaptive Curriculum{C.RESET} {C.MAGENTA}║{C.RESET}")
+    print(f"{C.MAGENTA}╚{'═' * 78}╝{C.RESET}\n")
 
     target_arch = args.arch
     best_score = 0.0
@@ -349,11 +442,11 @@ def main():
             best_tag = ver
 
     if best_tag is not None:
-        print(f"[*] Current Best '{target_arch}' Model: '{best_tag}' with Score: {best_score:.1f} / 100")
+        print(f"[*] Current Best '{target_arch}' Model: '{best_tag}' with Score: {fmt_score(best_score)} / 100")
     else:
         best_tag = "v16.0_perceptive_transformer_gen1"
         best_score = 90.4
-        print(f"[*] Defaulting Champion to '{best_tag}' ({best_score:.1f} / 100)")
+        print(f"[*] Defaulting Champion to '{best_tag}' ({fmt_score(best_score)} / 100)")
 
     # Benchmark initial champion to obtain baseline report if needed
     print(f"[*] Establishing Baseline Report for Champion '{best_tag}'...")
@@ -378,7 +471,8 @@ def main():
         initial_pt = MODELS_DIR / "mico_policy_v16.0_perceptive_transformer_gen1.pt"
         if initial_pt.exists():
             shutil.copyfile(initial_pt, chain_ckpt)
-            print(f"[🔗 CHAIN] Initialized continuous learning chain from champion: {initial_pt.name}")
+            print(f"{C.CYAN}[🔗 CHAIN] Initialized continuous learning chain from champion: "
+                  f"{initial_pt.name}{C.RESET}")
 
     last_report = champ_report
     generations_trained = 0
@@ -406,8 +500,9 @@ def main():
             gen_cfg["iterations"] = args.iterations
 
         tag = gen_cfg["tag"]
-        print(f"\n[🔄 EVOLUTION CYCLE #{next_gen_num}] Target: Surpass Champion '{best_tag}' ({best_score:.1f} pts)")
-        print(f"    Adaptive Focus: {gen_cfg['desc']}")
+        print(f"\n{C.BOLD}{C.YELLOW}[🔄 EVOLUTION CYCLE #{next_gen_num}]{C.RESET} "
+              f"Target: Surpass Champion '{C.CYAN}{best_tag}{C.RESET}' ({fmt_score(best_score)} pts)")
+        print(f"    {C.WHITE}Adaptive Focus:{C.RESET} {C.CYAN}{gen_cfg['desc']}{C.RESET}")
 
         # 1. Train Generation (Resuming from chain_latest.pt - NEVER from scratch)
         run_training_generation(gen_cfg)
@@ -430,7 +525,8 @@ def main():
 
         # 4. Check if new champion
         if score > best_score:
-            print(f"\n🎉 NEW CHAMPION! '{tag}' scored {score:.1f} (surpassing previous best {best_score:.1f})")
+            print(f"\n{C.BG_GREEN} 🎉 NEW CHAMPION! '{tag}' scored {score:.1f} "
+                  f"(surpassing previous best {best_score:.1f}) {C.RESET}")
             best_score = score
             best_tag = tag
             champ_report = report
@@ -438,15 +534,17 @@ def main():
             if cand_pt.exists():
                 shutil.copyfile(cand_pt, CHAIN_BEST_CKPT)
                 shutil.copyfile(cand_pt, chain_ckpt)
-                print(f"[⭐ ARCH BEST] Saved new champion checkpoint: {CHAIN_BEST_CKPT.name}")
+                print(f"{C.BOLD}{C.GREEN}[⭐ ARCH BEST] Saved new champion checkpoint: "
+                      f"{CHAIN_BEST_CKPT.name}{C.RESET}")
         else:
-            print(f"\n[-] Model '{tag}' scored {score:.1f} (Best remains '{best_tag}' at {best_score:.1f})")
+            print(f"\n{C.YELLOW}[-] Model '{tag}' scored {score:.1f} "
+                  f"(Best remains '{best_tag}' at {best_score:.1f}){C.RESET}")
             # If candidate did not beat champion, re-anchor continuous chain to the Champion checkpoint
             # so the next iteration starts from the highest-performing weights while learning from mistakes!
             if CHAIN_BEST_CKPT.exists():
                 shutil.copyfile(CHAIN_BEST_CKPT, chain_ckpt)
-                print(f"[🛡️ SAFEGUARD] Re-anchored continuous chain to Champion '{best_tag}' "
-                      f"({best_score:.1f} pts) to prevent divergence.")
+                print(f"{C.CYAN}[🛡️ SAFEGUARD] Re-anchored continuous chain to Champion '{best_tag}' "
+                      f"({best_score:.1f} pts) to prevent divergence.{C.RESET}")
 
         # Update last report for next generation's adaptive synthesis
         last_report = report
@@ -457,12 +555,14 @@ def main():
 
         if best_score >= effective_target:
             print("\n" + "🏆" * 40)
-            print(f"🎉 GOAL ACHIEVED! Model '{best_tag}' reached {best_score:.1f} >= {effective_target:.1f} points!")
+            print(f"{C.BOLD}{C.GREEN}🎉 GOAL ACHIEVED! Model '{best_tag}' reached "
+                  f"{best_score:.1f} >= {effective_target:.1f} points!{C.RESET}")
             print("Ready to expand benchmark criteria to stairs, slope climbing, and rough terrain!")
             print("🏆" * 40 + "\n")
             break
 
-    print(f"\n[*] Evolution session completed. Final Champion: '{best_tag}' ({best_score:.1f} / 100)")
+    print(f"\n{C.BOLD}{C.GREEN}[*] Evolution session completed. Final Champion: '{best_tag}' "
+          f"({best_score:.1f} / 100){C.RESET}")
 
 
 if __name__ == "__main__":

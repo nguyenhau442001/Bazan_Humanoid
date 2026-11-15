@@ -83,7 +83,7 @@
       "created_at": "2026-11-09T20:02:36.887706",
       "description": "TITAN_TRANSFORMER (6,674,828 actor params, 150 iters, Metal MPS)",
       "residual": true,
-      "benchmark_score": 96.2
+      "benchmark_score": 85.0
     },
     "v12.0_adaptive_pitch_sprint": {
       "version": "v12.0_adaptive_pitch_sprint",

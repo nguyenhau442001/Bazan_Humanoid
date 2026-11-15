@@ -47,6 +47,30 @@ import mico_rl_env as env_mod  # noqa: E402
 import model_registry as reg_mod  # noqa: E402
 
 
+# ANSI Terminal Colors
+class C:
+    RESET = "\033[0m"
+    BOLD = "\033[1m"
+    DIM = "\033[2m"
+    RED = "\033[91m"
+    GREEN = "\033[92m"
+    YELLOW = "\033[93m"
+    BLUE = "\033[94m"
+    MAGENTA = "\033[95m"
+    CYAN = "\033[96m"
+    WHITE = "\033[97m"
+
+
+def fmt_pct(val, good=80.0, warn=60.0):
+    """Format percentage value with color gradient."""
+    if val >= good:
+        return f"{C.BOLD}{C.GREEN}{val:.1f}%{C.RESET}"
+    elif val >= warn:
+        return f"{C.BOLD}{C.YELLOW}{val:.1f}%{C.RESET}"
+    else:
+        return f"{C.BOLD}{C.RED}{val:.1f}%{C.RESET}"
+
+
 class BenchmarkEvaluator:
     """Evaluates humanoid locomotion controller against violent disturbances."""
 
@@ -588,54 +612,56 @@ class BenchmarkEvaluator:
 
     def run_full_suite(self):
         """Execute all 10 benchmark tests and return composite report."""
-        print(f"\n{'='*75}")
-        print(f"  RUNNING 10-CRITERIA VIOLENT BENCHMARK SUITE: {self.model_name}")
-        print(f"{'='*75}")
+        print(f"\n{C.CYAN}{'=' * 75}{C.RESET}")
+        print(f"  {C.BOLD}{C.WHITE}RUNNING 10-CRITERIA VIOLENT BENCHMARK SUITE:{C.RESET} "
+              f"{C.BOLD}{C.MAGENTA}{self.model_name}{C.RESET}")
+        print(f"{C.CYAN}{'=' * 75}{C.RESET}")
 
-        print("[1/10] Evaluating Omnidirectional Violent Kick Disturbance...")
+        print(f"{C.YELLOW}[1/10]{C.RESET} {C.BOLD}Evaluating Omnidirectional Violent Kick Disturbance...{C.RESET}")
         kick_res = self.test_violent_kick_resistance()
-        print(f"       Kick Survival: {kick_res['survival_rate']:.1f}% | "
-              f"Max Impulse: {kick_res['max_survived_impulse']} Ns")
+        print(f"       Kick Survival: {fmt_pct(kick_res['survival_rate'])} | "
+              f"Max Impulse: {C.CYAN}{kick_res['max_survived_impulse']} Ns{C.RESET}")
 
-        print("[2/10] Evaluating Extreme Friction Drop (Ice Shock)...")
+        print(f"{C.YELLOW}[2/10]{C.RESET} {C.BOLD}Evaluating Extreme Friction Drop (Ice Shock)...{C.RESET}")
         ice_res = self.test_ice_shock()
-        print(f"       Ice Survival: {ice_res['ice_survival_rate']:.1f}% | "
-              f"Yaw Drift: {ice_res['avg_yaw_drift_deg']:.1f}°")
+        print(f"       Ice Survival: {fmt_pct(ice_res['ice_survival_rate'])} | "
+              f"Yaw Drift: {C.CYAN}{ice_res['avg_yaw_drift_deg']:.1f}°{C.RESET}")
 
-        print("[3/10] Evaluating Dynamic Velocity Reversal & Agility...")
+        print(f"{C.YELLOW}[3/10]{C.RESET} {C.BOLD}Evaluating Dynamic Velocity Reversal & Agility...{C.RESET}")
         rev_res = self.test_velocity_reversal()
-        print(f"       Reversal Survival: {rev_res['reversal_survival_rate']:.1f}% | "
-              f"RMSE vx: {rev_res['rmse_vx']:.3f} m/s")
+        print(f"       Reversal Survival: {fmt_pct(rev_res['reversal_survival_rate'])} | "
+              f"RMSE vx: {C.CYAN}{rev_res['rmse_vx']:.3f} m/s{C.RESET}")
 
-        print("[4/10] Evaluating Drop Impact & Tilt Recovery...")
+        print(f"{C.YELLOW}[4/10]{C.RESET} {C.BOLD}Evaluating Drop Impact & Tilt Recovery...{C.RESET}")
         drop_res = self.test_drop_and_tilt()
-        print(f"       Drop Survival: {drop_res['drop_survival_rate']:.1f}%")
+        print(f"       Drop Survival: {fmt_pct(drop_res['drop_survival_rate'])}")
 
-        print("[5/10] Evaluating Continuous Slope & Ramp Incline Traversal...")
+        print(f"{C.YELLOW}[5/10]{C.RESET} {C.BOLD}Evaluating Continuous Slope & Ramp Incline Traversal...{C.RESET}")
         slope_res = self.test_slope_traversal()
-        print(f"       Slope Survival: {slope_res['slope_survival_rate']:.1f}%")
+        print(f"       Slope Survival: {fmt_pct(slope_res['slope_survival_rate'])}")
 
-        print("[6/10] Evaluating Rough Terrain Micro-Bumps & Ground Jitter...")
+        print(f"{C.YELLOW}[6/10]{C.RESET} {C.BOLD}Evaluating Rough Terrain Micro-Bumps & Ground Jitter...{C.RESET}")
         rough_res = self.test_rough_terrain()
-        print(f"       Rough Terrain Survival: {rough_res['rough_survival_rate']:.1f}%")
+        print(f"       Rough Terrain Survival: {fmt_pct(rough_res['rough_survival_rate'])}")
 
-        print("[7/10] Evaluating Base Payload Mass Perturbation...")
+        print(f"{C.YELLOW}[7/10]{C.RESET} {C.BOLD}Evaluating Base Payload Mass Perturbation...{C.RESET}")
         payload_res = self.test_payload_capacity()
-        print(f"       Payload Survival: {payload_res['payload_survival_rate']:.1f}% | "
-              f"Max Payload: +{payload_res['max_payload_kg']:.2f} kg")
+        print(f"       Payload Survival: {fmt_pct(payload_res['payload_survival_rate'])} | "
+              f"Max Payload: {C.CYAN}+{payload_res['max_payload_kg']:.2f} kg{C.RESET}")
 
-        print("[8/10] Evaluating Actuator Torque Saturation / Voltage Sag...")
+        print(f"{C.YELLOW}[8/10]{C.RESET} {C.BOLD}Evaluating Actuator Torque Saturation / Voltage Sag...{C.RESET}")
         torque_res = self.test_torque_saturation()
-        print(f"       Torque Sag Survival: {torque_res['torque_survival_rate']:.1f}%")
+        print(f"       Torque Sag Survival: {fmt_pct(torque_res['torque_survival_rate'])}")
 
-        print("[9/10] Evaluating Proprioceptive Sensor Noise & Observation Lag...")
+        print(f"{C.YELLOW}[9/10]{C.RESET} {C.BOLD}Evaluating Proprioceptive Sensor Noise & Observation Lag...{C.RESET}")
         sensor_res = self.test_sensor_noise_lag()
-        print(f"       Sensor Noise Survival: {sensor_res['sensor_survival_rate']:.1f}%")
+        print(f"       Sensor Noise Survival: {fmt_pct(sensor_res['sensor_survival_rate'])}")
 
-        print("[10/10] Profiling Hardware Inference Latency on Apple Silicon M4...")
+        print(f"{C.YELLOW}[10/10]{C.RESET} {C.BOLD}Profiling Latency on Apple Silicon M4...{C.RESET}")
         lat_res = self.test_compute_latency()
-        print(f"        Latency P50: {lat_res['p50_us']:.1f} μs | P99: {lat_res['p99_us']:.1f} μs | "
-              f"Params: {lat_res['params']:,}")
+        print(f"        Latency P50: {C.GREEN}{lat_res['p50_us']:.1f} μs{C.RESET} | "
+              f"P99: {C.GREEN}{lat_res['p99_us']:.1f} μs{C.RESET} | "
+              f"Params: {C.CYAN}{lat_res['params']:,}{C.RESET}")
 
         # Composite Robustness Score across all 10 criteria (0 - 100)
         composite_score = (
