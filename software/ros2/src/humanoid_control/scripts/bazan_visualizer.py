@@ -187,8 +187,8 @@ def main():
         session = ort.InferenceSession(str(model_path))
         inp_name = session.get_inputs()[0].name
         inp_dim = session.get_inputs()[0].shape[-1]
-        use_phase = (inp_dim in (47, 49, 51, 60, 84, 1024))
-        use_perception = (inp_dim in (60, 84, 1024))
+        use_phase = (inp_dim in (47, 49, 51, 60, 64, 84, 1024))
+        use_perception = (inp_dim in (60, 64, 84, 1024))
         # Check registry first for residual metadata
         is_res = False
         try:

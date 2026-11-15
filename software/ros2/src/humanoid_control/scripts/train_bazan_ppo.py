@@ -339,13 +339,41 @@ class TitanTransformerActorCritic(nn.Module):
             nn.Linear(128, 2),
             nn.Tanh(),
         )
+        self.head_arms = nn.Sequential(
+            nn.LayerNorm(hidden_dim),
+            nn.Linear(hidden_dim, 128),
+            nn.GELU(),
+            nn.Linear(128, 6),
+            nn.Tanh(),
+        )
+        self.head_neck = nn.Sequential(
+            nn.LayerNorm(hidden_dim),
+            nn.Linear(hidden_dim, 64),
+            nn.GELU(),
+            nn.Linear(64, 2),
+            nn.Tanh(),
+        )
+        self.head_adaptive = nn.Sequential(
+            nn.LayerNorm(hidden_dim),
+            nn.Linear(hidden_dim, 128),
+            nn.GELU(),
+            nn.Linear(128, 12),
+            nn.Tanh(),
+        )
 
-        for head, out_dim in [(self.head_sagittal, 6), (self.head_lateral, 4), (self.head_yaw, 2)]:
+        for head in (
+            self.head_sagittal,
+            self.head_lateral,
+            self.head_yaw,
+            self.head_arms,
+            self.head_neck,
+            self.head_adaptive,
+        ):
             nn.init.orthogonal_(head[3].weight, gain=0.01)
             nn.init.constant_(head[3].bias, 0.0)
 
         class MultiStreamActor(nn.Module):
-            def __init__(self, stem, res, attn, h_sag, h_lat, h_yaw):
+            def __init__(self, stem, res, attn, h_sag, h_lat, h_yaw, h_arms, h_neck, h_adapt, act_dim, hidden_dim):
                 super().__init__()
                 self.stem = stem
                 self.res = res
@@ -353,6 +381,18 @@ class TitanTransformerActorCritic(nn.Module):
                 self.h_sag = h_sag
                 self.h_lat = h_lat
                 self.h_yaw = h_yaw
+                self.h_arms = h_arms
+                self.h_neck = h_neck
+                self.h_adapt = h_adapt
+                self.act_dim = act_dim
+                if act_dim not in (12, 32):
+                    self.fallback_head = nn.Sequential(
+                        nn.LayerNorm(hidden_dim),
+                        nn.Linear(hidden_dim, act_dim),
+                        nn.Tanh(),
+                    )
+                    nn.init.orthogonal_(self.fallback_head[1].weight, gain=0.01)
+                    nn.init.constant_(self.fallback_head[1].bias, 0.0)
 
             def forward(self, obs):
                 h = self.stem(obs)
@@ -361,18 +401,34 @@ class TitanTransformerActorCritic(nn.Module):
                 h_attn = self.attn(h.unsqueeze(1)).squeeze(1)
                 h_fused = h + h_attn
 
-                sag = self.h_sag(h_fused)
-                lat = self.h_lat(h_fused)
-                yaw = self.h_yaw(h_fused)
-
-                return torch.stack([
-                    yaw[:, 0], lat[:, 0], sag[:, 0], sag[:, 1], sag[:, 2], lat[:, 1],
-                    yaw[:, 1], lat[:, 2], sag[:, 3], sag[:, 4], sag[:, 5], lat[:, 3],
-                ], dim=-1)
+                if self.act_dim == 12:
+                    sag = self.h_sag(h_fused)
+                    lat = self.h_lat(h_fused)
+                    yaw = self.h_yaw(h_fused)
+                    return torch.stack([
+                        yaw[:, 0], lat[:, 0], sag[:, 0], sag[:, 1], sag[:, 2], lat[:, 1],
+                        yaw[:, 1], lat[:, 2], sag[:, 3], sag[:, 4], sag[:, 5], lat[:, 3],
+                    ], dim=-1)
+                elif self.act_dim == 32:
+                    sag = self.h_sag(h_fused)
+                    lat = self.h_lat(h_fused)
+                    yaw = self.h_yaw(h_fused)
+                    legs = torch.stack([
+                        yaw[:, 0], lat[:, 0], sag[:, 0], sag[:, 1], sag[:, 2], lat[:, 1],
+                        yaw[:, 1], lat[:, 2], sag[:, 3], sag[:, 4], sag[:, 5], lat[:, 3],
+                    ], dim=-1)
+                    arms = self.h_arms(h_fused)
+                    neck = self.h_neck(h_fused)
+                    adapt = self.h_adapt(h_fused)
+                    return torch.cat([legs, arms, neck, adapt], dim=-1)
+                else:
+                    return self.fallback_head(h_fused)
 
         self.actor_mean = MultiStreamActor(
             self.actor_stem, self.actor_res, self.actor_attn,
-            self.head_sagittal, self.head_lateral, self.head_yaw
+            self.head_sagittal, self.head_lateral, self.head_yaw,
+            self.head_arms, self.head_neck, self.head_adaptive,
+            self.act_dim, hidden_dim
         )
         self.log_std = nn.Parameter(torch.ones(act_dim) * -1.2)
 
@@ -519,13 +575,57 @@ class PerceptiveTitanTransformerActorCritic(nn.Module):
             nn.Linear(64, 2),
             nn.Tanh(),
         )
+        self.head_arms = nn.Sequential(
+            nn.LayerNorm(hidden_dim),
+            nn.Linear(hidden_dim, 128),
+            nn.GELU(),
+            nn.Linear(128, 6),
+            nn.Tanh(),
+        )
+        self.head_neck = nn.Sequential(
+            nn.LayerNorm(hidden_dim),
+            nn.Linear(hidden_dim, 64),
+            nn.GELU(),
+            nn.Linear(64, 2),
+            nn.Tanh(),
+        )
+        self.head_adaptive = nn.Sequential(
+            nn.LayerNorm(hidden_dim),
+            nn.Linear(hidden_dim, 128),
+            nn.GELU(),
+            nn.Linear(128, 12),
+            nn.Tanh(),
+        )
 
-        for head in (self.head_sagittal, self.head_lateral, self.head_yaw):
+        for head in (
+            self.head_sagittal,
+            self.head_lateral,
+            self.head_yaw,
+            self.head_arms,
+            self.head_neck,
+            self.head_adaptive,
+        ):
             nn.init.orthogonal_(head[3].weight, gain=0.01)
             nn.init.constant_(head[3].bias, 0.0)
 
         class PerceptiveActor(nn.Module):
-            def __init__(self, prop_stem, perc_stem, fusion, res, attn, h_sag, h_lat, h_yaw, prop_dim):
+            def __init__(
+                self,
+                prop_stem,
+                perc_stem,
+                fusion,
+                res,
+                attn,
+                h_sag,
+                h_lat,
+                h_yaw,
+                h_arms,
+                h_neck,
+                h_adapt,
+                prop_dim,
+                act_dim,
+                hidden_dim,
+            ):
                 super().__init__()
                 self.prop_stem = prop_stem
                 self.perc_stem = perc_stem
@@ -535,7 +635,19 @@ class PerceptiveTitanTransformerActorCritic(nn.Module):
                 self.h_sag = h_sag
                 self.h_lat = h_lat
                 self.h_yaw = h_yaw
+                self.h_arms = h_arms
+                self.h_neck = h_neck
+                self.h_adapt = h_adapt
                 self.prop_dim = prop_dim
+                self.act_dim = act_dim
+                if act_dim not in (12, 32):
+                    self.fallback_head = nn.Sequential(
+                        nn.LayerNorm(hidden_dim),
+                        nn.Linear(hidden_dim, act_dim),
+                        nn.Tanh(),
+                    )
+                    nn.init.orthogonal_(self.fallback_head[1].weight, gain=0.01)
+                    nn.init.constant_(self.fallback_head[1].bias, 0.0)
 
             def forward(self, obs):
                 prop = obs[..., :self.prop_dim]
@@ -548,18 +660,34 @@ class PerceptiveTitanTransformerActorCritic(nn.Module):
                 h_attn = self.attn(h.unsqueeze(1)).squeeze(1)
                 h_fused = h + h_attn
 
-                sag = self.h_sag(h_fused)
-                lat = self.h_lat(h_fused)
-                yaw = self.h_yaw(h_fused)
-
-                return torch.stack([
-                    yaw[:, 0], lat[:, 0], sag[:, 0], sag[:, 1], sag[:, 2], lat[:, 1],
-                    yaw[:, 1], lat[:, 2], sag[:, 3], sag[:, 4], sag[:, 5], lat[:, 3],
-                ], dim=-1)
+                if self.act_dim == 12:
+                    sag = self.h_sag(h_fused)
+                    lat = self.h_lat(h_fused)
+                    yaw = self.h_yaw(h_fused)
+                    return torch.stack([
+                        yaw[:, 0], lat[:, 0], sag[:, 0], sag[:, 1], sag[:, 2], lat[:, 1],
+                        yaw[:, 1], lat[:, 2], sag[:, 3], sag[:, 4], sag[:, 5], lat[:, 3],
+                    ], dim=-1)
+                elif self.act_dim == 32:
+                    sag = self.h_sag(h_fused)
+                    lat = self.h_lat(h_fused)
+                    yaw = self.h_yaw(h_fused)
+                    legs = torch.stack([
+                        yaw[:, 0], lat[:, 0], sag[:, 0], sag[:, 1], sag[:, 2], lat[:, 1],
+                        yaw[:, 1], lat[:, 2], sag[:, 3], sag[:, 4], sag[:, 5], lat[:, 3],
+                    ], dim=-1)
+                    arms = self.h_arms(h_fused)
+                    neck = self.h_neck(h_fused)
+                    adapt = self.h_adapt(h_fused)
+                    return torch.cat([legs, arms, neck, adapt], dim=-1)
+                else:
+                    return self.fallback_head(h_fused)
 
         self.actor_mean = PerceptiveActor(
             self.prop_stem, self.perc_stem, self.actor_fusion, self.actor_res, self.actor_attn,
-            self.head_sagittal, self.head_lateral, self.head_yaw, self.prop_dim
+            self.head_sagittal, self.head_lateral, self.head_yaw,
+            self.head_arms, self.head_neck, self.head_adaptive,
+            self.prop_dim, self.act_dim, hidden_dim
         )
         self.log_std = nn.Parameter(torch.ones(act_dim) * -1.2)
 
@@ -762,10 +890,16 @@ def train(args):
                     if state_dict[k].shape == v.shape:
                         state_dict[k].copy_(v)
                         matched += 1
-                    elif state_dict[k].dim() == 2 and v.dim() == 2 and state_dict[k].shape[0] == v.shape[0]:
-                        # Adapt input dimension difference (45 vs 47)
+                    elif state_dict[k].dim() == 2 and v.dim() == 2:
+                        # Adapt 2D weight matrix dimensions
+                        min_out = min(state_dict[k].shape[0], v.shape[0])
                         min_in = min(state_dict[k].shape[1], v.shape[1])
-                        state_dict[k][:, :min_in].copy_(v[:, :min_in])
+                        state_dict[k][:min_out, :min_in].copy_(v[:min_out, :min_in])
+                        matched += 1
+                    elif state_dict[k].dim() == 1 and v.dim() == 1:
+                        # Adapt 1D bias / log_std vector dimensions
+                        min_len = min(state_dict[k].shape[0], v.shape[0])
+                        state_dict[k][:min_len].copy_(v[:min_len])
                         matched += 1
             policy.load_state_dict(state_dict)
             print(f"[✓] Checkpoint loaded successfully! ({matched}/{len(state_dict)} tensors matched/adapted)")

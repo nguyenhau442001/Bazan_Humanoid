@@ -1,5 +1,5 @@
 {
-  "active_version": "v13.5_bidirectional_sprint_champion_rev96",
+  "active_version": "v16.0_wholebody_perceptive_64in_32out",
   "models": {
     "v1.0_light_50iter": {
       "version": "v1.0_light_50iter",
@@ -2670,6 +2670,18 @@
       "file_size_kb": 26141.7,
       "created_at": "2026-11-11T17:51:36.005635",
       "description": "TITAN_TRANSFORMER (6,674,828 actor params, 160 iters, Metal MPS)",
+      "residual": true,
+      "benchmark_score": null
+    },
+    "v16.0_wholebody_perceptive_64in_32out": {
+      "version": "v16.0_wholebody_perceptive_64in_32out",
+      "relative_path": "mico_policy_v16.0_wholebody_perceptive_64in_32out.onnx",
+      "architecture": "perceptive_transformer",
+      "parameters": 6828448,
+      "iterations": 100,
+      "file_size_kb": 26749.9,
+      "created_at": "2026-11-15T16:02:48.449147",
+      "description": "PERCEPTIVE_TRANSFORMER (6,828,448 actor params, 100 iters, Metal MPS)",
       "residual": true,
       "benchmark_score": null
     }

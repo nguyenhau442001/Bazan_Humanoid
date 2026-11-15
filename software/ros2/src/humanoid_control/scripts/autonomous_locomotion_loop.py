@@ -72,8 +72,8 @@ def render_side_by_side_comparison(model_a_path, model_b_path, label_a, label_b,
         inp_dim = sess.get_inputs()[0].shape[1]
         input_name = sess.get_inputs()[0].name
         output_name = sess.get_outputs()[0].name
-        use_phase = (inp_dim in (47, 49, 51, 60, 84, 1024))
-        use_perception = (inp_dim in (60, 84, 1024))
+        use_phase = (inp_dim in (47, 49, 51, 60, 64, 84, 1024))
+        use_perception = (inp_dim in (60, 64, 84, 1024))
 
         env = env_mod.MicoEnv(
             use_residual=True,

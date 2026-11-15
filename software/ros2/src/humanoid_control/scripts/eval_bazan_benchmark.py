@@ -102,9 +102,9 @@ class BenchmarkEvaluator:
         if self.session is not None:
             try:
                 inp_shape = self.session.get_inputs()[0].shape
-                if inp_shape[-1] in (47, 49, 51, 60, 84, 1024):
+                if inp_shape[-1] in (47, 49, 51, 60, 64, 84, 1024):
                     use_phase = True
-                use_perception = (inp_shape[-1] in (60, 84, 1024))
+                use_perception = (inp_shape[-1] in (60, 64, 84, 1024))
             except Exception:
                 use_phase = False
                 use_perception = False

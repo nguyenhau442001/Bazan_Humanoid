@@ -241,8 +241,8 @@ class HumanLikeness20Evaluator:
         inp_dim = session.get_inputs()[0].shape[1]
         input_name = session.get_inputs()[0].name
         output_name = session.get_outputs()[0].name
-        use_phase = (inp_dim in (47, 49, 51, 60, 84, 1024))
-        use_perception = (inp_dim in (60, 84, 1024))
+        use_phase = (inp_dim in (47, 49, 51, 60, 64, 84, 1024))
+        use_perception = (inp_dim in (60, 64, 84, 1024))
 
         cmd_vel = np.array(motion_cfg.get("cmd", [0.2, 0.0, 0.0]), dtype=np.float64)
         slope_deg = motion_cfg.get("slope_deg", 0.0)

@@ -43,15 +43,22 @@ except ImportError:
         quat_to_rot_matrix = None
 
 try:
-    from train_bazan_ppo import DeepResidualActorCritic, PerceptiveTitanTransformerActorCritic
+    from train_bazan_ppo import (
+        DeepResidualActorCritic,
+        PerceptiveTitanTransformerActorCritic,
+        TitanTransformerActorCritic,
+    )
 except ImportError:
     try:
-        from train_mico_ppo import DeepResidualActorCritic, PerceptiveTitanTransformerActorCritic
+        from train_mico_ppo import (
+            DeepResidualActorCritic,
+            PerceptiveTitanTransformerActorCritic,
+            TitanTransformerActorCritic,
+        )
     except ImportError:
         DeepResidualActorCritic = None
         PerceptiveTitanTransformerActorCritic = None
-    DeepResidualActorCritic = None
-    PerceptiveTitanTransformerActorCritic = None
+        TitanTransformerActorCritic = None
 
 
 @pytest.fixture(scope="module")
@@ -118,7 +125,7 @@ def test_onnx_inference(check_prerequisites):
 
     outputs = sess.run(None, {input_name: dummy_obs})
     assert len(outputs) == 1
-    assert outputs[0].shape == (1, 12)
+    assert outputs[0].shape in ((1, 12), (1, 32))
 
 
 def test_env_perturbation(check_prerequisites):
@@ -176,10 +183,44 @@ def test_perceptive_env_64dim(check_prerequisites):
 
 def test_perceptive_titan_transformer_network():
     if PerceptiveTitanTransformerActorCritic is None:
-        pytest.skip("train_mico_ppo not importable")
+        pytest.skip("train_bazan_ppo not importable")
 
     net = PerceptiveTitanTransformerActorCritic(
         obs_dim=60, act_dim=12, prop_dim=51, hidden_dim=256, num_blocks=3, num_layers=2, num_heads=4
     )
     total_params = sum(p.numel() for p in net.parameters() if p.requires_grad)
     assert total_params > 1_000_000
+
+
+def test_perceptive_titan_transformer_64in_32out():
+    if PerceptiveTitanTransformerActorCritic is None:
+        pytest.skip("train_bazan_ppo not importable")
+    import torch
+
+    net = PerceptiveTitanTransformerActorCritic(
+        obs_dim=64, act_dim=32, prop_dim=51, hidden_dim=256, num_blocks=3, num_layers=2, num_heads=4
+    )
+    obs = torch.zeros((2, 64), dtype=torch.float32)
+    act = net(obs)
+    assert act.shape == (2, 32)
+    action, log_prob, entropy, value = net.get_action_and_value(obs)
+    assert action.shape == (2, 32)
+    assert log_prob.shape == (2,)
+    assert value.shape == (2,)
+
+
+def test_titan_transformer_64in_32out():
+    if TitanTransformerActorCritic is None:
+        pytest.skip("train_bazan_ppo not importable")
+    import torch
+
+    net = TitanTransformerActorCritic(
+        obs_dim=64, act_dim=32, hidden_dim=256, num_blocks=2, num_layers=2, num_heads=4
+    )
+    obs = torch.zeros((2, 64), dtype=torch.float32)
+    act = net(obs)
+    assert act.shape == (2, 32)
+    action, log_prob, entropy, value = net.get_action_and_value(obs)
+    assert action.shape == (2, 32)
+    assert log_prob.shape == (2,)
+    assert value.shape == (2,)
