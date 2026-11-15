@@ -26,6 +26,9 @@ import sys
 import time
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+conda_bin = str(Path(sys.executable).parent)
+if conda_bin not in os.environ.get("PATH", ""):
+    os.environ["PATH"] = f"{conda_bin}:{os.environ.get('PATH', '')}"
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE
@@ -404,7 +407,7 @@ def run_training_generation(gen_cfg):
             cmd.extend(["--resume-checkpoint", str(candidate)])
 
     t0 = time.time()
-    subprocess.run(cmd, check=True)
+    subprocess.run(cmd, check=True, env=os.environ)
     dt = time.time() - t0
     print(f"{C.BOLD}{C.GREEN}[✓] Generation '{tag}' training complete in {dt:.1f}s!{C.RESET}")
 

@@ -44,6 +44,10 @@ def build_mico_model():
     desc = REPO / "src" / "humanoid_description"
     xacro_exe = shutil.which("xacro")
     if not xacro_exe:
+        cand_xacro = Path(sys.executable).parent / "xacro"
+        if cand_xacro.exists():
+            xacro_exe = str(cand_xacro)
+    if not xacro_exe:
         raise RuntimeError("xacro command not found in PATH")
 
     cmd = [
