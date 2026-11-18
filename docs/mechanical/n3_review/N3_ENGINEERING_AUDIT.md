@@ -1,5 +1,7 @@
 # N3 Head Frame — Engineering Audit (Phase 1)
 
+> **Đây là audit của rev P1 (lịch sử).** Trạng thái hiện tại sau rev P2 (tách N3i, số liệu datasheet): [N3_P2_STATUS.md](N3_P2_STATUS.md). Số liệu P1 gốc: `n3_review_P1.json`.
+
 Bản vẽ: BZN-H-N3 rev P1 (SƠ BỘ). Chi tiết CAD: `head_frame` trong `body.py`, khớp `head_pitch` trong `joint.py`.
 Ngày audit: 2026-11-18. **Audit này không sửa CAD.** Mọi con số dưới đây do `hardware/mechanical/n3_review.py`
 tính ra từ source CAD và ghi vào `n3_review.json`; chạy lại script sau mỗi lần đo hay sửa thiết kế.

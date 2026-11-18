@@ -59,40 +59,6 @@ def stack():
         horn_hub_above_tower=0.4)
 
 
-# ------------------------------------------------------------------ A. inserts
-def check_inserts():
-    bom = hw.FASTENERS["INS-M2"].desc
-    od = 3.2                                           # from the BOM text "3 long, 3.2 OD"
-    hole = hw.HOLES["ins_m2_thru"].d
-    interference = round((od - hole) / 2, 3)
-    deck_t = 3.0
-    # edge distance of the four shell inserts and the two cam inserts on the head deck (x, y in robot frame)
-    import body as B
-    hx, hy = B.Body.HEAD_X, B.Body.HEAD_Y
-    pts = {"A(shell)": [(-23.0, 20.0), (-23.0, -20.0), (2.0, 20.0), (2.0, -20.0)],
-           "B(cam)": [(12.0, -10.0), (12.0, 10.0)]}
-    edge = {k: round(min(min(x - hx[0], hx[1] - x, y - hy[0], hy[1] - y) for x, y in v), 2) for k, v in pts.items()}
-    wall_37 = {k: round(v - 3.7 / 2, 2) for k, v in edge.items()}
-    return [finding(
-        "A-1", "Critical", "FAILED", "Lỗ tán cấy M2 bằng đúng OD danh nghĩa của tán trong BOM",
-        f"hardware.py: FASTENERS['INS-M2'] = '{bom}', HOLES['ins_m2_thru'].d = {hole}. Độ dôi hướng kính "
-        f"danh nghĩa = ({od} − {hole})/2 = {interference} mm, tức là không có độ dôi. Tán M2 thương mại dùng lỗ "
-        f"Ø3.2 có OD gai ≈ 3.6–3.7 [{SRC['INS']}], nên BOM và lỗ đang mô tả hai loại tán khác nhau.",
-        dict(bom_od=od, hole_d=hole, radial_interference=interference, deck_t=deck_t, insert_l=3.0,
-             edge_distance=edge, wall_if_od_3_7=wall_37),
-        "Chọn MỘT mã tán cụ thể (có datasheet), ghi mã vào BOM, lấy Ø lỗ theo datasheet, xác nhận bằng phiếu "
-        "thử (kéo tuột + mô-men xoay). Không đổi Ø lỗ trước khi có mã tán."),
-        finding(
-        "A-2", "Major", "UNKNOWN", "Tán L3 trong sàn 3 mm, lỗ xuyên: chưa có số liệu kéo tuột/xoay",
-        f"Tán dài 3.0 = bề dày sàn 3.0, ép ngang mặt trên, lỗ xuyên nên nhựa chảy dồn xuống mặt dưới. Khoảng "
-        f"cách tâm lỗ đến mép sàn: {edge} mm; với OD 3.7 còn thành {wall_37} mm (≥ 1.6 mm tối thiểu của TFC). "
-        "Tải: ốc vỏ đầu M2×6 kéo tán ra theo hướng ép vào, là hướng yếu nhất của tán gai.",
-        dict(edge_distance=edge, wall_if_od_3_7=wall_37),
-        "Sau khi chọn mã tán: in phiếu sàn 3 mm, ép 4 tán, đo mô-men xoay tuột và lực kéo tuột (xem kế hoạch "
-        "kiểm tra). Chỉ khi đó mới đánh giá được.")]
-
-
-# ------------------------------------------------------------------ B/E. pivot alignment (servo shaft vs idler)
 def shaft_offset(servo):
     """Where the servo shaft sits relative to the joint axis (the idler M3 insert) in the MG92B pocket.
 
@@ -115,55 +81,6 @@ def shaft_offset(servo):
                 b_ears_centred=round(b_ears, 3), ear_pitch_error_each=round(pitch_err, 3))
 
 
-def check_alignment(k_frame):
-    sg = shaft_offset(hw.SG90)
-    mg = shaft_offset(hw.MG92B)
-    b_need = sg["b_ears_centred"]
-    d_hi = math.hypot(abs(b_need) + sg["ear_pitch_error_each"], 0.0)
-    out = [finding(
-        "B-1", "Critical", "FAILED",
-        "Trục ra SG90 không trùng trục idler: ổ và tán tai được dựng cho MG92B",
-        "joint.py dựng ổ servo cho mọi khớp từ S = hw.MG92B (dòng `S = hw.MG92B`); head_pitch dùng SG90 "
-        "(JOINT_SERVO). Với số datasheet SG90 trong hardware.py, khi tâm lỗ tai trùng tán cấy thì trục ra lệch "
-        f"{b_need:+.2f} mm theo b so với trục idler (tán M3 trên neck_link). Trong ổ, trục có thể nằm ở "
-        f"b ∈ {sg['b_pocket']} và w ∈ {sg['w_pocket']} mm. Với MG92B (ổ đúng loại), lệch = "
-        f"{mg['b_ears_centred']:+.2f}.",
-        dict(sg90=sg, mg92b=mg, misalignment_nominal=round(abs(b_need), 3),
-             misalignment_worst_screwed=round(d_hi, 3)),
-        "Đo SG90 thật (shaft_off, length, hole_pitch, width). Sau đó làm ổ + tán tai riêng cho SG90 trên "
-        "neck_link (N2), là chi tiết khác, không phải N3. Hoặc dùng quy trình lắp tự định tâm (siết tai sau "
-        "cùng), xem DFM/DFA.")]
-    if k_frame:
-        kx, kz = k_frame["k_b"], k_frame["k_w"]
-        f_nom, f_hi = kx * abs(b_need), kx * d_hi
-        mu, r_b = (0.2, 0.4), 2.5                          # plastic bushing friction, bushing radius (ASSUMED)
-        t_fric = [round(m * f_hi * r_b, 1) for m in mu]
-        out.append(finding(
-            "B-2", "Major", "ASSUMED",
-            "Lệch trục làm khung N3 bị ép cong liên tục: tải ngang lên trục ra SG90 vài N",
-            f"FEA CalculiX (tet10, {k_frame['nodes']} nút; {SRC['PLA_E']}): giữ hốc horn, đặt 1 N lên ổ bạc đạn. "
-            f"Độ cứng tương đối giữa hai ổ: k_b = {kx:.1f} N/mm, k_w = {kz:.1f} N/mm. Phần mềm nhất là sàn 3 mm, nơi "
-            f"hai thanh đỡ cắm vào. Lệch {abs(b_need):.2f}–{d_hi:.2f} mm (B-1) ép khung với "
-            f"{f_nom:.1f}–{f_hi:.1f} N tác dụng thường trực lên trục ra servo và bạc đạn (trọng lượng đầu chỉ "
-            f"≈ {0.07125 * G:.2f} N). Ứng suất khung ≈ {k_frame['vm_per_N_b'] * f_hi:.1f} MPa, thấp, nhưng là tải "
-            f"liên tục nên PLA bị rão. Ma sát thêm ở bạc trục ra (μ {mu}, r {r_b} mm, giả định) "
-            f"≈ {t_fric} N·mm, tức khoảng 1–4 % mô-men kẹt.",
-            dict(k_b=round(kx, 1), k_w=round(kz, 1), preload=(round(f_nom, 1), round(f_hi, 1)),
-                 frame_stress=round(k_frame['vm_per_N_b'] * f_hi, 2), friction_torque=t_fric),
-            "Mô-men không phải vấn đề chính. Vấn đề là tải ngang thường trực lên bạc nhựa và bánh răng ra của SG90 "
-            "(làm mòn, tăng độ rơ), cộng với rão khung. Mục tiêu: lệch lắp ráp ≤ 0.1 mm (≈ 1.2 N). Đo độ rơ trục "
-            "ra SG90 thật trước khi chốt."))
-    out.append(finding(
-        "B-3", "Critical", "UNKNOWN", "Đồng trục hốc horn ↔ ổ bạc đạn trên chính N3 (K3): chưa có số khả thi",
-        "Hai ổ nằm trên hai đĩa cách nhau 31.9 mm. Theo hướng in hiện tại (sàn úp xuống), trục gật nằm NGANG: "
-        "cả hai lỗ được tạo bởi cùng các lớp in, nên lệch theo Z chủ yếu do sai số bước lớp, lệch theo X do sai "
-        "số XY. Độ tròn kém hơn (đỉnh lỗ là cầu/treo). Chưa có máy in, profile, phiếu đo nào được ghi lại, nên "
-        "chưa thể ghi một con số dung sai có căn cứ.",
-        {}, "Phiếu thử K3-coupon (kế hoạch kiểm tra): in 3 mẫu, đo đồng trục bằng chốt Ø6 xuyên qua hai lỗ hoặc "
-            "đo tọa độ tâm. Dung sai K3 = giá trị đo được + biên, và phải ≤ độ rơ trục ra SG90 (B-2)."))
-    return out
-
-
 def frame_stiffness(work):
     """Relative stiffness of the bearing seat against the horn plate, CalculiX tet10, unit loads along b and w."""
     import cadquery as cq
@@ -171,7 +88,7 @@ def frame_stiffness(work):
     import body as B
     body = B.Body()
     j = body.joints["head_pitch"]
-    solid = body.parts["head_frame"]
+    solid = body.parts["head_frame"].fuse(body.parts["head_idler"]).clean()      # bolted pair, taken as bonded
     step = work / "n3.step"
     cq.exporters.export(solid, str(step))
     gmsh.initialize()
@@ -256,149 +173,171 @@ def frame_stiffness(work):
                 seat_nodes=n_seat, fixed_nodes=int(horn.sum()))
 
 
-# ------------------------------------------------------------------ C. axial stack and the 31.9 gap
-def check_stack():
-    st = stack()
-    # axial chain: N3 is located along a by the horn on the spline (horn top face on the recess floor).
-    # Δh = how much higher the real horn top sits than the CAD (spline height + horn seating).
-    gap = J.GAP                                         # holder idler wall to idler plate, nominal
-    tower = J.HP[0] - J.S.tower_h                       # tower top to horn plate inner face
-    lim_up = gap                                        # horn higher → idler plate moves toward the holder wall
-    mg90s_dh = round((9.7 - 8.3), 2)
-    res = [finding(
-        "C-1", "Critical", "FAILED",
-        "N3 bị định vị dọc trục hai lần (horn trên trục then hoa và lip bạc đạn), không có phần tử bù",
-        "Theo joint.py: mặt trên đĩa horn tựa đáy hốc (a = HORN_TOP); vòng trong bạc đạn bị ốc M3 kẹp vào boss "
-        "của neck_link; vòng ngoài tựa lip 0.5 mm của N3 về phía holder. Nếu horn thật ngồi cao hơn CAD Δh, N3 "
-        f"dịch Δh về phía holder: khe đĩa idler ↔ thành holder (thiết kế {gap} mm) còn {gap} − Δh. Với vòng "
-        "ngoài lắp chặt, chuỗi bị khóa hai đầu: lực dọc trục dồn vào then hoa servo và bạc đạn. Bằng chứng Δh "
-        f"thật có thể lớn: STEP MG90S của nhà sản xuất cao hơn CAD {mg90s_dh} mm ở đỉnh then hoa "
-        f"[{SRC['MG90S_STEP']}], tức là lớn hơn khe {gap} mm.",
-        dict(gap_idler=gap, max_horn_rise_before_contact=lim_up, mg90s_step_spline_rise=mg90s_dh,
-             tower_to_horn_plate=round(tower, 3)),
-        "Chỉ định bạc đạn idler là ổ TỰ DO dọc trục (vòng ngoài lắp trượt) và horn là ổ ĐỊNH VỊ. Đo disc_low "
-        "và spline_top của SG90 + horn thật. Nếu Δh thật > 0.4 thì phải sửa CAD (đổi GAP/HP), cần duyệt.")]
-    # worst case of the idler gap with print tolerance (unknown → shown as a function)
-    res.append(finding(
-        "C-2", "Major", "UNKNOWN", "Khe 31.9 mm: chưa thể kiểm tra trường hợp xấu nhất vì dung sai in và kích thước "
-                                   "SG90/horn đều chưa đo",
-        f"Khe trong {st['gap_inner']} mm = HP[0] − IP[1]. Bên trong có: thành idler neck_link "
-        f"{round(J.IW[1] - J.IW[0], 2)} + khe {gap} + vỏ servo {J.S.case_h} + khe vỏ {hw.CLEAR_SERVO} + tháp "
-        f"{J.S.tower_h} + khe tháp {round(tower, 2)}. Điều kiện không cọ: 0.8 − Δh − t_N3 − t_N2 ≥ 0.2 (khe động "
-        "tối thiểu, đề xuất), với t_N3, t_N2 là sai số in của khe 31.9 và vị trí thành idler.",
-        dict(chain=dict(idler_wall=round(J.IW[1] - J.IW[0], 2), gap=gap, case=J.S.case_h, clear=hw.CLEAR_SERVO,
-                        tower=J.S.tower_h, tower_gap=round(tower, 2), total=st["gap_inner"]),
-             condition="0.8 - dh - t_N3 - t_N2 >= 0.2"),
-        "Cần: Δh (đo SG90 + horn), t_N3 và t_N2 (từ phiếu T0). Đến lúc đó trạng thái giữ UNKNOWN."))
-    return res, st
+# ------------------------------------------------------------------ rev P2: every P1 finding re-checked on the CAD
+INS_M2 = dict(od=3.6, hole=3.2, wall=1.3, src="CNC Kitchen TC-M2x3.0: L3.0, knurl Ø3.6, hole Ø3.2, wall ≥ 1.3")
+NSK_DB_MAX = 3.7          # MF63 / MR63 shaft abutment diameter, max (NSK catalogue)
+MG90S_STEP_RISE = 9.7 - 8.3
 
 
-# ------------------------------------------------------------------ D. bearing seat
-def check_bearing():
-    seat = hw.HOLES["bearing"].d
-    od_max, od_min = 6.0, 6.0 - 0.008
-    st = stack()
-    return [finding(
-        "D-1", "Critical", "FAILED", "Ổ bạc đạn: kiểu lắp chưa được định nghĩa; Ø6.05 trên CAD là lắp có khe hở",
-        f"Ổ in Ø{seat}, OD bạc đạn {od_min}–{od_max} [{SRC['MR63ZZ']}] → khe hở danh nghĩa "
-        f"+{seat - od_max:.3f}…+{seat - od_min:.3f} mm trên đường kính. hardware.py lại ghi 'press fit; ream "
-        "lightly if tight', tức là đang trông vào việc máy in làm lỗ nhỏ hơn danh nghĩa. Lỗ FDM thường nhỏ hơn "
-        "CAD một lượng phụ thuộc máy/profile (chưa đo), nên kiểu lắp thật có thể là khe hở, trung gian hay chặt.",
-        dict(seat_d=seat, od=(od_min, od_max), clearance=(round(seat - od_max, 3), round(seat - od_min, 3)),
-             seat_depth=st["seat_depth"], bearing_w=2.5),
-        "Theo C-1: ổ idler là ổ tự do → cần lắp TRƯỢT (vòng ngoài trượt dọc trục được bằng tay, không lắc ngang). "
-        "Ghi yêu cầu chức năng thay cho số Ø, chốt Ø in bằng phiếu thử ổ bạc đạn (nhiều cỡ)."),
-        finding(
-        "D-2", "Major", "VERIFIED", "Giữ bạc đạn dọc trục: chỉ một phía (lip), phía ngoài không có vai",
-        f"Vòng ngoài: lip {J.LIP} mm (Ø4.6) chặn về phía holder; phía nắp chỉ có khoảng trống cho long đền + đầu "
-        f"ốc + 0.15 + nắp {J.CAP_T}. Vòng trong: kẹp giữa boss neck_link và long đền W3 + ốc M3×6 đầu dù. Như "
-        "vậy khi tháo ốc idler, bạc đạn chỉ còn được giữ bằng ma sát ổ. Đây là đúng nguyên lý ổ tự do, nhưng "
-        "tiêu chí 'lật ngược không rơi' (K1) thì mâu thuẫn với lắp trượt.",
-        dict(lip=J.LIP, lip_hole=4.6, cap_t=J.CAP_T),
-        "Đổi K1 thành tiêu chí đo được: (a) chốt chuẩn Ø6.00 lọt bằng tay, chốt Ø6.10 không lọt; (b) sau lắp, "
-        "quay khớp hết hành trình không kẹt, độ rơ hướng kính tại mép đĩa ≤ TBD (đo).")]
+def removal(body, leg):
+    """N3 (+ horn) along the shaft off the spline, N3i along the shaft away from the holder: overlap (mm3) with
+    everything on the neck at each step. Horn on its own spline is by design and skipped."""
+    import cadquery as cq
+    import robot as R
+    j = body.joints["head_pitch"]
+    c = R.assemble(body, leg, {}, include_legs=False)
+    a = np.array(j.R[:, 2])
+    fixed = ["neck_link", "servo_head_pitch", "horn_neck_yaw", "servo_neck_yaw", "neck_mount", "deck_2"]
+    travel = max(J.HORN_TOP - J.HP[0], J.S.spline_top - (J.S.tower_h + 0.4))
+    out = {}
+    for name, parts, sgn in (("N3+horn", ["head_frame", "horn_head_pitch"], 1), ("N3i", ["head_idler"], -1)):
+        worst = 0.0
+        for t in np.arange(0.5, travel + 0.6, 0.5):
+            for p in parts:
+                m = c[p].moved(cq.Location(cq.Vector(*(a * t * sgn))))
+                for f in fixed:
+                    if p == "horn_head_pitch" and f == "servo_head_pitch":
+                        continue
+                    worst = max(worst, R.overlap(m, c[f]))
+        out[name] = round(worst, 2)
+    return dict(travel=round(travel + 0.5, 2), overlap=out)
 
 
-# ------------------------------------------------------------------ E. walls, screws, loads
-def check_walls():
-    st = stack()
-    h = hw.HORN
-    screw_len = 4.0                                    # ST2x4 from the BOM
-    protrusion = screw_len - h.disc_t                  # thread past the horn into the plate
-    tip = J.HORN_TOP + protrusion
-    into_skin = round(tip - st["pilot_bottom"], 3)
-    # torque path: stall torque through the two horn screws at r = screw_r
-    t_stall = (0.118, 0.177)                           # N·m, 1.2 and 1.8 kgf·cm (datasheets disagree)
-    f_screw = [round(t * 1000 / (2 * h.screw_r), 1) for t in t_stall]
-    bearing_stress = [round(f / (2.0 * st["pilot_depth"]), 2) for f in f_screw]
-    m, com = 0.07125, (13.06, 26.11)                   # head_pitch_link from bazan_cad.urdf (CAD)
-    t_grav = round(m * G * math.hypot(*com), 1)        # N·mm, worst angle
-    walls = dict(horn_ring=round(J.HORN_R - (h.disc_d + 0.4) / 2, 2),
-                 idler_cap_ring=round(J.IDLER_R - (J.IDLER_R - 1.0), 2),
-                 idler_seat_wall=round(J.IDLER_R - hw.HOLES["bearing"].d / 2, 3),
-                 idler_seat_wall_under_cap=round((J.IDLER_R - 1.0) - hw.HOLES["bearing"].d / 2, 3),
-                 horn_floor=round(J.HP[1] - J.HORN_TOP, 2),
-                 horn_floor_under_cap=round(J.HP[1] - J.CAP_T - J.HORN_TOP, 2))
-    return [finding(
-        "E-1", "Critical", "FAILED", "Vít horn ST2×4 đâm vào lớp da 0.40 mm phía ngoài lỗ mồi",
-        f"Lỗ mồi Ø{hw.HOLES['pilot_st2'].d} mù, sâu {st['pilot_depth']} mm, đáy ở a = {st['pilot_bottom']}, chừa "
-        f"da 0.40 mm tới mặt ngoài đĩa. Vít ST2×4 qua đĩa horn dày {h.disc_t} (MEASURE) nhô {protrusion} mm → "
-        f"mũi vít ở a = {tip:.2f}, vượt đáy lỗ mồi {into_skin:+.2f} mm. Horn dày hơn/mỏng hơn ±0.3 làm mũi vít "
-        f"vượt từ {into_skin - 0.3:+.2f} đến {into_skin + 0.3:+.2f} mm, tức là có thể thủng da. Thêm nữa, da 0.40 "
-        "nhỏ hơn bề rộng một đường đùn của đầu 0.4 (≈ 0.45): slicer có thể bỏ hoặc in không kín.",
-        dict(pilot_depth=st["pilot_depth"], skin=0.4, screw=screw_len, horn_t=h.disc_t, tip_past_pilot=into_skin),
-        "Da 0.4 chỉ có tác dụng thẩm mỹ (che lỗ), không chịu lực. Hai hướng sửa, cần duyệt: (1) lỗ mồi xuyên, bỏ da; "
-        "(2) giữ da nhưng dùng vít ST2×3 hoặc tăng lỗ mồi để mũi vít cách da ≥ 0.5. Chọn theo đo horn thật."),
-        finding(
-        "E-2", "Minor", "ASSUMED", "Tải qua vít horn khi servo kẹt (stall): ứng suất dập trong PLA thấp",
-        f"Mô-men kẹt SG90 {t_stall} N·m [{SRC['SG90_TQ']}] truyền qua 2 vít ở r = {h.screw_r}: lực cắt mỗi vít "
-        f"{f_screw} N, ứng suất dập lên nhựa (Ø2 × {st['pilot_depth']}) ≈ {bearing_stress} MPa. Mô-men trọng lực "
-        f"đầu lớn nhất ≈ {t_grav} N·mm (m = {m * 1000:.1f} g, CoM {com} mm từ trục, từ URDF sinh từ CAD). Đĩa horn "
-        "tròn nằm trong hốc tròn nên không có khóa hình dạng: toàn bộ mô-men đi qua 2 vít.",
-        dict(stall_torque=t_stall, screw_shear=f_screw, bearing_stress=bearing_stress, gravity_torque=t_grav),
-        "Chưa tính va đập khi ngã (chưa có tải va đập), và chưa có số bền lớp in. Kiểm tra thực nghiệm: thử "
-        "kẹt servo 10 lần + thử ngã (kế hoạch kiểm tra)."),
-        finding(
-        "E-3", "Major", "ASSUMED", "Các thành mỏng khác: 1.80 (vành hốc horn) và 1.00 (vành nắp idler)",
-        f"Vành hốc horn {walls['horn_ring']} mm: chỉ định tâm đĩa horn, tải hướng kính tĩnh ≈ 0.35 N; ≈ 4 đường "
-        f"đùn. Vành nắp idler {walls['idler_cap_ring']} mm: chỉ giữ nắp, không chịu lực. Thành chịu lực quanh ổ "
-        f"bạc đạn = {walls['idler_seat_wall_under_cap']} mm (dưới hốc nắp). Đáy hốc horn {walls['horn_floor']} mm, "
-        f"dưới hốc nắp còn {walls['horn_floor_under_cap']} mm.",
-        walls, "Không cần sửa cho tải tĩnh. Cần thử ngã (va đập lên vỏ đầu) trước khi chốt."),
-        finding(
-        "E-4", "Major", "UNKNOWN", "Mỏi, rão (creep) và ảnh hưởng hướng lớp in: chưa có dữ liệu",
-        "PLA rão dưới tải lâu dài và mềm đi từ ≈ 50–60 °C; servo đầu đứng yên giữ đầu liên tục. Hướng in hiện tại "
-        "làm hai thanh đỡ (bars x ±6, z 0–20) chịu uốn với mặt lớp song song mặt sàn, là mặt yếu khi đầu bị đẩy "
-        "theo X.", {}, "Đo nhiệt độ vỏ SG90 khi giữ đầu 30 phút (tiêu chí M1 PLA/PETG). Thử ngã theo X."),
-    ]
+def leg_removal():
+    """The same test on every leg joint with an idler (driven link + horn off the spline)."""
+    import cadquery as cq
+    import leg as LEG
+    import pose as P
+    import robot as R
+    leg = LEG.Leg()
+    comps = P.posed(leg, {})
+    travel = max(J.HORN_TOP - J.HP[0], J.S.spline_top - (J.S.tower_h + 0.4))
+    out = {}
+    for jn, j in leg.joints.items():
+        if not j.idler:
+            continue
+        drv, hol = P.LINK_OF.get(j.driven, j.driven), P.LINK_OF.get(j.holder, j.holder)
+        mov = [n for n in comps if P.owner(leg, n) == drv and not n.startswith("servo_")]
+        fix = [n for n in comps if P.owner(leg, n) == hol or n == f"servo_{jn}"]
+        a = np.array(j.R[:, 2])
+        first = None
+        for t in np.arange(0.5, travel + 0.51, 0.5):
+            v = sum(R.overlap(comps[m].moved(cq.Location(cq.Vector(*(a * t)))), comps[f]) for m in mov for f in fix
+                    if not (m.startswith("horn_") and f == f"servo_{jn}"))
+            if v > 0.05:
+                first = float(t)
+                break
+        out[jn] = first
+    return out
 
 
-# ------------------------------------------------------------------ G. assembly / removal of N3
-def check_removal(k):
-    travel = round(max(J.HORN_TOP - J.HP[0], J.S.spline_top - (J.S.tower_h + 0.4)), 2)
-    spread = round(travel - J.GAP, 2)
-    num = dict(travel_needed=travel, axial_room=J.GAP, spread_needed=spread)
-    txt = (f"Muốn tháo/lắp N3 thì horn (bắt vít vào N3) phải trượt khỏi then hoa: cần dịch {travel} mm dọc trục "
-           f"(max của đáy hốc − mặt trong = {round(J.HORN_TOP - J.HP[0], 2)} và chiều dài ăn khớp then hoa "
-           f"{round(J.S.spline_top - J.S.tower_h - 0.4, 2)}). Phía idler chỉ có {J.GAP} mm trước khi đĩa idler chạm "
-           f"thành neck_link (đã kiểm bằng dịch khối CAD: chồng 36 mm³ ở 1.0 mm, 545 mm³ ở 4.0 mm). Vậy phải banh "
-           f"hai đĩa của chữ U ra ≥ {spread} mm. Ổ servo chỉ mở về phía trục (+a), bị đĩa horn che, nên cũng không "
-           "thể lắp servo khi N3 đang ở chỗ. Trình tự 'tháo ốc idler rồi nhấc N3 khỏi horn' trong ghi chú L4 của "
-           "bản vẽ P1 vì vậy không làm được nếu không banh khung.")
+def evaluate(k, sw, rem, legs):
+    import body as B
+    out = []
+    # A. inserts
+    hole = hw.HOLES["ins_m2_thru"].d
+    body = B.Body()
+    ins = [h for h in body.holes() if h.part == "head_frame" and h.kind == "ins_m2_thru"]
+    hx, hy = B.Body.HEAD_X, B.Body.HEAD_Y
+    walls = []
+    for h in ins:
+        x, y = h.pos[0], h.pos[1]
+        walls.append(min(x - hx[0], hx[1] - x, y - hy[0], hy[1] - y) - INS_M2["od"] / 2)
+        for g in ins:
+            if g is not h:
+                walls.append(math.dist(h.pos[:2], g.pos[:2]) - INS_M2["od"])
+    ok = hole == INS_M2["hole"] and min(walls) >= INS_M2["wall"]
+    out.append(finding("A-1", "Critical", "ASSUMED" if ok else "FAILED", "Lỗ tán M2 theo datasheet tán đã chọn",
+                       f"BOM: {INS_M2['src']}. Lỗ N3 Ø{hole}; thành nhỏ nhất quanh {len(ins)} tán (gai Ø3.6) = "
+                       f"{min(walls):.2f} mm (≥ {INS_M2['wall']}).",
+                       dict(hole=hole, min_wall=round(min(walls), 2), inserts=len(ins)),
+                       "Đúng theo datasheet; xác nhận kéo tuột/xoay bằng V1."))
+    out.append(finding("A-2", "Major", "UNKNOWN", "Lực kéo tuột / mô-men xoay tán trong sàn 3 mm",
+                       "Không có số liệu nhà sản xuất cho PLA in; cần phiếu thử.", {}, "V1."))
+    # B. alignment
+    sg = shaft_offset(hw.SG90)
+    off = abs(sg["b_ears_centred"]) + sg["ear_pitch_error_each"]
+    out.append(finding("B-1", "Critical", "ASSUMED" if off <= 0.1 else "FAILED",
+                       "Trục SG90 so với trục idler trong ổ chung",
+                       f"Số SG90 theo TowerPro (lắp giống MG90S): lệch khi tâm tai trùng tán = "
+                       f"{sg['b_ears_centred']:+.2f} mm, sai bước tai {sg['ear_pitch_error_each']:.2f}. "
+                       "Thêm vào đó N3i "
+                       "bắt bằng lỗ hở Ø2.3 nên tự định tâm ±0.15 khi lắp.",
+                       dict(offset=round(off, 3), self_align=0.15), "Đo 1 con SG90 (M-1) để chuyển sang VERIFIED."))
     if k:
-        f = k["k_a"] * spread
-        sig = k["vm_per_N_a"] * f
-        num |= dict(k_spread=round(k["k_a"], 2), force=round(f, 1), stress=round(sig, 1),
-                    hot_spot_local=k["hot_a_local"])
-        txt += (f" FEA (cùng mô hình, lực dọc trục đặt lên ổ idler): độ cứng banh k_a = {k['k_a']:.2f} N/mm → cần "
-                f"≈ {f:.0f} N, ứng suất ≈ {sig:.0f} MPa (phân vị 99.9 %, tuyến tính) tại điểm nóng (b, w, a) = "
-                f"{k['hot_a_local']} mm trong khung khớp. Giới hạn bền kéo PLA in thường được nêu khoảng "
-                "40–60 MPa theo phương sợi, thấp hơn nhiều giữa các lớp (chưa đo với máy của bạn).")
-    return [finding("G-1", "Critical", "FAILED", "N3 không tháo/lắp được theo trình tự đã ghi nếu không banh khung",
-                    txt, num, "Không sửa trong bản vẽ. Hướng sửa CAD (cần duyệt, ảnh hưởng N2 và cả các khớp chân "
-                    "cùng kiểu joint.py): (1) idler tháo rời được (đĩa idler bắt vít vào thanh), hoặc (2) khe GAP "
-                    "≥ hành trình rút horn, hoặc (3) horn bắt vít từ phía ngoài để N3 rút theo hướng kính sau khi "
-                    "tháo horn. Trước khi quyết: thử trên bản in T2 (foot) xem banh 3 mm có nứt không.")]
+        f_res = k["k_b"] * max(0.0, off)
+        out.append(finding("B-2", "Major", "ASSUMED", "Tải ngang thường trực do lệch trục",
+                           f"k_b = {k['k_b']:.1f} N/mm (FEA, N3 + N3i coi như liền), lệch còn lại {off:.2f} mm → "
+                           f"{f_res:.1f} N (P1: 3.5–4.7 N).", dict(k_b=round(k["k_b"], 1), preload=round(f_res, 2)),
+                           "Lắp tự định tâm (siết 2 ốc G/H sau cùng)."))
+    out.append(finding("B-3", "Major", "UNKNOWN", "Đồng trục horn ↔ bạc đạn (K3) sau lắp",
+                       "Không còn phụ thuộc in N3 (N3i tự định tâm). Còn: vị trí lỗ khoan horn, độ đảo then hoa.",
+                       {}, "Nghiệm thu bằng dòng giữ servo và quay tay (V5, V6)."))
+    # C. axial
+    out.append(finding("C-1", "Major", "UNKNOWN", "Chiều cao horn thật so với khe 0.8",
+                       f"Ổ idler là gối tự do (lắp trượt) và N3i trôi ±0.15 dọc trục, nên không còn khóa hai đầu. Khe "
+                       f"đĩa idler ↔ N2 = {J.GAP} − Δh. STEP MG90S cho Δh = {MG90S_STEP_RISE:.1f} (> {J.GAP}); "
+                       "datasheet cho Δh = 0.", dict(gap=J.GAP, step_rise=round(MG90S_STEP_RISE, 2)),
+                       "Đo spline_top + disc_low (M-1, M-2). Nếu Δh > 0.4 → tăng GAP (cần duyệt, đổi bề rộng đầu)."))
+    out.append(finding("C-2", "Major", "UNKNOWN", "Trường hợp xấu nhất khe 31.9", "Chờ Δh và sai số in (T0).", {},
+                       "M-1, M-5."))
+    # D. bearing
+    out.append(finding("D-1", "Critical", "ASSUMED", "Kiểu lắp ổ bạc đạn",
+                       f"Định nghĩa: gối tự do, lắp trượt (hardware.HOLES['bearing']: Ø{hw.HOLES['bearing'].d}, chốt "
+                       "Ø6.00 lọt / Ø6.10 không lọt).", {}, "Chốt Ø in bằng V2."))
+    out.append(finding("D-2", "Info", "VERIFIED", "Giữ dọc trục một phía (đúng nguyên lý gối tự do)", "joint.py.", {}))
+    # E. walls / screws
+    screw = 3.0
+    tip = J.HORN_TOP + screw - hw.HORN.disc_t
+    margin = J.HP[1] - 0.4 - tip
+    out.append(finding("E-1", "Critical", "ASSUMED" if margin >= 0.5 else "FAILED", "Vít horn và da 0.40",
+                       f"ST2×3 qua horn {hw.HORN.disc_t}: mũi vít cách đáy lỗ mồi {margin:.2f} mm (horn ±0.3 → "
+                       f"{margin - 0.3:.2f}…{margin + 0.3:.2f}).", dict(margin=round(margin, 2)), "V4."))
+    out.append(finding("E-2", "Minor", "ASSUMED", "Tải vít horn khi kẹt servo",
+                       f"8.4–12.6 N mỗi vít, dập ≈ {12.6 / (2.0 * (screw - hw.HORN.disc_t)):.1f} MPa "
+                       "trên phần "
+                       "ren 1.5 mm.", {}, "V6 (kẹt)."))
+    out.append(finding("E-4", "Major", "UNKNOWN", "Rão / mỏi / va đập", "Chưa có dữ liệu.", {}, "V6."))
+    # F. clearances
+    if sw:
+        radial = min(r["min_all"] for r in sw["pairs"] if r["moving"] == "head_idler" and r["fixed"] == "neck_link")
+        axial = min(r["min_off_axis"] for r in sw["pairs"] if r["moving"] in ("head_frame", "head_idler")
+                    and r["fixed"] == "neck_link")
+        over = [r for r in sw["pairs"] if r["overlap"] > 0.05]
+        out.append(finding("F-1", "Minor", "FAILED" if min(radial, axial) < hw.GAP_MOVING else "VERIFIED",
+                           "Khe N3/N3i ↔ N2 so với quy tắc 1.0 mm",
+                           f"Hướng kính lip Ø{J.LIP_D} ↔ boss Ø4.2 = {radial} mm (P1 0.2); dọc trục {axial} mm. "
+                           "Hai khe "
+                           "này đồng trục quanh cùng gối bạc đạn, nên chỉ cọ nếu bạc đạn rơ; quy tắc 1.0 là cho khe "
+                           "giữa hai gối khác nhau.", dict(radial=radial, axial=axial),
+                           "Chấp nhận có điều kiện V5 (quay không cọ), hoặc tăng GAP (C-1)."))
+        out.append(finding("F-2", "Info", "VERIFIED" if not over else "FAILED", "Va chạm trong −30…+32°",
+                           f"{len(over)} cặp chồng khối (CAD).", dict(overlaps=len(over)), "Dây, đầu ốc: V5."))
+    # G. assembly
+    blocked = {k_: v for k_, v in rem["overlap"].items() if v > 0.05}
+    out.append(finding("G-1", "Critical", "VERIFIED" if not blocked else "FAILED",
+                       "Lắp/tháo N3 không banh khung",
+                       f"Dịch khối CAD {rem['travel']} mm dọc trục: chồng lớn nhất {rem['overlap']} mm³ "
+                       "(horn trên then "
+                       "hoa bỏ qua). N3i tách rời, bắt 2 × M2×6 từ dưới.", rem, ""))
+    bad = {k_: v for k_, v in legs.items() if v is not None}
+    out.append(finding("G-2", "Critical", "FAILED" if bad else "VERIFIED",
+                       "Cùng lỗi G-1 ở các khớp chân (joint.py dùng chung)",
+                       f"Khớp bị chặn sau (mm): {bad}. Sửa ở chân đổi hình ngoài (đường ghép, ốc) → cần duyệt cùng "
+                       "phương án gia cố ống chân.", dict(blocked_at=bad),
+                       "Phương án như N3i cho từng driven link; ảnh trước/sau để duyệt."))
+    # H. idler clamp vs bearing shield (new in P2)
+    out.append(finding("H-1", "Major", "ASSUMED", "Mặt kẹp vòng trong lớn hơn vai tối đa của bạc đạn",
+                       f"Boss Ø4.2 và long đền W3 Ø5.0 > db max {NSK_DB_MAX} (NSK MF63): có thể chạm nắp chắn ZZ (quay "
+                       "theo vòng ngoài). Nắp chắn thường lõm so với mặt vòng, nên long đền phẳng thường không chạm; "
+                       "boss in thì không chắc phẳng. Không có long đền ≤ Ø3.7 bán phổ thông.",
+                       dict(boss=4.2, washer=5.0, db_max=NSK_DB_MAX),
+                       "V5: siết ốc idler xong, vòng ngoài phải quay trơn; nếu nặng → thay boss bằng 1 shim thép."))
+    out.append(finding("H-2", "Minor", "FAILED", "Tán M3 (gai Ø4.6) lớn hơn boss Ø4.2 chứa nó",
+                       "Lỗ tán Ø4.0 bắt đầu ngay mặt boss: thành boss 0.1 mm, khi ép tán boss vỡ, mặt tán thành mặt "
+                       "kẹp. Chức năng vẫn còn (mặt đồng phẳng) nhưng hình học CAD không in được đúng.", {},
+                       "Sửa joint.py (ảnh hưởng mọi khớp) cùng đợt G-2."))
+    return out
 
 
 # ------------------------------------------------------------------ collision sweep over the pitch range
@@ -440,7 +379,8 @@ def sweep(step_deg=4.0):
                     continue                       # horn pressed on the spline: one body
                 v = R.overlap(sa, sb)
                 d_all = dist(sa, sb)
-                d_core = dist(sa.cut(core), sb.cut(core)) if a in ("head_frame", "horn_head_pitch") else d_all
+                cored = a in ("head_frame", "head_idler", "horn_head_pitch")
+                d_core = dist(sa.cut(core), sb.cut(core)) if cored else d_all
                 r = rows.setdefault((a, b), dict(moving=a, fixed=b, min_all=9e9, min_off_axis=9e9, overlap=0.0,
                                                  at_all=None, at_off_axis=None))
                 if d_all < r["min_all"]:
@@ -452,31 +392,6 @@ def sweep(step_deg=4.0):
     return dict(range=(lo, hi), step=step_deg, angles=angles, pairs=out, not_modelled=[
         "dây servo và cáp (CSI, màn hình)", "đầu ốc tai M2 và đầu vít horn ST2",
         "vỏ SG90 thật (dùng hộp MG92B, lớn hơn)"])
-
-
-def check_sweep(sw):
-    p = {(r["moving"], r["fixed"]): r for r in sw["pairs"]}
-    nl = p[("head_frame", "neck_link")]
-    over = [r for r in sw["pairs"] if r["overlap"] > 0.05]
-    min_shell = min((r for r in sw["pairs"] if r["moving"] in ("head_front", "head_back", "visor")),
-                    key=lambda r: r["min_all"])
-    off = min((r for r in sw["pairs"] if r["moving"] == "head_frame"), key=lambda r: r["min_off_axis"])
-    return [finding(
-        "F-1", "Major", "FAILED", "Hai khe giữa N3 và neck_link nhỏ hơn quy tắc khe động 1.0 mm của chính dự án",
-        f"Quét {sw['range']}° bước {sw['step']}°, không có va chạm ({len(over)} cặp chồng khối). Khe nhỏ nhất "
-        f"N3↔neck_link: {nl['min_all']} mm hướng kính (lỗ lip Ø4.6 quanh boss Ø4.2, đồng trục, không đổi theo góc) "
-        f"và {nl['min_off_axis']} mm dọc trục (đĩa idler ↔ thành idler, = GAP). hardware.GAP_MOVING = "
-        f"{hw.GAP_MOVING} mm. Khe 0.2 hướng kính chỉ đúng khi lỗ in ra đúng Ø4.6; lỗ FDM thường nhỏ hơn CAD.",
-        dict(radial_lip_boss=nl["min_all"], axial_idler=nl["min_off_axis"], rule=hw.GAP_MOVING),
-        "Khe hướng kính: tăng lỗ lip lên Ø5.0 (thay đổi trong N3, không đổi hình ngoài, cần duyệt) hoặc chấp nhận "
-        "kèm điều kiện kiểm tra. Khe dọc trục: xem C-1/C-2, đây chính là khe bị Δh ăn mất."),
-        finding(
-        "F-2", "Info", "VERIFIED", "Không va chạm khung/vỏ trong toàn hành trình gật đầu (chỉ hình học CAD)",
-        f"Khe nhỏ nhất ngoài trục: {off['moving']}↔{off['fixed']} = {off['min_off_axis']} mm. Vỏ đầu: "
-        f"{min_shell['moving']}↔{min_shell['fixed']} = {min_shell['min_all']} mm tại {min_shell['at_all']}°. Chưa "
-        f"mô hình: {', '.join(sw['not_modelled'])}.",
-        dict(min_off_axis=off["min_off_axis"], shell=min_shell["min_all"]),
-        "Phần chưa mô hình (dây, đầu ốc) được kiểm tra khi lắp thử T0.")]
 
 
 # ------------------------------------------------------------------ Phase 2: print orientations, sliced for real
@@ -582,7 +497,7 @@ def slice_compare(work):
     body = B.Body()
     j = body.joints["head_pitch"]
     org = np.array(j.origin, float)
-    n3 = body.parts["head_frame"].moved(cq.Location(cq.Vector(*(-org))))
+    n3 = body.parts["head_frame"].fuse(body.parts["head_idler"]).clean().moved(cq.Location(cq.Vector(*(-org))))
     ya = -J.CENTER
     skin = ((-0.8, 0.8), (J.HP[1] - 0.4 + ya, J.HP[1] + ya), (7 - 0.8, 7 + 0.8))       # one pilot's skin, O frame
     (work / "pla.ini").write_text(PRUSA_INI.format(sup=0, bp=0))
@@ -624,6 +539,26 @@ def slice_compare(work):
                         "(cùng profile với test_prints; KHÔNG phải profile máy in thật của bạn)", orientations=out)
 
 
+def write_status(res):
+    """docs/mechanical/n3_review/N3_P2_STATUS.md: every P1 finding with its status on the current CAD."""
+    p1 = {f["id"]: f for f in json.loads((OUT / "n3_review_P1.json").read_text())["findings"]}
+    L = ["# N3 Head Frame — trạng thái sau rev P2", "",
+         "Sinh bởi `hardware/mechanical/n3_review.py` từ CAD hiện tại (không sửa tay). Audit P1 gốc: "
+         "[N3_ENGINEERING_AUDIT.md](N3_ENGINEERING_AUDIT.md), số liệu P1: `n3_review_P1.json`. Số linh kiện lấy từ "
+         "datasheet trên mạng (chưa đo): mọi mục dựa vào chúng là ASSUMED, không phải VERIFIED.", "",
+         "| ID | Mức | P1 | P2 | Vấn đề | Bằng chứng | Còn phải làm |", "|---|---|---|---|---|---|---|"]
+    for f in res["findings"]:
+        old = p1.get(f["id"], {}).get("status", "mới")
+        cell = [f["id"], f["severity"], old, f"**{f['status']}**", f["title"], f["evidence"], f["action"] or "—"]
+        L.append("| " + " | ".join(str(c).replace("|", "/").replace("\n", " ") for c in cell) + " |")
+    if res.get("stiffness"):
+        k = res["stiffness"]
+        L += ["", f"FEA (N3 + N3i, PLA E 2300 giả định): k_b {k['k_b']:.1f}, k_w {k['k_w']:.1f}, "
+              f"k_a {k['k_a']:.1f} N/mm."]
+    L += ["", "Chạy lại: `cd hardware\\mechanical; python n3_review.py` (khoảng 7 phút).", ""]
+    (OUT / "N3_P2_STATUS.md").write_text("\n".join(L), encoding="utf-8")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--no-fea", action="store_true")
@@ -635,12 +570,13 @@ def main():
     if not a.no_fea:
         with tempfile.TemporaryDirectory() as td:
             k = frame_stiffness(Path(td))
-    stack_f, st = check_stack()
-    res = dict(sources=SRC, stack=st, findings=check_inserts() + check_alignment(k) + stack_f + check_bearing()
-               + check_walls() + check_removal(k), stiffness=k)
-    if not a.no_sweep:
-        res["sweep"] = sweep()
-        res["findings"] += check_sweep(res["sweep"])
+    import body as B
+    import leg as LEG
+    body, leg = B.Body(), LEG.Leg()
+    sw = None if a.no_sweep else sweep()
+    res = dict(rev="P2", sources=SRC, stack=stack(), stiffness=k, sweep=sw, removal=removal(body, leg),
+               leg_removal=leg_removal())
+    res["findings"] = evaluate(k, sw, res["removal"], res["leg_removal"])
     if not a.no_slice:
         with tempfile.TemporaryDirectory() as td:
             res["slice"] = slice_compare(Path(td))
@@ -651,13 +587,14 @@ def main():
         print("(partial run: n3_review.json not written; run without --no-* to refresh it)")
     else:
         (OUT / "n3_review.json").write_text(json.dumps(res, indent=1, ensure_ascii=False, default=float))
+        write_status(res)
     for f in res["findings"]:
         print(f"{f['id']:4s} {f['severity']:8s} {f['status']:8s} {f['title']}")
         for kk, vv in f["numbers"].items():
             print(f"       {kk}: {vv}")
     if k:
         print("stiffness", k)
-    if "sweep" in res:
+    if res.get("sweep"):
         print("sweep", res["sweep"]["range"])
         for r in res["sweep"]["pairs"][:12]:
             print("  ", r)
