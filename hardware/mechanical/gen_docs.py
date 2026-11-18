@@ -191,13 +191,13 @@ def markdown(leg, holes_by_part):
             cnt["MR63ZZ"] += 1
             cnt["W3"] += 1
             cnt["M3x6B"] += 1
-        elif f.startswith("ST2x4"):
-            cnt["ST2x4"] += 1
+        elif f.startswith("ST2x3"):
+            cnt["ST2x3"] += 1
     a("Bought parts (servos: 5 × MG92B and the hip-yaw MG90S, which sits in `hip_mount`):")
     a("")
     a("| Code | Qty | Part | Ask the shop for |")
     a("| --- | --- | --- | --- |")
-    for code in ("M2x6", "M3x6B", "ST2x4", "INS-M2", "INS-M3", "MR63ZZ", "W3"):
+    for code in ("M2x6", "M3x6B", "ST2x3", "INS-M2", "INS-M3", "MR63ZZ", "W3"):
         f = hw.FASTENERS[code]
         a(f"| {code} | {cnt[code]} | {f.desc} | {f.shop} |")
     a("")

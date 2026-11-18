@@ -34,12 +34,15 @@ MG92B = Servo("MG92B", length=22.8, width=12.2, case_h=22.7, shaft_off=5.9, tab_
               cable_z=(1.5, 5.5), cable_w=4.5, mass=14.0)                                       # MEASURE all
 MG90S = Servo("MG90S", 22.8, 12.2, 22.7, 5.9, 32.4, 2.5, 15.9, 27.8, 2.0, 11.8, 4.0, 4.8, 8.3, (1.5, 5.5), 4.5,
               13.4)                                                                             # MEASURE all
-# SG90 (shoulder roll, elbow, neck yaw, head pitch): plastic case, a little smaller than the MG92B. It goes into
-# the MG92B pocket (joint.py); servo_fit.py says whether it fits and what to shim or drill.
-SG90 = Servo("SG90", length=22.2, width=11.8, case_h=22.5, shaft_off=5.9, tab_span=32.2, tab_t=2.5,
-             tab_low=15.7, hole_pitch=27.6, hole_d=2.0, tower_d=11.8, tower_h=4.0, spline_d=4.8, spline_top=8.3,
+# SG90 (shoulder roll, elbow, neck yaw, head pitch). Sizes from the web, not measured yet (2026-11-18):
+#   TowerPro sells the SG90 as 23.0 × 12.2 × 29 mm and the MG90S as "identical mounting dimensions to the SG90";
+#   the datasheet table gives F = 16 (case bottom to ear underside) like the MG90S column. The old numbers here
+#   (22.2 × 11.8) come from clone datasheets and put the shaft 0.3 mm off the idler axis in the shared pocket.
+#   Spline 21 teeth, Ø4.8 (same as MG90S). The vendor MG90S STEP in cots/ disagrees on tab_low (18.4) and the
+#   tower (5.75): see docs/mechanical/test_print.md; measure one servo before the final print.
+SG90 = Servo("SG90", length=22.8, width=12.2, case_h=22.7, shaft_off=5.9, tab_span=32.4, tab_t=2.5,
+             tab_low=15.9, hole_pitch=27.8, hole_d=2.0, tower_d=11.8, tower_h=4.0, spline_d=4.8, spline_top=8.3,
              cable_z=(1.5, 5.5), cable_w=4.5, mass=9.0)                                         # MEASURE all
-
 SERVOS = {s.name: s for s in (MG92B, MG90S, SG90)}
 JOINT_SERVO = {  # which servo type sits in which joint (both sides)
     "hip_yaw": "MG90S", "hip_roll": "MG92B", "hip_pitch": "MG92B", "knee": "MG92B", "ankle_pitch": "MG92B",
@@ -80,9 +83,17 @@ FASTENERS = {
     "M2x6": Fastener("M2x6", "M2×6 socket head cap screw, ISO 4762, stainless", "ốc lục giác M2×6 inox"),
     "M2x8": Fastener("M2x8", "M2×8 socket head cap screw, ISO 4762, stainless", "ốc lục giác M2×8 inox"),
     "ST2x4": Fastener("ST2x4", "2×4 self-tapping pan head (horn to plate)", "vít tự ren đầu tròn 2×4"),
+    # horn to plate: 3 long so the tip stops 0.9 short of the 0.4 skin over the blind pilot (N3 review E-1)
+    "ST2x3": Fastener("ST2x3", "2×3 self-tapping pan head (horn to plate)", "vít tự ren đầu tròn PA 2×3"),
     "M3x6B": Fastener("M3x6B", "M3×6 button head, ISO 7380 (idler pivot)", "ốc đầu dù M3×6 inox"),
-    "INS-M2": Fastener("INS-M2", "M2 brass heat-set insert, 3 long, 3.2 OD", "tán cấy nhiệt M2 L3 OD3.2"),
-    "INS-M3": Fastener("INS-M3", "M3 brass heat-set insert, 3 long, 4.2 OD", "tán cấy nhiệt M3 L3 OD4.2"),
+    # inserts: CNC Kitchen sizes (datasheet): M2 standard L3.0, knurl Ø3.6, hole Ø3.2, wall ≥ 1.3;
+    # M3 short L3.0, knurl Ø4.6, hole Ø4.0, wall ≥ 1.6. Any insert with these sizes works; others need a coupon.
+    "INS-M2": Fastener("INS-M2", "M2 brass heat-set insert, L3.0, knurl Ø3.6, for a Ø3.2 hole (CNC Kitchen "
+                       "TC-M2x3.0 or equal)", "tán cấy nhiệt M2 dài 3, gai Ø3.6, lỗ Ø3.2"),
+    "INS-M3": Fastener("INS-M3", "M3 brass heat-set insert, L3.0, knurl Ø4.6, for a Ø4.0 hole (CNC Kitchen "
+                       "M3 short or equal)", "tán cấy nhiệt M3 dài 3, gai Ø4.6, lỗ Ø4.0"),
+    # MR63ZZ: OD 6 (0/−0.008), width 2.5 (0/−0.12). In every joint it is the floating bearing: the outer ring
+    # slides in its seat (slip fit), the joint is located along its axis by the horn on the spline.
     "MR63ZZ": Fastener("MR63ZZ", "Ball bearing 3×6×2.5, shielded", "bạc đạn MR63ZZ 3×6×2.5"),
     "W3": Fastener("W3", "M3 shim washer 3.2×5×0.5 (inner race only)", "long đền mỏng M3 3.2×5×0.5"),
     # body v4 (torso stack, sleds, arms, head)
@@ -112,7 +123,8 @@ HOLES = {
     "clr_m2": HoleSpec(2.3, 0, note="M2 clearance"),
     "clr_m3": HoleSpec(3.3, 0, note="M3 clearance"),
     "pilot_st2": HoleSpec(1.6, 0, note="pilot for 2 mm self-tapping screw through the horn"),
-    "bearing": HoleSpec(6.05, 2.5, note="MR63ZZ seat, press fit; ream lightly if tight"),
+    "bearing": HoleSpec(6.05, 2.5, note="MR63ZZ seat, SLIP fit (floating bearing): Ø6.00 pin goes in by hand, "
+                        "Ø6.10 does not; set XY hole compensation from T0, never ream free-hand"),
     "access": HoleSpec(5.2, 0, note="hex key and screwdriver access to the horn screw"),
     "ins_m2_thru": HoleSpec(3.2, 0, note="heat-set insert M2 through a 3 mm plate: press flush with the marked face"),
     "ins_m3_thru": HoleSpec(4.0, 0, note="heat-set insert M3 through the plate: press flush with the top face"),

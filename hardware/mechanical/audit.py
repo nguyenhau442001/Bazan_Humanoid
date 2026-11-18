@@ -341,10 +341,10 @@ def fits(leg, body, sh):
         "sole, M2x6 (head sunk 2.0 in 3.0 TPU)": 6.0 - (LEG.TPU_SOLE - 2.0),
         "sled, M2x6 through its counterbore": 6.0 - (B.SLED_T - 2.2),
         "flange, M2x6 (shoulder and neck mounts)": 6.0 - B.FLANGE_T,
-        "horn to plate, ST2x4 through the horn": 4.0 - hw.HORN.disc_t,
+        "horn to plate, ST2x3 through the horn": 3.0 - hw.HORN.disc_t,
     }
     room = {"sole, M2x6 (head sunk 2.0 in 3.0 TPU)": LEG.SOLE_PLATE,
-            "horn to plate, ST2x4 through the horn": J.HP[1] - 0.4 - J.HORN_TOP}
+            "horn to plate, ST2x3 through the horn": J.HP[1] - 0.4 - J.HORN_TOP}
     out["engagement"] = {}
     for k, e in eng.items():
         r = room.get(k, 4.0)

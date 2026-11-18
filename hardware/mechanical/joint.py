@@ -34,6 +34,7 @@ IW = (CASE[0] - C - 3.6, CASE[0] - C)               # idler wall with the M3 ins
 GAP = 0.8                                           # holder to driven plate
 IP_IN = IW[0] - GAP                                 # idler plate inner face
 LIP = 0.5
+LIP_D = 5.0                                         # lip hole round the Ø4.2 boss: 0.4 radial (was 4.6, 0.2)
 BRG = (IP_IN - LIP - 2.5, IP_IN - LIP)              # MR63ZZ
 BOSS = (BRG[1], IW[0])                              # holder boss that clamps the inner race
 WASHER = 0.5
@@ -102,6 +103,7 @@ class Joint:
     b: tuple                 # servo body direction
     servo: hw.Servo = S
     idler: bool = True
+    idler_part: str = ""     # the idler plate is a separate part (bolted to the driven link), see body.head_idler
     holes: list = field(default_factory=list)
 
     def __post_init__(self):
@@ -190,8 +192,12 @@ class Joint:
     def idler_disc(self):
         return self.place(cyl(IDLER_R, IP[0], IP[1]))
 
-    def driven_cut(self, part):
+    def driven_cut(self, part, side="both"):
+        """Horn-plate features (side "horn"), idler-plate features (side "idler") or both."""
         h = hw.HORN
+        if side == "idler":
+            s = cyl(0.01, -500, -499)                                          # empty start, far away
+            return self.place(self._idler_cut(s, part))
         s = cyl(h.disc_d / 2 + 0.2, HP[0] - 1, HORN_TOP)                      # horn disc recess (from inside)
         s = s.fuse(cyl(h.hub_d / 2 + 0.4, HP[0] - 1, HORN_TOP))
         s = s.fuse(cyl(hw.HOLES["access"].d / 2, HP[0] - 1, HP[1] + 1))       # horn screw access
@@ -202,15 +208,19 @@ class Joint:
         spec = hw.HOLES["pilot_st2"]
         for i, sw in enumerate((-1, 1)):
             s = s.fuse(cyl(spec.d / 2, HORN_TOP - 0.1, HP[1] - 0.4, 0, sw * h.screw_r))
-            self._hole(part, f"horn{i + 1}", "pilot_st2", "ST2x4 through the horn (plate to horn)",
+            self._hole(part, f"horn{i + 1}", "pilot_st2", "ST2x3 through the horn (plate to horn)",
                        (0, sw * h.screw_r, HORN_TOP), (0, 0, 1), spec.d, round(HP[1] - 0.4 - HORN_TOP, 2))
-        if self.idler:
-            s = s.fuse(cyl(2.3, IP[1] - LIP - 0.01, IP[1] + 1))                # lip hole: holder boss passes
-            s = s.fuse(cyl(hw.HOLES["bearing"].d / 2, IP[0] + CAP_T - 0.01, BRG[1]))   # bearing + head pocket
-            s = s.fuse(cyl(IDLER_R - 1.0, IP[0] - 1, IP[0] + CAP_T))             # cap recess
-            self._hole(part, "bearing", "bearing", "MR63ZZ + W3 + M3x6 button head (idler)",
-                       (0, 0, IP[0] + CAP_T), (0, 0, 1), hw.HOLES["bearing"].d, BRG[1] - IP[0] - CAP_T)
+        if self.idler and side == "both":
+            s = self._idler_cut(s, part)
         return self.place(s)
+
+    def _idler_cut(self, s, part):
+        s = s.fuse(cyl(LIP_D / 2, IP[1] - LIP - 0.01, IP[1] + 1))             # lip hole: holder boss passes
+        s = s.fuse(cyl(hw.HOLES["bearing"].d / 2, IP[0] + CAP_T - 0.01, BRG[1]))   # bearing + head pocket
+        s = s.fuse(cyl(IDLER_R - 1.0, IP[0] - 1, IP[0] + CAP_T))                 # cap recess
+        self._hole(part, "bearing", "bearing", "MR63ZZ + W3 + M3x6 button head (idler)",
+                   (0, 0, IP[0] + CAP_T), (0, 0, 1), hw.HOLES["bearing"].d, BRG[1] - IP[0] - CAP_T)
+        return s
 
     def tool_paths(self):
         """Straight tool paths to every screw of this joint, as (label, solid, part that must be off first).
