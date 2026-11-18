@@ -69,7 +69,8 @@ def check_inserts():
     # edge distance of the four shell inserts and the two cam inserts on the head deck (x, y in robot frame)
     import body as B
     hx, hy = B.Body.HEAD_X, B.Body.HEAD_Y
-    pts = {"A(shell)": [(-23.0, 20.0), (-23.0, -20.0), (2.0, 20.0), (2.0, -20.0)], "B(cam)": [(12.0, -10.0), (12.0, 10.0)]}
+    pts = {"A(shell)": [(-23.0, 20.0), (-23.0, -20.0), (2.0, 20.0), (2.0, -20.0)],
+           "B(cam)": [(12.0, -10.0), (12.0, 10.0)]}
     edge = {k: round(min(min(x - hx[0], hx[1] - x, y - hy[0], hy[1] - y) for x, y in v), 2) for k, v in pts.items()}
     wall_37 = {k: round(v - 3.7 / 2, 2) for k, v in edge.items()}
     return [finding(
@@ -189,7 +190,9 @@ def frame_stiffness(work):
     et, _, enodes = gmsh.model.mesh.getElements(3)
     E = np.array([idx[int(n)] for n in enodes[list(et).index(11)]]).reshape(-1, 10)
     gmsh.finalize()
-    a = np.array(j.R[:, 2]); bdir = np.array(j.R[:, 0]); wdir = np.array(j.R[:, 1])
+    a = np.array(j.R[:, 2])
+    bdir = np.array(j.R[:, 0])
+    wdir = np.array(j.R[:, 1])
     v = X - j.p
     t = v @ a
     r = np.linalg.norm(v - np.outer(t, a), axis=1)
@@ -334,7 +337,8 @@ def check_walls():
                  idler_cap_ring=round(J.IDLER_R - (J.IDLER_R - 1.0), 2),
                  idler_seat_wall=round(J.IDLER_R - hw.HOLES["bearing"].d / 2, 3),
                  idler_seat_wall_under_cap=round((J.IDLER_R - 1.0) - hw.HOLES["bearing"].d / 2, 3),
-                 horn_floor=round(J.HP[1] - J.HORN_TOP, 2), horn_floor_under_cap=round(J.HP[1] - J.CAP_T - J.HORN_TOP, 2))
+                 horn_floor=round(J.HP[1] - J.HORN_TOP, 2),
+                 horn_floor_under_cap=round(J.HP[1] - J.CAP_T - J.HORN_TOP, 2))
     return [finding(
         "E-1", "Critical", "FAILED", "Vít horn ST2×4 đâm vào lớp da 0.40 mm phía ngoài lỗ mồi",
         f"Lỗ mồi Ø{hw.HOLES['pilot_st2'].d} mù, sâu {st['pilot_depth']} mm, đáy ở a = {st['pilot_bottom']}, chừa "
@@ -384,7 +388,8 @@ def check_removal(k):
     if k:
         f = k["k_a"] * spread
         sig = k["vm_per_N_a"] * f
-        num |= dict(k_spread=round(k["k_a"], 2), force=round(f, 1), stress=round(sig, 1), hot_spot_local=k["hot_a_local"])
+        num |= dict(k_spread=round(k["k_a"], 2), force=round(f, 1), stress=round(sig, 1),
+                    hot_spot_local=k["hot_a_local"])
         txt += (f" FEA (cùng mô hình, lực dọc trục đặt lên ổ idler): độ cứng banh k_a = {k['k_a']:.2f} N/mm → cần "
                 f"≈ {f:.0f} N, ứng suất ≈ {sig:.0f} MPa (phân vị 99.9 %, tuyến tính) tại điểm nóng (b, w, a) = "
                 f"{k['hot_a_local']} mm trong khung khớp. Giới hạn bền kéo PLA in thường được nêu khoảng "
@@ -445,7 +450,8 @@ def sweep(step_deg=4.0):
                 r["overlap"] = max(r["overlap"], round(v, 3))
     out = sorted(rows.values(), key=lambda r: (-r["overlap"], r["min_off_axis"]))
     return dict(range=(lo, hi), step=step_deg, angles=angles, pairs=out, not_modelled=[
-        "dây servo và cáp (CSI, màn hình)", "đầu ốc tai M2 và đầu vít horn ST2", "vỏ SG90 thật (dùng hộp MG92B, lớn hơn)"])
+        "dây servo và cáp (CSI, màn hình)", "đầu ốc tai M2 và đầu vít horn ST2",
+        "vỏ SG90 thật (dùng hộp MG92B, lớn hơn)"])
 
 
 def check_sweep(sw):
@@ -575,8 +581,8 @@ def slice_compare(work):
         return None
     body = B.Body()
     j = body.joints["head_pitch"]
-    O = np.array(j.origin, float)
-    n3 = body.parts["head_frame"].moved(cq.Location(cq.Vector(*(-O))))
+    org = np.array(j.origin, float)
+    n3 = body.parts["head_frame"].moved(cq.Location(cq.Vector(*(-org))))
     ya = -J.CENTER
     skin = ((-0.8, 0.8), (J.HP[1] - 0.4 + ya, J.HP[1] + ya), (7 - 0.8, 7 + 0.8))       # one pilot's skin, O frame
     (work / "pla.ini").write_text(PRUSA_INI.format(sup=0, bp=0))

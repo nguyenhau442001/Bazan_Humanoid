@@ -398,21 +398,21 @@ def n3_model():
     import joint as J
     body = B.Body()
     j = body.joints["head_pitch"]
-    O = np.array(j.origin, float)
-    s = body.parts["head_frame"].moved(cq.Location(cq.Vector(*(-O))))
+    org = np.array(j.origin, float)
+    s = body.parts["head_frame"].moved(cq.Location(cq.Vector(*(-org))))
     ya = -J.CENTER                                      # y of the stack point a = 0 (the servo case top)
-    hx0, hx1 = B.Body.HEAD_X[0] - O[0], B.Body.HEAD_X[1] - O[0]
+    hx0, hx1 = B.Body.HEAD_X[0] - org[0], B.Body.HEAD_X[1] - org[0]
     hy0, hy1 = B.Body.HEAD_Y
-    hd = B.HEAD_DECK - O[2]
+    hd = B.HEAD_DECK - org[2]
     f = dict(
-        O=O, ya=ya,
+        O=org, ya=ya,
         horn=dict(y_in=J.HP[0] + ya, y_out=J.HP[1] + ya, r=J.HORN_R, recess_d=hw.HORN.disc_d + 0.4,
                   recess_y=J.HORN_TOP + ya, hub_d=hw.HORN.hub_d + 0.8, access_d=hw.HOLES["access"].d,
                   cap_d=2 * (J.CAP_R + 0.05), cap_y=J.HP[1] - J.CAP_T + ya, pilot_r=hw.HORN.screw_r,
                   pilot_d=hw.HOLES["pilot_st2"].d, pilot_y0=J.HORN_TOP - 0.1 + ya, pilot_y1=J.HP[1] - 0.4 + ya),
         idler=dict(y_out=J.IP[0] + ya, y_in=J.IP[1] + ya, r=J.IDLER_R, cap_d=2 * (J.IDLER_R - 1.0),
                    cap_y=J.IP[0] + J.CAP_T + ya, seat_d=hw.HOLES["bearing"].d, seat_y1=J.BRG[1] + ya, lip_d=4.6),
-        bar=dict(x=(B.NECK_X - 6.0 - O[0], B.NECK_X + 6.0 - O[0]), z=(B.HEAD_Z - O[2], hd)),
+        bar=dict(x=(B.NECK_X - 6.0 - org[0], B.NECK_X + 6.0 - org[0]), z=(B.HEAD_Z - org[2], hd)),
         deck=dict(x=(hx0, hx1), y=(hy0, hy1), z=(hd, hd + 3.0)),
         face=dict(x=(hx1 - 3.0, hx1), z=(hd - 26.0, hd)),
     )
@@ -432,7 +432,7 @@ def n3_model():
         tag, what, mate = groups[g]
         for i, h in enumerate(mem):
             feats.append(dict(tag=f"{tag}{i + 1}", group=tag, id=h.id, kind=h.kind, d=h.d, depth=h.depth,
-                              dir=np.round(np.asarray(h.dir, float), 4), pos=np.asarray(h.pos, float) - O, what=what,
+                              dir=np.round(np.asarray(h.dir, float), 4), pos=np.asarray(h.pos, float) - org, what=what,
                               mate=mate))
     return s, f, feats, holes
 
@@ -498,7 +498,8 @@ def critical_overhang(s, f, lab="mặt trên sàn úp xuống (+Z xuống)", ang
              & (rr < h["recess_d"] / 2 + 0.05),
              "ổ bạc đạn Ø6.05 (F)": (c[:, 1] > i["cap_y"] - 0.05) & (c[:, 1] < i["seat_y1"] + 0.05)
              & (rr < i["seat_d"] / 2 + 0.05),
-             "lỗ thao tác Ø5.2 (E)": (c[:, 1] > h["recess_y"]) & (c[:, 1] < h["y_out"]) & (rr < h["access_d"] / 2 + 0.05)}
+             "lỗ thao tác Ø5.2 (E)": (c[:, 1] > h["recess_y"]) & (c[:, 1] < h["y_out"])
+             & (rr < h["access_d"] / 2 + 0.05)}
     return {k: float(a[over & m].sum()) for k, m in zones.items()}
 
 
@@ -511,7 +512,8 @@ def draw_n3(out):
     pa = print_analysis(s, f)
     crit = critical_overhang(s, f)
     tb = dict(owner="Hau Nguyen Ngoc", project="Bazan Humanoid — cụm đầu (H)", title="N3 · Head Frame",
-              number="BZN-H-N3", material="PLA (xem ghi chú M1)", mass=f"{mass:.1f} g (ước tính)", scale="2:1 (C, D 5:1)",
+              number="BZN-H-N3", material="PLA (xem ghi chú M1)", mass=f"{mass:.1f} g (ước tính)",
+              scale="2:1 (C, D 5:1)",
               designed="Hau Nguyen Ngoc", checked="TBD", approved="TBD", date=date.today().isoformat(), rev="P1",
               status="SƠ BỘ — chưa phát hành chế tạo",
               standards="ISO 128 · ISO 129-1 · ISO 5455 · ISO 5456-2 · ISO 5457 · ISO 7200 · ISO 1101 (tham chiếu)")
@@ -612,7 +614,8 @@ def draw_n3(out):
     s1.text(xl, yy - 2, "Gốc toạ độ và chuẩn đo", fs=9, role="head", weight="bold", va="top")
     s1.text(xl, yy - 8, "O = trục gật đầu ∩ mặt phẳng giữa chồng khớp\n(tư thế 0). X tới trước, Y sang trái, Z lên.\n"
             f"A = mặt trên sàn đầu (Z = +{zt:.2f})\nB = mặt trước tấm mặt (X = +{xf:.2f})\n"
-            "C = mặt phẳng đối xứng Y = 0\nToạ độ đầy đủ mọi đặc tính: tờ 4.\nMặt cắt A–A, B–B: tờ 2. Chi tiết C, D: tờ 3.",
+            "C = mặt phẳng đối xứng Y = 0\nToạ độ đầy đủ mọi đặc tính: tờ 4.\n"
+            "Mặt cắt A–A, B–B: tờ 2. Chi tiết C, D: tờ 3.",
             fs=7.2, role="note", va="top")
     sheets.append(s1)
 
@@ -716,7 +719,8 @@ def draw_n3(out):
     s3 = Sheet(4, "table")
     s3.text(25, 281, "BẢNG TOẠ ĐỘ LỖ / ĐẶC TÍNH — N3 Head Frame", fs=FS_TITLE, role="head", weight="bold", va="top")
     s3.text(25, 274, "Toạ độ X, Y, Z từ gốc O (trục gật đầu ∩ mặt phẳng giữa chồng khớp, tư thế 0); X tới trước, Y "
-            "sang trái, Z lên. ΔA, ΔB, ΔC: khoảng cách tới chuẩn đo A (mặt trên sàn),\nB (mặt trước tấm mặt), C (Y = 0). "
+            "sang trái, Z lên. ΔA, ΔB, ΔC: khoảng cách tới chuẩn đo A (mặt trên sàn),\n"
+            "B (mặt trước tấm mặt), C (Y = 0). "
             "Mã A1…F1 là mã ghi trên tờ 1. Hướng = chiều mũi khoan / chiều ốc đi vào. Dung sai vị trí chỉ ghi khi có "
             "ràng buộc lắp ghép (ghi chú K4).", fs=7.2, role="note", va="top")
     cols = [("Mã", 11), ("Đặc tính", 104), ("Kích thước", 40), ("Hướng", 13), ("X", 15), ("Y", 15), ("Z", 15),
@@ -747,13 +751,15 @@ def draw_n3(out):
         ("IN 3D (FDM)", [
             f"P1. Hướng in: {best} — tiếp xúc bàn {pa[best]['bed']:.0f} mm², mặt treo >45° {pa[best]['over']:.0f} mm²,"
             f" cao {pa[best]['h']:.1f} mm (tính từ CAD trên 6 hướng trục; bảng đủ trong báo cáo kiểm tra).",
-            "P2. Lớp in song song mặt A: sàn và tấm mặt chịu kéo dọc lớp. Không in theo ±Y: chân hai cột đỡ đĩa sẽ chịu "
+            "P2. Lớp in song song mặt A: sàn và tấm mặt chịu kéo dọc lớp. "
+            "Không in theo ±Y: chân hai cột đỡ đĩa sẽ chịu "
             "kéo vuông góc lớp.",
             "P3. Support cần dưới phần đĩa nhô ra ngoài cột. CẤM support bên trong: "
             + "; ".join(f"{k} ({v:.0f} mm² mặt treo)" for k, v in crit.items())
             + " — đặt support blocker; chỗ võng sửa bằng dao/mũi doa.",
             "P4. Lỗ D, E, F có trục nằm ngang khi in: đỉnh lỗ có thể võng; kiểm tra độ tròn ổ F bằng chính bạc đạn.",
-            "P5. Thông số máy in và dung sai đạt được: TBD — xác định bằng phiếu thử T0 (docs/mechanical/test_print.md)."]),
+            "P5. Thông số máy in và dung sai đạt được: TBD — xác định bằng phiếu thử T0 "
+            "(docs/mechanical/test_print.md)."]),
         ("LẮP RÁP", [
             "L1. A1–A4, B1–B2: tán cấy nhiệt M2 ép từ mặt A ở 220 °C, bằng mặt A. Sàn dày 3 = chiều dài tán → kiểm tra "
             "mặt dưới không phồng.",
@@ -765,7 +771,8 @@ def draw_n3(out):
             "K1. Ổ F: MR63ZZ ép tay vào được, lật ngược không rơi, quay êm.",
             "K2. Khe trong giữa hai đĩa 31.9 (tờ 2): servo SG90 + stack N2 lọt, không kẹt, không rơ dọc trục.",
             "K3. Đồng trục hốc horn (D) và ổ F quanh trục gật đầu: bắt buộc về chức năng; giá trị dung sai TBD.",
-            "K4. Dung sai vị trí A, B theo công thức ốc cố định: lỗ đối tiếp Ø2.30, ốc M2 Ø2.00 → T = 0.30 chia đều hai "
+            "K4. Dung sai vị trí A, B theo công thức ốc cố định: lỗ đối tiếp Ø2.30, ốc M2 Ø2.00 → "
+            "T = 0.30 chia đều hai "
             "chi tiết → Ø0.15 cho mỗi chi tiết, so với A | B | C."]),
     ]
     for head, items in notes:
@@ -817,8 +824,8 @@ def validate(res):
     ids_t = sorted(ft["id"] for ft in feats)
     ids_c = sorted(h.id for h in holes)
     item("mọi lỗ CAD có trong bảng, không thừa", ids_t == ids_c, f"{len(ids_t)} trong bảng, {len(ids_c)} trong CAD")
-    O = res["f"]["O"]
-    worst = max(np.linalg.norm(ft["pos"] - (np.asarray(h.pos) - O))
+    org = res["f"]["O"]
+    worst = max(np.linalg.norm(ft["pos"] - (np.asarray(h.pos) - org))
                 for ft in feats for h in holes if h.id == ft["id"])
     item("toạ độ bảng = toạ độ CAD", worst < 1e-6, f"lệch lớn nhất {worst:.2e} mm")
     tags = [ft["tag"] for ft in feats]
@@ -886,9 +893,11 @@ def main():
             pdf.savefig(sh.fig)
             sh.fig.savefig(out / f"BZN-H-N3_sheet{sh.number}.png", dpi=110)
     lines = ["# BZN-H-N3 · kiểm tra bản vẽ tự động", "", f"Sinh bởi `hardware/mechanical/drawings.py N3`, "
-             f"{date.today().isoformat()}. Lỗi: **{bad}**.", "", "| Kiểm tra | Kết quả | Chi tiết |", "| --- | --- | --- |"]
+             f"{date.today().isoformat()}. Lỗi: **{bad}**.", "",
+             "| Kiểm tra | Kết quả | Chi tiết |", "| --- | --- | --- |"]
     lines += [f"| {r['check']} | {'đạt' if r['ok'] else '**LỖI**'} | {r['detail']} |" for r in rep]
-    lines += ["", "## Hướng in (6 hướng trục, tính từ CAD)", "", "| Hướng | Tiếp xúc bàn mm² | Mặt treo >45° mm² | Cao mm |",
+    lines += ["", "## Hướng in (6 hướng trục, tính từ CAD)", "",
+              "| Hướng | Tiếp xúc bàn mm² | Mặt treo >45° mm² | Cao mm |",
               "| --- | ---: | ---: | ---: |"]
     lines += [f"| {k} | {v['bed']:.0f} | {v['over']:.0f} | {v['h']:.1f} |" for k, v in res["print"].items()]
     (out / "BZN-H-N3_validation.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
