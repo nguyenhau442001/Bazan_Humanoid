@@ -28,8 +28,8 @@ jobs:
       - name: Install CadQuery
         run: pip install cadquery matplotlib
 
-      - name: Install Pinocchio and MuJoCo
-        run: pip install pin mujoco
+      - name: Install Pinocchio, MuJoCo and shapely
+        run: pip install pin mujoco shapely
 
       - name: Clearance, servo removal, tool access, both legs
         working-directory: hardware/mechanical
@@ -42,6 +42,10 @@ jobs:
       - name: URDF twin matches the CAD and loads in Pinocchio and MuJoCo
         working-directory: hardware/mechanical
         run: python gen_urdf.py --check --validate
+
+      - name: N3 drawing matches the CAD (dimensions, features, layout)
+        working-directory: hardware/mechanical
+        run: python drawings.py N3 --check
 
       - name: Build print files
         working-directory: hardware/mechanical
