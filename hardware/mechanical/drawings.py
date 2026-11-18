@@ -1,17 +1,24 @@
-"""Engineering drawings of Bazan's parts, generated from the CAD: A3 sheets, first-angle projection (ISO E / TCVN),
-hidden lines, 1:1 scale when the part fits, every hole and screw numbered with its coordinates.
+"""Manufacturing drawings of Bazan's parts, generated from the CAD (drawing engine v2).
 
-    python drawings.py head        # docs/mechanical/drawings/head/*.pdf (+ .png previews)
+    python drawings.py N3          # docs/mechanical/drawings/N3/: BZN-H-N3.pdf, sheet PNGs, validation report
+    python drawings.py N3 --check  # exit 1 if the validation finds a defect
 
-One datum per assembly: every coordinate on every sheet of an assembly is measured from the same point O, so a
-screw on two parts has the same numbers on both sheets. Head: O = head-pitch axis, middle of the servo pocket
-(body.joints["head_pitch"].origin), axes = robot axes at the zero pose (x forward, y left, z up).
+Rules this engine follows (references, not a compliance claim):
+    ISO 128      line types and widths: visible 0.5, hidden / centre / dimension / hatching 0.25 (mm, A3)
+    ISO 129-1    dimensions taken from functional datums; coordinate table for the hole pattern
+    ISO 5455     standard scales only (5:1, 4:1, 2:1, 1:1, 1:2 ...)
+    ISO 5456-2   first-angle projection: top view below the front view, view from the left on its right
+    ISO 5457     A3 landscape, frame 20 mm left / 10 mm elsewhere, zone grid
+    ISO 7200     title block fields; unknown fields are written TBD, never invented
+    ISO 1101     a position tolerance only where a mating clearance fixes it (fixed-fastener formula)
 
-Sheet 1 of each part: front view (from +x), top view below it, left view on its right (first angle), an iso view,
-overall dimensions, numbered holes, title block. Sheet 2: the hole and fastener table in full.
-The assembly sheet: the parts together, item balloons, the bill of materials and every fastener with its place.
+Every number on a sheet comes from the CAD code (joint.py, body.py, hardware.py) and is checked against the
+solid itself by validate(): each dimension's two end points must lie on the part's surface and the printed value
+must equal their distance. Nothing is measured off the picture.
 """
+import json
 import sys
+from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
 
@@ -22,6 +29,8 @@ import numpy as np
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 from matplotlib.backends.backend_pdf import PdfPages  # noqa: E402
+from matplotlib.path import Path as MPath  # noqa: E402
+from matplotlib.patches import PathPatch  # noqa: E402
 from OCP.BRepAdaptor import BRepAdaptor_Curve  # noqa: E402
 from OCP.GCPnts import GCPnts_QuasiUniformDeflection  # noqa: E402
 from OCP.gp import gp_Ax2, gp_Dir, gp_Pnt  # noqa: E402
@@ -30,436 +39,867 @@ from OCP.HLRBRep import HLRBRep_Algo, HLRBRep_HLRToShape  # noqa: E402
 from OCP.TopAbs import TopAbs_EDGE  # noqa: E402
 from OCP.TopExp import TopExp_Explorer  # noqa: E402
 from OCP.TopoDS import TopoDS  # noqa: E402
-
-import audit as A  # noqa: E402
-import electronics as el  # noqa: E402
-import shell as SH  # noqa: E402
+from shapely.geometry import LineString, Polygon  # noqa: E402
+from shapely.geometry import box as shp_box  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
 DOCS = HERE.parents[1] / "docs" / "mechanical" / "drawings"
-MM = 1 / 25.4                                  # inch per mm
+MM_IN = 1 / 25.4
 A3 = (420.0, 297.0)
-INK, HID, RED, BLUE = "#111111", "#555555", "#C0392B", "#1F5FA8"
+BORDER = (20.0, 10.0, 410.0, 287.0)               # x0, y0, x1, y1 of the frame (ISO 5457)
+PT = 72 / 25.4                                     # points per mm
+W_THICK, W_THIN = 0.5 * PT, 0.25 * PT              # ISO 128 line widths for A3
+FS_DIM, FS_NOTE, FS_TAG, FS_TITLE = 8.0, 7.5, 7.5, 11.0
+INK = "black"
+DEPTH = "↧"
 
-# views: name, direction toward the eye, horizontal axis on the paper (first angle: top below, left view right)
-VIEWS = {"front": ((1, 0, 0), (0, 1, 0), "Hình chiếu đứng (nhìn từ trước, +x)"),
-         "top": ((0, 0, 1), (0, 1, 0), "Hình chiếu bằng (nhìn từ trên, +z)"),
-         "left": ((0, -1, 0), (1, 0, 0), "Hình chiếu cạnh (nhìn từ bên phải robot, −y)"),
-         "iso": ((1, -1, 1), (1, 1, 0), "Hình trục đo")}
+VIEWS = {  # name: (towards the eye, paper right)
+    "front": ((1, 0, 0), (0, 1, 0)),     # from +x: robot left (+y) on the right
+    "top": ((0, 0, 1), (0, 1, 0)),       # from +z, placed below the front view: +x points down the sheet
+    "left": ((0, -1, 0), (1, 0, 0)),     # from -y (the viewer's left of the front view), placed on its right
+    "iso": ((1, -1, 1), (1, 1, 0)),
+}
 
 
-# ------------------------------------------------------------------ projection
-def _axes(view):
-    d, x, _ = VIEWS[view]
-    d, x = np.array(d, float), np.array(x, float)
-    d, x = d / np.linalg.norm(d), x - d * np.dot(x, d)
+def view_axes(view):
+    d, x = (np.array(v, float) for v in VIEWS[view])
+    d /= np.linalg.norm(d)
+    x -= d * np.dot(x, d)
     x /= np.linalg.norm(x)
     return d, x, np.cross(d, x)
 
 
 def project(p, view):
-    d, x, y = _axes(view)
+    d, x, y = view_axes(view)
     p = np.asarray(p, float)
     return np.array([p @ x, p @ y])
 
 
+def _edges(compound, defl=0.005):
+    segs = []
+    if compound is None or compound.IsNull():
+        return segs
+    ex = TopExp_Explorer(compound, TopAbs_EDGE)
+    while ex.More():
+        a = BRepAdaptor_Curve(TopoDS.Edge_s(ex.Current()))
+        q = GCPnts_QuasiUniformDeflection(a, defl)
+        segs.append(np.array([(a.Value(q.Parameter(i)).X(), a.Value(q.Parameter(i)).Y())
+                              for i in range(1, q.NbPoints() + 1)]))
+        ex.Next()
+    return segs
+
+
 def hlr(shape, view):
-    """Visible and hidden edges of shape seen along view, as 2D polylines (mm, paper axes)."""
-    d, x, _ = _axes(view)
+    d, x, _ = view_axes(view)
     algo = HLRBRep_Algo()
     algo.Add(shape.wrapped)
     algo.Projector(HLRAlgo_Projector(gp_Ax2(gp_Pnt(0, 0, 0), gp_Dir(*d), gp_Dir(*x))))
     algo.Update()
     algo.Hide()
     h = HLRBRep_HLRToShape(algo)
-    out = {}
-    for kind, getters in (("vis", (h.VCompound, h.OutLineVCompound, h.Rg1LineVCompound)),
-                          ("hid", (h.HCompound, h.OutLineHCompound))):
-        segs = []
-        for g in getters:
-            c = g()
-            if c is None or c.IsNull():
+    vis = _edges(h.VCompound()) + _edges(h.OutLineVCompound()) + _edges(h.Rg1LineVCompound())
+    hid = _edges(h.HCompound()) + _edges(h.OutLineHCompound())
+    return vis, hid
+
+
+def section(shape, point, view):
+    """Cut shape by the plane through point normal to the view direction, keep the half away from the eye.
+    Returns (visible edges of the kept half, cut faces as lists of 2D loops)."""
+    d, _, _ = view_axes(view)
+    point = np.asarray(point, float)
+    big = 400.0
+    box = cq.Solid.makeBox(2 * big, 2 * big, big, cq.Vector(-big, -big, 0))
+    # orient the box so it fills the eye side of the plane
+    z = cq.Vector(*d)
+    plane = cq.Plane(origin=cq.Vector(*point), xDir=cq.Vector(*view_axes(view)[1]), normal=z)
+    box = box.moved(cq.Location(plane))
+    half = shape.cut(box).clean()
+    vis, _ = hlr(half, view)
+    loops = []
+    for f in half.Faces():
+        n = f.normalAt()
+        c = f.Center()
+        if abs(abs(np.dot([n.x, n.y, n.z], d)) - 1) < 1e-6 and abs(np.dot(np.array([c.x, c.y, c.z]) - point, d)) < 1e-4:
+            rings = []
+            for w in [f.outerWire()] + list(f.innerWires()):
+                pts = np.array([[p.x, p.y, p.z] for p in w.positions(np.linspace(0, 1, 240))])
+                rings.append([tuple(project(p, view)) for p in pts])
+            loops.append(Polygon(rings[0], rings[1:]).buffer(0))
+    return vis, loops, half
+
+
+def clip(segs, polys, box):
+    """Visible edges and section polygons cut to a detail window box = (u0, v0, u1, v1)."""
+    win = shp_box(*box)
+    out = []
+    for sg in segs:
+        if len(sg) < 2:
+            continue
+        g = LineString(sg).intersection(win)
+        for part in getattr(g, "geoms", [g]):
+            if not part.is_empty and part.geom_type == "LineString":
+                out.append(np.asarray(part.coords))
+    return out, [p.intersection(win) for p in polys]
+
+
+# ------------------------------------------------------------------ the sheet
+@dataclass
+class Dim:
+    """A dimension: two points on the part (model mm, relative to the datum) and the value shown."""
+    p0: tuple
+    p1: tuple
+    axis: tuple            # model direction the value is measured along
+    text: str
+    value: float
+    view: str
+    on_surface: bool = True
+
+
+def fmt(v):
+    """ISO 129-1 style: no trailing zeros (6.6, 31.9, 6.05)."""
+    t = f"{v:.2f}".rstrip("0").rstrip(".")
+    return "0" if t in ("-0", "") else t
+
+
+@dataclass
+class Sheet:
+    number: int
+    title: str
+    fig: object = None
+    ax: object = None
+    texts: list = field(default_factory=list)       # (artist, role) for the collision check
+    views: dict = field(default_factory=dict)       # name -> (cx, cy, uc, vc, k, model view)
+    bbox: dict = field(default_factory=dict)        # name -> [x0, y0, x1, y1] of the drawn geometry (paper mm)
+    used: dict = field(default_factory=dict)        # name -> {side: next free offset}
+    dims: list = field(default_factory=list)
+    boxes: list = field(default_factory=list)       # approximate text boxes placed so far (for tag placement)
+
+    def __post_init__(self):
+        self.fig = plt.figure(figsize=(A3[0] * MM_IN, A3[1] * MM_IN))
+        self.ax = self.fig.add_axes([0, 0, 1, 1])
+        self.ax.set_xlim(0, A3[0])
+        self.ax.set_ylim(0, A3[1])
+        self.ax.axis("off")
+
+    # paper primitives (mm)
+    def line(self, xs, ys, w=W_THIN, ls="-", **kw):
+        self.ax.plot(xs, ys, color=INK, lw=w, ls=ls, solid_capstyle="butt", **kw)
+
+    def text(self, x, y, s, fs=FS_NOTE, role="note", **kw):
+        t = self.ax.text(x, y, s, fontsize=fs, color=INK, family="DejaVu Sans", **kw)
+        self.texts.append((t, role))
+        return t
+
+    def arrow(self, tip, frm, size=2.5):
+        tip, frm = np.asarray(tip, float), np.asarray(frm, float)
+        d = (tip - frm) / (np.linalg.norm(tip - frm) + 1e-12)
+        nrm = np.array([-d[1], d[0]])
+        base = tip - d * size
+        self.ax.fill(*np.array([tip, base + nrm * size * 0.18, base - nrm * size * 0.18]).T, color=INK, lw=0)
+
+    # views
+    def place(self, name, model_view, cx, cy, uc, vc, k):
+        self.views[name] = (cx, cy, uc, vc, k, model_view)
+        self.used[name] = {"above": 0.0, "below": 0.0, "left": 0.0, "right": 0.0}
+
+    def P(self, name, p3):
+        cx, cy, uc, vc, k, mv = self.views[name]
+        u, v = project(p3, mv)
+        return np.array([cx + (u - uc) * k, cy + (v - vc) * k])
+
+    def P2(self, name, uv):
+        cx, cy, uc, vc, k, _ = self.views[name]
+        return np.array([cx + (uv[0] - uc) * k, cy + (uv[1] - vc) * k])
+
+    def _grow(self, name, q):
+        b = self.bbox.setdefault(name, [np.inf, np.inf, -np.inf, -np.inf])
+        b[0], b[1] = min(b[0], q[:, 0].min()), min(b[1], q[:, 1].min())
+        b[2], b[3] = max(b[2], q[:, 0].max()), max(b[3], q[:, 1].max())
+
+    def draw_edges(self, name, segs, w=W_THICK, ls="-", grow=True):
+        for s in segs:
+            q = np.array([self.P2(name, p) for p in s])
+            if len(q) < 2:
                 continue
-            ex = TopExp_Explorer(c, TopAbs_EDGE)
-            while ex.More():
-                a = BRepAdaptor_Curve(TopoDS.Edge_s(ex.Current()))
-                q = GCPnts_QuasiUniformDeflection(a, 0.01)
-                pts = [a.Value(q.Parameter(i)) for i in range(1, q.NbPoints() + 1)]
-                segs.append(np.array([(p.X(), p.Y()) for p in pts]))
-                ex.Next()
-        out[kind] = segs
+            self.line(q[:, 0], q[:, 1], w=w, ls=ls)
+            if grow:
+                self._grow(name, q)
+
+    def hatch(self, name, faces):
+        """faces: list of shapely polygons in model view coordinates (u, v)."""
+        for poly in faces:
+            if poly.is_empty:
+                continue
+            for g in getattr(poly, "geoms", [poly]):
+                verts, codes = [], []
+                for i, ring in enumerate([g.exterior] + list(g.interiors)):
+                    q = np.array([self.P2(name, p) for p in np.asarray(ring.coords)])
+                    area = 0.5 * np.sum(q[:-1, 0] * q[1:, 1] - q[1:, 0] * q[:-1, 1])
+                    if (i == 0) != (area > 0):
+                        q = q[::-1]
+                    verts += list(q)
+                    codes += [MPath.MOVETO] + [MPath.LINETO] * (len(q) - 2) + [MPath.CLOSEPOLY]
+                    self._grow(name, q)
+                self.ax.add_patch(PathPatch(MPath(verts, codes), facecolor="none", edgecolor=INK, hatch="////",
+                                            lw=W_THICK))
+
+    # dimensions in paper space, always placed outside the view's outline, stacked per side
+    def dim(self, name, p0, p1, axis, where, text=None, prefix="", on_surface=True, gap=8.0, tpos=0.5):
+        a = np.asarray(axis, float)
+        P0, P1 = self.P(name, p0), self.P(name, p1)
+        val = float(abs(np.dot(np.asarray(p1, float) - np.asarray(p0, float), a)))
+        text = text or f"{prefix}{fmt(val)}"
+        x0, y0, x1, y1 = self.bbox[name]
+        off = self.used[name][where] + gap
+        self.used[name][where] = off
+        if where in ("above", "below"):
+            yb = y1 + off if where == "above" else y0 - off
+            Q0, Q1 = np.array([P0[0], yb]), np.array([P1[0], yb])
+            sgn = 1 if where == "above" else -1
+            ext = [(P0, Q0), (P1, Q1)]
+            nrm = np.array([0, sgn])
+        else:
+            xb = x1 + off if where == "right" else x0 - off
+            Q0, Q1 = np.array([xb, P0[1]]), np.array([xb, P1[1]])
+            sgn = 1 if where == "right" else -1
+            ext = [(P0, Q0), (P1, Q1)]
+            nrm = np.array([sgn, 0])
+        for P_, Q_ in ext:
+            gapv = 1.0 if np.linalg.norm(Q_ - P_) > 2 else 0.0
+            self.line([P_[0] + nrm[0] * gapv, Q_[0] + nrm[0] * 2.0], [P_[1] + nrm[1] * gapv, Q_[1] + nrm[1] * 2.0])
+        self.line([Q0[0], Q1[0]], [Q0[1], Q1[1]])
+        L_ = np.linalg.norm(Q1 - Q0)
+        d = (Q1 - Q0) / (L_ + 1e-12)
+        tw = 0.18 * FS_DIM * len(text) / 1.0 * 0.62
+        if L_ > 7 and L_ > tw + 6:
+            self.arrow(Q0, Q1)
+            self.arrow(Q1, Q0)
+            mid = Q0 + (Q1 - Q0) * tpos
+        else:                                         # arrows from outside, text beside the far arrow
+            self.line([Q0[0] - d[0] * 5, Q0[0]], [Q0[1] - d[1] * 5, Q0[1]])
+            self.line([Q1[0], Q1[0] + d[0] * (6 + tw)], [Q1[1], Q1[1] + d[1] * (6 + tw)])
+            self.arrow(Q0, Q0 - d * 3)
+            self.arrow(Q1, Q1 + d * 3)
+            mid = Q1 + d * (3.5 + tw / 2)
+        horizontal = where in ("above", "below")
+        self.text(mid[0] + (0 if horizontal else -0.8), mid[1] + (0.8 if horizontal else 0), text, fs=FS_DIM,
+                  role="dim", ha="center", va="bottom", rotation=0 if horizontal else 90, rotation_mode="anchor")
+        self.dims.append(Dim(tuple(p0), tuple(p1), tuple(a), text, val, name, on_surface))
+
+    def _free(self, x, y, w, h):
+        for bx in self.boxes:
+            if x < bx[2] and bx[0] < x + w and y < bx[3] and bx[1] < y + h:
+                return False
+        return True
+
+    def tag(self, name, p3, label):
+        """Feature tag next to its feature, short leader, placed where no other tag or note is."""
+        P = self.P(name, p3)
+        w, h = 1.9 * len(label) + 1.0, 3.2
+        for r in (4.0, 6.0, 8.5, 11.0):
+            for ang in (45, 135, -45, -135, 0, 180, 90, -90):
+                d = np.array([np.cos(np.radians(ang)), np.sin(np.radians(ang))])
+                c = P + d * r
+                x, y = c[0] - w / 2, c[1] - h / 2
+                if self._free(x, y, w, h):
+                    self.boxes.append((x, y, x + w, y + h))
+                    self.line([P[0], c[0] - d[0] * (w / 2 if abs(d[0]) > 0.3 else 0)],
+                              [P[1], c[1] - d[1] * (h / 2 if abs(d[1]) > 0.3 else 0)], w=W_THIN * 0.8)
+                    self.text(c[0], c[1], label, fs=FS_TAG, role="tag", ha="center", va="center")
+                    return
+        self.text(P[0] + 3, P[1] + 3, label, fs=FS_TAG, role="tag")
+
+    def centermark(self, name, p3, r):
+        P = self.P(name, p3)
+        k = self.views[name][4]
+        e = r * k + 1.5
+        self.line([P[0] - e, P[0] + e], [P[1], P[1]], ls=(0, (8, 1.5, 1, 1.5)))
+        self.line([P[0], P[0]], [P[1] - e, P[1] + e], ls=(0, (8, 1.5, 1, 1.5)))
+
+    def centerline(self, name, p0, p1, ext=3.0):
+        A_, B_ = self.P(name, p0), self.P(name, p1)
+        d = (B_ - A_) / (np.linalg.norm(B_ - A_) + 1e-12)
+        A_, B_ = A_ - d * ext, B_ + d * ext
+        self.line([A_[0], B_[0]], [A_[1], B_[1]], ls=(0, (8, 1.5, 1, 1.5)))
+
+    def caption(self, name, title, scale):
+        x0, y0, x1, y1 = self.bbox[name]
+        y = y1 + self.used[name]["above"] + 7.0
+        self.text((x0 + x1) / 2, y, f"{title}   ({scale})", fs=9, role="caption", ha="center", va="bottom",
+                  weight="bold")
+
+    # frame, zones and the ISO 7200 title block
+    def furniture(self, tb, total):
+        x0, y0, x1, y1 = BORDER
+        self.ax.add_patch(plt.Rectangle((x0, y0), x1 - x0, y1 - y0, fill=False, lw=0.7 * PT, color=INK))
+        self.ax.add_patch(plt.Rectangle((x0 - 5, y0 - 5), x1 - x0 + 10, y1 - y0 + 10, fill=False, lw=W_THIN,
+                                        color=INK)) if False else None
+        # zone grid: 8 columns (1..8), 6 rows (A..F)
+        for i in range(9):
+            x = x0 + (x1 - x0) * i / 8
+            self.line([x, x], [y1, y1 + 3]) if 0 < i < 8 else None
+            self.line([x, x], [y0 - 3, y0]) if 0 < i < 8 else None
+            if i < 8:
+                xm = x0 + (x1 - x0) * (i + 0.5) / 8
+                self.text(xm, y1 + 1.5, str(i + 1), fs=6, role="zone", ha="center", va="center")
+                self.text(xm, y0 - 1.5, str(i + 1), fs=6, role="zone", ha="center", va="center")
+        for j in range(7):
+            y = y0 + (y1 - y0) * j / 6
+            if 0 < j < 6:
+                self.line([x0 - 3, x0], [y, y])
+                self.line([x1, x1 + 3], [y, y])
+            if j < 6:
+                ym = y0 + (y1 - y0) * (j + 0.5) / 6
+                lab = "FEDCBA"[j]
+                self.text(x0 - 1.5, ym, lab, fs=6, role="zone", ha="center", va="center")
+                self.text(x1 + 1.5, ym, lab, fs=6, role="zone", ha="center", va="center")
+        # title block: 180 wide, bottom right
+        w, rows = 180.0, 6
+        bx, by, h = x1 - w, y0, 7.0
+        self.ax.add_patch(plt.Rectangle((bx, by), w, h * rows, fill=False, lw=0.5 * PT, color=INK))
+        cells = [  # (row from the bottom, x from, x to, label, value, big)
+            (5, 0, 180, "Chủ sở hữu / dự án", f"{tb['owner']}  ·  {tb['project']}", False),
+            (4, 0, 120, "Tên chi tiết (title)", tb["title"], True),
+            (4, 120, 180, "Số bản vẽ", tb["number"], True),
+            (3, 0, 60, "Vật liệu", tb["material"], False),
+            (3, 60, 95, "Khối lượng", tb["mass"], False),
+            (3, 95, 125, "Tỉ lệ", tb["scale"], False),
+            (3, 125, 155, "Đơn vị", "mm", False),
+            (3, 155, 180, "Phép chiếu", "", False),
+            (2, 0, 60, "Thiết kế", tb["designed"], False),
+            (2, 60, 120, "Kiểm tra", tb["checked"], False),
+            (2, 120, 180, "Phê duyệt", tb["approved"], False),
+            (1, 0, 60, "Ngày phát hành", tb["date"], False),
+            (1, 60, 95, "Lần sửa (rev)", tb["rev"], False),
+            (1, 95, 140, "Trạng thái", tb["status"], False),
+            (1, 140, 180, "Tờ", f"{self.number} / {total}", False),
+            (0, 0, 180, "Tiêu chuẩn tham chiếu", tb["standards"], False),
+        ]
+        for r, a, b, lab, val, big in cells:
+            self.ax.add_patch(plt.Rectangle((bx + a, by + r * h), b - a, h, fill=False, lw=W_THIN, color=INK))
+            self.text(bx + a + 1.0, by + r * h + h - 1.0, lab, fs=5.0, role="tb_label", va="top")
+            if val:
+                self.text(bx + a + 1.0, by + r * h + 1.2, val, fs=8.5 if big else 6.6, role="tb_value", va="bottom",
+                          weight="bold" if big else "normal")
+        # first-angle symbol in its cell: truncated cone, its thick end next to the circles (ISO 5456-2)
+        sx, sy = bx + 158, by + 3 * h + 1.6
+        self.ax.add_patch(plt.Polygon([(sx, sy + 1.4), (sx + 6, sy), (sx + 6, sy + 4.4), (sx, sy + 3.0)], fill=False,
+                                      lw=W_THIN))
+        self.ax.add_patch(plt.Circle((sx + 11.5, sy + 2.2), 2.2, fill=False, lw=W_THIN))
+        self.ax.add_patch(plt.Circle((sx + 11.5, sy + 2.2), 0.9, fill=False, lw=W_THIN))
+        self.tb = cells
+
+
+# ------------------------------------------------------------------ N3 · head frame
+def n3_model():
+    """The N3 solid moved to its datum O and every feature, all from the CAD code."""
+    import body as B
+    import hardware as hw
+    import joint as J
+    body = B.Body()
+    j = body.joints["head_pitch"]
+    O = np.array(j.origin, float)
+    s = body.parts["head_frame"].moved(cq.Location(cq.Vector(*(-O))))
+    ya = -J.CENTER                                      # y of the stack point a = 0 (the servo case top)
+    hx0, hx1 = B.Body.HEAD_X[0] - O[0], B.Body.HEAD_X[1] - O[0]
+    hy0, hy1 = B.Body.HEAD_Y
+    hd = B.HEAD_DECK - O[2]
+    f = dict(
+        O=O, ya=ya,
+        horn=dict(y_in=J.HP[0] + ya, y_out=J.HP[1] + ya, r=J.HORN_R, recess_d=hw.HORN.disc_d + 0.4,
+                  recess_y=J.HORN_TOP + ya, hub_d=hw.HORN.hub_d + 0.8, access_d=hw.HOLES["access"].d,
+                  cap_d=2 * (J.CAP_R + 0.05), cap_y=J.HP[1] - J.CAP_T + ya, pilot_r=hw.HORN.screw_r,
+                  pilot_d=hw.HOLES["pilot_st2"].d, pilot_y0=J.HORN_TOP - 0.1 + ya, pilot_y1=J.HP[1] - 0.4 + ya),
+        idler=dict(y_out=J.IP[0] + ya, y_in=J.IP[1] + ya, r=J.IDLER_R, cap_d=2 * (J.IDLER_R - 1.0),
+                   cap_y=J.IP[0] + J.CAP_T + ya, seat_d=hw.HOLES["bearing"].d, seat_y1=J.BRG[1] + ya, lip_d=4.6),
+        bar=dict(x=(B.NECK_X - 6.0 - O[0], B.NECK_X + 6.0 - O[0]), z=(B.HEAD_Z - O[2], hd)),
+        deck=dict(x=(hx0, hx1), y=(hy0, hy1), z=(hd, hd + 3.0)),
+        face=dict(x=(hx1 - 3.0, hx1), z=(hd - 26.0, hd)),
+    )
+    holes = [h for h in body.holes() if h.part == "head_frame"]
+    feats = []
+    groups = {"shell": ("A", "Tán cấy nhiệt M2 (OD 3.2 × 3) xuyên sàn — bắt vỏ đầu C3/C4, ốc M2×6 từ trên",
+                        "C3/C4 tab Ø2.30"),
+              "bay_cam": ("B", "Tán cấy nhiệt M2 xuyên sàn — bắt N4 (cam_mount), ốc M2×6 từ trên", "N4 lỗ Ø2.30"),
+              "disp_tie": ("C", "Khe dây rút 1.6 × 3.0 xuyên tấm mặt — buộc module màn hình", "dây rút 2.5 mm"),
+              "horn": ("D", "Lỗ mồi vít ST2×4, mù — bắt horn tròn SG90 vào đĩa", "horn SG90 (Ø lỗ: TBD)"),
+              "access": ("E", "Lỗ thao tác Ø5.2 xuyên — tua vít PH0 / lục giác tới ốc tâm horn", "—"),
+              "bearing": ("F", "Ổ bạc đạn MR63ZZ (3×6×2.5) + hốc đầu ốc M3×6 đầu dù + W3", "MR63ZZ, N2 tán M3")}
+    order = ["shell", "bay_cam", "disp_tie", "horn", "access", "bearing"]
+    for g in order:
+        mem = sorted([h for h in holes if h.id.split(".")[-1].rstrip("0123456789") == g],
+                     key=lambda h: (round(h.pos[0], 2), round(h.pos[1], 2), round(h.pos[2], 2)))
+        tag, what, mate = groups[g]
+        for i, h in enumerate(mem):
+            feats.append(dict(tag=f"{tag}{i + 1}", group=tag, id=h.id, kind=h.kind, d=h.d, depth=h.depth,
+                              dir=np.round(np.asarray(h.dir, float), 4), pos=np.asarray(h.pos, float) - O, what=what,
+                              mate=mate))
+    return s, f, feats, holes
+
+
+def size_text(ft):
+    if ft["kind"] == "tie":
+        return "1.60 × 3.00 xuyên (THRU)"
+    if ft["depth"]:
+        return f"Ø{ft['d']:.2f} {DEPTH}{ft['depth']:.2f} (mù)"
+    return f"Ø{ft['d']:.2f} xuyên (THRU)"
+
+
+def dir_text(d):
+    names = {(1, 0, 0): "+X", (-1, 0, 0): "−X", (0, 1, 0): "+Y", (0, -1, 0): "−Y", (0, 0, 1): "+Z", (0, 0, -1): "−Z"}
+    return names.get(tuple(np.round(d, 3) + 0.0), str(tuple(np.round(d, 2))))
+
+
+# fixed-fastener position tolerance (ASME/ISO practice): an insert mated to a clearance hole H with screw F leaves
+# T = H - F to share between the two parts; each part gets half
+def pos_tol(group):
+    if group in ("A", "B"):
+        return 2.30 - 2.00
+    return None
+
+
+def print_analysis(s, f):
+    """Bed contact and overhang for the six axis-aligned orientations; overhang inside critical features."""
+    out = {}
+    rot = {"+Z lên (như CAD)": ((1, 0, 0), 0), "mặt trên sàn úp xuống (+Z xuống)": ((1, 0, 0), 180),
+           "+X xuống": ((0, 1, 0), 90), "−X xuống": ((0, 1, 0), -90), "+Y xuống": ((1, 0, 0), -90),
+           "−Y xuống": ((1, 0, 0), 90)}
+    for lab, (ax_, ang) in rot.items():
+        r = s.rotate((0, 0, 0), ax_, ang)
+        v, fc = r.tessellate(0.03, 0.15)
+        V = np.array([(p.x, p.y, p.z) for p in v])
+        T = V[np.array(fc)]
+        n = np.cross(T[:, 1] - T[:, 0], T[:, 2] - T[:, 0])
+        a = np.linalg.norm(n, axis=1) / 2
+        n = n / (2 * a[:, None] + 1e-12)
+        c = T.mean(1)
+        zmin = V[:, 2].min()
+        bed = (n[:, 2] < -0.99) & (np.abs(c[:, 2] - zmin) < 0.05)
+        over = (n[:, 2] < -0.707) & ~bed
+        out[lab] = dict(bed=float(a[bed].sum()), over=float(a[over].sum()), h=float(np.ptp(V[:, 2])))
     return out
 
 
-# ------------------------------------------------------------------ the head assembly
-def head_parts():
-    """{code: dict(name, solid, holes, material, qty, mass, print, note)}, all moved so the datum O is at 0."""
-    sh = SH.BazanShell()
-    body = sh.body
-    O = np.array(body.joints["head_pitch"].origin, float)
-    _, parts_g, _ = A.weigh(sh.leg, body, sh)
-    holes = body.holes()
-
-    def mv(s):
-        return s.moved(cq.Location(cq.Vector(*(-O))))
-
-    def own(part):
-        return [dict(id=h.id.split(".")[-1], kind=h.kind, d=h.d, depth=h.depth, dir=tuple(np.round(h.dir, 3)),
-                     pos=np.asarray(h.pos, float) - O, what=h.fastener) for h in holes if h.part == part]
-
-    def shell_holes(part):
-        out = []
-        for k, (p, pt, d) in enumerate([s for s in sh.screws if s[0] == part]):
-            out.append(dict(id=f"tab{k + 1}", kind="clr_m2", d=2.3, depth=0, dir=tuple(np.array(d, float)),
-                            pos=np.asarray(pt, float) - O,
-                            what="M2x6 xuống qua ống dẫn từ đỉnh đầu, vào tán N3.shell (đầu ốc nằm trên tab)"))
-            out.append(dict(id=f"tube{k + 1}", kind="tube", d=2 * SH.TUBE_R[0], depth=float(SH.H_TOP - pt[2]),
-                            dir=(0.0, 0.0, -1.0), pos=np.array([pt[0], pt[1], SH.H_TOP]) - O,
-                            what="ống dẫn lục giác 1.5 + ốc, lỗ trên đỉnh đầu"))
-        return out
-
-    P = {
-        "N3": dict(key="head_frame", name="Head Frame", solid=mv(body.parts["head_frame"]), holes=own("head_frame"),
-                   material="PLA (PETG nếu servo nóng)", qty=1, mass=parts_g["head_frame"][0],
-                   print="mặt sàn đầu úp xuống bàn, support dưới 2 đĩa"),
-        "N4": dict(key="cam_mount", name="Camera + ToF Mount (nghiêng 15°)", solid=mv(body.parts["cam_mount"]),
-                   holes=own("cam_mount"), material="PLA", qty=1, mass=parts_g["cam_mount"][0],
-                   print="đế xuống bàn"),
-        "C3": dict(key="head_front", name="Head Shell, Front", solid=mv(sh.parts["head_front"]),
-                   holes=shell_holes("head_front"), material="PLA/PETG, thành 1.2", qty=1,
-                   mass=parts_g["shell.head_front"][0], print="xem ghi chú: chưa chốt hướng in"),
-        "C4": dict(key="head_back", name="Head Shell, Back", solid=mv(sh.parts["head_back"]),
-                   holes=shell_holes("head_back"), material="PLA/PETG, thành 1.2", qty=1,
-                   mass=parts_g["shell.head_back"][0], print="xem ghi chú: chưa chốt hướng in"),
-        "C5": dict(key="visor", name="Visor", solid=mv(sh.parts["visor"]), holes=[],
-                   material="tấm PETG/PC trong 0.5–1 (không in FDM)", qty=1, mass=parts_g["shell.visor"][0],
-                   print="dán keo vào C3"),
-    }
-    bought = {"DISP": el.BOARDS["DISP"], "CAM": el.BOARDS["CAM"], "TOF": el.BOARDS["TOF"]}
-    return P, O, body, sh, bought
+def critical_overhang(s, f, lab="mặt trên sàn úp xuống (+Z xuống)", ang=180):
+    """Overhang area (mm2) inside the horn recess, the bearing seat and the pilot holes when printed deck-down."""
+    r = s.rotate((0, 0, 0), (1, 0, 0), ang)
+    v, fc = r.tessellate(0.03, 0.15)
+    V = np.array([(p.x, p.y, p.z) for p in v])
+    T = V[np.array(fc)]
+    n = np.cross(T[:, 1] - T[:, 0], T[:, 2] - T[:, 0])
+    a = np.linalg.norm(n, axis=1) / 2
+    n = n / (2 * a[:, None] + 1e-12)
+    c = T.mean(1)
+    c = c * np.array([1, -1, -1])          # back to the part frame (rotation 180 deg about X)
+    over = n[:, 2] < -0.707
+    rr = np.hypot(c[:, 0], c[:, 2])
+    h, i = f["horn"], f["idler"]
+    zones = {"hốc horn Ø20.4 (D)": (c[:, 1] > h["y_in"] - 0.05) & (c[:, 1] < h["recess_y"] + 0.05)
+             & (rr < h["recess_d"] / 2 + 0.05),
+             "ổ bạc đạn Ø6.05 (F)": (c[:, 1] > i["cap_y"] - 0.05) & (c[:, 1] < i["seat_y1"] + 0.05)
+             & (rr < i["seat_d"] / 2 + 0.05),
+             "lỗ thao tác Ø5.2 (E)": (c[:, 1] > h["recess_y"]) & (c[:, 1] < h["y_out"]) & (rr < h["access_d"] / 2 + 0.05)}
+    return {k: float(a[over & m].sum()) for k, m in zones.items()}
 
 
-KIND_VI = {"ins_m2_thru": "tán M2 xuyên", "ins_m2": "tán M2", "boss_m2": "tán M2 (trụ)", "ins_m3": "tán M3",
-           "ins_m3_thru": "tán M3 xuyên", "cb_m2": "lỗ M2 + khoét chìm", "clr_m2": "lỗ thoát M2",
-           "pilot_st2": "lỗ mồi ST2", "bearing": "ổ bạc đạn MR63ZZ", "tie": "khe dây rút", "access": "lỗ thao tác",
-           "tube": "ống dẫn ốc"}
+def draw_n3(out):
+    import audit as A
+    s, f, feats, holes = n3_model()
+    h, i_, bar, deck, face = f["horn"], f["idler"], f["bar"], f["deck"], f["face"]
+    zt, xf = deck["z"][1], face["x"][1]
+    mass = A.printed_g(s, "arm")
+    pa = print_analysis(s, f)
+    crit = critical_overhang(s, f)
+    tb = dict(owner="Hau Nguyen Ngoc", project="Bazan Humanoid — cụm đầu (H)", title="N3 · Head Frame",
+              number="BZN-H-N3", material="PLA (xem ghi chú M1)", mass=f"{mass:.1f} g (ước tính)", scale="2:1 (C, D 5:1)",
+              designed="Hau Nguyen Ngoc", checked="TBD", approved="TBD", date=date.today().isoformat(), rev="P1",
+              status="SƠ BỘ — chưa phát hành chế tạo",
+              standards="ISO 128 · ISO 129-1 · ISO 5455 · ISO 5456-2 · ISO 5457 · ISO 7200 · ISO 1101 (tham chiếu)")
+    K, KD = 2.0, 5.0
+    c3 = np.array([(deck["x"][0] + deck["x"][1]) / 2, 0.0, (-h["r"] + zt) / 2])
+    fc, tc, lc = project(c3, "front"), project(c3, "top"), project(c3, "left")
+    sheets = []
+
+    # ================= sheet 1: principal views (first angle), datums, feature tags
+    s1 = Sheet(1, "views")
+    s1.place("front", "front", 98, 218, fc[0], fc[1], K)
+    s1.place("top", "top", 98, 88, fc[0], tc[1], K)          # same paper x as the front view
+    s1.place("left", "left", 228, 218, lc[0], fc[1], K)      # same paper y as the front view
+    for nm in ("front", "top", "left"):
+        vis, hid = hlr(s, nm)
+        s1.draw_edges(nm, hid, w=W_THIN, ls=(0, (3, 1.5)))
+        s1.draw_edges(nm, vis, w=W_THICK)
+    s1.centerline("front", (0, i_["y_out"], 0), (0, h["y_out"], 0))
+    s1.centerline("top", (0, i_["y_out"], 0), (0, h["y_out"], 0))
+    s1.centermark("left", (0, 0, 0), h["r"])
+    for ft in feats:
+        if ft["group"] in ("A", "B"):
+            s1.centermark("top", ft["pos"], ft["d"] / 2)
+    # front: width, height, face plate height and the tie slots from datum A
+    s1.dim("front", (0, deck["y"][0], zt), (0, deck["y"][1], zt), (0, 1, 0), "above")
+    s1.dim("front", (xf, deck["y"][0], face["z"][0]), (xf, deck["y"][0], zt), (0, 0, 1), "left")
+    s1.dim("front", (0, h["y_out"], -h["r"]), (xf, deck["y"][1], zt), (0, 0, 1), "right", on_surface=False)
+    c_feats = [ft for ft in feats if ft["group"] == "C"]
+    zc = sorted({round(ft["pos"][2], 3) for ft in c_feats})
+    ymax_c = max(ft["pos"][1] for ft in c_feats)
+    for zz in zc[::-1]:
+        s1.dim("front", (xf, ymax_c, zz), (xf, ymax_c, zt), (0, 0, 1), "right", on_surface=False)
+    s1.dim("front", (xf, -ymax_c, zc[0]), (xf, ymax_c, zc[0]), (0, 1, 0), "below", on_surface=False)
+    # left: depth, axis position from datums A and B, bar width, deck thickness
+    s1.dim("left", (deck["x"][0], 0, zt), (xf, 0, zt), (1, 0, 0), "above")
+    s1.dim("left", (0, 0, 0), (xf, 0, 0), (1, 0, 0), "below", on_surface=False)
+    s1.dim("left", (bar["x"][0], i_["y_out"], bar["z"][0] + 8), (bar["x"][1], i_["y_out"], bar["z"][0] + 8),
+           (1, 0, 0), "below")
+    s1.dim("left", (0, 0, 0), (0, 0, zt), (0, 0, 1), "right", on_surface=False)
+    s1.dim("left", (deck["x"][0], 0, deck["z"][0]), (deck["x"][0], 0, zt), (0, 0, 1), "left")
+    # top: deck outline, hole pattern from datum B (front face) and about datum C (Y = 0)
+    a_pts = [ft for ft in feats if ft["group"] == "A"]
+    b_pts = [ft for ft in feats if ft["group"] == "B"]
+    xs_a = sorted({round(ft["pos"][0], 3) for ft in a_pts})
+    ya = max(ft["pos"][1] for ft in a_pts)
+    yb = max(ft["pos"][1] for ft in b_pts)
+    xb = b_pts[0]["pos"][0]
+    s1.dim("top", (xs_a[0], -ya, zt), (xs_a[0], ya, zt), (0, 1, 0), "above", on_surface=False, tpos=0.3)
+    s1.dim("top", (xb, -yb, zt), (xb, yb, zt), (0, 1, 0), "above", on_surface=False, tpos=0.3)
+    s1.dim("top", (deck["x"][0], deck["y"][0], zt), (deck["x"][1], deck["y"][0], zt), (1, 0, 0), "left")
+    for xv in [xb] + xs_a[::-1]:
+        s1.dim("top", (xf, ya, zt), (xv, ya, zt), (1, 0, 0), "right", on_surface=False)
+    # cutting planes on the top view
+    k_ = s1.views["top"][4]
+    u_ = s1.used["top"]
+    plan = (((0, deck["y"][0] - (u_["left"] + 4) / k_, zt), (0, deck["y"][1] + (u_["right"] + 4) / k_, zt),
+             (-1, 0, 0), "A"),
+            ((deck["x"][1] + (u_["below"] + 4) / k_, 0, zt), (deck["x"][0] - (u_["above"] + 4) / k_, 0, zt),
+             (0, 1, 0), "B"))
+    for p0, p1, arrow_dir, lab in plan:
+        P0, P1 = s1.P("top", p0), s1.P("top", p1)
+        s1.line([P0[0], P1[0]], [P0[1], P1[1]], ls=(0, (8, 1.5, 1, 1.5)))
+        dd = s1.P("top", np.array(p0) + np.array(arrow_dir) * 5) - P0
+        dd = dd / np.linalg.norm(dd)
+        for P_ in (P0, P1):
+            s1.line([P_[0], P_[0] + dd[0] * 6], [P_[1], P_[1] + dd[1] * 6], w=W_THICK)
+            s1.arrow(P_ + dd * 6, P_)
+            s1.text(P_[0] + dd[0] * 8.5, P_[1] + dd[1] * 8.5, lab, fs=10, role="section", ha="center",
+                    va="center", weight="bold")
+    # feature tags: A, B on the top view; C on the front view; D, E, F on the left view
+    for nm in ("top", "front", "left"):
+        x0, y0, x1, y1 = s1.bbox[nm]
+        s1.boxes.append((x0 - 1, y0 - 1, x1 + 1, y1 + 1)) if False else None
+    view_of = {"A": "top", "B": "top", "C": "front", "D": "left", "E": "left", "F": "left"}
+    for ft in feats:
+        s1.tag(view_of[ft["group"]], ft["pos"], ft["tag"])
+    for nm, t, sc in (("front", "Hình chiếu đứng (nhìn từ +X)", "2:1"), ("left", "Hình chiếu cạnh (nhìn từ −Y)", "2:1"),
+                      ("top", "Hình chiếu bằng (nhìn từ +Z)", "2:1")):
+        s1.caption(nm, t, sc)
+    # iso
+    iv, _ = hlr(s, "iso")
+    ic = project(c3, "iso")
+    s1.place("iso", "iso", 236, 103, ic[0], ic[1], 1.5)
+    s1.draw_edges("iso", iv, w=W_THICK * 0.8)
+    s1.caption("iso", "Hình trục đo", "minh hoạ, không đo")
+    # legend (no leaders) and datum definition
+    xl = 302
+    s1.text(xl, 281, "Ký hiệu đặc tính", fs=9, role="head", weight="bold", va="top")
+    yy = 274
+    for g, what in (("A", "tán M2 bắt vỏ C3/C4"), ("B", "tán M2 bắt N4"), ("C", "khe dây rút màn hình"),
+                    ("D", "lỗ mồi ST2 (horn)"), ("E", "lỗ thao tác ốc tâm horn"), ("F", "ổ bạc đạn MR63ZZ")):
+        mem = [ft for ft in feats if ft["group"] == g]
+        s1.text(xl, yy, f"{g}1–{g}{len(mem)}" if len(mem) > 1 else f"{g}1", fs=7.5, role="legend", va="top",
+                weight="bold")
+        s1.text(xl + 14, yy, f"{len(mem)}× {size_text(mem[0])}", fs=7.5, role="legend", va="top")
+        s1.text(xl + 14, yy - 3.6, what, fs=6.8, role="legend", va="top")
+        yy -= 8.6
+    s1.text(xl, yy - 2, "Gốc toạ độ và chuẩn đo", fs=9, role="head", weight="bold", va="top")
+    s1.text(xl, yy - 8, "O = trục gật đầu ∩ mặt phẳng giữa chồng khớp\n(tư thế 0). X tới trước, Y sang trái, Z lên.\n"
+            f"A = mặt trên sàn đầu (Z = +{zt:.2f})\nB = mặt trước tấm mặt (X = +{xf:.2f})\n"
+            "C = mặt phẳng đối xứng Y = 0\nToạ độ đầy đủ mọi đặc tính: tờ 4.\nMặt cắt A–A, B–B: tờ 2. Chi tiết C, D: tờ 3.",
+            fs=7.2, role="note", va="top")
+    sheets.append(s1)
+
+    # ================= sheet 2: sections A-A, B-B and details C, D
+    s2 = Sheet(2, "sections")
+    av, apol, _ = section(s, (0, 0, 0), "front")
+    bv, bpol, _ = section(s, (0, 0, 0), "left")
+    s2.place("A", "front", 98, 205, fc[0], fc[1], K)
+    s2.place("B", "left", 242, 205, lc[0], fc[1], K)
+    s2.draw_edges("A", av)
+    s2.hatch("A", apol)
+    s2.draw_edges("B", bv)
+    s2.hatch("B", bpol)
+    s2.centerline("A", (0, i_["y_out"], 0), (0, h["y_out"], 0))
+    s2.centermark("B", (0, 0, 0), h["r"])
+    s2.dim("A", (0, i_["y_out"], -7.2), (0, h["y_out"], -8.0), (0, 1, 0), "above")
+    s2.dim("A", (0, i_["y_out"], -i_["r"]), (0, i_["y_in"], -i_["r"]), (0, 1, 0), "below")
+    s2.dim("A", (0, h["y_in"], -h["r"]), (0, h["y_out"], -h["r"]), (0, 1, 0), "below")
+    s2.dim("A", (0, i_["y_in"], -5.0), (0, h["y_in"], -11.0), (0, 1, 0), "below")
+    s2.dim("A", (0, h["y_out"], -h["r"]), (0, h["y_out"], h["r"]), (0, 0, 1), "right", prefix="Ø")
+    s2.dim("A", (0, i_["y_out"], -i_["r"]), (0, i_["y_out"], i_["r"]), (0, 0, 1), "left", prefix="Ø")
+    s2.dim("A", (0, deck["y"][0], deck["z"][0]), (0, deck["y"][0], zt), (0, 0, 1), "left")
+    s2.dim("B", (face["x"][0], 0, zt - 10), (xf, 0, zt - 10), (1, 0, 0), "below")
+    s2.dim("B", (xf, 0, face["z"][0]), (xf, 0, zt), (0, 0, 1), "right")
+    s2.dim("B", (deck["x"][0], 0, deck["z"][0]), (deck["x"][0], 0, zt), (0, 0, 1), "left")
+    # detail windows (on A-A) and the details themselves at 4:1
+    wins = {"C": (h["y_in"] - 1.0, -h["r"] - 1.0, h["y_out"] + 1.0, h["r"] + 1.0),
+            "D": (i_["y_out"] - 1.0, -i_["r"] - 1.0, i_["y_in"] + 1.0, i_["r"] + 1.0)}
+    for nm, (u0, v0, u1, v1) in wins.items():
+        q0, q1 = s2.P2("A", (u0, v0)), s2.P2("A", (u1, v1))
+        s2.ax.add_patch(plt.Rectangle(q0, *(q1 - q0), fill=False, lw=W_THIN, ls=(0, (6, 2))))
+        s2.text(q1[0] + 1, q1[1] + 1, nm, fs=10, role="section", weight="bold")
+    s2.text(300, 281, "Ghi chú mặt cắt", fs=9, role="head", weight="bold", va="top")
+    s2.text(300, 274, "Mặt cắt không vẽ nét khuất; gạch 45°, nét mảnh.\nØ trên hình cắt: đường kính quanh trục gật\n"
+            "đầu (trục Y).\nKhung nét đứt C, D: vùng phóng to ở tờ 3 (5:1).\n\n"
+            f"Khe giữa hai đĩa {fmt(h['y_in'] - i_['y_in'])}: chứa servo SG90 + stack N2\n— kích thước lắp ghép (K2).",
+            fs=7.2, role="note", va="top")
+    for nm, t in (("A", "Mặt cắt A–A (X = 0, qua trục gật đầu)"), ("B", "Mặt cắt B–B (Y = 0, mặt phẳng giữa)")):
+        s2.caption(nm, t, "2:1")
+    sheets.append(s2)
+
+    # ================= sheet 3: details C and D at 5:1 (ISO 5455)
+    s2 = Sheet(3, "details")
+    s2.place("C", "front", 95, 145, (wins["C"][0] + wins["C"][2]) / 2, 0.0, KD)
+    s2.place("D", "front", 250, 160, (wins["D"][0] + wins["D"][2]) / 2, 0.0, KD)
+    for nm in ("C", "D"):
+        segs, pols = clip(av, apol, wins[nm])
+        s2.draw_edges(nm, segs)
+        s2.hatch(nm, pols)
+        s2.centerline(nm, (0, wins[nm][0], 0), (0, wins[nm][2], 0), ext=1.0)
+    # detail C: horn plate
+    s2.dim("C", (0, h["y_in"], h["r"]), (0, h["y_out"], h["r"]), (0, 1, 0), "above")
+    s2.dim("C", (0, h["y_in"], h["recess_d"] / 2), (0, h["recess_y"], h["recess_d"] / 2), (0, 1, 0), "above",
+           text=f"{DEPTH}{fmt(h['recess_y'] - h['y_in'])}")
+    s2.dim("C", (0, h["cap_y"], -h["cap_d"] / 2), (0, h["y_out"], -h["cap_d"] / 2), (0, 1, 0), "below",
+           text=f"{DEPTH}{fmt(h['y_out'] - h['cap_y'])}")
+    s2.dim("C", (0, h["y_in"], -h["recess_d"] / 2), (0, h["y_in"], h["recess_d"] / 2), (0, 0, 1), "left", prefix="Ø")
+    s2.dim("C", (0, h["y_out"], -h["cap_d"] / 2), (0, h["y_out"], h["cap_d"] / 2), (0, 0, 1), "right", prefix="Ø")
+    s2.dim("C", (0, h["y_out"] - 0.5, -h["access_d"] / 2), (0, h["y_out"] - 0.5, h["access_d"] / 2), (0, 0, 1),
+           "right", prefix="Ø", on_surface=False)
+    s2.dim("C", (0, h["pilot_y1"], -h["pilot_r"]), (0, h["pilot_y1"], h["pilot_r"]), (0, 0, 1), "right",
+           on_surface=False)
+    s2.leader_note = None
+    pc = s2.P("C", (0, h["pilot_y1"], h["pilot_r"]))
+    tx = np.array([pc[0] + 30, pc[1] + 30])
+    s2.line([pc[0], tx[0]], [pc[1], tx[1]])
+    s2.line([tx[0], tx[0] + 40], [tx[1], tx[1]])
+    s2.text(tx[0] + 1, tx[1] + 0.8, f"D1, D2: 2× Ø{h['pilot_d']:.2f} {DEPTH}{h['pilot_y1'] - h['recess_y']:.2f} "
+            f"từ đáy hốc", fs=7.2, role="note", va="bottom")
+    s2.text(tx[0] + 1, tx[1] - 0.8, f"vỏ còn lại tới mặt ngoài: {h['y_out'] - h['pilot_y1']:.2f} (thành mỏng)", fs=7.2,
+            role="note", va="top")
+    # detail D: idler plate
+    s2.dim("D", (0, i_["y_out"], i_["r"]), (0, i_["y_in"], i_["r"]), (0, 1, 0), "above")
+    s2.dim("D", (0, i_["cap_y"], i_["seat_d"] / 2), (0, i_["seat_y1"], i_["seat_d"] / 2), (0, 1, 0), "above",
+           text=f"{DEPTH}{fmt(i_['seat_y1'] - i_['cap_y'])}")
+    s2.dim("D", (0, i_["y_out"], -i_["cap_d"] / 2), (0, i_["cap_y"], -i_["cap_d"] / 2), (0, 1, 0), "below",
+           text=f"{DEPTH}{fmt(i_['cap_y'] - i_['y_out'])}")
+    s2.dim("D", (0, i_["seat_y1"], -i_["lip_d"] / 2), (0, i_["y_in"], -i_["lip_d"] / 2), (0, 1, 0), "below",
+           text=f"{DEPTH}{fmt(i_['y_in'] - i_['seat_y1'])}")
+    s2.dim("D", (0, i_["cap_y"], -i_["seat_d"] / 2), (0, i_["cap_y"], i_["seat_d"] / 2), (0, 0, 1), "left",
+           prefix="Ø", on_surface=False)
+    s2.dim("D", (0, i_["y_out"], -i_["cap_d"] / 2), (0, i_["y_out"], i_["cap_d"] / 2), (0, 0, 1), "left", prefix="Ø")
+    s2.dim("D", (0, i_["y_in"], -i_["lip_d"] / 2), (0, i_["y_in"], i_["lip_d"] / 2), (0, 0, 1), "right", prefix="Ø",
+           on_surface=False)
+    s2.dim("D", (0, i_["y_in"], -i_["r"]), (0, i_["y_in"], i_["r"]), (0, 0, 1), "right", prefix="Ø")
+    for nm, t in (("C", "Chi tiết C — đĩa horn (từ mặt cắt A–A, tờ 2)"),
+                  ("D", "Chi tiết D — đĩa idler (từ mặt cắt A–A, tờ 2)")):
+        s2.caption(nm, t, "5:1")
+    s2.text(300, 281, "Ghi chú chi tiết", fs=9, role="head", weight="bold", va="top")
+    s2.text(300, 274, "Kích thước Ø: quanh trục gật đầu (trục Y).\n↧ = chiều sâu đo dọc trục Y.\n\n"
+            "Vùng thành mỏng (kiểm tra khi in):\n"
+            f"• đĩa horn, vỏ ngoài lỗ D: {h['y_out'] - h['pilot_y1']:.2f}\n"
+            f"• đĩa horn, thành quanh hốc Ø{fmt(h['recess_d'])}: {h['r'] - h['recess_d'] / 2:.2f}\n"
+            f"• đĩa idler, thành quanh hốc Ø{fmt(i_['cap_d'])}: {i_['r'] - i_['cap_d'] / 2:.2f}\n\n"
+            "Mặt lắp ghép quan trọng:\n• hốc horn Ø20.4: horn SG90 nằm phẳng\n• ổ Ø6.05: ép MR63ZZ (K1)\n"
+            "• đồng trục hốc horn và ổ F (K3)", fs=7.2, role="note", va="top")
+    sheets.append(s2)
+
+    # ================= sheet 4: feature table and notes
+    import textwrap
+    s3 = Sheet(4, "table")
+    s3.text(25, 281, "BẢNG TOẠ ĐỘ LỖ / ĐẶC TÍNH — N3 Head Frame", fs=FS_TITLE, role="head", weight="bold", va="top")
+    s3.text(25, 274, "Toạ độ X, Y, Z từ gốc O (trục gật đầu ∩ mặt phẳng giữa chồng khớp, tư thế 0); X tới trước, Y "
+            "sang trái, Z lên. ΔA, ΔB, ΔC: khoảng cách tới chuẩn đo A (mặt trên sàn),\nB (mặt trước tấm mặt), C (Y = 0). "
+            "Mã A1…F1 là mã ghi trên tờ 1. Hướng = chiều mũi khoan / chiều ốc đi vào. Dung sai vị trí chỉ ghi khi có "
+            "ràng buộc lắp ghép (ghi chú K4).", fs=7.2, role="note", va="top")
+    cols = [("Mã", 11), ("Đặc tính", 104), ("Kích thước", 40), ("Hướng", 13), ("X", 15), ("Y", 15), ("Z", 15),
+            ("ΔA", 14), ("ΔB", 14), ("ΔC", 14), ("Dung sai vị trí", 37), ("Lắp với", 38), ("ID CAD", 24)]
+    x0, y0, rh = 25.0, 262.0, 6.0
+    xs = np.cumsum([0] + [w for _, w in cols]) + x0
+    rows = []
+    for ft in feats:
+        p = ft["pos"]
+        t = pos_tol(ft["group"])
+        rows.append([ft["tag"], ft["what"], size_text(ft), dir_text(ft["dir"]), fmt2(p[0]), fmt2(p[1]), fmt2(p[2]),
+                     fmt2(zt - p[2]), fmt2(xf - p[0]), fmt2(p[1]),
+                     f"vị trí Ø{t / 2:.2f} | A | B | C" if t else "—", ft["mate"], ft["id"].split(".", 1)[-1]])
+    for r, row in enumerate([[c for c, _ in cols]] + rows):
+        y = y0 - r * rh
+        for c, val in enumerate(row):
+            s3.ax.add_patch(plt.Rectangle((xs[c], y - rh), xs[c + 1] - xs[c], rh, fill=r == 0,
+                                          facecolor="#e8e8e8", edgecolor=INK, lw=W_THIN))
+            num = c >= 4 and c <= 9 and r > 0
+            s3.text(xs[c + 1] - 1.0 if num else xs[c] + 1.0, y - rh / 2, str(val), fs=6.5 if c == 1 else 7.0,
+                    role="table", va="center", ha="right" if num else "left", weight="bold" if r == 0 else "normal")
+    yy = y0 - (len(rows) + 1) * rh - 6
+    best = max(pa, key=lambda k: pa[k]["bed"] - 0.5 * pa[k]["over"])
+    notes = [
+        ("VẬT LIỆU", [
+            "M1. PLA. Tiêu chí đổi sang PETG: nhiệt độ vỏ servo head pitch (SG90) đo được > 45 °C khi chạy liên tục "
+            "(PLA mềm ở khoảng 55–60 °C). Chưa có số đo → giữ PLA."]),
+        ("IN 3D (FDM)", [
+            f"P1. Hướng in: {best} — tiếp xúc bàn {pa[best]['bed']:.0f} mm², mặt treo >45° {pa[best]['over']:.0f} mm²,"
+            f" cao {pa[best]['h']:.1f} mm (tính từ CAD trên 6 hướng trục; bảng đủ trong báo cáo kiểm tra).",
+            "P2. Lớp in song song mặt A: sàn và tấm mặt chịu kéo dọc lớp. Không in theo ±Y: chân hai cột đỡ đĩa sẽ chịu "
+            "kéo vuông góc lớp.",
+            "P3. Support cần dưới phần đĩa nhô ra ngoài cột. CẤM support bên trong: "
+            + "; ".join(f"{k} ({v:.0f} mm² mặt treo)" for k, v in crit.items())
+            + " — đặt support blocker; chỗ võng sửa bằng dao/mũi doa.",
+            "P4. Lỗ D, E, F có trục nằm ngang khi in: đỉnh lỗ có thể võng; kiểm tra độ tròn ổ F bằng chính bạc đạn.",
+            "P5. Thông số máy in và dung sai đạt được: TBD — xác định bằng phiếu thử T0 (docs/mechanical/test_print.md)."]),
+        ("LẮP RÁP", [
+            "L1. A1–A4, B1–B2: tán cấy nhiệt M2 ép từ mặt A ở 220 °C, bằng mặt A. Sàn dày 3 = chiều dài tán → kiểm tra "
+            "mặt dưới không phồng.",
+            "L2. D1–D2: horn tròn SG90 nằm phẳng đáy hốc Ø20.4, 2 vít ST2×4 từ phía servo xuyên horn vào lỗ mồi. Ø lỗ "
+            "trên horn: TBD (đo horn thật).",
+            "L3. F1: ép MR63ZZ; ốc đầu dù M3×6 + long đền W3 vào tán M3 trên N2. E1: lối tua vít tới ốc tâm horn.",
+            "L4. Tháo: vỏ C3/C4 (4 ốc qua đỉnh đầu) → N4 → ốc idler → nhấc N3 khỏi horn."]),
+        ("KIỂM TRA", [
+            "K1. Ổ F: MR63ZZ ép tay vào được, lật ngược không rơi, quay êm.",
+            "K2. Khe trong giữa hai đĩa 31.9 (tờ 2): servo SG90 + stack N2 lọt, không kẹt, không rơ dọc trục.",
+            "K3. Đồng trục hốc horn (D) và ổ F quanh trục gật đầu: bắt buộc về chức năng; giá trị dung sai TBD.",
+            "K4. Dung sai vị trí A, B theo công thức ốc cố định: lỗ đối tiếp Ø2.30, ốc M2 Ø2.00 → T = 0.30 chia đều hai "
+            "chi tiết → Ø0.15 cho mỗi chi tiết, so với A | B | C."]),
+    ]
+    for head, items in notes:
+        s3.text(25, yy, head, fs=8.5, role="head", weight="bold", va="top")
+        yy -= 5.0
+        for it in items:
+            wrapped = textwrap.wrap(it, 175)
+            s3.text(28, yy, "\n".join(wrapped), fs=7.0, role="note", va="top", linespacing=1.35)
+            yy -= 3.4 * len(wrapped) + 1.4
+        yy -= 1.5
+    sheets.append(s3)
+    total = len(sheets)
+    for sh in sheets:
+        sh.furniture(tb, total)
+    return dict(sheets=sheets, solid=s, feats=feats, holes=holes, f=f, tb=tb, print=pa, crit=crit, scale=K)
 
 
-def dir_vi(d):
-    d = tuple(np.round(np.asarray(d, float), 3))
-    names = {(1, 0, 0): "+x", (-1, 0, 0): "−x", (0, 1, 0): "+y", (0, -1, 0): "−y", (0, 0, 1): "+z",
-             (0, 0, -1): "−z"}
-    return names.get(d, "(" + ", ".join(f"{v:+.2f}" for v in d) + ")")
+def fmt2(v):
+    t = f"{v:.2f}"
+    return "0.00" if t == "-0.00" else t
 
 
-# ------------------------------------------------------------------ sheet furniture
-def frame(fig, title, code, sheet, sheets, scale, material="", mass=None, qty=None, print_=""):
-    ax = fig.add_axes([0, 0, 1, 1])
-    ax.set_xlim(0, A3[0])
-    ax.set_ylim(0, A3[1])
-    ax.axis("off")
-    ax.add_patch(plt.Rectangle((20, 10), A3[0] - 30, A3[1] - 20, fill=False, lw=1.0, color=INK))
-    # title block 180 x 42 bottom right
-    x0, y0, w = A3[0] - 10 - 180, 10, 180
-    rows = [("Tên", f"{code} · {title}"), ("Vật liệu", material), ("SL / khối lượng",
-            f"{qty if qty is not None else '–'} / {mass:.1f} g (ước tính)" if mass is not None else "–"),
-            ("Hướng in", print_), ("Đơn vị / tỉ lệ", f"mm / {scale}  ·  dung sai chung ISO 2768-m  ·  "
-                                                       "phép chiếu góc thứ nhất (E)"),
-            ("Dự án", f"Bazan Humanoid · sinh từ CAD bằng drawings.py · {date.today().isoformat()} · "
-                      f"tờ {sheet}/{sheets}")]
-    h = 7.0
-    for i, (k, v) in enumerate(rows):
-        y = y0 + h * (len(rows) - 1 - i)
-        ax.add_patch(plt.Rectangle((x0, y), w, h, fill=False, lw=0.6, color=INK))
-        ax.plot([x0 + 30, x0 + 30], [y, y + h], color=INK, lw=0.6)
-        ax.text(x0 + 1.5, y + h / 2, k, va="center", fontsize=6.5, color="#333")
-        ax.text(x0 + 31.5, y + h / 2, v, va="center", fontsize=7.5 if i else 9.5,
-                weight="bold" if i == 0 else "normal")
-    # first-angle symbol
-    sx, sy = x0 - 22, y0 + 6
-    ax.add_patch(plt.Polygon([(sx, sy + 3), (sx + 9, sy), (sx + 9, sy + 12), (sx, sy + 9)], fill=False, lw=0.8))
-    ax.add_patch(plt.Circle((sx + 15, sy + 6), 6, fill=False, lw=0.8))
-    ax.add_patch(plt.Circle((sx + 15, sy + 6), 3, fill=False, lw=0.8))
-    ax.text(sx + 7.5, sy - 3, "góc thứ nhất", ha="center", fontsize=5.5)
-    return ax
+# ------------------------------------------------------------------ validation (phase 8)
+def validate(res):
+    s, feats, holes, sheets = res["solid"], res["feats"], res["holes"], res["sheets"]
+    rep, bad = [], 0
 
+    def item(name, ok, detail):
+        nonlocal bad
+        bad += not ok
+        rep.append(dict(check=name, ok=bool(ok), detail=detail))
 
-def view_axes(fig, cx, cy, w, h, scale_n):
-    """An axes on the sheet centred at (cx, cy) mm, w x h mm of paper, at 1:scale_n."""
-    ax = fig.add_axes([(cx - w / 2) / A3[0], (cy - h / 2) / A3[1], w / A3[0], h / A3[1]])
-    ax.set_xlim(-w / 2 * scale_n, w / 2 * scale_n)
-    ax.set_ylim(-h / 2 * scale_n, h / 2 * scale_n)
-    ax.set_aspect("equal")
-    ax.axis("off")
-    return ax
-
-
-def dim(ax, p0, p1, off, text=None, horizontal=True, fs=6.5):
-    """Linear dimension between two points, placed off (mm of model) away."""
-    (x0, y0), (x1, y1) = p0, p1
-    if horizontal:
-        y = off
-        ax.plot([x0, x0], [y0, y], color=BLUE, lw=0.4)
-        ax.plot([x1, x1], [y1, y], color=BLUE, lw=0.4)
-        ax.annotate("", (x0, y), (x1, y), arrowprops=dict(arrowstyle="<->", color=BLUE, lw=0.6, shrinkA=0, shrinkB=0))
-        ax.text((x0 + x1) / 2, y + 0.8, text or f"{abs(x1 - x0):.1f}", ha="center", va="bottom", fontsize=fs,
-                color=BLUE)
-    else:
-        x = off
-        ax.plot([x0, x], [y0, y0], color=BLUE, lw=0.4)
-        ax.plot([x1, x], [y1, y1], color=BLUE, lw=0.4)
-        ax.annotate("", (x, y0), (x, y1), arrowprops=dict(arrowstyle="<->", color=BLUE, lw=0.6, shrinkA=0, shrinkB=0))
-        ax.text(x - 0.8, (y0 + y1) / 2, text or f"{abs(y1 - y0):.1f}", ha="right", va="center", rotation=90,
-                fontsize=fs, color=BLUE)
-
-
-def draw_view(ax, solid, view, holes, title, number=True, dims=True):
-    e = hlr(solid, view)
-    for s in e["hid"]:
-        ax.plot(s[:, 0], s[:, 1], color=HID, lw=0.35, ls=(0, (3, 2)))
-    for s in e["vis"]:
-        ax.plot(s[:, 0], s[:, 1], color=INK, lw=0.7)
-    allp = np.vstack(e["vis"] + e["hid"]) if e["vis"] else np.zeros((1, 2))
-    lo, hi = allp.min(0), allp.max(0)
-    # datum O
-    o = project((0, 0, 0), view)
-    ax.plot(*o, marker="+", color=RED, ms=9, mew=1.0)
-    ax.annotate("O", o, xytext=(3, -8), textcoords="offset points", fontsize=7, color=RED, weight="bold")
-    d, _, _ = _axes(view)
-    if number:
-        for i, hl in enumerate(holes):
-            p = project(hl["pos"], view)
-            along = abs(np.dot(np.asarray(hl["dir"], float), d)) > 0.9
-            if along:
-                ax.add_patch(plt.Circle(p, hl["d"] / 2, fill=False, color=RED, lw=0.6))
-                ax.plot([p[0] - hl["d"] * 0.8, p[0] + hl["d"] * 0.8], [p[1], p[1]], color=RED, lw=0.3, ls="-.")
-                ax.plot([p[0], p[0]], [p[1] - hl["d"] * 0.8, p[1] + hl["d"] * 0.8], color=RED, lw=0.3, ls="-.")
-            else:
-                q = project(np.asarray(hl["pos"]) + np.asarray(hl["dir"]) * (hl["depth"] or 3.0), view)
-                ax.plot([p[0], q[0]], [p[1], q[1]], color=RED, lw=0.5, ls="-.")
-            ax.annotate(f"{i + 1}", p, xytext=(5, 5 + 7 * (i % 2)), textcoords="offset points", fontsize=6,
-                        color=RED, arrowprops=dict(arrowstyle="-", color=RED, lw=0.3),
-                        bbox=dict(boxstyle="circle,pad=0.15", fc="white", ec=RED, lw=0.4))
-    if dims:
-        span = hi - lo
-        pad = max(span.max() * 0.08, 4.0)
-        dim(ax, (lo[0], lo[1]), (hi[0], lo[1]), lo[1] - pad, horizontal=True)
-        dim(ax, (lo[0], lo[1]), (lo[0], hi[1]), lo[0] - pad, horizontal=False)
-        # datum to the outline: where O sits in this view (only when O is on or near the part)
-        if np.all(o >= lo - 5.0) and np.all(o <= hi + 5.0):
-            dim(ax, (o[0], o[1]), (lo[0], o[1]), lo[1] - 2 * pad, text=f"O↔{abs(o[0] - lo[0]):.1f}",
-                horizontal=True)
-            dim(ax, (o[0], o[1]), (o[0], lo[1]), hi[0] + pad, text=f"O↔{abs(o[1] - lo[1]):.1f}", horizontal=False)
-    ax.set_title(title, fontsize=7.5, loc="left")
-    return lo, hi
-
-
-def fit_scale(extents, boxes):
-    """Smallest standard scale 1:n that fits every view's extent into its paper box."""
-    for n in (0.5, 1, 1.5, 2, 2.5, 3, 4, 5):                # 0.5 = enlarged 2:1
-        if all(e[0] / n <= b[0] * 0.86 and e[1] / n <= b[1] * 0.86 for e, b in zip(extents, boxes)):
-            return n
-    return 5
-
-
-def part_sheets(pdf, code, p, png_dir):
-    s, holes = p["solid"], p["holes"]
-    ext = []
-    for v in ("front", "top", "left"):
-        bb = np.array([project(c, v) for c in _bbox_corners(s)])
-        ext.append(bb.max(0) - bb.min(0))
-    boxes = [(160, 130), (160, 130), (140, 130)]
-    n = fit_scale(ext, boxes)
-    scale = "2:1" if n == 0.5 else ("1:1" if n == 1 else f"1:{n:g}")
-    fig = plt.figure(figsize=(A3[0] * MM, A3[1] * MM))
-    frame(fig, p["name"], code, 1, 2, scale, p["material"], p["mass"], p["qty"], p["print"])
-    # first-angle layout: front top-left, top below it, left view on the right of the front view, iso far right
-    c = _centre(s)
-    places = {"front": (105, 215, 160, 130), "top": (105, 85, 160, 130), "left": (258, 215, 140, 130)}
-    for v, (cx, cy, w, h) in places.items():
-        ax = view_axes(fig, cx, cy, w, h, n)
-        cc = project(c, v)
-        ax.set_xlim(cc[0] - w / 2 * n, cc[0] + w / 2 * n)
-        ax.set_ylim(cc[1] - h / 2 * n, cc[1] + h / 2 * n)
-        draw_view(ax, s, v, holes, VIEWS[v][2])
-    ax = view_axes(fig, 268, 100, 120, 85, max(n, 1) * 1.2)
-    cc = project(c, "iso")
-    k = max(n, 1) * 1.2
-    ax.set_xlim(cc[0] - 60 * k, cc[0] + 60 * k)
-    ax.set_ylim(cc[1] - 42.5 * k, cc[1] + 42.5 * k)
-    draw_view(ax, s, "iso", holes, "Hình trục đo (không ghi kích thước)", number=False, dims=False)
-    # compact hole table, right column
-    tab = fig.add_axes([333 / A3[0], 150 / A3[1], 82 / A3[0], 136 / A3[1]])
-    tab.axis("off")
-    tab.text(0, 1.0, "Bảng lỗ (toạ độ từ O, mm)", fontsize=7, weight="bold", va="top", transform=tab.transAxes)
-    head = f"{'#':>2} {'X':>7} {'Y':>7} {'Z':>7} {'Ø':>5} {'sâu':>5} {'hướng':>6}"
-    def depth(h):
-        return f"{h['depth']:.1f}" if h["depth"] else "xuyên"
-
-    lines = [head] + [f"{i + 1:>2} {h['pos'][0]:7.2f} {h['pos'][1]:7.2f} {h['pos'][2]:7.2f} {h['d']:5.2f} "
-                      f"{depth(h):>5} {dir_vi(h['dir']):>6}" for i, h in enumerate(holes)]
-    tab.text(0, 0.975, "\n".join(lines), fontsize=6.0, family="DejaVu Sans Mono", va="top", transform=tab.transAxes)
-    tab.text(0, 0.0, "Hướng = chiều mũi khoan / chiều ốc đi vào.\nChi tiết từng lỗ: tờ 2.", fontsize=5.5,
-             transform=tab.transAxes)
-    pdf.savefig(fig)
-    fig.savefig(png_dir / f"{code}_{p['key']}_1.png", dpi=110)
-    plt.close(fig)
-    # sheet 2: the full table
-    fig = plt.figure(figsize=(A3[0] * MM, A3[1] * MM))
-    frame(fig, p["name"], code, 2, 2, scale, p["material"], p["mass"], p["qty"], p["print"])
-    ax = fig.add_axes([25 / A3[0], 58 / A3[1], 385 / A3[0], 228 / A3[1]])
-    ax.axis("off")
-    ax.text(0, 1, f"{code} · {p['name']} — bảng lỗ, tán cấy và ốc (mm). (O) = từ gốc cụm đầu O; (mép) = từ "
-            "mặt sau (x nhỏ nhất), mặt phải (y nhỏ nhất) và mặt dưới (z nhỏ nhất) của chính chi tiết",
-            fontsize=10, weight="bold", va="top", transform=ax.transAxes)
-    bb = s.BoundingBox()
-    cmin = np.array([bb.xmin, bb.ymin, bb.zmin])
-    rows = [["#", "ID trong CAD", "Loại", "Ø", "Sâu", "Hướng", "X (O)", "Y (O)", "Z (O)", "X (mép)", "Y (mép)",
-             "Z (mép)", "Ốc / tán / chức năng"]]
-    for i, h in enumerate(holes):
-        e = h["pos"] - cmin
-        rows.append([str(i + 1), h["id"], KIND_VI.get(h["kind"], h["kind"]), f"{h['d']:.2f}",
-                     f"{h['depth']:.1f}" if h["depth"] else "xuyên", dir_vi(h["dir"]), f"{h['pos'][0]:.2f}",
-                     f"{h['pos'][1]:.2f}", f"{h['pos'][2]:.2f}", f"{e[0]:.2f}", f"{e[1]:.2f}", f"{e[2]:.2f}",
-                     h["what"][:80]])
-    if len(rows) == 1:
-        rows.append(["–", "không có lỗ", "", "", "", "", "", "", "", "", "", "", "chi tiết dán, không bắt ốc"])
-    t = ax.table(cellText=rows, cellLoc="left",
-                 colWidths=[0.022, 0.07, 0.085, 0.035, 0.035, 0.1, 0.045, 0.045, 0.045, 0.045, 0.045, 0.045, 0.35],
-                 loc="upper left", bbox=[0, 1 - 0.035 * (len(rows) + 1), 1, 0.035 * len(rows)])
-    t.auto_set_font_size(False)
-    t.set_fontsize(6.5)
-    for (r, _), cell in t.get_celld().items():
-        cell.set_linewidth(0.4)
-        if r == 0:
-            cell.set_text_props(weight="bold")
-            cell.set_facecolor("#eef2f7")
-    notes = NOTES.get(p["key"], [])
-    if notes:
-        ax.text(0, 1 - 0.035 * (len(rows) + 2), "Ghi chú kỹ thuật:\n" + "\n".join(f"  {k + 1}. {s}" for k, s in
-                                                                                    enumerate(notes)),
-                fontsize=7.5, va="top", transform=ax.transAxes)
-    pdf.savefig(fig)
-    fig.savefig(png_dir / f"{code}_{p['key']}_2.png", dpi=110)
-    plt.close(fig)
-
-
-NOTES = {
-    "head_frame": ["Tán cấy M2 (OD 3.2, dài 3) ép bằng mỏ hàn 220 °C, bằng mặt trên sàn đầu; sàn dày 3 nên kiểm tra "
-                   "mặt dưới không phồng (phiếu thử T0, lỗ D).",
-                   "Đĩa horn head pitch: horn tròn SG90 nằm phẳng trong hốc, 2 vít ST2×4 qua horn vào lỗ mồi.",
-                   "Đĩa idler: bạc đạn MR63ZZ ép vào ổ, trục là ốc đầu dù M3×6 + long đền W3 vào tán M3 trên N2.",
-                   "4 khe dây rút trên mặt trước giữ module màn hình; chưa có chỗ cho header dây màn hình (hở 0.8 "
-                   "mm hai bên) — cần chỉnh."],
-    "cam_mount": ["Mặt trước nghiêng 15° xuống. 4 tán M2 camera và 2 tán ToF ép TỪ MẶT TRƯỚC vào trụ.",
-                  "Lỗ Ø9 giữa 4 trụ camera là chỗ ống kính và cáp FPC; cáp đi xuống sau đế.",
-                  "Bắt vào N3 bằng 2 × M2×6 qua lỗ khoét chìm của đế (đầu ốc chìm)."],
-    "head_front": ["Bắt bằng 2 ốc M2×6 thả xuống ống dẫn từ đỉnh đầu (lục giác 1.5 dài ≥ 45, nên có đầu nam châm).",
-                   "Mép ghép với C4 tại x = −12 (từ gốc robot) — xem bản vẽ lắp.",
-                   "Hướng in chưa chốt: cần quyết trước khi in (đỉnh đầu bo tròn → in ngược cần support)."],
-    "head_back": ["Như C3: 2 ốc M2×6 qua ống dẫn; rãnh quanh trục gật đầu để mép sau không chạm servo cổ.",
-                  "Tai tròn hai bên có lưới lỗ micro."],
-    "visor": ["KHÔNG in FDM (PETG in ra đục mờ, màn hình mắt sẽ nhòe): cắt/uốn từ tấm PETG hoặc PC trong 0.5–1 mm.",
-              "Dán vào C3 bằng keo UV hoặc băng keo 2 mặt trong."],
-}
-
-
-def _bbox_corners(s):
-    b = s.BoundingBox()
-    return [(x, y, z) for x in (b.xmin, b.xmax) for y in (b.ymin, b.ymax) for z in (b.zmin, b.zmax)]
-
-
-def _centre(s):
-    b = s.BoundingBox()
-    return np.array([(b.xmin + b.xmax) / 2, (b.ymin + b.ymax) / 2, (b.zmin + b.zmax) / 2])
-
-
-# ------------------------------------------------------------------ assembly sheet
-def assembly_sheet(pdf, P, O, body, bought, png_dir):
-    comp = cq.Compound.makeCompound([p["solid"] for k, p in P.items() if k != "C5"])
-    fig = plt.figure(figsize=(A3[0] * MM, A3[1] * MM))
-    frame(fig, "Cụm đầu — bản vẽ lắp", "H0", 1, 1, "1:1.5", "xem bảng kê", None, None, "–")
-    for v, (cx, cy, w, h) in {"front": (90, 205, 130, 120), "left": (215, 205, 120, 120)}.items():
-        ax = view_axes(fig, cx, cy, w, h, 1.5)
-        c = project(_centre(comp), v)
-        ax.set_xlim(c[0] - w / 2 * 1.5, c[0] + w / 2 * 1.5)
-        ax.set_ylim(c[1] - h / 2 * 1.5, c[1] + h / 2 * 1.5)
-        draw_view(ax, comp, v, [], VIEWS[v][2], number=False, dims=True)
-        for k, p in P.items():
-            if k == "C5":
+    # 1. every dimension against the solid
+    for sh in sheets:
+        for d in sh.dims:
+            p0, p1 = np.array(d.p0), np.array(d.p1)
+            measured = abs(np.dot(p1 - p0, d.axis))
+            shown = float("".join(ch for ch in d.text.split(" ")[0] if ch in "0123456789."))
+            ok = abs(measured - shown) < 0.006
+            dist = []
+            if d.on_surface:
+                for p in (p0, p1):
+                    dist.append(cq.Vertex.makeVertex(*p).distance(s))
+                ok = ok and max(dist) < 0.02
+            item(f"kích thước tờ {sh.number} [{d.view}] {d.text}", ok,
+                 f"đo trên CAD {measured:.3f}, ghi {shown}" + (f", điểm cách mặt {max(dist):.3f}" if dist else
+                                                               " (điểm chuẩn/trục, không nằm trên mặt)"))
+    # 2. feature table = CAD holes
+    ids_t = sorted(ft["id"] for ft in feats)
+    ids_c = sorted(h.id for h in holes)
+    item("mọi lỗ CAD có trong bảng, không thừa", ids_t == ids_c, f"{len(ids_t)} trong bảng, {len(ids_c)} trong CAD")
+    O = res["f"]["O"]
+    worst = max(np.linalg.norm(ft["pos"] - (np.asarray(h.pos) - O))
+                for ft in feats for h in holes if h.id == ft["id"])
+    item("toạ độ bảng = toạ độ CAD", worst < 1e-6, f"lệch lớn nhất {worst:.2e} mm")
+    tags = [ft["tag"] for ft in feats]
+    item("mã đặc tính không trùng", len(tags) == len(set(tags)), ", ".join(tags))
+    # 3. view alignment (first angle: front/top share paper x, front/left share paper y)
+    s1 = sheets[0]
+    a = s1.P("front", (0, 0, 0))
+    b = s1.P("top", (0, 0, 0))
+    c = s1.P("left", (0, 0, 0))
+    item("thẳng hàng đứng/bằng (cùng X giấy cho cùng điểm)", abs(a[0] - b[0]) < 1e-6, f"Δ = {a[0] - b[0]:.2e} mm")
+    item("thẳng hàng đứng/cạnh (cùng Y giấy cho cùng điểm)", abs(a[1] - c[1]) < 1e-6, f"Δ = {a[1] - c[1]:.2e} mm")
+    item("bằng nằm DƯỚI đứng, cạnh nằm PHẢI đứng (góc thứ nhất)", b[1] < a[1] and c[0] > a[0], "")
+    # 4. scale: paper length / model length
+    for sh in sheets:
+        for nm, (cx, cy, uc, vc, k, mv) in sh.views.items():
+            p, q = sh.P(nm, (0, 0, 0)), sh.P(nm, (0, 10, 0) if mv != "left" else (10, 0, 0))
+            r = np.linalg.norm(q - p) / 10
+            ok = mv == "iso" or abs(r - k) < 1e-9
+            item(f"tỉ lệ tờ {sh.number} hình {nm}", ok, f"{r:g}:1 (khai báo {k:g}:1)")
+    # 5. text collisions, clipping and page bounds
+    for sh in sheets:
+        sh.fig.canvas.draw()
+        rnd = sh.fig.canvas.get_renderer()
+        boxes = []
+        for t, role in sh.texts:
+            if not t.get_text().strip():
                 continue
-            q = project(_centre(p["solid"]), v)
-            ax.annotate(k, q, xytext=(12, 10), textcoords="offset points", fontsize=7, color=RED, weight="bold",
-                        arrowprops=dict(arrowstyle="-", color=RED, lw=0.5),
-                        bbox=dict(boxstyle="circle,pad=0.25", fc="white", ec=RED, lw=0.6))
-    # bill of materials and fastener list
-    ax = fig.add_axes([25 / A3[0], 56 / A3[1], 385 / A3[0], 82 / A3[1]])
-    ax.axis("off")
-    rows = [["Mục", "Tên", "SL", "Vật liệu / mua", "Ghi chú"]]
-    for k, p in P.items():
-        rows.append([k, p["name"], str(p["qty"]), p["material"], f"{p['mass']:.1f} g · in: {p['print']}"])
-    for k, b in bought.items():
-        rows.append([k, b.name, "1", b.shop, f"{b.size[0]:g} × {b.size[1]:g}, lỗ Ø{b.hole_d:g} · MEASURE"])
-    rows.append(["SG90", "servo head pitch (thuộc cụm cổ N2) + horn tròn", "1", "SG90", "horn bắt vào N3"])
-    t = ax.table(cellText=rows, cellLoc="left", colWidths=[0.05, 0.28, 0.04, 0.27, 0.36], loc="upper left",
-                 bbox=[0, 1 - 0.09 * len(rows), 0.62, 0.09 * len(rows)])
-    t.auto_set_font_size(False)
-    t.set_fontsize(6.3)
-    # fasteners grouped
-    from collections import Counter
-    cnt = Counter()
-    for k, p in P.items():
-        for h in p["holes"]:
-            key = {"ins_m2_thru": "Tán cấy M2", "boss_m2": "Tán cấy M2", "ins_m2": "Tán cấy M2",
-                   "cb_m2": "Ốc M2×6 (N4 → N3)", "clr_m2": "Ốc M2×6 (vỏ → N3)", "tie": "Dây rút 2.5 mm (màn hình)",
-                   "pilot_st2": "Vít ST2×4 (horn)", "bearing": "MR63ZZ + M3×6 đầu dù + W3",
-                   "ins_m3": "Tán cấy M3", "ins_m3_thru": "Tán cấy M3"}.get(h["kind"])
-            if key:
-                cnt[key] += 1
-    cnt["Ốc M2×6 (camera, ToF → N4)"] = sum(1 for h in P["N4"]["holes"] if h["kind"] == "boss_m2")
-    cnt["Dây rút 2.5 mm (màn hình)"] = cnt["Dây rút 2.5 mm (màn hình)"] // 2
-    fr = [["Ốc / tán / phụ kiện (cụm đầu)", "SL"]] + [[k, str(v)] for k, v in sorted(cnt.items())]
-    t2 = ax.table(cellText=fr, cellLoc="left", colWidths=[0.3, 0.05], loc="upper right",
-                  bbox=[0.64, 1 - 0.09 * len(fr), 0.36, 0.09 * len(fr)])
-    t2.auto_set_font_size(False)
-    t2.set_fontsize(6.3)
-    for tt in (t, t2):
-        for (r, _), cell in tt.get_celld().items():
-            cell.set_linewidth(0.4)
-            if r == 0:
-                cell.set_text_props(weight="bold")
-                cell.set_facecolor("#eef2f7")
-    o_world = np.round(O, 2)
-    fig.text(300 / A3[0], 270 / A3[1],
-             "Gốc O (mọi toạ độ của cụm đầu):\n"
-             f"trục gật đầu, giữa ổ servo = ({o_world[0]}, {o_world[1]}, {o_world[2]}) mm\n"
-             "trong hệ robot (gốc giữa 2 điểm hông H).\n\nThứ tự lắp:\n"
-             "1. Cấy tán vào N3 (4 vỏ, 2 bay camera) và N4.\n"
-             "2. Bắt camera, ToF vào N4; N4 vào N3 (2 × M2×6).\n"
-             "3. Buộc màn hình vào mặt trước N3 (2 dây rút).\n"
-             "4. Gắn N3 lên khớp head pitch: horn + 2 ST2×4,\n    idler MR63ZZ + M3×6 + W3.\n"
-             "5. Đi cáp camera, màn hình xuống cổ (có vòng chùng).\n"
-             "6. Úp C4 rồi C3; 4 × M2×6 qua ống dẫn từ đỉnh.\n7. Dán C5 (visor) vào C3.",
-             fontsize=6.8, va="top")
-    pdf.savefig(fig)
-    fig.savefig(png_dir / "H0_head_assembly.png", dpi=110)
-    plt.close(fig)
+            bb = t.get_window_extent(rnd).transformed(sh.ax.transData.inverted())
+            boxes.append((bb, t.get_text()[:30], role))
+        inside = [(txt, role) for bb, txt, role in boxes if role != "zone" and not (
+            bb.x0 >= BORDER[0] - 0.01 and bb.x1 <= BORDER[2] + 0.01 and bb.y0 >= BORDER[1] - 0.01
+            and bb.y1 <= BORDER[3] + 0.01)]
+        item(f"tờ {sh.number}: chữ nằm trong khung", not inside, "; ".join(f"{t}" for t, _ in inside[:6]) or "ok")
+        hits = []
+        for i in range(len(boxes)):
+            for j in range(i + 1, len(boxes)):
+                b1, b2 = boxes[i][0], boxes[j][0]
+                if b1.x0 < b2.x1 - 0.2 and b2.x0 < b1.x1 - 0.2 and b1.y0 < b2.y1 - 0.2 and b2.y0 < b1.y1 - 0.2:
+                    hits.append(f"'{boxes[i][1]}' × '{boxes[j][1]}'")
+        item(f"tờ {sh.number}: chữ không chồng nhau", not hits, "; ".join(hits[:8]) or "ok")
+    # 6. title block and sheet numbering
+    tb = res["tb"]
+    empty = [k for k, v in tb.items() if not str(v).strip()]
+    item("khung tên đủ trường (TBD được phép, rỗng thì không)", not empty, ", ".join(empty) or "đủ")
+    tbd = [k for k, v in tb.items() if "TBD" in str(v)]
+    rep.append(dict(check="trường còn TBD (cần người duyệt)", ok=True, detail=", ".join(tbd)))
+    nums = [sh.number for sh in sheets]
+    item("đánh số tờ liên tục", nums == list(range(1, len(sheets) + 1)), f"{nums}")
+    # 7. references: section/detail labels exist on the parent and as views
+    item("mặt cắt A–A, B–B và chi tiết C, D có hình tương ứng",
+         all(k in sheets[1].views for k in "AB") and all(k in sheets[2].views for k in "CD"), "")
+    return rep, bad
 
 
 def main():
-    which = sys.argv[1] if len(sys.argv) > 1 else "head"
-    if which != "head":
-        raise SystemExit("only 'head' so far")
-    out = DOCS / "head"
+    which = sys.argv[1] if len(sys.argv) > 1 else "N3"
+    if which != "N3":
+        raise SystemExit("drawing engine v2: only N3 so far")
+    out = DOCS / "N3"
     out.mkdir(parents=True, exist_ok=True)
-    P, O, body, sh, bought = head_parts()
-    with PdfPages(out / "head_drawings.pdf") as pdf:
-        assembly_sheet(pdf, P, O, body, bought, out)
-        for code, p in P.items():
-            part_sheets(pdf, code, p, out)
-            print("drew", code, p["key"], len(p["holes"]), "holes")
-    print("wrote", out / "head_drawings.pdf")
+    res = draw_n3(out)
+    rep, bad = validate(res)
+    with PdfPages(out / "BZN-H-N3.pdf") as pdf:
+        for sh in res["sheets"]:
+            pdf.savefig(sh.fig)
+            sh.fig.savefig(out / f"BZN-H-N3_sheet{sh.number}.png", dpi=110)
+    lines = ["# BZN-H-N3 · kiểm tra bản vẽ tự động", "", f"Sinh bởi `hardware/mechanical/drawings.py N3`, "
+             f"{date.today().isoformat()}. Lỗi: **{bad}**.", "", "| Kiểm tra | Kết quả | Chi tiết |", "| --- | --- | --- |"]
+    lines += [f"| {r['check']} | {'đạt' if r['ok'] else '**LỖI**'} | {r['detail']} |" for r in rep]
+    lines += ["", "## Hướng in (6 hướng trục, tính từ CAD)", "", "| Hướng | Tiếp xúc bàn mm² | Mặt treo >45° mm² | Cao mm |",
+              "| --- | ---: | ---: | ---: |"]
+    lines += [f"| {k} | {v['bed']:.0f} | {v['over']:.0f} | {v['h']:.1f} |" for k, v in res["print"].items()]
+    (out / "BZN-H-N3_validation.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    json.dump(rep, open(out / "BZN-H-N3_validation.json", "w"), ensure_ascii=False, indent=1)
+    print(f"N3: {len(res['sheets'])} sheets, {sum(len(s.dims) for s in res['sheets'])} dimensions, "
+          f"{len(res['feats'])} features, validation defects {bad}")
+    for r in rep:
+        if not r["ok"]:
+            print("  LỖI:", r["check"], "—", r["detail"])
+    return 1 if (bad and "--check" in sys.argv) else 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
