@@ -355,7 +355,7 @@ class Sheet:
                 self.text(x1 + 1.5, ym, lab, fs=6, role="zone", ha="center", va="center")
         # title block: 180 wide, bottom right
         w, rows = 180.0, 6
-        bx, by, h = x1 - w, y0, 7.0
+        bx, by, h = x1 - w, y0, 8.0
         self.ax.add_patch(plt.Rectangle((bx, by), w, h * rows, fill=False, lw=0.5 * PT, color=INK))
         cells = [  # (row from the bottom, x from, x to, label, value, big)
             (5, 0, 180, "Chủ sở hữu / dự án", f"{tb['owner']}  ·  {tb['project']}", False),
@@ -377,12 +377,12 @@ class Sheet:
         ]
         for r, a, b, lab, val, big in cells:
             self.ax.add_patch(plt.Rectangle((bx + a, by + r * h), b - a, h, fill=False, lw=W_THIN, color=INK))
-            self.text(bx + a + 1.0, by + r * h + h - 1.0, lab, fs=5.0, role="tb_label", va="top")
+            self.text(bx + a + 1.0, by + r * h + h - 0.7, lab, fs=5.0, role="tb_label", va="top")
             if val:
-                self.text(bx + a + 1.0, by + r * h + 1.2, val, fs=8.5 if big else 6.6, role="tb_value", va="bottom",
+                self.text(bx + a + 1.0, by + r * h + 0.8, val, fs=8.5 if big else 6.6, role="tb_value", va="bottom",
                           weight="bold" if big else "normal")
         # first-angle symbol in its cell: truncated cone, its thick end next to the circles (ISO 5456-2)
-        sx, sy = bx + 158, by + 3 * h + 1.6
+        sx, sy = bx + 158, by + 3 * h + 0.6
         self.ax.add_patch(plt.Polygon([(sx, sy + 1.4), (sx + 6, sy), (sx + 6, sy + 4.4), (sx, sy + 3.0)], fill=False,
                                       lw=W_THIN))
         self.ax.add_patch(plt.Circle((sx + 11.5, sy + 2.2), 2.2, fill=False, lw=W_THIN))
