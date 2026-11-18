@@ -434,7 +434,9 @@ def printed_g(s, recipe):
     return rho * (skin + infill * (s.Volume() - skin))
 
 
-def mass(leg, body, sh):
+def weigh(leg, body, sh, q=None):
+    """Every component of the assembled robot with its link and its mass in grams: the one weighing that audit.py
+    mass and gen_urdf.py share. Returns (mass report, {printed part: (g, count)}, [(name, link, g, solid or point)])."""
     rep = json.loads(MASS_REPORT.read_text())
     parts = {}
     for n, s in leg.parts.items():
@@ -443,24 +445,10 @@ def mass(leg, body, sh):
         parts[n] = (printed_g(s, "arm" if n in ARM_PARTS else "deck"), 2 if n in SIDED else 1)
     for n, s in sh.parts.items():
         parts[f"shell.{n}"] = (printed_g(s, "shell"), 1)
-    frame = sum(g * k for n, (g, k) in parts.items() if not n.startswith("shell.") and n != "leg.sole")
-    skin = sum(g * k for n, (g, k) in parts.items() if n.startswith("shell."))
-    soles = parts["leg.sole"][0] * 2
-    cat = rep["categories"]
-    bought = cat["Servos"] + cat["Electronics"] + cat["Battery 2S"] + cat["Wiring"] + cat["Sensors, brackets, screws"]
-    total = frame + skin + soles + bought
-    print("mass: printed parts, estimate (walls + infill recipe per group; weigh the first prints)")
-    for n, (g, k) in parts.items():
-        print(f"  {n:22s} {g:6.1f} g x {k}")
-    print(f"  printed frame {frame:.0f} g, shell {skin:.0f} g, TPU soles {soles:.0f} g; bought parts and allowances "
-          f"from mass_report.json {bought:.0f} g")
-    print(f"  whole robot from the CAD: {total:.0f} g; mass budget document: {rep['total_g']:.0f} g "
-          f"(its printed shell {cat['Printed shell']:.0f} g)")
-    # mass and CoM per link at the zero pose, and what the stance hip-roll servo holds on one foot
-    comps = R.assemble(body, leg, {})
+    comps = R.assemble(body, leg, q or {})
     for n, s in sh.parts.items():
         comps[n] = s
-    link, m = {}, {}
+    items = []
     for n, s in comps.items():
         base = n.split(".")[-1]
         ln = ("head_frame" if n in sh.HEAD else "torso") if n in sh.parts else R.link_of(n, body, leg)
@@ -478,9 +466,31 @@ def mass(leg, body, sh):
             g = parts[f"leg.{base}"][0]
         else:
             g = parts[base][0]
-        c = s.Center()
-        link.setdefault(ln, []).append((g, np.array([c.x, c.y, c.z])))
-    link["torso"].append((cat["Wiring"], np.array([0.0, 0.0, B.Z0T + 10.0])))
+        items.append((n, ln, g, s))
+    items.append(("wiring", "torso", rep["categories"]["Wiring"], np.array([0.0, 0.0, B.Z0T + 10.0])))
+    return rep, parts, items
+
+
+def mass(leg, body, sh):
+    rep, parts, items = weigh(leg, body, sh)
+    frame = sum(g * k for n, (g, k) in parts.items() if not n.startswith("shell.") and n != "leg.sole")
+    skin = sum(g * k for n, (g, k) in parts.items() if n.startswith("shell."))
+    soles = parts["leg.sole"][0] * 2
+    cat = rep["categories"]
+    bought = cat["Servos"] + cat["Electronics"] + cat["Battery 2S"] + cat["Wiring"] + cat["Sensors, brackets, screws"]
+    total = frame + skin + soles + bought
+    print("mass: printed parts, estimate (walls + infill recipe per group; weigh the first prints)")
+    for n, (g, k) in parts.items():
+        print(f"  {n:22s} {g:6.1f} g x {k}")
+    print(f"  printed frame {frame:.0f} g, shell {skin:.0f} g, TPU soles {soles:.0f} g; bought parts and allowances "
+          f"from mass_report.json {bought:.0f} g")
+    print(f"  whole robot from the CAD: {total:.0f} g; mass budget document: {rep['total_g']:.0f} g "
+          f"(its printed shell {cat['Printed shell']:.0f} g)")
+    # mass and CoM per link at the zero pose, and what the stance hip-roll servo holds on one foot
+    link, m = {}, {}
+    for n, ln, g, s in items:
+        c = s if isinstance(s, np.ndarray) else (lambda v: np.array([v.x, v.y, v.z]))(s.Center())
+        link.setdefault(ln, []).append((g, c))
     for ln, items in link.items():
         g = sum(i[0] for i in items)
         m[ln] = (g, sum(i[0] * i[1] for i in items) / g)
