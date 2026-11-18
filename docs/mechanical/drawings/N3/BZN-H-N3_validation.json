@@ -200,9 +200,9 @@
   "detail": "đo trên CAD 13.000, ghi 13.0, điểm cách mặt 0.000"
  },
  {
-  "check": "kích thước tờ 3 [D] Ø4.6",
+  "check": "kích thước tờ 3 [D] Ø5",
   "ok": true,
-  "detail": "đo trên CAD 4.600, ghi 4.6 (điểm chuẩn/trục, không nằm trên mặt)"
+  "detail": "đo trên CAD 5.000, ghi 5.0 (điểm chuẩn/trục, không nằm trên mặt)"
  },
  {
   "check": "kích thước tờ 3 [D] Ø15",
@@ -212,7 +212,7 @@
  {
   "check": "mọi lỗ CAD có trong bảng, không thừa",
   "ok": true,
-  "detail": "14 trong bảng, 14 trong CAD"
+  "detail": "18 trong bảng, 18 trong CAD"
  },
  {
   "check": "toạ độ bảng = toạ độ CAD",
@@ -222,7 +222,7 @@
  {
   "check": "mã đặc tính không trùng",
   "ok": true,
-  "detail": "A1, A2, A3, A4, B1, B2, C1, C2, C3, C4, D1, D2, E1, F1"
+  "detail": "A1, A2, A3, A4, B1, B2, C1, C2, C3, C4, D1, D2, E1, F1, G1, G2, H1, H2"
  },
  {
   "check": "thẳng hàng đứng/bằng (cùng X giấy cho cùng điểm)",

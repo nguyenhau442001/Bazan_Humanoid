@@ -51,9 +51,12 @@ def chain_T(body, chain, q, mirror=False):
     return {k: cq.Location(v) for k, v in T.items()}
 
 
+PART_LINK = {"head_idler": "head_frame"}   # parts bolted to another link's part move with it
+
+
 def owner(body, name):
     if name in body.parts:
-        return "torso" if name in TORSO else name
+        return "torso" if name in TORSO else PART_LINK.get(name, name)
     kind, jn = name.split("_", 1)
     j = body.joints[jn]
     link = j.holder if kind == "servo" else j.driven

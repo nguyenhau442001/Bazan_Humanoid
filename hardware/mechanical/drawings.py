@@ -399,7 +399,8 @@ def n3_model():
     body = B.Body()
     j = body.joints["head_pitch"]
     org = np.array(j.origin, float)
-    s = body.parts["head_frame"].moved(cq.Location(cq.Vector(*(-org))))
+    # N3 and N3i drawn in place (one drawing, two parts); N3i is bolted under the deck and self-aligns ±0.15
+    s = body.parts["head_frame"].fuse(body.parts["head_idler"]).clean().moved(cq.Location(cq.Vector(*(-org))))
     ya = -J.CENTER                                      # y of the stack point a = 0 (the servo case top)
     hx0, hx1 = B.Body.HEAD_X[0] - org[0], B.Body.HEAD_X[1] - org[0]
     hy0, hy1 = B.Body.HEAD_Y
@@ -411,21 +412,23 @@ def n3_model():
                   cap_d=2 * (J.CAP_R + 0.05), cap_y=J.HP[1] - J.CAP_T + ya, pilot_r=hw.HORN.screw_r,
                   pilot_d=hw.HOLES["pilot_st2"].d, pilot_y0=J.HORN_TOP - 0.1 + ya, pilot_y1=J.HP[1] - 0.4 + ya),
         idler=dict(y_out=J.IP[0] + ya, y_in=J.IP[1] + ya, r=J.IDLER_R, cap_d=2 * (J.IDLER_R - 1.0),
-                   cap_y=J.IP[0] + J.CAP_T + ya, seat_d=hw.HOLES["bearing"].d, seat_y1=J.BRG[1] + ya, lip_d=4.6),
+                   cap_y=J.IP[0] + J.CAP_T + ya, seat_d=hw.HOLES["bearing"].d, seat_y1=J.BRG[1] + ya, lip_d=J.LIP_D),
         bar=dict(x=(B.NECK_X - 6.0 - org[0], B.NECK_X + 6.0 - org[0]), z=(B.HEAD_Z - org[2], hd)),
         deck=dict(x=(hx0, hx1), y=(hy0, hy1), z=(hd, hd + 3.0)),
         face=dict(x=(hx1 - 3.0, hx1), z=(hd - 26.0, hd)),
     )
-    holes = [h for h in body.holes() if h.part == "head_frame"]
+    holes = [h for h in body.holes() if h.part in ("head_frame", "head_idler")]
     feats = []
-    groups = {"shell": ("A", "Tán cấy nhiệt M2 (OD 3.2 × 3) xuyên sàn — bắt vỏ đầu C3/C4, ốc M2×6 từ trên",
+    groups = {"shell": ("A", "N3 · tán M2 (L3, gai Ø3.6) xuyên sàn — bắt vỏ đầu C3/C4, ốc M2×6 từ trên",
                         "C3/C4 tab Ø2.30"),
-              "bay_cam": ("B", "Tán cấy nhiệt M2 xuyên sàn — bắt N4 (cam_mount), ốc M2×6 từ trên", "N4 lỗ Ø2.30"),
-              "disp_tie": ("C", "Khe dây rút 1.6 × 3.0 xuyên tấm mặt — buộc module màn hình", "dây rút 2.5 mm"),
-              "horn": ("D", "Lỗ mồi vít ST2×4, mù — bắt horn tròn SG90 vào đĩa", "horn SG90 (Ø lỗ: TBD)"),
-              "access": ("E", "Lỗ thao tác Ø5.2 xuyên — tua vít PH0 / lục giác tới ốc tâm horn", "—"),
-              "bearing": ("F", "Ổ bạc đạn MR63ZZ (3×6×2.5) + hốc đầu ốc M3×6 đầu dù + W3", "MR63ZZ, N2 tán M3")}
-    order = ["shell", "bay_cam", "disp_tie", "horn", "access", "bearing"]
+              "bay_cam": ("B", "N3 · tán M2 (L3, gai Ø3.6) xuyên sàn — bắt N4, ốc M2×6 từ trên", "N4 lỗ Ø2.30"),
+              "disp_tie": ("C", "N3 · khe dây rút 1.6 × 3.0 xuyên tấm mặt — buộc module màn hình", "dây rút 2.5 mm"),
+              "horn": ("D", "N3 · lỗ mồi vít ST2×3, mù — bắt horn tròn SG90 vào đĩa", "horn SG90 (Ø lỗ: TBD)"),
+              "access": ("E", "N3 · lỗ thao tác Ø5.2 xuyên — tua vít PH0 tới ốc tâm horn", "—"),
+              "bearing": ("F", "N3i · ổ MR63ZZ lắp trượt (gối tự do) + hốc đầu ốc M3×6 + W3", "MR63ZZ, N2 tán M3"),
+              "idler": ("G", "N3 · tán M2 (L3, gai Ø3.6) xuyên sàn — bắt N3i, ốc M2×6 từ dưới", "N3i lỗ Ø2.30"),
+              "pad": ("H", "N3i · lỗ hở M2 xuyên đế — N3i tự định tâm ±0.15 theo trục idler", "N3 tán G")}
+    order = ["shell", "bay_cam", "disp_tie", "horn", "access", "bearing", "idler", "pad"]
     for g in order:
         mem = sorted([h for h in holes if h.id.split(".")[-1].rstrip("0123456789") == g],
                      key=lambda h: (round(h.pos[0], 2), round(h.pos[1], 2), round(h.pos[2], 2)))
@@ -453,7 +456,7 @@ def dir_text(d):
 # fixed-fastener position tolerance (ASME/ISO practice): an insert mated to a clearance hole H with screw F leaves
 # T = H - F to share between the two parts; each part gets half
 def pos_tol(group):
-    if group in ("A", "B"):
+    if group in ("A", "B", "G"):
         return 2.30 - 2.00
     return None
 
@@ -511,10 +514,10 @@ def draw_n3(out):
     mass = A.printed_g(s, "arm")
     pa = print_analysis(s, f)
     crit = critical_overhang(s, f)
-    tb = dict(owner="Hau Nguyen Ngoc", project="Bazan Humanoid — cụm đầu (H)", title="N3 · Head Frame",
+    tb = dict(owner="Hau Nguyen Ngoc", project="Bazan Humanoid — cụm đầu (H)", title="N3 Head Frame + N3i Idler",
               number="BZN-H-N3", material="PLA (xem ghi chú M1)", mass=f"{mass:.1f} g (ước tính)",
               scale="2:1 (C, D 5:1)",
-              designed="Hau Nguyen Ngoc", checked="TBD", approved="TBD", date=date.today().isoformat(), rev="P1",
+              designed="Hau Nguyen Ngoc", checked="TBD", approved="TBD", date=date.today().isoformat(), rev="P2",
               status="SƠ BỘ — chưa phát hành chế tạo",
               standards="ISO 128 · ISO 129-1 · ISO 5455 · ISO 5456-2 · ISO 5457 · ISO 7200 · ISO 1101 (tham chiếu)")
     K, KD = 2.0, 5.0
@@ -587,7 +590,7 @@ def draw_n3(out):
     for nm in ("top", "front", "left"):
         x0, y0, x1, y1 = s1.bbox[nm]
         s1.boxes.append((x0 - 1, y0 - 1, x1 + 1, y1 + 1)) if False else None
-    view_of = {"A": "top", "B": "top", "C": "front", "D": "left", "E": "left", "F": "left"}
+    view_of = {"A": "top", "B": "top", "C": "front", "D": "left", "E": "left", "F": "left", "G": "top", "H": "front"}
     for ft in feats:
         s1.tag(view_of[ft["group"]], ft["pos"], ft["tag"])
     for nm, t, sc in (("front", "Hình chiếu đứng (nhìn từ +X)", "2:1"), ("left", "Hình chiếu cạnh (nhìn từ −Y)", "2:1"),
@@ -604,13 +607,14 @@ def draw_n3(out):
     s1.text(xl, 281, "Ký hiệu đặc tính", fs=9, role="head", weight="bold", va="top")
     yy = 274
     for g, what in (("A", "tán M2 bắt vỏ C3/C4"), ("B", "tán M2 bắt N4"), ("C", "khe dây rút màn hình"),
-                    ("D", "lỗ mồi ST2 (horn)"), ("E", "lỗ thao tác ốc tâm horn"), ("F", "ổ bạc đạn MR63ZZ")):
+                    ("D", "lỗ mồi ST2 (horn)"), ("E", "lỗ thao tác ốc tâm horn"), ("F", "N3i · ổ bạc đạn MR63ZZ"),
+                    ("G", "tán M2 bắt N3i"), ("H", "N3i · lỗ hở M2 (tự định tâm)")):
         mem = [ft for ft in feats if ft["group"] == g]
         s1.text(xl, yy, f"{g}1–{g}{len(mem)}" if len(mem) > 1 else f"{g}1", fs=7.5, role="legend", va="top",
                 weight="bold")
         s1.text(xl + 14, yy, f"{len(mem)}× {size_text(mem[0])}", fs=7.5, role="legend", va="top")
         s1.text(xl + 14, yy - 3.6, what, fs=6.8, role="legend", va="top")
-        yy -= 8.6
+        yy -= 8.0
     s1.text(xl, yy - 2, "Gốc toạ độ và chuẩn đo", fs=9, role="head", weight="bold", va="top")
     s1.text(xl, yy - 8, "O = trục gật đầu ∩ mặt phẳng giữa chồng khớp\n(tư thế 0). X tới trước, Y sang trái, Z lên.\n"
             f"A = mặt trên sàn đầu (Z = +{zt:.2f})\nB = mặt trước tấm mặt (X = +{xf:.2f})\n"
@@ -717,7 +721,8 @@ def draw_n3(out):
     # ================= sheet 4: feature table and notes
     import textwrap
     s3 = Sheet(4, "table")
-    s3.text(25, 281, "BẢNG TOẠ ĐỘ LỖ / ĐẶC TÍNH — N3 Head Frame", fs=FS_TITLE, role="head", weight="bold", va="top")
+    s3.text(25, 281, "BẢNG TOẠ ĐỘ LỖ / ĐẶC TÍNH — N3 Head Frame + N3i Idler", fs=FS_TITLE, role="head",
+            weight="bold", va="top")
     s3.text(25, 274, "Toạ độ X, Y, Z từ gốc O (trục gật đầu ∩ mặt phẳng giữa chồng khớp, tư thế 0); X tới trước, Y "
             "sang trái, Z lên. ΔA, ΔB, ΔC: khoảng cách tới chuẩn đo A (mặt trên sàn),\n"
             "B (mặt trước tấm mặt), C (Y = 0). "
@@ -749,31 +754,28 @@ def draw_n3(out):
             "M1. PLA. Tiêu chí đổi sang PETG: nhiệt độ vỏ servo head pitch (SG90) đo được > 45 °C khi chạy liên tục "
             "(PLA mềm ở khoảng 55–60 °C). Chưa có số đo → giữ PLA."]),
         ("IN 3D (FDM)", [
-            f"P1. Hướng in: {best} — tiếp xúc bàn {pa[best]['bed']:.0f} mm², mặt treo >45° {pa[best]['over']:.0f} mm²,"
-            f" cao {pa[best]['h']:.1f} mm (tính từ CAD trên 6 hướng trục; bảng đủ trong báo cáo kiểm tra).",
-            "P2. Lớp in song song mặt A: sàn và tấm mặt chịu kéo dọc lớp. "
-            "Không in theo ±Y: chân hai cột đỡ đĩa sẽ chịu "
-            "kéo vuông góc lớp.",
-            "P3. Support cần dưới phần đĩa nhô ra ngoài cột. CẤM support bên trong: "
-            + "; ".join(f"{k} ({v:.0f} mm² mặt treo)" for k, v in crit.items())
-            + " — đặt support blocker; chỗ võng sửa bằng dao/mũi doa.",
-            "P4. Lỗ D, E, F có trục nằm ngang khi in: đỉnh lỗ có thể võng; kiểm tra độ tròn ổ F bằng chính bạc đạn.",
-            "P5. Thông số máy in và dung sai đạt được: TBD — xác định bằng phiếu thử T0 "
-            "(docs/mechanical/test_print.md)."]),
+            f"P1. N3: {best} — tiếp xúc bàn {pa[best]['bed']:.0f} mm², mặt treo >45° {pa[best]['over']:.0f} mm²,"
+            f" cao {pa[best]['h']:.1f} mm. N3i: đế úp xuống bàn. Hướng cuối cùng chốt sau phiếu V3 "
+            "(docs/mechanical/n3_review/N3_VALIDATION_PLAN.md).",
+            "P2. Support CHỈ từ bàn (support on build plate only). Đã kiểm trên G-code: support tự động rơi vào hốc "
+            "horn và ổ bạc đạn; chỉ-từ-bàn thì không. CẤM support trong: "
+            + "; ".join(f"{k} ({v:.0f} mm² mặt treo)" for k, v in crit.items()) + ".",
+            "P3. Không doa tự do ổ F. Ø in ổ F, thông số máy in, bù lỗ XY: TBD — phiếu T0 / V2."]),
         ("LẮP RÁP", [
-            "L1. A1–A4, B1–B2: tán cấy nhiệt M2 ép từ mặt A ở 220 °C, bằng mặt A. Sàn dày 3 = chiều dài tán → kiểm tra "
-            "mặt dưới không phồng.",
-            "L2. D1–D2: horn tròn SG90 nằm phẳng đáy hốc Ø20.4, 2 vít ST2×4 từ phía servo xuyên horn vào lỗ mồi. Ø lỗ "
-            "trên horn: TBD (đo horn thật).",
-            "L3. F1: ép MR63ZZ; ốc đầu dù M3×6 + long đền W3 vào tán M3 trên N2. E1: lối tua vít tới ốc tâm horn.",
-            "L4. Tháo: vỏ C3/C4 (4 ốc qua đỉnh đầu) → N4 → ốc idler → nhấc N3 khỏi horn."]),
+            "L1. A, B, G: tán M2 (CNC Kitchen TC-M2x3.0 hoặc tương đương: L3, gai Ø3.6, lỗ Ø3.2) ép từ mặt A, "
+            "bằng mặt A.",
+            "L2. D1–D2: horn tròn SG90 nằm phẳng đáy hốc Ø20.4, 2 vít ST2×3 từ phía servo (mũi vít cách da 0.9). "
+            "Ø lỗ trên horn: TBD.",
+            "L3. Thứ tự: horn lên N3 → đẩy N3 dọc trục cho horn ăn then hoa → vít tâm horn qua E1 → MR63ZZ trượt vào "
+            "F1 của N3i → N3i lên trục idler, M3×6 đầu dù + W3 siết → 2 × M2×6 từ dưới qua H vào G.",
+            "L4. Tháo ngược lại; không banh khung."]),
         ("KIỂM TRA", [
-            "K1. Ổ F: MR63ZZ ép tay vào được, lật ngược không rơi, quay êm.",
-            "K2. Khe trong giữa hai đĩa 31.9 (tờ 2): servo SG90 + stack N2 lọt, không kẹt, không rơ dọc trục.",
-            "K3. Đồng trục hốc horn (D) và ổ F quanh trục gật đầu: bắt buộc về chức năng; giá trị dung sai TBD.",
-            "K4. Dung sai vị trí A, B theo công thức ốc cố định: lỗ đối tiếp Ø2.30, ốc M2 Ø2.00 → "
-            "T = 0.30 chia đều hai "
-            "chi tiết → Ø0.15 cho mỗi chi tiết, so với A | B | C."]),
+            "K1. Ổ F: chốt Ø6.00 lọt bằng tay, Ø6.10 không lọt; MR63ZZ trượt dọc trục bằng tay, không lắc ngang.",
+            "K2. Khe đĩa idler ↔ N2 ≥ 0.2; quay −30…+32° không cọ. K3. Đồng trục: lắp tự định tâm (H ±0.15), "
+            "nghiệm thu bằng dòng giữ servo (V6, TBD).",
+            "K4. Dung sai vị trí A, B, G: lỗ đối tiếp Ø2.30, ốc M2 Ø2.00 → T = 0.30 → Ø0.15 mỗi chi tiết | A | B | C.",
+            "R. Lịch sử: P1 bản đầu. P2 tách idler thành N3i (G, H), ST2×3, lip Ø5.0, ổ F lắp trượt — audit "
+            "G-1, C-1, E-1, F-1, D-1."]),
     ]
     for head, items in notes:
         s3.text(25, yy, head, fs=8.5, role="head", weight="bold", va="top")

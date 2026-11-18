@@ -70,12 +70,12 @@ SG90 hẹp hơn MG92B 0.4 mm: nếu servo lắc trong ổ, dán 1 lớp băng ke
 
 | Mã | Tổng | Trong 2 chân | Trong thân + tay + đầu | Hỏi cửa hàng |
 | --- | ---: | ---: | ---: | --- |
-| M2x6 | 112 | 36 | 76 | ốc lục giác chìm M2×6 inox |
+| M2x6 | 114 | 36 | 78 | ốc lục giác chìm M2×6 inox |
 | M3x6 | 4 | 0 | 4 | ốc lục giác chìm M3×6 inox |
 | M3x6B | 11 | 10 | 1 | ốc đầu dù M3×6 inox (trục idler) |
-| ST2x4 | 40 | 24 | 16 | vít tự ren đầu tròn 2×4 (bắt horn) |
-| INS-M2 | 128 | 44 | 84 | tán cấy nhiệt M2, dài 3, OD 3.2 |
-| INS-M3 | 15 | 10 | 5 | tán cấy nhiệt M3, dài 3, OD 4.2 |
+| ST2x3 | 40 | 24 | 16 | vít tự ren đầu tròn 2×3 (bắt horn) |
+| INS-M2 | 130 | 44 | 86 | tán cấy nhiệt M2, dài 3, gai Ø3.6 (lỗ Ø3.2) |
+| INS-M3 | 15 | 10 | 5 | tán cấy nhiệt M3, dài 3, gai Ø4.6 (lỗ Ø4.0) |
 | MR63ZZ | 11 | 10 | 1 | bạc đạn MR63ZZ 3×6×2.5 |
 | W3 | 11 | 10 | 1 | long đền mỏng M3 3.2×5×0.5 |
 | SO40 | 4 | 0 | 4 | trụ nhựa M3 đực-cái 40 mm (+6 ren) |
@@ -120,7 +120,8 @@ Cộng thêm cho vỏ (Design C, bắt sau): 16 × M2×6 vào các tán vỏ đ�
 | A4 | `L_forearm` + `R_forearm` | Forearm and Mitten (L/R) | 2 | PLA | 11.1 | nằm mặt đĩa horn xuống bàn | [bản vẽ](v4/drawings/forearm.png) |
 | N1 | `L_neck_mount` | Neck Mount | 1 | PLA | 10.0 | mặt bích xuống bàn | [bản vẽ](v4/drawings/neck_mount.png) |
 | N2 | `L_neck_link` | Neck Link | 1 | PLA | 7.6 | đĩa horn cổ xuống bàn | [bản vẽ](v4/drawings/neck_link.png) |
-| N3 | `L_head_frame` | Head Frame | 1 | PLA | 19.1 | mặt sàn đầu úp xuống bàn, support dưới 2 đĩa | [bản vẽ](v4/drawings/head_frame.png) |
+| N3 | `L_head_frame` | Head Frame | 1 | PLA | 16.8 | mặt sàn đầu úp xuống bàn, support chỉ từ bàn (không support trong hốc horn) | [bản vẽ](v4/drawings/head_frame.png) |
+| N3i | `L_head_idler` | Head Idler Bracket | 1 | PLA | 2.5 | mặt đế (pad) úp xuống bàn, ổ bạc đạn nằm ngang, support chỉ từ bàn | [bản vẽ](v4/drawings/head_idler.png) |
 | N4 | `L_cam_mount` | Camera + ToF Mount (15° Tilt) | 1 | PLA | 7.0 | đế xuống bàn | [bản vẽ](v4/drawings/cam_mount.png) |
 | L1 | `L_foot` + `R_foot` | Foot | 2 | PLA | 15.1 | xem leg_v3.md | [bản vẽ](drawings/foot.png) |
 | L2 | `L_sole` + `R_sole` | TPU Sole | 2 | TPU 95A | 10.3 | xem leg_v3.md | [bản vẽ](drawings/sole.png) |
@@ -246,13 +247,13 @@ Servo cắm từ trên xuống (trục hướng lên), dây ra phía sau qua rã
 
 ![head_02](v4/steps/head_02.png)
 
-Bắt horn tròn vào đĩa dưới của N2 bằng 2 vít ST2×4 (từ phía servo). Cắm servo head pitch vào ổ của N2 (trục hướng +y, sang trái robot), 2 × M2×6. Servo cổ ở 1500 µs, đầu nhìn thẳng: ép N2 xuống trục; vít giữa horn cổ đi qua lỗ Ø5.2 xuyên 2 vách ổ — vì vậy lắp vít này TRƯỚC khi cắm servo head pitch, hoặc tháo servo head pitch ra khi cần vặn lại.
+Bắt horn tròn vào đĩa dưới của N2 bằng 2 vít ST2×3 (từ phía servo). Cắm servo head pitch vào ổ của N2 (trục hướng +y, sang trái robot), 2 × M2×6. Servo cổ ở 1500 µs, đầu nhìn thẳng: ép N2 xuống trục; vít giữa horn cổ đi qua lỗ Ø5.2 xuyên 2 vách ổ — vì vậy lắp vít này TRƯỚC khi cắm servo head pitch, hoặc tháo servo head pitch ra khi cần vặn lại.
 
-### Step 18. Head 3: Head Frame N3, Camera Mount N4, Display
+### Step 18. Head 3: Head Frame N3, Idler N3i, Camera Mount N4, Display
 
 ![head_03](v4/steps/head_03.png)
 
-Bạc đạn MR63ZZ ép vào đĩa idler (phía −y) của N3. Horn vào đĩa phía +y (2 × ST2×4). Ép N3 lên trục head pitch (sàn đầu nằm ngang), vít giữa horn; idler: W3 + M3×6 đầu dù vào tán M3 của N2. N4 lên sàn đầu, 2 × M2×6. Camera Pi V2: 4 × M2×6 vào 4 trụ (cấy tán từ phía trước). ToF: 2 × M2×6. Màn 1.9″: băng keo xốp lên mặt trước khung + 2 dây rút qua 4 khe.
+Horn vào đĩa +y của N3 (2 × ST2×3). Servo head pitch ở 1500 µs: đẩy N3 dọc trục (từ +y) cho horn ăn hết then hoa, sàn đầu nằm ngang, vít giữa horn qua lỗ Ø5.2. Bạc đạn MR63ZZ trượt vào ổ của N3i (lắp trượt). Đưa N3i vào từ phía −y lên trục idler: W3 + M3×6 đầu dù vào tán M3 của N2, siết. Sau cùng 2 × M2×6 từ dưới qua đế N3i vào 2 tán ở sàn đầu (lỗ hở Ø2.3 cho N3i tự định tâm theo trục idler). N4 lên sàn đầu, 2 × M2×6. Camera Pi V2: 4 × M2×6 vào 4 trụ (cấy tán từ phía trước). ToF: 2 × M2×6. Màn 1.9″: băng keo xốp lên mặt trước khung + 2 dây rút qua 4 khe.
 
 ### Step 19. Arm 1: Shoulder Mount A1 and Shoulder Pitch Servo
 
@@ -264,13 +265,13 @@ Servo nằm ngang, trục hướng ra ngoài (+y bên trái, −y bên phải), 
 
 ![arm_02](v4/steps/arm_02.png)
 
-Trên bàn, với cả 3 servo ở 1500 µs: (1) servo roll SG90 vào ổ của khâu vai A2 (trục hướng ra trước), 2 × M2×6; (2) servo khuỷu SG90 vào ổ của cánh tay trên A3 (trục hướng vào trong thân), 2 × M2×6; (3) mỗi đĩa horn: horn bắt 2 × ST2×4; (4) cẳng tay A4 lên trục khuỷu (tay thẳng xuống), vít giữa; (5) A3 lên trục roll (tay thẳng xuống), vít giữa từ phía trước.
+Trên bàn, với cả 3 servo ở 1500 µs: (1) servo roll SG90 vào ổ của khâu vai A2 (trục hướng ra trước), 2 × M2×6; (2) servo khuỷu SG90 vào ổ của cánh tay trên A3 (trục hướng vào trong thân), 2 × M2×6; (3) mỗi đĩa horn: horn bắt 2 × ST2×3; (4) cẳng tay A4 lên trục khuỷu (tay thẳng xuống), vít giữa; (5) A3 lên trục roll (tay thẳng xuống), vít giữa từ phía trước.
 
 ### Step 21. Arm 3: Arm onto the Shoulder
 
 ![arm_03](v4/steps/arm_03.png)
 
-Bắt horn shoulder pitch vào đĩa trong của A2 (2 × ST2×4). Shoulder pitch ở 1500 µs, tay thẳng xuống: ép cụm tay vào trục. Vít giữa horn đi qua lỗ Ø6 xuyên khâu vai (tua vít PH0 dài ≥ 40 mm). Lặp lại bên phải.
+Bắt horn shoulder pitch vào đĩa trong của A2 (2 × ST2×3). Shoulder pitch ở 1500 µs, tay thẳng xuống: ép cụm tay vào trục. Vít giữa horn đi qua lỗ Ø6 xuyên khâu vai (tua vít PH0 dài ≥ 40 mm). Lặp lại bên phải.
 
 ## 7. Hole Tables: Torso, Arms, Head
 
@@ -358,8 +359,8 @@ Toạ độ = điểm vào của lỗ, so với điểm tham chiếu của chi t
 | # | Lỗ | Loại | Ø | Sâu | Vị trí (x, y, z) | Hướng | Dùng cho |
 | --- | --- | --- | ---: | --- | --- | --- | --- |
 | H1 | `elbow.access` | access | 5.20 | xuyên | (+0.0, -11.2, +0.0) | +y | horn centre screw (comes with the servo) |
-| H2 | `elbow.horn1` | pilot_st2 | 1.60 | 2.4 | (-7.0, -8.4, +0.0) | −y | ST2x4 through the horn (plate to horn) |
-| H3 | `elbow.horn2` | pilot_st2 | 1.60 | 2.4 | (+7.0, -8.4, +0.0) | −y | ST2x4 through the horn (plate to horn) |
+| H2 | `elbow.horn1` | pilot_st2 | 1.60 | 2.4 | (-7.0, -8.4, +0.0) | −y | ST2x3 through the horn (plate to horn) |
+| H3 | `elbow.horn2` | pilot_st2 | 1.60 | 2.4 | (+7.0, -8.4, +0.0) | −y | ST2x3 through the horn (plate to horn) |
 
 #### N3 · `head_frame` — Head Frame
 
@@ -376,13 +377,26 @@ Toạ độ = điểm vào của lỗ, so với điểm tham chiếu của chi t
 | H5 | `disp_tie3` | tie | 1.60 | xuyên | (+30.0, -21.0, +0.0) | −x | cable tie over the display module |
 | H6 | `disp_tie4` | tie | 1.60 | xuyên | (+30.0, +21.0, +0.0) | −x | cable tie over the display module |
 | H7 | `head_pitch.access` | access | 5.20 | xuyên | (+0.0, +22.4, +0.0) | −y | horn centre screw (comes with the servo) |
-| H8 | `head_pitch.bearing` | bearing | 6.05 | 4.8 | (+0.0, -21.4, +0.0) | +y | MR63ZZ + W3 + M3x6 button head (idler) |
-| H9 | `head_pitch.horn1` | pilot_st2 | 1.60 | 2.4 | (+0.0, +19.6, -7.0) | +y | ST2x4 through the horn (plate to horn) |
-| H10 | `head_pitch.horn2` | pilot_st2 | 1.60 | 2.4 | (+0.0, +19.6, +7.0) | +y | ST2x4 through the horn (plate to horn) |
-| H11 | `shell1` | ins_m2_thru | 3.20 | xuyên | (-20.0, +20.0, +23.0) | −z | INS-M2, head shell (M2x6) |
-| H12 | `shell2` | ins_m2_thru | 3.20 | xuyên | (-20.0, -20.0, +23.0) | −z | INS-M2, head shell (M2x6) |
-| H13 | `shell3` | ins_m2_thru | 3.20 | xuyên | (+5.0, +20.0, +23.0) | −z | INS-M2, head shell (M2x6) |
-| H14 | `shell4` | ins_m2_thru | 3.20 | xuyên | (+5.0, -20.0, +23.0) | −z | INS-M2, head shell (M2x6) |
+| H8 | `head_pitch.horn1` | pilot_st2 | 1.60 | 2.4 | (+0.0, +19.6, -7.0) | +y | ST2x3 through the horn (plate to horn) |
+| H9 | `head_pitch.horn2` | pilot_st2 | 1.60 | 2.4 | (+0.0, +19.6, +7.0) | +y | ST2x3 through the horn (plate to horn) |
+| H10 | `idler1` | ins_m2_thru | 3.20 | xuyên | (-15.0, -19.2, +23.0) | −z | INS-M2 for head_idler (M2x6 from below) |
+| H11 | `idler2` | ins_m2_thru | 3.20 | xuyên | (-10.0, -19.2, +23.0) | −z | INS-M2 for head_idler (M2x6 from below) |
+| H12 | `shell1` | ins_m2_thru | 3.20 | xuyên | (-20.0, +20.0, +23.0) | −z | INS-M2, head shell (M2x6) |
+| H13 | `shell2` | ins_m2_thru | 3.20 | xuyên | (-20.0, -20.0, +23.0) | −z | INS-M2, head shell (M2x6) |
+| H14 | `shell3` | ins_m2_thru | 3.20 | xuyên | (+5.0, +20.0, +23.0) | −z | INS-M2, head shell (M2x6) |
+| H15 | `shell4` | ins_m2_thru | 3.20 | xuyên | (+5.0, -20.0, +23.0) | −z | INS-M2, head shell (M2x6) |
+
+#### N3i · `head_idler` — Head Idler Bracket
+
+Điểm tham chiếu: tâm trục gật đầu (giữa ổ) = robot (-3.0, +0.0, +207.5).
+
+![head_idler](v4/drawings/head_idler.png)
+
+| # | Lỗ | Loại | Ø | Sâu | Vị trí (x, y, z) | Hướng | Dùng cho |
+| --- | --- | --- | ---: | --- | --- | --- | --- |
+| H1 | `head_pitch.bearing` | bearing | 6.05 | 4.8 | (+0.0, -21.4, +0.0) | +y | MR63ZZ + W3 + M3x6 button head (idler) |
+| H2 | `pad1` | clr_m2 | 2.30 | xuyên | (-15.0, -19.2, +17.0) | +z | M2x6 up into the head deck insert |
+| H3 | `pad2` | clr_m2 | 2.30 | xuyên | (-10.0, -19.2, +17.0) | +z | M2x6 up into the head deck insert |
 
 #### N2 · `neck_link` — Neck Link
 
@@ -396,8 +410,8 @@ Toạ độ = điểm vào của lỗ, so với điểm tham chiếu của chi t
 | H2 | `head_pitch.ear2` | ins_m2 | 3.20 | 4.0 | (-19.4, +4.4, +0.0) | −y | INS-M2 + M2x6 (servo ear) |
 | H3 | `head_pitch.idler_insert` | ins_m3 | 4.00 | 3.6 | (+0.0, -16.6, +0.0) | +y | INS-M3 (idler pivot) |
 | H4 | `neck_yaw.access` | access | 5.20 | xuyên | (+0.0, +0.0, -8.3) | −z | horn centre screw (comes with the servo) |
-| H5 | `neck_yaw.horn1` | pilot_st2 | 1.60 | 2.4 | (+0.0, +7.0, -11.1) | +z | ST2x4 through the horn (plate to horn) |
-| H6 | `neck_yaw.horn2` | pilot_st2 | 1.60 | 2.4 | (+0.0, -7.0, -11.1) | +z | ST2x4 through the horn (plate to horn) |
+| H5 | `neck_yaw.horn1` | pilot_st2 | 1.60 | 2.4 | (+0.0, +7.0, -11.1) | +z | ST2x3 through the horn (plate to horn) |
+| H6 | `neck_yaw.horn2` | pilot_st2 | 1.60 | 2.4 | (+0.0, -7.0, -11.1) | +z | ST2x3 through the horn (plate to horn) |
 | H7 | `neck_yaw.service` | access | 5.20 | xuyên | (+0.0, +0.0, +8.3) | −z | horn screw of neck yaw: straight down through both walls of the empty head-pitch pocket |
 
 #### N1 · `neck_mount` — Neck Mount
@@ -455,8 +469,8 @@ Toạ độ = điểm vào của lỗ, so với điểm tham chiếu của chi t
 | # | Lỗ | Loại | Ø | Sâu | Vị trí (x, y, z) | Hướng | Dùng cho |
 | --- | --- | --- | ---: | --- | --- | --- | --- |
 | H1 | `shoulder_pitch.access` | access | 5.20 | xuyên | (-9.5, -14.3, +14.0) | −y | horn centre screw (comes with the servo) |
-| H2 | `shoulder_pitch.horn1` | pilot_st2 | 1.60 | 2.4 | (-9.5, -17.1, +7.0) | +y | ST2x4 through the horn (plate to horn) |
-| H3 | `shoulder_pitch.horn2` | pilot_st2 | 1.60 | 2.4 | (-9.5, -17.1, +21.0) | +y | ST2x4 through the horn (plate to horn) |
+| H2 | `shoulder_pitch.horn1` | pilot_st2 | 1.60 | 2.4 | (-9.5, -17.1, +7.0) | +y | ST2x3 through the horn (plate to horn) |
+| H3 | `shoulder_pitch.horn2` | pilot_st2 | 1.60 | 2.4 | (-9.5, -17.1, +21.0) | +y | ST2x3 through the horn (plate to horn) |
 | H4 | `shoulder_pitch.service` | access | 6.00 | xuyên | (-9.5, +8.3, +14.0) | −y | horn screw of shoulder pitch, under the roll pocket |
 | H5 | `shoulder_roll.ear1` | ins_m2 | 3.20 | 4.0 | (-6.8, +0.0, +8.4) | −x | INS-M2 + M2x6 (servo ear) |
 | H6 | `shoulder_roll.ear2` | ins_m2 | 3.20 | 4.0 | (-6.8, +0.0, -19.4) | −x | INS-M2 + M2x6 (servo ear) |
@@ -577,8 +591,8 @@ Toạ độ = điểm vào của lỗ, so với điểm tham chiếu của chi t
 | H1 | `elbow.ear1` | ins_m2 | 3.20 | 4.0 | (+0.0, +6.8, +8.4) | +y | INS-M2 + M2x6 (servo ear) |
 | H2 | `elbow.ear2` | ins_m2 | 3.20 | 4.0 | (+0.0, +6.8, -19.4) | +y | INS-M2 + M2x6 (servo ear) |
 | H3 | `shoulder_roll.access` | access | 5.20 | xuyên | (+20.7, +10.3, +35.5) | −x | horn centre screw (comes with the servo) |
-| H4 | `shoulder_roll.horn1` | pilot_st2 | 1.60 | 2.4 | (+17.9, +3.3, +35.5) | +x | ST2x4 through the horn (plate to horn) |
-| H5 | `shoulder_roll.horn2` | pilot_st2 | 1.60 | 2.4 | (+17.9, +17.3, +35.5) | +x | ST2x4 through the horn (plate to horn) |
+| H4 | `shoulder_roll.horn1` | pilot_st2 | 1.60 | 2.4 | (+17.9, +3.3, +35.5) | +x | ST2x3 through the horn (plate to horn) |
+| H5 | `shoulder_roll.horn2` | pilot_st2 | 1.60 | 2.4 | (+17.9, +17.3, +35.5) | +x | ST2x3 through the horn (plate to horn) |
 
 ## 8. Cable Routing
 

@@ -8,12 +8,12 @@
     <collision><origin xyz="-0.00400 -0.00000 0.11728"/><geometry><box size="0.10040 0.13760 0.15810"/></geometry></collision>
   </link>
   <link name="l_hip_yaw_link">
-    <inertial><origin xyz="0.00171 0.00000 0.01401" rpy="0 0 0"/><mass value="0.01447"/><inertia ixx="2.3367e-06" iyy="4.1370e-06" izz="4.5749e-06" ixy="-4.8314e-22" ixz="2.4823e-07" iyz="-4.3276e-22"/></inertial>
+    <inertial><origin xyz="0.00171 0.00000 0.01401" rpy="0 0 0"/><mass value="0.01446"/><inertia ixx="2.3355e-06" iyy="4.1345e-06" izz="4.5726e-06" ixy="-4.7195e-22" ixz="2.4860e-07" iyz="1.3052e-22"/></inertial>
     <visual><origin xyz="0.00000 0.00000 0.00497"/><geometry><box size="0.04480 0.04200 0.03393"/></geometry><material name="frame"/></visual>
     <collision><origin xyz="0.00000 0.00000 0.00497"/><geometry><box size="0.04480 0.04200 0.03393"/></geometry></collision>
   </link>
   <link name="r_hip_yaw_link">
-    <inertial><origin xyz="0.00171 0.00000 0.01401" rpy="0 0 0"/><mass value="0.01447"/><inertia ixx="2.3367e-06" iyy="4.1370e-06" izz="4.5749e-06" ixy="4.8314e-22" ixz="2.4823e-07" iyz="4.3276e-22"/></inertial>
+    <inertial><origin xyz="0.00171 0.00000 0.01401" rpy="0 0 0"/><mass value="0.01446"/><inertia ixx="2.3355e-06" iyy="4.1345e-06" izz="4.5726e-06" ixy="4.7195e-22" ixz="2.4860e-07" iyz="-1.3052e-22"/></inertial>
     <visual><origin xyz="0.00000 0.00000 0.00497"/><geometry><box size="0.04480 0.04200 0.03393"/></geometry><material name="frame"/></visual>
     <collision><origin xyz="0.00000 0.00000 0.00497"/><geometry><box size="0.04480 0.04200 0.03393"/></geometry></collision>
   </link>
@@ -38,12 +38,12 @@
     <collision><origin xyz="0.00145 -0.00155 -0.01715"/><geometry><box size="0.03610 0.04210 0.05090"/></geometry></collision>
   </link>
   <link name="l_hip_pitch_link">
-    <inertial><origin xyz="-0.00203 -0.00244 -0.03579" rpy="0 0 0"/><mass value="0.03501"/><inertia ixx="1.3199e-05" iyy="9.7975e-06" izz="5.9045e-06" ixy="-7.4426e-08" ixz="1.3730e-07" iyz="-3.0902e-08"/></inertial>
+    <inertial><origin xyz="-0.00203 -0.00244 -0.03579" rpy="0 0 0"/><mass value="0.03501"/><inertia ixx="1.3196e-05" iyy="9.7950e-06" izz="5.9041e-06" ixy="-7.4479e-08" ixz="1.3743e-07" iyz="-3.1833e-08"/></inertial>
     <visual><origin xyz="-0.00090 0.00000 -0.02380"/><geometry><box size="0.02580 0.04480 0.07160"/></geometry><material name="frame"/></visual>
     <collision><origin xyz="-0.00090 0.00000 -0.02380"/><geometry><box size="0.02580 0.04480 0.07160"/></geometry></collision>
   </link>
   <link name="l_knee_link">
-    <inertial><origin xyz="0.00446 0.00354 -0.02170" rpy="0 0 0"/><mass value="0.01007"/><inertia ixx="8.1575e-06" iyy="5.1978e-06" izz="4.0407e-06" ixy="2.0061e-07" ixz="-1.4359e-07" iyz="8.1439e-08"/></inertial>
+    <inertial><origin xyz="0.00446 0.00355 -0.02170" rpy="0 0 0"/><mass value="0.01007"/><inertia ixx="8.1538e-06" iyy="5.1955e-06" izz="4.0391e-06" ixy="2.0094e-07" ixz="-1.4355e-07" iyz="8.1610e-08"/></inertial>
     <visual><origin xyz="0.00090 0.00000 -0.02400"/><geometry><box size="0.02580 0.04480 0.07200"/></geometry><material name="frame"/></visual>
     <collision><origin xyz="0.00090 0.00000 -0.02400"/><geometry><box size="0.02580 0.04480 0.07200"/></geometry></collision>
   </link>
@@ -53,7 +53,7 @@
     <collision><origin xyz="0.00145 -0.00155 -0.00285"/><geometry><box size="0.03610 0.04210 0.05090"/></geometry></collision>
   </link>
   <link name="l_ankle_roll_link">
-    <inertial><origin xyz="0.00000 0.00000 -0.01572" rpy="0 0 0"/><mass value="0.02540"/><inertia ixx="3.7919e-06" iyy="1.2809e-05" izz="1.4391e-05" ixy="7.1437e-24" ixz="-3.0371e-07" iyz="2.6932e-21"/></inertial>
+    <inertial><origin xyz="0.00000 0.00000 -0.01572" rpy="0 0 0"/><mass value="0.02540"/><inertia ixx="3.7914e-06" iyy="1.2808e-05" izz="1.4390e-05" ixy="-3.8439e-23" ixz="-3.0421e-07" iyz="-2.3236e-21"/></inertial>
     <visual><origin xyz="-0.00081 0.00000 -0.00467"/><geometry><box size="0.07600 0.03800 0.03333"/></geometry><material name="frame"/></visual>
     <collision><origin xyz="-0.00081 0.00000 -0.00467"/><geometry><box size="0.07600 0.03800 0.03333"/></geometry></collision>
   </link>
@@ -63,12 +63,12 @@
     <collision><origin xyz="0.00145 0.00155 -0.01715"/><geometry><box size="0.03610 0.04210 0.05090"/></geometry></collision>
   </link>
   <link name="r_hip_pitch_link">
-    <inertial><origin xyz="-0.00203 0.00244 -0.03579" rpy="0 0 0"/><mass value="0.03501"/><inertia ixx="1.3199e-05" iyy="9.7975e-06" izz="5.9045e-06" ixy="7.4426e-08" ixz="1.3730e-07" iyz="3.0902e-08"/></inertial>
+    <inertial><origin xyz="-0.00203 0.00244 -0.03579" rpy="0 0 0"/><mass value="0.03501"/><inertia ixx="1.3196e-05" iyy="9.7950e-06" izz="5.9041e-06" ixy="7.4479e-08" ixz="1.3743e-07" iyz="3.1833e-08"/></inertial>
     <visual><origin xyz="-0.00090 0.00000 -0.02380"/><geometry><box size="0.02580 0.04480 0.07160"/></geometry><material name="frame"/></visual>
     <collision><origin xyz="-0.00090 0.00000 -0.02380"/><geometry><box size="0.02580 0.04480 0.07160"/></geometry></collision>
   </link>
   <link name="r_knee_link">
-    <inertial><origin xyz="0.00446 -0.00354 -0.02170" rpy="0 0 0"/><mass value="0.01007"/><inertia ixx="8.1575e-06" iyy="5.1978e-06" izz="4.0407e-06" ixy="-2.0061e-07" ixz="-1.4359e-07" iyz="-8.1439e-08"/></inertial>
+    <inertial><origin xyz="0.00446 -0.00355 -0.02170" rpy="0 0 0"/><mass value="0.01007"/><inertia ixx="8.1538e-06" iyy="5.1955e-06" izz="4.0391e-06" ixy="-2.0094e-07" ixz="-1.4355e-07" iyz="-8.1610e-08"/></inertial>
     <visual><origin xyz="0.00090 0.00000 -0.02400"/><geometry><box size="0.02580 0.04480 0.07200"/></geometry><material name="frame"/></visual>
     <collision><origin xyz="0.00090 0.00000 -0.02400"/><geometry><box size="0.02580 0.04480 0.07200"/></geometry></collision>
   </link>
@@ -78,7 +78,7 @@
     <collision><origin xyz="0.00145 0.00155 -0.00285"/><geometry><box size="0.03610 0.04210 0.05090"/></geometry></collision>
   </link>
   <link name="r_ankle_roll_link">
-    <inertial><origin xyz="0.00000 0.00000 -0.01572" rpy="0 0 0"/><mass value="0.02540"/><inertia ixx="3.7919e-06" iyy="1.2809e-05" izz="1.4391e-05" ixy="-9.2759e-24" ixz="-3.0371e-07" iyz="-2.6839e-21"/></inertial>
+    <inertial><origin xyz="0.00000 0.00000 -0.01572" rpy="0 0 0"/><mass value="0.02540"/><inertia ixx="3.7914e-06" iyy="1.2808e-05" izz="1.4390e-05" ixy="3.6307e-23" ixz="-3.0421e-07" iyz="2.3329e-21"/></inertial>
     <visual><origin xyz="-0.00081 0.00000 -0.00467"/><geometry><box size="0.07600 0.03800 0.03333"/></geometry><material name="frame"/></visual>
     <collision><origin xyz="-0.00081 0.00000 -0.00467"/><geometry><box size="0.07600 0.03800 0.03333"/></geometry></collision>
   </link>
@@ -103,9 +103,9 @@
     <collision><origin xyz="0.00000 -0.00025 -0.02900"/><geometry><box size="0.02400 0.01000 0.08200"/></geometry></collision>
   </link>
   <link name="head_pitch_link">
-    <inertial><origin xyz="0.01306 0.00000 0.02611" rpy="0 0 0"/><mass value="0.07125"/><inertia ixx="5.1835e-05" iyy="6.5173e-05" izz="6.4183e-05" ixy="1.4888e-07" ixz="3.9029e-06" iyz="3.6242e-07"/></inertial>
-    <visual><origin xyz="0.00860 -0.00016 0.02523"/><geometry><box size="0.07920 0.06520 0.07447"/></geometry><material name="frame"/></visual>
-    <collision><origin xyz="0.00860 -0.00016 0.02523"/><geometry><box size="0.07920 0.06520 0.07447"/></geometry></collision>
+    <inertial><origin xyz="0.01299 0.00000 0.02605" rpy="0 0 0"/><mass value="0.07174"/><inertia ixx="5.2039e-05" iyy="6.5452e-05" izz="6.4519e-05" ixy="9.1458e-08" ixz="3.8786e-06" iyz="3.7304e-07"/></inertial>
+    <visual><origin xyz="0.00860 -0.00014 0.02523"/><geometry><box size="0.07920 0.06520 0.07447"/></geometry><material name="frame"/></visual>
+    <collision><origin xyz="0.00860 -0.00014 0.02523"/><geometry><box size="0.07920 0.06520 0.07447"/></geometry></collision>
   </link>
   <joint name="l_hip_yaw" type="revolute"><parent link="base_link"/><child link="l_hip_yaw_link"/><origin xyz="0.00000 0.02800 0.02000"/><axis xyz="0 0 1"/><limit lower="-0.7854" upper="0.7854" effort="0.216" velocity="13.09"/><dynamics damping="0.02" friction="0"/></joint>
   <joint name="r_hip_yaw" type="revolute"><parent link="base_link"/><child link="r_hip_yaw_link"/><origin xyz="0.00000 -0.02800 0.02000"/><axis xyz="0 0 1"/><limit lower="-0.7854" upper="0.7854" effort="0.216" velocity="13.09"/><dynamics damping="0.02" friction="0"/></joint>
@@ -126,7 +126,7 @@
   <joint name="l_elbow" type="revolute"><parent link="l_shoulder_roll_link"/><child link="l_elbow_link"/><origin xyz="0.00000 -0.01825 -0.03550"/><axis xyz="0 1 0"/><limit lower="-2.2689" upper="0.0000" effort="0.177" velocity="10.47"/><dynamics damping="0.02" friction="0"/></joint>
   <joint name="r_shoulder_roll" type="revolute"><parent link="r_shoulder_pitch_link"/><child link="r_shoulder_roll_link"/><origin xyz="0.00000 0.00000 -0.01400"/><axis xyz="1 0 0"/><limit lower="-2.7925" upper="0.1745" effort="0.177" velocity="10.47"/><dynamics damping="0.02" friction="0"/></joint>
   <joint name="r_elbow" type="revolute"><parent link="r_shoulder_roll_link"/><child link="r_elbow_link"/><origin xyz="0.00000 0.01825 -0.03550"/><axis xyz="0 1 0"/><limit lower="-2.2689" upper="0.0000" effort="0.177" velocity="10.47"/><dynamics damping="0.02" friction="0"/></joint>
-  <joint name="head_pitch" type="revolute"><parent link="neck_yaw_link"/><child link="head_pitch_link"/><origin xyz="0.00000 0.00016 0.00000"/><axis xyz="0 1 0"/><limit lower="-0.5236" upper="0.5585" effort="0.177" velocity="10.47"/><dynamics damping="0.02" friction="0"/></joint>
+  <joint name="head_pitch" type="revolute"><parent link="neck_yaw_link"/><child link="head_pitch_link"/><origin xyz="0.00000 0.00014 0.00000"/><axis xyz="0 1 0"/><limit lower="-0.5236" upper="0.5585" effort="0.177" velocity="10.47"/><dynamics damping="0.02" friction="0"/></joint>
   <link name="l_sole"/><joint name="l_sole_joint" type="fixed"><parent link="l_ankle_roll_link"/><child link="l_sole"/><origin xyz="0 0 -0.02133" rpy="0 0 0"/></joint>
   <link name="r_sole"/><joint name="r_sole_joint" type="fixed"><parent link="r_ankle_roll_link"/><child link="r_sole"/><origin xyz="0 0 -0.02133" rpy="0 0 0"/></joint>
   <link name="imu_link"/><joint name="imu_link_joint" type="fixed"><parent link="base_link"/><child link="imu_link"/><origin xyz="0.01300 0.00000 0.13253" rpy="0 0 0"/></joint>

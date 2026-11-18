@@ -59,7 +59,10 @@ BODY_PARTS = {  # part: (code, Vietnamese name, reference point name, print note
     "forearm": ("A4", "Forearm and Mitten (L/R)", "điểm trục khuỷu trên mặt đầu servo", "nằm mặt đĩa horn xuống bàn"),
     "neck_mount": ("N1", "Neck Mount", "điểm trục cổ trên mặt đầu servo", "mặt bích xuống bàn"),
     "neck_link": ("N2", "Neck Link", "tâm trục gật đầu (giữa ổ)", "đĩa horn cổ xuống bàn"),
-    "head_frame": ("N3", "Head Frame", "tâm trục gật đầu (giữa ổ)", "mặt sàn đầu úp xuống bàn, support dưới 2 đĩa"),
+    "head_frame": ("N3", "Head Frame", "tâm trục gật đầu (giữa ổ)",
+                   "mặt sàn đầu úp xuống bàn, support chỉ từ bàn (không support trong hốc horn)"),
+    "head_idler": ("N3i", "Head Idler Bracket", "tâm trục gật đầu (giữa ổ)",
+                   "mặt đế (pad) úp xuống bàn, ổ bạc đạn nằm ngang, support chỉ từ bàn"),
     "cam_mount": ("N4", "Camera + ToF Mount (15° Tilt)", "mặt sàn đầu, tâm bay camera", "đế xuống bàn"),
 }
 LEG_PARTS = {  # from leg.py / leg_v3.md
@@ -71,8 +74,8 @@ LEG_PARTS = {  # from leg.py / leg_v3.md
 FAST_VI = {
     "M2x6": "ốc lục giác chìm M2×6 inox", "M2x10": "ốc lục giác chìm M2×10 inox",
     "M3x6": "ốc lục giác chìm M3×6 inox", "M3x6B": "ốc đầu dù M3×6 inox (trục idler)",
-    "ST2x4": "vít tự ren đầu tròn 2×4 (bắt horn)", "INS-M2": "tán cấy nhiệt M2, dài 3, OD 3.2",
-    "INS-M3": "tán cấy nhiệt M3, dài 3, OD 4.2", "MR63ZZ": "bạc đạn MR63ZZ 3×6×2.5",
+    "ST2x3": "vít tự ren đầu tròn 2×3 (bắt horn)", "INS-M2": "tán cấy nhiệt M2, dài 3, gai Ø3.6 (lỗ Ø3.2)",
+    "INS-M3": "tán cấy nhiệt M3, dài 3, gai Ø4.6 (lỗ Ø4.0)", "MR63ZZ": "bạc đạn MR63ZZ 3×6×2.5",
     "W3": "long đền mỏng M3 3.2×5×0.5", "SO40": "trụ nhựa M3 đực-cái 40 mm (+6 ren)",
     "SO35": "trụ nhựa M3 đực-cái 35 mm (+6 ren)", "TIE": "dây rút 2.5×100 mm", "STRAP": "dây dán pin velcro 20 mm",
     "FOAM": "băng keo xốp 2 mặt 1 mm",
@@ -95,7 +98,7 @@ def ref_point(body, part):
           "forearm": "elbow", "neck_mount": "neck_yaw"}.get(part)
     if jn:
         return np.asarray(j[jn].p, float)
-    if part in ("neck_link", "head_frame"):
+    if part in ("neck_link", "head_frame", "head_idler"):
         return np.asarray(j["head_pitch"].origin, float)
     if part == "cam_mount":
         return np.array([12.0, 0.0, B.HEAD_DECK + 3.0])
@@ -167,7 +170,7 @@ def count_body(body):
         elif kind in ("cb_m2", "clr_m2"):
             cnt["M2x6"] += k
         elif kind == "pilot_st2":
-            cnt["ST2x4"] += k
+            cnt["ST2x3"] += k
         elif kind == "bearing":
             cnt["MR63ZZ"] += k
             cnt["W3"] += k
@@ -196,8 +199,8 @@ def count_leg(leg):
             cnt["MR63ZZ"] += 1
             cnt["W3"] += 1
             cnt["M3x6B"] += 1
-        elif f.startswith("ST2x4"):
-            cnt["ST2x4"] += 1
+        elif f.startswith("ST2x3"):
+            cnt["ST2x3"] += 1
     return cnt                                 # sole and thrust-ring screws: counted with their inserts
 
 
@@ -406,15 +409,17 @@ def main():
     nl = ["neck_link", "horn_neck_yaw", "servo_head_pitch"]
     base += nl
     add("head_02", "Head 2: Neck Link N2 and Head Pitch Servo",
-        "Bắt horn tròn vào đĩa dưới của N2 bằng 2 vít ST2×4 (từ phía servo). Cắm servo head pitch vào ổ của N2 "
+        "Bắt horn tròn vào đĩa dưới của N2 bằng 2 vít ST2×3 (từ phía servo). Cắm servo head pitch vào ổ của N2 "
         "(trục hướng +y, sang trái robot), 2 × M2×6. Servo cổ ở 1500 µs, đầu nhìn thẳng: ép N2 xuống trục; vít "
         "giữa horn cổ đi qua lỗ Ø5.2 xuyên 2 vách ổ — vì vậy lắp vít này TRƯỚC khi cắm servo head pitch, hoặc "
         "tháo servo head pitch ra khi cần vặn lại.", base, nl, az=35, el=30)
-    hf = ["head_frame", "horn_head_pitch", "cam_mount", "board_DISP"]
+    hf = ["head_frame", "head_idler", "horn_head_pitch", "cam_mount", "board_DISP"]
     base += hf
-    add("head_03", "Head 3: Head Frame N3, Camera Mount N4, Display",
-        "Bạc đạn MR63ZZ ép vào đĩa idler (phía −y) của N3. Horn vào đĩa phía +y (2 × ST2×4). Ép N3 lên trục head "
-        "pitch (sàn đầu nằm ngang), vít giữa horn; idler: W3 + M3×6 đầu dù vào tán M3 của N2. N4 lên sàn đầu, "
+    add("head_03", "Head 3: Head Frame N3, Idler N3i, Camera Mount N4, Display",
+        "Horn vào đĩa +y của N3 (2 × ST2×3). Servo head pitch ở 1500 µs: đẩy N3 dọc trục (từ +y) cho horn ăn hết "
+        "then hoa, sàn đầu nằm ngang, vít giữa horn qua lỗ Ø5.2. Bạc đạn MR63ZZ trượt vào ổ của N3i (lắp trượt). "
+        "Đưa N3i vào từ phía −y lên trục idler: W3 + M3×6 đầu dù vào tán M3 của N2, siết. Sau cùng 2 × M2×6 từ "
+        "dưới qua đế N3i vào 2 tán ở sàn đầu (lỗ hở Ø2.3 cho N3i tự định tâm theo trục idler). N4 lên sàn đầu, "
         "2 × M2×6. Camera Pi V2: 4 × M2×6 vào 4 trụ (cấy tán từ phía trước). ToF: 2 × M2×6. Màn 1.9″: băng keo "
         "xốp lên mặt trước khung + 2 dây rút qua 4 khe.", base, hf, az=35, el=20,
         focus=["neck_mount", "neck_link"] + hf)
@@ -432,13 +437,13 @@ def main():
             add("arm_02", "Arm 2: Arm Sub-Assembly on the Bench",
                 "Trên bàn, với cả 3 servo ở 1500 µs: (1) servo roll SG90 vào ổ của khâu vai A2 (trục hướng ra trước), "
                 "2 × M2×6; (2) servo khuỷu SG90 vào ổ của cánh tay trên A3 (trục hướng vào trong thân), 2 × M2×6; "
-                "(3) mỗi đĩa horn: horn bắt 2 × ST2×4; (4) cẳng tay A4 lên trục khuỷu (tay thẳng xuống), vít giữa; "
+                "(3) mỗi đĩa horn: horn bắt 2 × ST2×3; (4) cẳng tay A4 lên trục khuỷu (tay thẳng xuống), vít giữa; "
                 "(5) A3 lên trục roll (tay thẳng xuống), vít giữa từ phía trước.",
                 [n for n in arm if not n.endswith("horn_shoulder_pitch")],
                 [n for n in arm if not n.endswith("horn_shoulder_pitch")], az=55, el=15)
         base += sm + arm
     add("arm_03", "Arm 3: Arm onto the Shoulder",
-        "Bắt horn shoulder pitch vào đĩa trong của A2 (2 × ST2×4). Shoulder pitch ở 1500 µs, tay thẳng xuống: ép "
+        "Bắt horn shoulder pitch vào đĩa trong của A2 (2 × ST2×3). Shoulder pitch ở 1500 µs, tay thẳng xuống: ép "
         "cụm tay vào trục. Vít giữa horn đi qua lỗ Ø6 xuyên khâu vai (tua vít PH0 dài ≥ 40 mm). Lặp lại bên phải.",
         base, [n for n in names if n[:2] in ("L.", "R.") and ".leg." not in n and "sled" not in n and
                "shoulder_mount" not in n and "servo_shoulder_pitch" not in n and "ina" not in n.lower()
@@ -564,7 +569,7 @@ def write(body, leg, steps, holes_by, tot, cb, cl, shell_screws, S, floor, top):
     a("")
     a("| Mã | Tổng | Trong 2 chân | Trong thân + tay + đầu | Hỏi cửa hàng |")
     a("| --- | ---: | ---: | ---: | --- |")
-    for code in ("M2x6", "M3x6", "M3x6B", "ST2x4", "INS-M2", "INS-M3", "MR63ZZ", "W3", "SO40", "SO35", "TIE", "STRAP",
+    for code in ("M2x6", "M3x6", "M3x6B", "ST2x3", "INS-M2", "INS-M3", "MR63ZZ", "W3", "SO40", "SO35", "TIE", "STRAP",
                  "FOAM"):
         t, l_, b_ = tot[code], 2 * cl.get(code, 0), cb.get(code, 0)
         a(f"| {code} | {t:g} | {l_:g} | {b_:g} | {FAST_VI[code]} |")

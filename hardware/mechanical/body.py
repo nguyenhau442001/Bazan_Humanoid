@@ -91,7 +91,8 @@ class Body:
                                       X, NZ, False),
             "elbow": ct_joint("elbow", "upper_arm", "forearm", (0.0, ELB_CT_Y, ELB_Z), NY, NZ, False),
             "neck_yaw": ct_joint("neck_yaw", "neck_mount", "neck_link", (NECK_X, 0.0, NECK_CT_Z), Z, NX, False),
-            "head_pitch": J.Joint("head_pitch", "neck_link", "head_frame", (NECK_X, 0.0, HEAD_Z), Y, NX, idler=True),
+            "head_pitch": J.Joint("head_pitch", "neck_link", "head_frame", (NECK_X, 0.0, HEAD_Z), Y, NX, idler=True,
+                                  idler_part="head_idler"),
         }
         self.extra = []          # holes that are not joint features
         self.boards = {}         # placed board envelopes, for the checks and the pictures
@@ -108,6 +109,7 @@ class Body:
         self.parts["neck_mount"] = self._finish("neck_mount", self._neck_mount())
         self.parts["neck_link"] = self._finish("neck_link", self._neck_link())
         self.parts["head_frame"] = self._finish("head_frame", self._head_frame())
+        self.parts["head_idler"] = self._finish("head_idler", self._head_idler())
         self.parts["cam_mount"] = self._cam_mount()
         # access to the horn screws hidden under the next joint
         sl = self.parts["shoulder_link"].cut(cyl(3.0, (SH_X, SH_CT_Y + 5, SH_Z), (SH_X, ROLL_Y + 12, SH_Z)))
@@ -133,7 +135,9 @@ class Body:
             if j.holder == name:
                 body = body.cut(j.holder_cut(name))
             if j.driven == name:
-                body = body.cut(j.driven_cut(name))
+                body = body.cut(j.driven_cut(name, "horn" if j.idler_part else "both"))
+            if j.idler_part == name:
+                body = body.cut(j.driven_cut(name, "idler"))
         return body.clean()
 
     def holes(self):
@@ -376,11 +380,18 @@ class Body:
         hp = sorted(p[1] for p in jp.a_range(J.HP))
         ip = sorted(p[1] for p in jp.a_range(J.IP))
         hd = HEAD_DECK
-        bars = [bx((NECK_X - 6.0, NECK_X + 6.0), (hp[0], hp[1]), (HEAD_Z, hd)),
-                bx((NECK_X - 6.0, NECK_X + 6.0), (ip[0], ip[1]), (HEAD_Z, hd))]
+        # the idler side is a separate part (head_idler, N3i): N3 slides onto the spline along the axis with
+        # nothing in the way, then N3i goes on the idler pivot and is bolted under the deck (N3 review G-1)
+        bars = [bx((NECK_X - 6.0, NECK_X + 6.0), (hp[0], hp[1]), (HEAD_Z, hd))]
         deck = bx(self.HEAD_X, self.HEAD_Y, (hd, hd + 3.0))
         face = bx((self.HEAD_X[1] - 3.0, self.HEAD_X[1]), self.HEAD_Y, (hd - 26.0, hd))
-        s = fuse(jp.horn_disc(), jp.idler_disc(), *bars, deck, face)
+        s = fuse(jp.horn_disc(), *bars, deck, face)
+        # two M2 inserts through the deck for the idler part, screws from below through its pad
+        yi = (ip[0] + ip[1]) / 2
+        for k, x in enumerate(self.IDLER_SCREW_X):
+            s = s.cut(cyl(1.6, (x, yi, hd - 1), (x, yi, hd + 4)))
+            self._hole("head_frame", f"idler{k + 1}", "ins_m2_thru", "INS-M2 for head_idler (M2x6 from below)",
+                       (x, yi, hd + 3.0), 3.2, 0)
         # camera mount bay (SL-20 across y) and display ties on the face plate
         for k, y in enumerate((-10.0, 10.0)):
             x = 12.0
@@ -401,6 +412,29 @@ class Body:
         d = el.BOARDS["DISP"]
         self.boards["DISP"] = bx((self.HEAD_X[1] + 1.0, self.HEAD_X[1] + 1.0 + d.top + 1.5),
                                  (-d.size[0] / 2, d.size[0] / 2), (hd - 26.0, hd - 26.0 + d.size[1]))
+        return s
+
+    IDLER_SCREW_X = (NECK_X - 15.0, NECK_X - 10.0)     # clear of the idler disc (R7.5) for a hex key from below
+    IDLER_PAD = 3.0                                    # pad under the deck that carries the two screws
+
+    def _head_idler(self):
+        """N3i: idler plate, its bar and a pad bolted under the head deck. The pad holes are clearance (Ø2.3), so
+        on assembly the part takes its place from the bearing on the idler pivot: it absorbs ±0.15 mm of axial
+        and radial error between the two pivots (N3 review B-1, C-1)."""
+        jp = self.joints["head_pitch"]
+        ip = sorted(p[1] for p in jp.a_range(J.IP))
+        hd = HEAD_DECK
+        bar = bx((NECK_X - 6.0, NECK_X + 6.0), (ip[0], ip[1]), (HEAD_Z, hd - self.IDLER_PAD))
+        pad = bx((self.IDLER_SCREW_X[0] - 3.0, NECK_X + 6.0), (ip[0], ip[1]), (hd - self.IDLER_PAD, hd))
+        s = fuse(jp.idler_disc(), bar, pad)
+        yi = (ip[0] + ip[1]) / 2
+        for k, x in enumerate(self.IDLER_SCREW_X):
+            s = s.cut(cyl(1.15, (x, yi, hd - self.IDLER_PAD - 1), (x, yi, hd + 1)))
+            self._hole("head_idler", f"pad{k + 1}", "clr_m2", "M2x6 up into the head deck insert",
+                       (x, yi, hd - self.IDLER_PAD), 2.3, 0, (0, 0, 1))
+        # relief under the head-shell insert that sits over the pad (melt room)
+        for x, y in [(-23.0, -20.0), (2.0, -20.0)]:
+            s = s.cut(cyl(1.6, (x, y, hd - 1), (x, y, hd + 1)))
         return s
 
     def _cam_mount(self):

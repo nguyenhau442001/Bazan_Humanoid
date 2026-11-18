@@ -44,11 +44,11 @@ Sinh bởi `hardware/mechanical/drawings.py N3`, 2026-11-18. Lỗi: **0**.
 | kích thước tờ 3 [D] ↧0.5 | đạt | đo trên CAD 0.500, ghi 0.5, điểm cách mặt 0.000 |
 | kích thước tờ 3 [D] Ø6.05 | đạt | đo trên CAD 6.050, ghi 6.05 (điểm chuẩn/trục, không nằm trên mặt) |
 | kích thước tờ 3 [D] Ø13 | đạt | đo trên CAD 13.000, ghi 13.0, điểm cách mặt 0.000 |
-| kích thước tờ 3 [D] Ø4.6 | đạt | đo trên CAD 4.600, ghi 4.6 (điểm chuẩn/trục, không nằm trên mặt) |
+| kích thước tờ 3 [D] Ø5 | đạt | đo trên CAD 5.000, ghi 5.0 (điểm chuẩn/trục, không nằm trên mặt) |
 | kích thước tờ 3 [D] Ø15 | đạt | đo trên CAD 15.000, ghi 15.0, điểm cách mặt 0.000 |
-| mọi lỗ CAD có trong bảng, không thừa | đạt | 14 trong bảng, 14 trong CAD |
+| mọi lỗ CAD có trong bảng, không thừa | đạt | 18 trong bảng, 18 trong CAD |
 | toạ độ bảng = toạ độ CAD | đạt | lệch lớn nhất 0.00e+00 mm |
-| mã đặc tính không trùng | đạt | A1, A2, A3, A4, B1, B2, C1, C2, C3, C4, D1, D2, E1, F1 |
+| mã đặc tính không trùng | đạt | A1, A2, A3, A4, B1, B2, C1, C2, C3, C4, D1, D2, E1, F1, G1, G2, H1, H2 |
 | thẳng hàng đứng/bằng (cùng X giấy cho cùng điểm) | đạt | Δ = 0.00e+00 mm |
 | thẳng hàng đứng/cạnh (cùng Y giấy cho cùng điểm) | đạt | Δ = 0.00e+00 mm |
 | bằng nằm DƯỚI đứng, cạnh nằm PHẢI đứng (góc thứ nhất) | đạt |  |
@@ -77,9 +77,9 @@ Sinh bởi `hardware/mechanical/drawings.py N3`, 2026-11-18. Lỗi: **0**.
 
 | Hướng | Tiếp xúc bàn mm² | Mặt treo >45° mm² | Cao mm |
 | --- | ---: | ---: | ---: |
-| +Z lên (như CAD) | 12 | 2740 | 35.0 |
-| mặt trên sàn úp xuống (+Z xuống) | 2544 | 203 | 35.0 |
-| +X xuống | 1373 | 527 | 54.0 |
-| −X xuống | 144 | 1756 | 54.0 |
-| +Y xuống | 240 | 942 | 48.0 |
-| −Y xuống | 240 | 942 | 48.0 |
+| +Z lên (như CAD) | 12 | 2732 | 35.0 |
+| mặt trên sàn úp xuống (+Z xuống) | 2528 | 211 | 35.0 |
+| +X xuống | 1373 | 554 | 54.0 |
+| −X xuống | 144 | 1784 | 54.0 |
+| +Y xuống | 240 | 1002 | 48.0 |
+| −Y xuống | 240 | 1002 | 48.0 |
