@@ -3,7 +3,7 @@ the servos you bought before printing the whole robot.
 
     python test_prints.py          # writes out/test_print/*.stl and .step
 
-    T0  hole_coupon   every hole kind of hardware.HOLES, exactly as the real parts print them (20 min)
+    T0  hole_coupon   every hole kind of hardware.HOLES, exactly as the real parts print them
     T1  L_hip_block   two MG92B pockets with ear inserts and the M3 idler inserts (hip roll + hip pitch)
     T2  L_foot        horn plate with its horn recess, MR63ZZ seat, the 4 sole inserts
     T3  L_sole        TPU 95A sole: counterbores, screw clamping in TPU
@@ -74,9 +74,11 @@ def on_bed(s, rot_x=0.0):
 def parts():
     leg = L.Leg()
     return {"T0_hole_coupon": on_bed(hole_coupon()),
-            "T1_L_hip_block": on_bed(leg.parts["hip_block"], 90.0),     # idler wall of the hip pitch pocket down
+            # orientations: the best of audit.py's print section (most bed contact, least overhang). The -y face
+            # that leg_v3.md names for the hip block touches the bed on 0.1 cm2 only: the hip roll ears stick out.
+            "T1_L_hip_block": on_bed(leg.parts["hip_block"], 180.0),    # +z face (top of the hip roll pocket) down
             "T2_L_foot": on_bed(leg.parts["foot"]),                     # sole plate down, uprights vertical
-            "T3_L_sole": on_bed(leg.parts["sole"])}                     # flat
+            "T3_L_sole": on_bed(leg.parts["sole"], 180.0)}              # counterbores up: no bridges in TPU
 
 
 # ---------------------------------------------------------------------------------------------- the sheet
@@ -98,6 +100,21 @@ COUPON_TEST = {   # kind: (what goes in, pass, if it fails)
                 "êm", "quá lỏng: giảm compensation; quá chặt: doa nhẹ bằng mũi 6.0"),
     "access": ("tua vít PH0", "tua vít lọt tự do", "chặt: tăng compensation"),
 }
+# Measured from the vendor model cots/mg90s.step (full, not the _opt mesh, whose ears are upside down) in the
+# joint frame with CadQuery sections. Kept as numbers: loading the STEP takes a minute.
+STEP_ROWS = [
+    ("length", "22.45", "khớp"),
+    ("width", "12.2", "khớp"),
+    ("case_h", "22.55", "khớp"),
+    ("tab_low", "18.4", "**tai cao hơn 2.5 mm** (mặt dưới tai cách mặt vỏ 4.15 thay vì 6.8)"),
+    ("tab_t", "2.5", "khớp"),
+    ("tab_span", "32.2", "khớp"),
+    ("hole_d", "rãnh 2.5 × 3.9", "lỗ tai là rãnh: M2 lọt, bù lệch ±0.95"),
+    ("shaft_off", "5.85", "khớp"),
+    ("tower_h", "5.75", "cao hơn 1.75; vẫn hở mặt dưới đĩa horn"),
+    ("spline_top", "9.7", "cao hơn 1.4: horn ngồi cao hơn hốc"),
+]
+
 FIELDS = [  # field, how to measure (numbers match docs/mechanical/test_print/servo_measure.png)
     ("length", "[1] dài vỏ (không tính tai, không tính dây)"),
     ("tab_span", "[2] tai: đầu này đến đầu kia"),
@@ -123,9 +140,8 @@ def _fmt(v):
 def markdown():
     leg = L.Leg()
     j = leg.joints["hip_pitch"]
-    hb = leg.parts["hip_block"].BoundingBox()
-    bed = hb.ymin                                   # the -y face goes on the bed
-    spline_h = j.axis_point(J.S.spline_top)[1] - bed
+    back = j.axis_point(J.IW[0])[1]                  # outer face of the wall behind the hip pitch servo (flat)
+    spline_h = j.axis_point(J.S.spline_top)[1] - back
     a = []
     w = a.append
     w("# Bazan · In thử và đo servo (bước 1)")
@@ -134,7 +150,8 @@ def markdown():
       "Đơn vị mm.")
     w("")
     w("Mục đích: trước khi in cả robot, kiểm tra 3 thứ bằng ít nhựa nhất: (1) máy in ra lỗ đúng cỡ, (2) servo thật "
-      "có đúng số trong `hardware.py`, (3) ổ servo, tán cấy, bạc đạn, horn lắp được thật. Tổng in khoảng 2 giờ.")
+      "có đúng số trong `hardware.py`, (3) ổ servo, tán cấy, bạc đạn, horn lắp được thật. "
+      "In cả 4 khoảng 5 giờ theo PrusaSlicer ở tốc độ mặc định; máy in nhanh sẽ ít hơn.")
     w("")
     w("## Thứ tự")
     w("")
@@ -142,7 +159,8 @@ def markdown():
       "`hardware.py`, xóa tên servo đó khỏi `UNMEASURED`.")
     w("2. Chạy lại (PowerShell, trong `hardware\\mechanical`): `py servo_fit.py`, `py test_prints.py`, "
       "`py check.py --quick`, `py robot.py --quick`.")
-    w("3. **In T0** (phiếu thử lỗ, 20 phút). Sai > 0.1 mm thì chỉnh XY hole compensation trong slicer, KHÔNG sửa file. "
+    w("3. **In T0** (phiếu thử lỗ, khoảng 1 giờ, 9 g). Sai > 0.1 mm thì chỉnh XY hole compensation trong slicer, "
+      "KHÔNG sửa file. "
       "In lại T0 đến khi đạt.")
     w("4. **In T1, T2, T3** và thử lắp (mục 3).")
     w("5. Gửi lại kết quả theo mục 4.")
@@ -166,6 +184,17 @@ def markdown():
     w(f"Horn tròn (mỗi loại servo 1 cái): Ø đĩa (`disc_d`, CAD {hw.HORN.disc_d:g}), dày đĩa (`disc_t`, "
       f"{hw.HORN.disc_t:g}), mặt vỏ đến MẶT DƯỚI đĩa khi ép hết vào trục (`disc_low`, {hw.HORN.disc_low:g}). "
       "Horn của SG90 thường khác MG92B: nếu khác, ghi riêng.")
+    w("")
+    w("**Đo ảo model STEP của nhà sản xuất** (`cots/mg90s.step`, đo bằng CadQuery, không phải servo thật):")
+    w("")
+    w("| Trường | CAD (datasheet) | STEP | Ảnh hưởng |")
+    w("| --- | ---: | ---: | --- |")
+    for f, cad, note in STEP_ROWS:
+        w(f"| `{f}` | {_fmt(getattr(hw.MG90S, f))} | {cad} | {note} |")
+    w("")
+    w("Nếu servo thật giống model này: tai thấp hơn mặt vỏ chỉ 4.15 thay vì 6.8, nên khi tai tựa lên gờ thì cả "
+      "servo tụt sâu 2.65 mm, đáy vỏ chạm thành idler 2.3 mm (CadQuery: chồng lấn 614 mm³ ở cả hai ổ của "
+      "`hip_block`) — **servo không vào hết được ổ**. Đây là con số quan trọng nhất phải đo: `tab_low` và `case_h`.")
     w("")
     w("Kết quả `servo_fit.py` với số datasheet hiện tại (ổ servo chung dựng theo MG92B):")
     w("")
@@ -203,14 +232,15 @@ def markdown():
     w("")
     w("### T1 · `hip_block` (2 ổ servo: hip pitch và hip roll)")
     w("")
-    w("1. Cấy 4 tán M2 (tai servo) và 2 tán M3 (idler), 220 °C, bằng mặt.")
+    w("1. Cấy 4 tán M2 (tai servo) và 2 tán M3 (idler), 220 °C, bằng mặt. Thành nhựa quanh tán tai chỉ 0.8 mm "
+      "(`audit.py walls`): ép chậm, thẳng; đạt khi thành không nứt, không phồng vào trong ổ servo.")
     w("2. Lần lượt đẩy **MG92B, MG90S, SG90** vào ổ hip pitch từ phía trục, dây luồn qua rãnh cuối ổ. Đạt: trượt vào "
       "bằng tay, lắc ngang ≤ 0.3 mm, tai nằm phẳng trên 2 gờ (không kênh).")
     w("3. Bắt 2 × M2×6 qua tai vào tán. Đạt: ốc vào thẳng không phải ép, servo không bị kéo lệch.")
-    w(f"4. **Đo vị trí trục** (servo đang bắt ốc, khối nằm mặt in xuống bàn): bàn → đỉnh trục then hoa = "
-      f"**{spline_h:.1f} ± 0.3**. Lệch hơn thì ghi lại cho từng "
-      "loại servo: đây là lỗi đã thấy giữa các model MG90S (độ cao tai lệch tới 2.7 mm).")
-    w("5. Lặp với ổ hip roll (trục hướng ra mặt bên).")
+    w(f"4. **Đo vị trí trục** (servo đang bắt ốc): thước kẹp từ mặt phẳng lớn phía sau ổ hip pitch (thành sau "
+      f"lưng servo) đến đỉnh trục then hoa = **{spline_h:.1f} ± 0.3**. Lệch hơn thì ghi lại cho từng loại servo. "
+      "Nếu servo không vào hết, tai không chạm gờ: đó đúng là lỗi model MG90S của nhà sản xuất cho thấy (mục 1).")
+    w("5. Lặp với ổ hip roll (trục hướng ra mặt bên, đo từ thành sau tương ứng, cùng con số).")
     w("")
     w("### T2 · `foot` (đĩa horn ankle roll, ổ bạc đạn, 4 tán đế)")
     w("")
@@ -221,7 +251,9 @@ def markdown():
     w("")
     w("### T3 · `sole` (TPU 95A)")
     w("")
-    w("1. Bắt đế vào T2 bằng 4 × M2×6 từ dưới. Đạt: đầu ốc chìm, đế phẳng, không vênh mép.")
+    w("1. Bắt đế vào T2 bằng 4 × **M2×4** từ dưới (không phải M2×6: `audit.py fits` tính M2×6 dài hơn lỗ tán "
+      "2 mm, sẽ chạm đáy trước khi kẹp được đế). Đạt: đầu ốc chìm, đế phẳng, không vênh mép. Thử thêm 1 con M2×6 "
+      "để xác nhận nó chạm đáy.")
     w("2. Ấn mạnh ngón cái quanh đầu ốc: TPU dưới đầu ốc chỉ còn khoảng 1 mm, xem có rách/tụt không. Nếu có: báo "
       "lại (sẽ đổi sang long đền hoặc khoét nông hơn).")
     w("")

@@ -2,13 +2,13 @@
 
 Sinh tự động bởi `hardware/mechanical/test_prints.py` từ `hardware.py`, `joint.py`, `leg.py` — không sửa tay. Đơn vị mm.
 
-Mục đích: trước khi in cả robot, kiểm tra 3 thứ bằng ít nhựa nhất: (1) máy in ra lỗ đúng cỡ, (2) servo thật có đúng số trong `hardware.py`, (3) ổ servo, tán cấy, bạc đạn, horn lắp được thật. Tổng in khoảng 2 giờ.
+Mục đích: trước khi in cả robot, kiểm tra 3 thứ bằng ít nhựa nhất: (1) máy in ra lỗ đúng cỡ, (2) servo thật có đúng số trong `hardware.py`, (3) ổ servo, tán cấy, bạc đạn, horn lắp được thật. In cả 4 khoảng 5 giờ theo PrusaSlicer ở tốc độ mặc định; máy in nhanh sẽ ít hơn.
 
 ## Thứ tự
 
 1. **Đo servo** (mục 1) — 1 con mỗi loại MG92B, MG90S, SG90 và horn tròn của từng loại. Nhập số vào `hardware.py`, xóa tên servo đó khỏi `UNMEASURED`.
 2. Chạy lại (PowerShell, trong `hardware\mechanical`): `py servo_fit.py`, `py test_prints.py`, `py check.py --quick`, `py robot.py --quick`.
-3. **In T0** (phiếu thử lỗ, 20 phút). Sai > 0.1 mm thì chỉnh XY hole compensation trong slicer, KHÔNG sửa file. In lại T0 đến khi đạt.
+3. **In T0** (phiếu thử lỗ, khoảng 1 giờ, 9 g). Sai > 0.1 mm thì chỉnh XY hole compensation trong slicer, KHÔNG sửa file. In lại T0 đến khi đạt.
 4. **In T1, T2, T3** và thử lắp (mục 3).
 5. Gửi lại kết quả theo mục 4.
 
@@ -38,6 +38,23 @@ Thước kẹp, đo mỗi số 2 lần lấy trung bình, ghi 2 số lẻ. Cột
 | `mass` | khối lượng (g), cân tiểu ly | 14 |   | 13.4 |   | 9 |   |
 
 Horn tròn (mỗi loại servo 1 cái): Ø đĩa (`disc_d`, CAD 20), dày đĩa (`disc_t`, 1.5), mặt vỏ đến MẶT DƯỚI đĩa khi ép hết vào trục (`disc_low`, 6.9). Horn của SG90 thường khác MG92B: nếu khác, ghi riêng.
+
+**Đo ảo model STEP của nhà sản xuất** (`cots/mg90s.step`, đo bằng CadQuery, không phải servo thật):
+
+| Trường | CAD (datasheet) | STEP | Ảnh hưởng |
+| --- | ---: | ---: | --- |
+| `length` | 22.8 | 22.45 | khớp |
+| `width` | 12.2 | 12.2 | khớp |
+| `case_h` | 22.7 | 22.55 | khớp |
+| `tab_low` | 15.9 | 18.4 | **tai cao hơn 2.5 mm** (mặt dưới tai cách mặt vỏ 4.15 thay vì 6.8) |
+| `tab_t` | 2.5 | 2.5 | khớp |
+| `tab_span` | 32.4 | 32.2 | khớp |
+| `hole_d` | 2 | rãnh 2.5 × 3.9 | lỗ tai là rãnh: M2 lọt, bù lệch ±0.95 |
+| `shaft_off` | 5.9 | 5.85 | khớp |
+| `tower_h` | 4 | 5.75 | cao hơn 1.75; vẫn hở mặt dưới đĩa horn |
+| `spline_top` | 8.3 | 9.7 | cao hơn 1.4: horn ngồi cao hơn hốc |
+
+Nếu servo thật giống model này: tai thấp hơn mặt vỏ chỉ 4.15 thay vì 6.8, nên khi tai tựa lên gờ thì cả servo tụt sâu 2.65 mm, đáy vỏ chạm thành idler 2.3 mm (CadQuery: chồng lấn 614 mm³ ở cả hai ổ của `hip_block`) — **servo không vào hết được ổ**. Đây là con số quan trọng nhất phải đo: `tab_low` và `case_h`.
 
 Kết quả `servo_fit.py` với số datasheet hiện tại (ổ servo chung dựng theo MG92B):
 
@@ -76,11 +93,11 @@ Hàng A–F dày 3 mm (in như tầng thân và đế mạch), hàng G–L dày 
 
 ### T1 · `hip_block` (2 ổ servo: hip pitch và hip roll)
 
-1. Cấy 4 tán M2 (tai servo) và 2 tán M3 (idler), 220 °C, bằng mặt.
+1. Cấy 4 tán M2 (tai servo) và 2 tán M3 (idler), 220 °C, bằng mặt. Thành nhựa quanh tán tai chỉ 0.8 mm (`audit.py walls`): ép chậm, thẳng; đạt khi thành không nứt, không phồng vào trong ổ servo.
 2. Lần lượt đẩy **MG92B, MG90S, SG90** vào ổ hip pitch từ phía trục, dây luồn qua rãnh cuối ổ. Đạt: trượt vào bằng tay, lắc ngang ≤ 0.3 mm, tai nằm phẳng trên 2 gờ (không kênh).
 3. Bắt 2 × M2×6 qua tai vào tán. Đạt: ốc vào thẳng không phải ép, servo không bị kéo lệch.
-4. **Đo vị trí trục** (servo đang bắt ốc, khối nằm mặt in xuống bàn): bàn → đỉnh trục then hoa = **42.1 ± 0.3**. Lệch hơn thì ghi lại cho từng loại servo: đây là lỗi đã thấy giữa các model MG90S (độ cao tai lệch tới 2.7 mm).
-5. Lặp với ổ hip roll (trục hướng ra mặt bên).
+4. **Đo vị trí trục** (servo đang bắt ốc): thước kẹp từ mặt phẳng lớn phía sau ổ hip pitch (thành sau lưng servo) đến đỉnh trục then hoa = **34.8 ± 0.3**. Lệch hơn thì ghi lại cho từng loại servo. Nếu servo không vào hết, tai không chạm gờ: đó đúng là lỗi model MG90S của nhà sản xuất cho thấy (mục 1).
+5. Lặp với ổ hip roll (trục hướng ra mặt bên, đo từ thành sau tương ứng, cùng con số).
 
 ### T2 · `foot` (đĩa horn ankle roll, ổ bạc đạn, 4 tán đế)
 
@@ -90,7 +107,7 @@ Hàng A–F dày 3 mm (in như tầng thân và đế mạch), hàng G–L dày 
 
 ### T3 · `sole` (TPU 95A)
 
-1. Bắt đế vào T2 bằng 4 × M2×6 từ dưới. Đạt: đầu ốc chìm, đế phẳng, không vênh mép.
+1. Bắt đế vào T2 bằng 4 × **M2×4** từ dưới (không phải M2×6: `audit.py fits` tính M2×6 dài hơn lỗ tán 2 mm, sẽ chạm đáy trước khi kẹp được đế). Đạt: đầu ốc chìm, đế phẳng, không vênh mép. Thử thêm 1 con M2×6 để xác nhận nó chạm đáy.
 2. Ấn mạnh ngón cái quanh đầu ốc: TPU dưới đầu ốc chỉ còn khoảng 1 mm, xem có rách/tụt không. Nếu có: báo lại (sẽ đổi sang long đền hoặc khoét nông hơn).
 
 ## 4. Gửi lại
