@@ -1,6 +1,6 @@
 """Export the Mico shell as per-link STL meshes for URDF visuals (RViz2, MuJoCo).
 
-    python mico_meshes.py     # numpy only; writes src/humanoid_description/meshes/visual/mico/
+    python bazan_meshes.py     # numpy only; writes src/humanoid_description/meshes/visual/mico/
 
 One binary STL per (link, colour): every part of that colour bolted to that link is merged into it.
 Vertices are in the link frame, metres, so the URDF visual needs no origin offset. manifest.json lists
@@ -16,7 +16,7 @@ import numpy as np
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-import mico_parts as mp  # noqa: E402
+import bazan_parts as mp  # noqa: E402
 
 OUT = mp.REPO / "src" / "humanoid_description" / "meshes" / "visual" / "mico"
 RES = dict(n_lat=20, n_lon=40)        # ~1.5k triangles per part: smooth enough in a viewer, small files

@@ -13,7 +13,7 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import mico_parts as mp  # noqa: E402
+import bazan_parts as mp  # noqa: E402
 
 J = {b.joint.name: b.joint.range_deg for b in mp.gen_robot.walk(mp.gen_robot.ROBOT) if b.joint}
 P = {p.name: p for p in mp.parts()}

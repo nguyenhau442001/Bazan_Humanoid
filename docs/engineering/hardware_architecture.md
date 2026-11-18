@@ -5,7 +5,7 @@ servos, and position, current and temperature monitoring added around them. Part
 `python docs/engineering/gen_docs.py` from `gen_robot.py` and `mass_report.json`.
 
 <!-- gen:stamp -->
-Generated from `design/blender/bazan_parts.py`, `design/blender/bazan_mass.py`, `sim/mini_humanoid/gen_robot.py`, `sim/mini_humanoid/tables/mj_servo_loads.csv`, `src/humanoid_control/scripts/mico_gait.py`, `docs/engineering/bom_aplus.csv` · source hash `1934b6326cbe`
+Generated from `design/blender/bazan_parts.py`, `design/blender/bazan_mass.py`, `sim/mini_humanoid/gen_robot.py`, `sim/mini_humanoid/tables/mj_servo_loads.csv`, `src/humanoid_control/scripts/mico_gait.py`, `docs/engineering/bom_aplus.csv` · source hash `31937b1081e9`
 <!-- /gen:stamp -->
 
 ## Rule

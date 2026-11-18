@@ -1,9 +1,9 @@
 """Build Mico v2.0 in Blender, save mico.blend and render the design boards.
 
-    pip install bpy==5.2.3        # or run inside Blender: blender -b -P mico_blender.py -- --no-render
-    python mico_blender.py                 # mico.blend + renders/*.png (Cycles, CPU)
-    python mico_blender.py --no-render     # only mico.blend
-    python mico_blender.py --samples 256   # cleaner renders
+    pip install bpy==5.2.3        # or run inside Blender: blender -b -P bazan_blender.py -- --no-render
+    python bazan_blender.py                 # mico.blend + renders/*.png (Cycles, CPU)
+    python bazan_blender.py --no-render     # only mico.blend
+    python bazan_blender.py --samples 256   # cleaner renders
 
 The rig: one empty per joint, nested like the URDF and placed at the same frames, with rotation
 locked to the joint axis. Select e.g. "J l_shoulder_roll" in Blender and rotate it to pose Mico.
@@ -18,7 +18,7 @@ from mathutils import Vector
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-import mico_parts as mp  # noqa: E402
+import bazan_parts as mp  # noqa: E402
 
 MM = 0.001
 args = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else sys.argv[1:]

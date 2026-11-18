@@ -4,7 +4,7 @@ Which servos are loaded, how hard, and against which limit. Tables between `gen:
 `python docs/engineering/gen_docs.py`; CI fails if they drift from the sources.
 
 <!-- gen:stamp -->
-Generated from `design/blender/bazan_parts.py`, `design/blender/bazan_mass.py`, `sim/mini_humanoid/gen_robot.py`, `sim/mini_humanoid/tables/mj_servo_loads.csv`, `src/humanoid_control/scripts/mico_gait.py`, `docs/engineering/bom_aplus.csv` · source hash `1934b6326cbe`
+Generated from `design/blender/bazan_parts.py`, `design/blender/bazan_mass.py`, `sim/mini_humanoid/gen_robot.py`, `sim/mini_humanoid/tables/mj_servo_loads.csv`, `src/humanoid_control/scripts/mico_gait.py`, `docs/engineering/bom_aplus.csv` · source hash `31937b1081e9`
 <!-- /gen:stamp -->
 
 ## Which number to compare with which limit

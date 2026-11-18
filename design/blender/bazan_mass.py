@@ -1,6 +1,6 @@
 """Mass, centre of mass and inertia of Mico v2.0 from the Blender shell, per URDF link.
 
-    python mico_mass.py      # needs numpy + trimesh; Blender is not required
+    python bazan_mass.py      # needs numpy + trimesh; Blender is not required
 
 Shell parts are integrated from their closed meshes (outer solid minus the solid shrunk by the wall).
 Bought parts (servos, battery, boards) are uniform boxes at their catalogue mass. Every link frame is
@@ -23,7 +23,7 @@ import trimesh
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-import mico_parts as mp  # noqa: E402
+import bazan_parts as mp  # noqa: E402
 
 SIM = mp.REPO / "sim" / "mini_humanoid"
 sys.path.insert(0, str(SIM))
