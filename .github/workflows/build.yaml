@@ -20,9 +20,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: ros-tooling/setup-ros@v0.7
-        with:
-          required-ros-distributions: jazzy
+      # ros-tooling/setup-ros looks up the ros-apt-source release with an anonymous GitHub API call; when that
+      # call is rate limited the version comes back empty and the download 404s. Same official steps, with a token.
+      - name: Set up ROS 2 Jazzy (apt)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -eo pipefail
+          sudo apt-get update && sudo apt-get install -y curl jq
+          ver=$(curl -fsS -H "Authorization: Bearer ${GH_TOKEN}" \
+            https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest | jq -r .tag_name)
+          codename=$(. /etc/os-release && echo "${UBUNTU_CODENAME:-${VERSION_CODENAME}}")
+          curl -fL --retry 3 -o /tmp/ros2-apt-source.deb \
+            "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ver}/ros2-apt-source_${ver}.${codename}_all.deb"
+          sudo dpkg -i /tmp/ros2-apt-source.deb
+          sudo apt-get update
+          sudo apt-get install -y ros-jazzy-ros-base ros-dev-tools
 
       - name: Install dependencies
         run: |
