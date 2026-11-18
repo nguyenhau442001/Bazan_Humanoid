@@ -18,6 +18,7 @@ the checks and documents generated from it. Start at [docs/mechanical/leg_v3.md]
 | `shell.py` | Shell v1 (`BazanShell`): chest/back clamshell, helmet front/back, visor, on the 16 shell inserts; checked against `robot.py` sweeps, writes `out/shell_*.step/.stl` (about 15 min, `--quick` 11) |
 | `audit.py` | Audit beyond the three checks: CAD against the URDF, joints at the URDF limits, motion matrix with clearances, walls round holes, fits, print orientation, mass and CoM, lead stretch, screw access. Results in [docs/engineering/mechanical_verification.md](../../docs/engineering/mechanical_verification.md) |
 | `pic.py`, `gen_manual.py` | Step pictures and the whole-robot manual (`docs/mechanical/mico_v4_lap_rap.md` + `.html`) |
+| `n3_review.py` | Read-only engineering review of N3 (head frame) and the head-pitch joint: interfaces, stack-up, alignment, FEA stiffness, collision sweep, real slicing in four orientations. Results in [docs/mechanical/n3_review](../../docs/mechanical/n3_review/N3_ENGINEERING_AUDIT.md) (about 6 min) |
 
 ```bash
 pip install cadquery bpy matplotlib   # Python 3.11+

@@ -1,0 +1,978 @@
+{
+ "sources": {
+  "MR63ZZ": "MR63ZZ 3×6×2.5, OD tol 0/−0.008, width tol 0/−0.12 (vendor datasheets TFL, SKD; ISO normal class)",
+  "SG90_DS": "SG90 sizes disagree between datasheets: 22.2×11.8, 23.1×12.2, 22.0×11.5 mm (TowerPro copies)",
+  "SG90_TQ": "SG90 stall torque: 1.8 kgf·cm (TowerPro copy) and 1.2 kgf·cm at 4.8 V (other copies)",
+  "INS": "M2 heat-set inserts sold for a Ø3.2 hole have a knurl OD of about 3.6–3.7 (e.g. TFC: L4, W3.7, hole 3.2, min wall 1.6; Accu HTFBI-M2: L3.9, hole 3.2 +0.1/−0)",
+  "PLA_E": "printed PLA E = 2300 MPa, ν = 0.35 (assumed, same as the leg FEA; real value depends on infill/walls)",
+  "MG90S_STEP": "vendor MG90S STEP in cots/: tower 5.75 (CAD 4.0), spline top 9.7 (CAD 8.3) — see test_print.md"
+ },
+ "stack": {
+  "horn_plate": [
+   4.6,
+   11.2
+  ],
+  "idler_plate": [
+   -33.6,
+   -27.3
+  ],
+  "idler_wall": [
+   -26.5,
+   -22.9
+  ],
+  "bearing": [
+   -30.3,
+   -27.8
+  ],
+  "boss": [
+   -27.8,
+   -26.5
+  ],
+  "lip": [
+   -27.8,
+   -27.3
+  ],
+  "gap_inner": 31.9,
+  "horn_top": 8.4,
+  "head_top": 10.0,
+  "recess_d": 20.4,
+  "recess_floor": 8.4,
+  "plate_t_horn": 6.6,
+  "plate_t_idler": 6.3,
+  "pilot_depth": 2.5,
+  "pilot_bottom": 10.8,
+  "skin": 0.4,
+  "seat_depth": 4.8,
+  "holder_to_idler_plate": 0.8,
+  "tower_to_horn_plate": 0.6,
+  "horn_hub_above_tower": 0.4
+ },
+ "findings": [
+  {
+   "id": "A-1",
+   "severity": "Critical",
+   "status": "FAILED",
+   "title": "Lỗ tán cấy M2 bằng đúng OD danh nghĩa của tán trong BOM",
+   "evidence": "hardware.py: FASTENERS['INS-M2'] = 'M2 brass heat-set insert, 3 long, 3.2 OD', HOLES['ins_m2_thru'].d = 3.2. Độ dôi hướng kính danh nghĩa = (3.2 − 3.2)/2 = 0.0 mm, tức là không có độ dôi. Tán M2 thương mại dùng lỗ Ø3.2 có OD gai ≈ 3.6–3.7 [M2 heat-set inserts sold for a Ø3.2 hole have a knurl OD of about 3.6–3.7 (e.g. TFC: L4, W3.7, hole 3.2, min wall 1.6; Accu HTFBI-M2: L3.9, hole 3.2 +0.1/−0)], nên BOM và lỗ đang mô tả hai loại tán khác nhau.",
+   "numbers": {
+    "bom_od": 3.2,
+    "hole_d": 3.2,
+    "radial_interference": 0.0,
+    "deck_t": 3.0,
+    "insert_l": 3.0,
+    "edge_distance": {
+     "A(shell)": 4.0,
+     "B(cam)": 14.0
+    },
+    "wall_if_od_3_7": {
+     "A(shell)": 2.15,
+     "B(cam)": 12.15
+    }
+   },
+   "action": "Chọn MỘT mã tán cụ thể (có datasheet), ghi mã vào BOM, lấy Ø lỗ theo datasheet, xác nhận bằng phiếu thử (kéo tuột + mô-men xoay). Không đổi Ø lỗ trước khi có mã tán."
+  },
+  {
+   "id": "A-2",
+   "severity": "Major",
+   "status": "UNKNOWN",
+   "title": "Tán L3 trong sàn 3 mm, lỗ xuyên: chưa có số liệu kéo tuột/xoay",
+   "evidence": "Tán dài 3.0 = bề dày sàn 3.0, ép ngang mặt trên, lỗ xuyên nên nhựa chảy dồn xuống mặt dưới. Khoảng cách tâm lỗ đến mép sàn: {'A(shell)': 4.0, 'B(cam)': 14.0} mm; với OD 3.7 còn thành {'A(shell)': 2.15, 'B(cam)': 12.15} mm (≥ 1.6 mm tối thiểu của TFC). Tải: ốc vỏ đầu M2×6 kéo tán ra theo hướng ép vào, là hướng yếu nhất của tán gai.",
+   "numbers": {
+    "edge_distance": {
+     "A(shell)": 4.0,
+     "B(cam)": 14.0
+    },
+    "wall_if_od_3_7": {
+     "A(shell)": 2.15,
+     "B(cam)": 12.15
+    }
+   },
+   "action": "Sau khi chọn mã tán: in phiếu sàn 3 mm, ép 4 tán, đo mô-men xoay tuột và lực kéo tuột (xem kế hoạch kiểm tra). Chỉ khi đó mới đánh giá được."
+  },
+  {
+   "id": "B-1",
+   "severity": "Critical",
+   "status": "FAILED",
+   "title": "Trục ra SG90 không trùng trục idler: ổ và tán tai được dựng cho MG92B",
+   "evidence": "joint.py dựng ổ servo cho mọi khớp từ S = hw.MG92B (dòng `S = hw.MG92B`); head_pitch dùng SG90 (JOINT_SERVO). Với số datasheet SG90 trong hardware.py, khi tâm lỗ tai trùng tán cấy thì trục ra lệch +0.30 mm theo b so với trục idler (tán M3 trên neck_link). Trong ổ, trục có thể nằm ở b ∈ (-0.2, 0.8) và w ∈ (-0.4, 0.4) mm. Với MG92B (ổ đúng loại), lệch = -0.00.",
+   "numbers": {
+    "sg90": {
+     "b_pocket": [
+      -0.2,
+      0.8
+     ],
+     "w_pocket": [
+      -0.4,
+      0.4
+     ],
+     "b_ears_centred": 0.3,
+     "ear_pitch_error_each": 0.1
+    },
+    "mg92b": {
+     "b_pocket": [
+      -0.2,
+      0.2
+     ],
+     "w_pocket": [
+      -0.2,
+      0.2
+     ],
+     "b_ears_centred": -0.0,
+     "ear_pitch_error_each": 0.0
+    },
+    "misalignment_nominal": 0.3,
+    "misalignment_worst_screwed": 0.4
+   },
+   "action": "Đo SG90 thật (shaft_off, length, hole_pitch, width). Sau đó làm ổ + tán tai riêng cho SG90 trên neck_link (N2), là chi tiết khác, không phải N3. Hoặc dùng quy trình lắp tự định tâm (siết tai sau cùng), xem DFM/DFA."
+  },
+  {
+   "id": "B-2",
+   "severity": "Major",
+   "status": "ASSUMED",
+   "title": "Lệch trục làm khung N3 bị ép cong liên tục: tải ngang lên trục ra SG90 vài N",
+   "evidence": "FEA CalculiX (tet10, 68582 nút; printed PLA E = 2300 MPa, ν = 0.35 (assumed, same as the leg FEA; real value depends on infill/walls)): giữ hốc horn, đặt 1 N lên ổ bạc đạn. Độ cứng tương đối giữa hai ổ: k_b = 11.7 N/mm, k_w = 10.1 N/mm. Phần mềm nhất là sàn 3 mm, nơi hai thanh đỡ cắm vào. Lệch 0.30–0.40 mm (B-1) ép khung với 3.5–4.7 N tác dụng thường trực lên trục ra servo và bạc đạn (trọng lượng đầu chỉ ≈ 0.70 N). Ứng suất khung ≈ 3.4 MPa, thấp, nhưng là tải liên tục nên PLA bị rão. Ma sát thêm ở bạc trục ra (μ (0.2, 0.4), r 2.5 mm, giả định) ≈ [2.3, 4.7] N·mm, tức khoảng 1–4 % mô-men kẹt.",
+   "numbers": {
+    "k_b": 11.7,
+    "k_w": 10.1,
+    "preload": [
+     3.5,
+     4.7
+    ],
+    "frame_stress": 3.42,
+    "friction_torque": [
+     2.3,
+     4.7
+    ]
+   },
+   "action": "Mô-men không phải vấn đề chính. Vấn đề là tải ngang thường trực lên bạc nhựa và bánh răng ra của SG90 (làm mòn, tăng độ rơ), cộng với rão khung. Mục tiêu: lệch lắp ráp ≤ 0.1 mm (≈ 1.2 N). Đo độ rơ trục ra SG90 thật trước khi chốt."
+  },
+  {
+   "id": "B-3",
+   "severity": "Critical",
+   "status": "UNKNOWN",
+   "title": "Đồng trục hốc horn ↔ ổ bạc đạn trên chính N3 (K3): chưa có số khả thi",
+   "evidence": "Hai ổ nằm trên hai đĩa cách nhau 31.9 mm. Theo hướng in hiện tại (sàn úp xuống), trục gật nằm NGANG: cả hai lỗ được tạo bởi cùng các lớp in, nên lệch theo Z chủ yếu do sai số bước lớp, lệch theo X do sai số XY. Độ tròn kém hơn (đỉnh lỗ là cầu/treo). Chưa có máy in, profile, phiếu đo nào được ghi lại, nên chưa thể ghi một con số dung sai có căn cứ.",
+   "numbers": {},
+   "action": "Phiếu thử K3-coupon (kế hoạch kiểm tra): in 3 mẫu, đo đồng trục bằng chốt Ø6 xuyên qua hai lỗ hoặc đo tọa độ tâm. Dung sai K3 = giá trị đo được + biên, và phải ≤ độ rơ trục ra SG90 (B-2)."
+  },
+  {
+   "id": "C-1",
+   "severity": "Critical",
+   "status": "FAILED",
+   "title": "N3 bị định vị dọc trục hai lần (horn trên trục then hoa và lip bạc đạn), không có phần tử bù",
+   "evidence": "Theo joint.py: mặt trên đĩa horn tựa đáy hốc (a = HORN_TOP); vòng trong bạc đạn bị ốc M3 kẹp vào boss của neck_link; vòng ngoài tựa lip 0.5 mm của N3 về phía holder. Nếu horn thật ngồi cao hơn CAD Δh, N3 dịch Δh về phía holder: khe đĩa idler ↔ thành holder (thiết kế 0.8 mm) còn 0.8 − Δh. Với vòng ngoài lắp chặt, chuỗi bị khóa hai đầu: lực dọc trục dồn vào then hoa servo và bạc đạn. Bằng chứng Δh thật có thể lớn: STEP MG90S của nhà sản xuất cao hơn CAD 1.4 mm ở đỉnh then hoa [vendor MG90S STEP in cots/: tower 5.75 (CAD 4.0), spline top 9.7 (CAD 8.3) — see test_print.md], tức là lớn hơn khe 0.8 mm.",
+   "numbers": {
+    "gap_idler": 0.8,
+    "max_horn_rise_before_contact": 0.8,
+    "mg90s_step_spline_rise": 1.4,
+    "tower_to_horn_plate": 0.6
+   },
+   "action": "Chỉ định bạc đạn idler là ổ TỰ DO dọc trục (vòng ngoài lắp trượt) và horn là ổ ĐỊNH VỊ. Đo disc_low và spline_top của SG90 + horn thật. Nếu Δh thật > 0.4 thì phải sửa CAD (đổi GAP/HP), cần duyệt."
+  },
+  {
+   "id": "C-2",
+   "severity": "Major",
+   "status": "UNKNOWN",
+   "title": "Khe 31.9 mm: chưa thể kiểm tra trường hợp xấu nhất vì dung sai in và kích thước SG90/horn đều chưa đo",
+   "evidence": "Khe trong 31.9 mm = HP[0] − IP[1]. Bên trong có: thành idler neck_link 3.6 + khe 0.8 + vỏ servo 22.7 + khe vỏ 0.2 + tháp 4.0 + khe tháp 0.6. Điều kiện không cọ: 0.8 − Δh − t_N3 − t_N2 ≥ 0.2 (khe động tối thiểu, đề xuất), với t_N3, t_N2 là sai số in của khe 31.9 và vị trí thành idler.",
+   "numbers": {
+    "chain": {
+     "idler_wall": 3.6,
+     "gap": 0.8,
+     "case": 22.7,
+     "clear": 0.2,
+     "tower": 4.0,
+     "tower_gap": 0.6,
+     "total": 31.9
+    },
+    "condition": "0.8 - dh - t_N3 - t_N2 >= 0.2"
+   },
+   "action": "Cần: Δh (đo SG90 + horn), t_N3 và t_N2 (từ phiếu T0). Đến lúc đó trạng thái giữ UNKNOWN."
+  },
+  {
+   "id": "D-1",
+   "severity": "Critical",
+   "status": "FAILED",
+   "title": "Ổ bạc đạn: kiểu lắp chưa được định nghĩa; Ø6.05 trên CAD là lắp có khe hở",
+   "evidence": "Ổ in Ø6.05, OD bạc đạn 5.992–6.0 [MR63ZZ 3×6×2.5, OD tol 0/−0.008, width tol 0/−0.12 (vendor datasheets TFL, SKD; ISO normal class)] → khe hở danh nghĩa +0.050…+0.058 mm trên đường kính. hardware.py lại ghi 'press fit; ream lightly if tight', tức là đang trông vào việc máy in làm lỗ nhỏ hơn danh nghĩa. Lỗ FDM thường nhỏ hơn CAD một lượng phụ thuộc máy/profile (chưa đo), nên kiểu lắp thật có thể là khe hở, trung gian hay chặt.",
+   "numbers": {
+    "seat_d": 6.05,
+    "od": [
+     5.992,
+     6.0
+    ],
+    "clearance": [
+     0.05,
+     0.058
+    ],
+    "seat_depth": 4.8,
+    "bearing_w": 2.5
+   },
+   "action": "Theo C-1: ổ idler là ổ tự do → cần lắp TRƯỢT (vòng ngoài trượt dọc trục được bằng tay, không lắc ngang). Ghi yêu cầu chức năng thay cho số Ø, chốt Ø in bằng phiếu thử ổ bạc đạn (nhiều cỡ)."
+  },
+  {
+   "id": "D-2",
+   "severity": "Major",
+   "status": "VERIFIED",
+   "title": "Giữ bạc đạn dọc trục: chỉ một phía (lip), phía ngoài không có vai",
+   "evidence": "Vòng ngoài: lip 0.5 mm (Ø4.6) chặn về phía holder; phía nắp chỉ có khoảng trống cho long đền + đầu ốc + 0.15 + nắp 1.0. Vòng trong: kẹp giữa boss neck_link và long đền W3 + ốc M3×6 đầu dù. Như vậy khi tháo ốc idler, bạc đạn chỉ còn được giữ bằng ma sát ổ. Đây là đúng nguyên lý ổ tự do, nhưng tiêu chí 'lật ngược không rơi' (K1) thì mâu thuẫn với lắp trượt.",
+   "numbers": {
+    "lip": 0.5,
+    "lip_hole": 4.6,
+    "cap_t": 1.0
+   },
+   "action": "Đổi K1 thành tiêu chí đo được: (a) chốt chuẩn Ø6.00 lọt bằng tay, chốt Ø6.10 không lọt; (b) sau lắp, quay khớp hết hành trình không kẹt, độ rơ hướng kính tại mép đĩa ≤ TBD (đo)."
+  },
+  {
+   "id": "E-1",
+   "severity": "Critical",
+   "status": "FAILED",
+   "title": "Vít horn ST2×4 đâm vào lớp da 0.40 mm phía ngoài lỗ mồi",
+   "evidence": "Lỗ mồi Ø1.6 mù, sâu 2.5 mm, đáy ở a = 10.8, chừa da 0.40 mm tới mặt ngoài đĩa. Vít ST2×4 qua đĩa horn dày 1.5 (MEASURE) nhô 2.5 mm → mũi vít ở a = 10.90, vượt đáy lỗ mồi +0.10 mm. Horn dày hơn/mỏng hơn ±0.3 làm mũi vít vượt từ -0.20 đến +0.40 mm, tức là có thể thủng da. Thêm nữa, da 0.40 nhỏ hơn bề rộng một đường đùn của đầu 0.4 (≈ 0.45): slicer có thể bỏ hoặc in không kín.",
+   "numbers": {
+    "pilot_depth": 2.5,
+    "skin": 0.4,
+    "screw": 4.0,
+    "horn_t": 1.5,
+    "tip_past_pilot": 0.1
+   },
+   "action": "Da 0.4 chỉ có tác dụng thẩm mỹ (che lỗ), không chịu lực. Hai hướng sửa, cần duyệt: (1) lỗ mồi xuyên, bỏ da; (2) giữ da nhưng dùng vít ST2×3 hoặc tăng lỗ mồi để mũi vít cách da ≥ 0.5. Chọn theo đo horn thật."
+  },
+  {
+   "id": "E-2",
+   "severity": "Minor",
+   "status": "ASSUMED",
+   "title": "Tải qua vít horn khi servo kẹt (stall): ứng suất dập trong PLA thấp",
+   "evidence": "Mô-men kẹt SG90 (0.118, 0.177) N·m [SG90 stall torque: 1.8 kgf·cm (TowerPro copy) and 1.2 kgf·cm at 4.8 V (other copies)] truyền qua 2 vít ở r = 7.0: lực cắt mỗi vít [8.4, 12.6] N, ứng suất dập lên nhựa (Ø2 × 2.5) ≈ [1.68, 2.52] MPa. Mô-men trọng lực đầu lớn nhất ≈ 20.4 N·mm (m = 71.2 g, CoM (13.06, 26.11) mm từ trục, từ URDF sinh từ CAD). Đĩa horn tròn nằm trong hốc tròn nên không có khóa hình dạng: toàn bộ mô-men đi qua 2 vít.",
+   "numbers": {
+    "stall_torque": [
+     0.118,
+     0.177
+    ],
+    "screw_shear": [
+     8.4,
+     12.6
+    ],
+    "bearing_stress": [
+     1.68,
+     2.52
+    ],
+    "gravity_torque": 20.4
+   },
+   "action": "Chưa tính va đập khi ngã (chưa có tải va đập), và chưa có số bền lớp in. Kiểm tra thực nghiệm: thử kẹt servo 10 lần + thử ngã (kế hoạch kiểm tra)."
+  },
+  {
+   "id": "E-3",
+   "severity": "Major",
+   "status": "ASSUMED",
+   "title": "Các thành mỏng khác: 1.80 (vành hốc horn) và 1.00 (vành nắp idler)",
+   "evidence": "Vành hốc horn 1.8 mm: chỉ định tâm đĩa horn, tải hướng kính tĩnh ≈ 0.35 N; ≈ 4 đường đùn. Vành nắp idler 1.0 mm: chỉ giữ nắp, không chịu lực. Thành chịu lực quanh ổ bạc đạn = 3.475 mm (dưới hốc nắp). Đáy hốc horn 2.8 mm, dưới hốc nắp còn 1.8 mm.",
+   "numbers": {
+    "horn_ring": 1.8,
+    "idler_cap_ring": 1.0,
+    "idler_seat_wall": 4.475,
+    "idler_seat_wall_under_cap": 3.475,
+    "horn_floor": 2.8,
+    "horn_floor_under_cap": 1.8
+   },
+   "action": "Không cần sửa cho tải tĩnh. Cần thử ngã (va đập lên vỏ đầu) trước khi chốt."
+  },
+  {
+   "id": "E-4",
+   "severity": "Major",
+   "status": "UNKNOWN",
+   "title": "Mỏi, rão (creep) và ảnh hưởng hướng lớp in: chưa có dữ liệu",
+   "evidence": "PLA rão dưới tải lâu dài và mềm đi từ ≈ 50–60 °C; servo đầu đứng yên giữ đầu liên tục. Hướng in hiện tại làm hai thanh đỡ (bars x ±6, z 0–20) chịu uốn với mặt lớp song song mặt sàn, là mặt yếu khi đầu bị đẩy theo X.",
+   "numbers": {},
+   "action": "Đo nhiệt độ vỏ SG90 khi giữ đầu 30 phút (tiêu chí M1 PLA/PETG). Thử ngã theo X."
+  },
+  {
+   "id": "G-1",
+   "severity": "Critical",
+   "status": "FAILED",
+   "title": "N3 không tháo/lắp được theo trình tự đã ghi nếu không banh khung",
+   "evidence": "Muốn tháo/lắp N3 thì horn (bắt vít vào N3) phải trượt khỏi then hoa: cần dịch 3.9 mm dọc trục (max của đáy hốc − mặt trong = 3.8 và chiều dài ăn khớp then hoa 3.9). Phía idler chỉ có 0.8 mm trước khi đĩa idler chạm thành neck_link (đã kiểm bằng dịch khối CAD: chồng 36 mm³ ở 1.0 mm, 545 mm³ ở 4.0 mm). Vậy phải banh hai đĩa của chữ U ra ≥ 3.1 mm. Ổ servo chỉ mở về phía trục (+a), bị đĩa horn che, nên cũng không thể lắp servo khi N3 đang ở chỗ. Trình tự 'tháo ốc idler rồi nhấc N3 khỏi horn' trong ghi chú L4 của bản vẽ P1 vì vậy không làm được nếu không banh khung. FEA (cùng mô hình, lực dọc trục đặt lên ổ idler): độ cứng banh k_a = 13.23 N/mm → cần ≈ 41 N, ứng suất ≈ 32 MPa (phân vị 99.9 %, tuyến tính) tại điểm nóng (b, w, a) = [-6.0, 19.8, 10.4] mm trong khung khớp. Giới hạn bền kéo PLA in thường được nêu khoảng 40–60 MPa theo phương sợi, thấp hơn nhiều giữa các lớp (chưa đo với máy của bạn).",
+   "numbers": {
+    "travel_needed": 3.9,
+    "axial_room": 0.8,
+    "spread_needed": 3.1,
+    "k_spread": 13.23,
+    "force": 41.0,
+    "stress": 31.9,
+    "hot_spot_local": [
+     -6.0,
+     19.8,
+     10.4
+    ]
+   },
+   "action": "Không sửa trong bản vẽ. Hướng sửa CAD (cần duyệt, ảnh hưởng N2 và cả các khớp chân cùng kiểu joint.py): (1) idler tháo rời được (đĩa idler bắt vít vào thanh), hoặc (2) khe GAP ≥ hành trình rút horn, hoặc (3) horn bắt vít từ phía ngoài để N3 rút theo hướng kính sau khi tháo horn. Trước khi quyết: thử trên bản in T2 (foot) xem banh 3 mm có nứt không."
+  },
+  {
+   "id": "F-1",
+   "severity": "Major",
+   "status": "FAILED",
+   "title": "Hai khe giữa N3 và neck_link nhỏ hơn quy tắc khe động 1.0 mm của chính dự án",
+   "evidence": "Quét (-30, 32)° bước 4.0°, không có va chạm (0 cặp chồng khối). Khe nhỏ nhất N3↔neck_link: 0.2 mm hướng kính (lỗ lip Ø4.6 quanh boss Ø4.2, đồng trục, không đổi theo góc) và 0.8 mm dọc trục (đĩa idler ↔ thành idler, = GAP). hardware.GAP_MOVING = 1.0 mm. Khe 0.2 hướng kính chỉ đúng khi lỗ in ra đúng Ø4.6; lỗ FDM thường nhỏ hơn CAD.",
+   "numbers": {
+    "radial_lip_boss": 0.2,
+    "axial_idler": 0.8,
+    "rule": 1.0
+   },
+   "action": "Khe hướng kính: tăng lỗ lip lên Ø5.0 (thay đổi trong N3, không đổi hình ngoài, cần duyệt) hoặc chấp nhận kèm điều kiện kiểm tra. Khe dọc trục: xem C-1/C-2, đây chính là khe bị Δh ăn mất."
+  },
+  {
+   "id": "F-2",
+   "severity": "Info",
+   "status": "VERIFIED",
+   "title": "Không va chạm khung/vỏ trong toàn hành trình gật đầu (chỉ hình học CAD)",
+   "evidence": "Khe nhỏ nhất ngoài trục: head_frame↔neck_link = 0.8 mm. Vỏ đầu: head_front↔servo_head_pitch = 7.158 mm tại -30.0°. Chưa mô hình: dây servo và cáp (CSI, màn hình), đầu ốc tai M2 và đầu vít horn ST2, vỏ SG90 thật (dùng hộp MG92B, lớn hơn).",
+   "numbers": {
+    "min_off_axis": 0.8,
+    "shell": 7.158
+   },
+   "action": "Phần chưa mô hình (dây, đầu ốc) được kiểm tra khi lắp thử T0."
+  }
+ ],
+ "stiffness": {
+  "k_b": 11.734305231075533,
+  "k_w": 10.135709035417005,
+  "k_a": 13.226691079023428,
+  "vm_per_N_b": 0.7292638441383225,
+  "vm_per_N_w": 0.8734200082699901,
+  "vm_per_N_a": 0.7788762800804315,
+  "hot_a_local": [
+   -6.0,
+   19.8,
+   10.4
+  ],
+  "nodes": 68582,
+  "elements": 38802,
+  "seat_nodes": 240,
+  "fixed_nodes": 1766
+ },
+ "sweep": {
+  "range": [
+   -30,
+   32
+  ],
+  "step": 4.0,
+  "angles": [
+   -30.0,
+   -26.0,
+   -22.0,
+   -18.0,
+   -14.0,
+   -10.0,
+   -6.0,
+   -2.0,
+   2.0,
+   6.0,
+   10.0,
+   14.0,
+   18.0,
+   22.0,
+   26.0,
+   30.0,
+   32.0
+  ],
+  "pairs": [
+   {
+    "moving": "head_frame",
+    "fixed": "neck_link",
+    "min_all": 0.2,
+    "min_off_axis": 0.8,
+    "overlap": 0.0,
+    "at_all": -30.0,
+    "at_off_axis": -30.0
+   },
+   {
+    "moving": "head_frame",
+    "fixed": "servo_head_pitch",
+    "min_all": 0.224,
+    "min_off_axis": 3.867,
+    "overlap": 0.0,
+    "at_all": -30.0,
+    "at_off_axis": -30.0
+   },
+   {
+    "moving": "head_frame",
+    "fixed": "horn_neck_yaw",
+    "min_all": 5.8,
+    "min_off_axis": 5.8,
+    "overlap": 0.0,
+    "at_all": -30.0,
+    "at_off_axis": -30.0
+   },
+   {
+    "moving": "horn_head_pitch",
+    "fixed": "neck_link",
+    "min_all": 6.0,
+    "min_off_axis": 6.1,
+    "overlap": 0.0,
+    "at_all": -30.0,
+    "at_off_axis": -30.0
+   },
+   {
+    "moving": "head_front",
+    "fixed": "servo_head_pitch",
+    "min_all": 7.158,
+    "min_off_axis": 7.158,
+    "overlap": 0.0,
+    "at_all": -30.0,
+    "at_off_axis": -30.0
+   },
+   {
+    "moving": "head_back",
+    "fixed": "servo_neck_yaw",
+    "min_all": 7.229,
+    "min_off_axis": 7.229,
+    "overlap": 0.0,
+    "at_all": -30.0,
+    "at_off_axis": -30.0
+   },
+   {
+    "moving": "head_back",
+    "fixed": "neck_link",
+    "min_all": 7.278,
+    "min_off_axis": 7.278,
+    "overlap": 0.0,
+    "at_all": -2.0,
+    "at_off_axis": -2.0
+   },
+   {
+    "moving": "head_back",
+    "fixed": "servo_head_pitch",
+    "min_all": 7.459,
+    "min_off_axis": 7.459,
+    "overlap": 0.0,
+    "at_all": -22.0,
+    "at_off_axis": -22.0
+   },
+   {
+    "moving": "horn_head_pitch",
+    "fixed": "horn_neck_yaw",
+    "min_all": 8.174,
+    "min_off_axis": 8.174,
+    "overlap": 0.0,
+    "at_all": -30.0,
+    "at_off_axis": -30.0
+   },
+   {
+    "moving": "head_back",
+    "fixed": "neck_mount",
+    "min_all": 9.109,
+    "min_off_axis": 9.109,
+    "overlap": 0.0,
+    "at_all": -30.0,
+    "at_off_axis": -30.0
+   },
+   {
+    "moving": "head_front",
+    "fixed": "neck_link",
+    "min_all": 9.7,
+    "min_off_axis": 9.7,
+    "overlap": 0.0,
+    "at_all": -30.0,
+    "at_off_axis": -30.0
+   },
+   {
+    "moving": "head_frame",
+    "fixed": "servo_neck_yaw",
+    "min_all": 10.036,
+    "min_off_axis": 10.036,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   },
+   {
+    "moving": "head_frame",
+    "fixed": "neck_mount",
+    "min_all": 10.657,
+    "min_off_axis": 10.657,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   },
+   {
+    "moving": "board_DISP",
+    "fixed": "neck_mount",
+    "min_all": 12.465,
+    "min_off_axis": 12.465,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   },
+   {
+    "moving": "cam_mount",
+    "fixed": "servo_head_pitch",
+    "min_all": 12.56,
+    "min_off_axis": 12.56,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   },
+   {
+    "moving": "board_DISP",
+    "fixed": "servo_neck_yaw",
+    "min_all": 12.618,
+    "min_off_axis": 12.618,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   },
+   {
+    "moving": "board_DISP",
+    "fixed": "neck_link",
+    "min_all": 12.931,
+    "min_off_axis": 12.931,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   },
+   {
+    "moving": "cam_mount",
+    "fixed": "neck_link",
+    "min_all": 13.104,
+    "min_off_axis": 13.104,
+    "overlap": 0.0,
+    "at_all": 22.0,
+    "at_off_axis": 22.0
+   },
+   {
+    "moving": "horn_head_pitch",
+    "fixed": "servo_neck_yaw",
+    "min_all": 13.382,
+    "min_off_axis": 13.382,
+    "overlap": 0.0,
+    "at_all": -30.0,
+    "at_off_axis": -30.0
+   },
+   {
+    "moving": "head_front",
+    "fixed": "horn_neck_yaw",
+    "min_all": 15.038,
+    "min_off_axis": 15.038,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   },
+   {
+    "moving": "head_back",
+    "fixed": "horn_neck_yaw",
+    "min_all": 15.293,
+    "min_off_axis": 15.293,
+    "overlap": 0.0,
+    "at_all": -30.0,
+    "at_off_axis": -30.0
+   },
+   {
+    "moving": "board_DISP",
+    "fixed": "horn_neck_yaw",
+    "min_all": 15.843,
+    "min_off_axis": 15.843,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   },
+   {
+    "moving": "board_DISP",
+    "fixed": "servo_head_pitch",
+    "min_all": 18.684,
+    "min_off_axis": 18.684,
+    "overlap": 0.0,
+    "at_all": -30.0,
+    "at_off_axis": -30.0
+   },
+   {
+    "moving": "horn_head_pitch",
+    "fixed": "neck_mount",
+    "min_all": 19.019,
+    "min_off_axis": 19.019,
+    "overlap": 0.0,
+    "at_all": -30.0,
+    "at_off_axis": -30.0
+   },
+   {
+    "moving": "head_front",
+    "fixed": "chest_shell",
+    "min_all": 19.183,
+    "min_off_axis": 19.183,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   },
+   {
+    "moving": "head_front",
+    "fixed": "neck_mount",
+    "min_all": 19.341,
+    "min_off_axis": 19.341,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   },
+   {
+    "moving": "head_front",
+    "fixed": "servo_neck_yaw",
+    "min_all": 19.59,
+    "min_off_axis": 19.59,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   },
+   {
+    "moving": "visor",
+    "fixed": "chest_shell",
+    "min_all": 19.74,
+    "min_off_axis": 19.74,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   },
+   {
+    "moving": "head_front",
+    "fixed": "deck_2",
+    "min_all": 20.5,
+    "min_off_axis": 20.5,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   },
+   {
+    "moving": "visor",
+    "fixed": "deck_2",
+    "min_all": 20.5,
+    "min_off_axis": 20.5,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   },
+   {
+    "moving": "visor",
+    "fixed": "neck_mount",
+    "min_all": 23.718,
+    "min_off_axis": 23.718,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   },
+   {
+    "moving": "board_DISP",
+    "fixed": "deck_2",
+    "min_all": 24.57,
+    "min_off_axis": 24.57,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   },
+   {
+    "moving": "visor",
+    "fixed": "servo_neck_yaw",
+    "min_all": 24.677,
+    "min_off_axis": 24.677,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   },
+   {
+    "moving": "visor",
+    "fixed": "neck_link",
+    "min_all": 26.747,
+    "min_off_axis": 26.747,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   },
+   {
+    "moving": "cam_mount",
+    "fixed": "horn_neck_yaw",
+    "min_all": 27.114,
+    "min_off_axis": 27.114,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   },
+   {
+    "moving": "board_DISP",
+    "fixed": "chest_shell",
+    "min_all": 27.797,
+    "min_off_axis": 27.797,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   },
+   {
+    "moving": "head_frame",
+    "fixed": "deck_2",
+    "min_all": 28.014,
+    "min_off_axis": 28.014,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   },
+   {
+    "moving": "visor",
+    "fixed": "horn_neck_yaw",
+    "min_all": 29.635,
+    "min_off_axis": 29.635,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   },
+   {
+    "moving": "cam_mount",
+    "fixed": "servo_neck_yaw",
+    "min_all": 31.243,
+    "min_off_axis": 31.243,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   },
+   {
+    "moving": "head_back",
+    "fixed": "deck_2",
+    "min_all": 31.307,
+    "min_off_axis": 31.307,
+    "overlap": 0.0,
+    "at_all": -30.0,
+    "at_off_axis": -30.0
+   },
+   {
+    "moving": "visor",
+    "fixed": "servo_head_pitch",
+    "min_all": 32.76,
+    "min_off_axis": 32.76,
+    "overlap": 0.0,
+    "at_all": 22.0,
+    "at_off_axis": 22.0
+   },
+   {
+    "moving": "head_frame",
+    "fixed": "chest_shell",
+    "min_all": 33.901,
+    "min_off_axis": 33.901,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   },
+   {
+    "moving": "head_back",
+    "fixed": "back_shell",
+    "min_all": 34.664,
+    "min_off_axis": 34.664,
+    "overlap": 0.0,
+    "at_all": -30.0,
+    "at_off_axis": -30.0
+   },
+   {
+    "moving": "horn_head_pitch",
+    "fixed": "deck_2",
+    "min_all": 39.0,
+    "min_off_axis": 39.0,
+    "overlap": 0.0,
+    "at_all": -30.0,
+    "at_off_axis": -30.0
+   },
+   {
+    "moving": "cam_mount",
+    "fixed": "neck_mount",
+    "min_all": 39.157,
+    "min_off_axis": 39.157,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   },
+   {
+    "moving": "head_front",
+    "fixed": "back_shell",
+    "min_all": 43.984,
+    "min_off_axis": 43.984,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   },
+   {
+    "moving": "head_back",
+    "fixed": "chest_shell",
+    "min_all": 44.502,
+    "min_off_axis": 44.502,
+    "overlap": 0.0,
+    "at_all": -30.0,
+    "at_off_axis": -30.0
+   },
+   {
+    "moving": "board_DISP",
+    "fixed": "back_shell",
+    "min_all": 46.71,
+    "min_off_axis": 46.71,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   },
+   {
+    "moving": "head_frame",
+    "fixed": "back_shell",
+    "min_all": 46.945,
+    "min_off_axis": 46.945,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   },
+   {
+    "moving": "horn_head_pitch",
+    "fixed": "chest_shell",
+    "min_all": 51.71,
+    "min_off_axis": 51.71,
+    "overlap": 0.0,
+    "at_all": -30.0,
+    "at_off_axis": -30.0
+   },
+   {
+    "moving": "horn_head_pitch",
+    "fixed": "back_shell",
+    "min_all": 51.721,
+    "min_off_axis": 51.721,
+    "overlap": 0.0,
+    "at_all": -30.0,
+    "at_off_axis": -30.0
+   },
+   {
+    "moving": "cam_mount",
+    "fixed": "chest_shell",
+    "min_all": 52.224,
+    "min_off_axis": 52.224,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   },
+   {
+    "moving": "cam_mount",
+    "fixed": "deck_2",
+    "min_all": 53.611,
+    "min_off_axis": 53.611,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   },
+   {
+    "moving": "visor",
+    "fixed": "back_shell",
+    "min_all": 54.903,
+    "min_off_axis": 54.903,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   },
+   {
+    "moving": "cam_mount",
+    "fixed": "back_shell",
+    "min_all": 74.934,
+    "min_off_axis": 74.934,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   }
+  ],
+  "not_modelled": [
+   "dây servo và cáp (CSI, màn hình)",
+   "đầu ốc tai M2 và đầu vít horn ST2",
+   "vỏ SG90 thật (dùng hộp MG92B, lớn hơn)"
+  ]
+ },
+ "slice": {
+  "profile": "PrusaSlicer, 0.4 nozzle, 0.2 layer, 4 perimeters, 5 top / 4 bottom, gyroid 40 %, PLA (cùng profile với test_prints; KHÔNG phải profile máy in thật của bạn)",
+  "orientations": {
+   "O1 sàn úp xuống (hiện tại)": {
+    "height": 35.0,
+    "grams": 17.51,
+    "grams_with_support": 19.77,
+    "support_g": 2.26,
+    "minutes": 128,
+    "minutes_with_support": 143,
+    "pitch_axis": "ngang",
+    "support_g_buildplate_only": 0.04,
+    "skin_extrusion_mm": 16.5,
+    "support_in_features_mm": {
+     "hốc horn Ø20.4": 4153.7,
+     "lỗ thao tác Ø5.2": 262.7,
+     "ổ bạc đạn Ø6.05": 595.9,
+     "lỗ lip Ø4.6": 31.0
+    },
+    "support_in_features_mm_buildplate_only": {
+     "hốc horn Ø20.4": 0.0,
+     "lỗ thao tác Ø5.2": 0.0,
+     "ổ bạc đạn Ø6.05": 0.0,
+     "lỗ lip Ø4.6": 0.0
+    }
+   },
+   "O2 đĩa horn xuống bàn": {
+    "height": 48.0,
+    "grams": 18.26,
+    "grams_with_support": 26.13,
+    "support_g": 7.87,
+    "minutes": 87,
+    "minutes_with_support": 122,
+    "pitch_axis": "dọc (vuông góc bàn)",
+    "support_g_buildplate_only": 1.36,
+    "skin_extrusion_mm": 13.6,
+    "support_in_features_mm": {
+     "hốc horn Ø20.4": 3808.7,
+     "lỗ thao tác Ø5.2": 329.2,
+     "ổ bạc đạn Ø6.05": 0.0,
+     "lỗ lip Ø4.6": 0.0
+    },
+    "support_in_features_mm_buildplate_only": {
+     "hốc horn Ø20.4": 247.7,
+     "lỗ thao tác Ø5.2": 294.2,
+     "ổ bạc đạn Ø6.05": 0.0,
+     "lỗ lip Ø4.6": 0.0
+    }
+   },
+   "O3 đĩa idler xuống bàn": {
+    "height": 48.0,
+    "grams": 18.28,
+    "grams_with_support": 29.3,
+    "support_g": 11.02,
+    "minutes": 87,
+    "minutes_with_support": 136,
+    "pitch_axis": "dọc (vuông góc bàn)",
+    "support_g_buildplate_only": 5.72,
+    "skin_extrusion_mm": 13.2,
+    "support_in_features_mm": {
+     "hốc horn Ø20.4": 2918.6,
+     "lỗ thao tác Ø5.2": 0.0,
+     "ổ bạc đạn Ø6.05": 536.9,
+     "lỗ lip Ø4.6": 30.1
+    },
+    "support_in_features_mm_buildplate_only": {
+     "hốc horn Ø20.4": 312.7,
+     "lỗ thao tác Ø5.2": 0.0,
+     "ổ bạc đạn Ø6.05": 479.7,
+     "lỗ lip Ø4.6": 0.0
+    }
+   },
+   "O4 tấm mặt xuống bàn": {
+    "height": 54.0,
+    "grams": 18.27,
+    "grams_with_support": 23.48,
+    "support_g": 5.21,
+    "minutes": 109,
+    "minutes_with_support": 137,
+    "pitch_axis": "ngang",
+    "support_g_buildplate_only": 0.56,
+    "skin_extrusion_mm": 14.9,
+    "support_in_features_mm": {
+     "hốc horn Ø20.4": 4273.1,
+     "lỗ thao tác Ø5.2": 268.1,
+     "ổ bạc đạn Ø6.05": 618.5,
+     "lỗ lip Ø4.6": 32.0
+    },
+    "support_in_features_mm_buildplate_only": {
+     "hốc horn Ø20.4": 0.0,
+     "lỗ thao tác Ø5.2": 0.0,
+     "ổ bạc đạn Ø6.05": 0.0,
+     "lỗ lip Ø4.6": 0.0
+    }
+   }
+  }
+ }
+}
