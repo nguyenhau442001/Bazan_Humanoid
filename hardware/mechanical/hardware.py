@@ -34,6 +34,21 @@ MG92B = Servo("MG92B", length=22.8, width=12.2, case_h=22.7, shaft_off=5.9, tab_
               cable_z=(1.5, 5.5), cable_w=4.5, mass=14.0)                                       # MEASURE all
 MG90S = Servo("MG90S", 22.8, 12.2, 22.7, 5.9, 32.4, 2.5, 15.9, 27.8, 2.0, 11.8, 4.0, 4.8, 8.3, (1.5, 5.5), 4.5,
               13.4)                                                                             # MEASURE all
+# SG90 (shoulder roll, elbow, neck yaw, head pitch): plastic case, a little smaller than the MG92B. It goes into
+# the MG92B pocket (joint.py); servo_fit.py says whether it fits and what to shim or drill.
+SG90 = Servo("SG90", length=22.2, width=11.8, case_h=22.5, shaft_off=5.9, tab_span=32.2, tab_t=2.5,
+             tab_low=15.7, hole_pitch=27.6, hole_d=2.0, tower_d=11.8, tower_h=4.0, spline_d=4.8, spline_top=8.3,
+             cable_z=(1.5, 5.5), cable_w=4.5, mass=9.0)                                         # MEASURE all
+
+SERVOS = {s.name: s for s in (MG92B, MG90S, SG90)}
+JOINT_SERVO = {  # which servo type sits in which joint (both sides)
+    "hip_yaw": "MG90S", "hip_roll": "MG92B", "hip_pitch": "MG92B", "knee": "MG92B", "ankle_pitch": "MG92B",
+    "ankle_roll": "MG92B", "shoulder_pitch": "MG90S", "shoulder_roll": "SG90", "elbow": "SG90",
+    "neck_yaw": "SG90", "head_pitch": "SG90",
+}
+# Servo types whose sizes above still come from datasheets. Remove a name once you have measured that servo
+# with calipers and typed the numbers in (see docs/mechanical/test_print.md).
+UNMEASURED = {"MG92B", "MG90S", "SG90"}
 
 
 # ---------------------------------------------------------------- horn (the round disc horn sold with the servo)
