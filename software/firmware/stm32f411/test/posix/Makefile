@@ -36,7 +36,7 @@ build/test_m0: build/rtos.a $(CORE_SRC) $(APP_SRC) $(wildcard *.h $(FW)/app/*.h 
 # The real host tool's m0-accept against the simulated MCU behind a pty (checks the tool, not the timing).
 accept-sim: build/test_m0
 	./build/test_m0 --pty > build/pty.txt 2> build/sim.err & echo $$! > build/sim.pid; sleep 1; \
-	python3 ../../tools/mico_link.py --port $$(head -1 build/pty.txt) m0-accept --minutes 0.2 \
+	python3 ../../tools/bazan_link.py --port $$(head -1 build/pty.txt) m0-accept --minutes 0.2 \
 	  --report build/m0_accept_sim.json; rc=$$?; kill $$(cat build/sim.pid) 2>/dev/null || true; exit $$rc   # same pid after the simulated reset
 
 clean:

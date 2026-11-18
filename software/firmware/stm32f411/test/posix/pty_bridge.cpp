@@ -1,5 +1,5 @@
 // --pty mode of the integration test: the simulated MCU behind a pseudo-terminal, so the real host tool
-// (tools/mico_link.py, including m0-accept) can drive it. A plain thread copies bytes between the pty and the
+// (tools/bazan_link.py, including m0-accept) can drive it. A plain thread copies bytes between the pty and the
 // simulated UART rings and plays the IWDG: 60 ms without a refresh re-executes the program as after a
 // watchdog reset, keeping the same pty open.
 #include <errno.h>

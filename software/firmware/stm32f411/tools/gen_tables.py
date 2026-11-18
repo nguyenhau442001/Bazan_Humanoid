@@ -10,7 +10,7 @@ Inputs (nothing here is typed twice):
 Outputs:
     lib/core/generated/joint_table.h            C++ constants
     lib/core/generated/protocol.h               packed message structs
-    firmware/stm32f411/tools/mico_protocol.py    the same messages for Python (struct formats)
+    firmware/stm32f411/tools/bazan_protocol.py    the same messages for Python (struct formats)
 """
 import hashlib
 import importlib.util
@@ -209,7 +209,7 @@ def render():
             "}  // namespace mico\n",
         REPO / "lib" / "core" / "generated" / "protocol.h":
             f"// {note}\n#pragma once\n#include <stdint.h>\n\nnamespace mico {{\n\n{proto}\n\n}}  // namespace mico\n",
-        HERE / "mico_protocol.py":
+        HERE / "bazan_protocol.py":
             f'"""{note}"""\n# flake8: noqa\n{protocol_py(js)}\nTABLE_HASH = 0x{h:08X}\n',
     }
     return files

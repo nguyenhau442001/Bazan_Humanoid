@@ -1,17 +1,17 @@
 """Talk to the Mico MCU over USB or UART: check it, watch it, log it, run the P0 bench test, calibrate.
 
     pip install pyserial
-    python mico_link.py --port COM5 info                 # Windows; on macOS e.g. /dev/tty.usbmodem2101
-    python mico_link.py --port COM5 monitor --csv run.csv
-    python mico_link.py --port COM5 stand                 # enable and move to the stand pose over 2 s
-    python mico_link.py --port COM5 p0-thermal --joint l_hip_roll --lift-deg 10 --csv p0_left.csv
-    python mico_link.py --port COM5 calibrate --joint l_knee
-    python mico_link.py --port COM5 clear | disable
-    python mico_link.py --port COM5 diag                  # 1 Hz timing / CPU / stack / heap report
-    python mico_link.py --port COM5 m0-accept --minutes 10 --report m0_accept.json   # mico_mcu_m0test image
+    python bazan_link.py --port COM5 info                 # Windows; on macOS e.g. /dev/tty.usbmodem2101
+    python bazan_link.py --port COM5 monitor --csv run.csv
+    python bazan_link.py --port COM5 stand                 # enable and move to the stand pose over 2 s
+    python bazan_link.py --port COM5 p0-thermal --joint l_hip_roll --lift-deg 10 --csv p0_left.csv
+    python bazan_link.py --port COM5 calibrate --joint l_knee
+    python bazan_link.py --port COM5 clear | disable
+    python bazan_link.py --port COM5 diag                  # 1 Hz timing / CPU / stack / heap report
+    python bazan_link.py --port COM5 m0-accept --minutes 10 --report m0_accept.json   # mico_mcu_m0test image
 
 Frames: COBS(type, seq, payload, crc16-ccitt LE) + 0x00, as in lib/core/link/frame.cpp. Message layouts come from
-mico_protocol.py, generated together with the firmware headers.
+bazan_protocol.py, generated together with the firmware headers.
 """
 import argparse
 import csv
@@ -23,7 +23,7 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import mico_protocol as P  # noqa: E402
+import bazan_protocol as P  # noqa: E402
 
 T = {name: tid for name, (tid, _, _) in P.MESSAGES.items() if tid is not None}
 

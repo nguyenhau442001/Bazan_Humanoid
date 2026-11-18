@@ -180,7 +180,7 @@ void start_pty_bridge(char* argv0, int fd);
 
 // test_m0                     scripted checks (CI)
 // test_m0 --watchdog-reset    scripted checks after a simulated IWDG reset
-// test_m0 --pty               prints a pty name; run tools/mico_link.py --port <it> against the simulated MCU
+// test_m0 --pty               prints a pty name; run tools/bazan_link.py --port <it> against the simulated MCU
 int main(int argc, char** argv) {
   int pty_fd = -1;
   bool pty = false;
