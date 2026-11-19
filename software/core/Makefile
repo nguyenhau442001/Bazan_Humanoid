@@ -3,14 +3,16 @@
 CXX ?= g++
 SAN ?= -fsanitize=address,undefined
 CXXFLAGS ?= -std=c++17 -O1 -g -Wall -Wextra -Werror -Wno-missing-field-initializers $(SAN)
-DIRS = controller trajectory joint_manager link safety timing generated .
+DIRS = controller trajectory joint_manager link safety timing power generated .
 INC = $(addprefix -I,$(DIRS))
-SRC = $(wildcard controller/*.cpp trajectory/*.cpp joint_manager/*.cpp link/*.cpp safety/*.cpp timing/*.cpp)
+SRC = $(wildcard controller/*.cpp trajectory/*.cpp joint_manager/*.cpp link/*.cpp safety/*.cpp timing/*.cpp \
+        power/*.cpp)
 HDR = $(wildcard */*.h *.h)
 
-test: build/test_core build/test_safety build/test_threads
+test: build/test_core build/test_safety build/test_battery build/test_threads
 	./build/test_core
 	./build/test_safety
+	./build/test_battery
 	./build/test_threads
 
 build/test_core: $(SRC) $(HDR) test/test_core.cpp
@@ -20,6 +22,11 @@ build/test_core: $(SRC) $(HDR) test/test_core.cpp
 build/test_safety: $(SRC) $(HDR) test/test_safety.cpp
 	mkdir -p build
 	$(CXX) $(CXXFLAGS) $(INC) $(SRC) test/test_safety.cpp -o $@ -lm
+
+# Software fuel gauge against a simulated pack that differs from its model.
+build/test_battery: power/battery.cpp power/battery.h test/test_battery.cpp
+	mkdir -p build
+	$(CXX) $(CXXFLAGS) -Ipower power/battery.cpp test/test_battery.cpp -o $@ -lm
 
 # Two real threads on the lock-free ring and the seqlock, under ThreadSanitizer.
 build/test_threads: $(HDR) test/test_threads.cpp
