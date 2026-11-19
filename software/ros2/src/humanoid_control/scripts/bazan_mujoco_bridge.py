@@ -7,6 +7,8 @@ Publishes (stamped with sim time):
     /tf  odom -> base_link      ground truth of the free base
     /odom                       nav_msgs/Odometry, same pose, twist in base_link
     /imu                        sensor_msgs/Imu in imu_link (+9.81 m/s^2 on z at rest)
+    /foot_forces                std_msgs/Float32MultiArray, N under L heel, L toe, R heel, R toe (the FSR pads)
+    /tof                        sensor_msgs/Range in tof_link (VL53L0X)
 Subscribes:
     /joint_trajectory_controller/joint_trajectory   trajectory_msgs/JointTrajectory, as joint_trajectory_controller:
                                                     linear interpolation on sim time, zero stamp = start now
@@ -44,8 +46,8 @@ def make_node():
     from nav_msgs.msg import Odometry
     from rclpy.node import Node
     from rosgraph_msgs.msg import Clock
-    from sensor_msgs.msg import Imu, JointState
-    from std_msgs.msg import Float64MultiArray
+    from sensor_msgs.msg import Imu, JointState, Range
+    from std_msgs.msg import Float32MultiArray, Float64MultiArray
     from tf2_ros import TransformBroadcaster
     from trajectory_msgs.msg import JointTrajectory
 
@@ -73,6 +75,8 @@ def make_node():
             self.js_pub = self.create_publisher(JointState, "/joint_states", 10)
             self.odom_pub = self.create_publisher(Odometry, "/odom", 10)
             self.imu_pub = self.create_publisher(Imu, "/imu", 10)
+            self.fsr_pub = self.create_publisher(Float32MultiArray, "/foot_forces", 10)
+            self.tof_pub = self.create_publisher(Range, "/tof", 10)
             self.tf_pub = TransformBroadcaster(self)
             self.create_subscription(JointTrajectory, "/joint_trajectory_controller/joint_trajectory",
                                      self.on_trajectory, 10)
@@ -145,6 +149,12 @@ def make_node():
             a.x, a.y, a.z = (float(c) for c in acc)
             g.x, g.y, g.z = (float(c) for c in gyro)
             self.imu_pub.publish(imu)
+
+            self.fsr_pub.publish(Float32MultiArray(data=[float(f) for f in self.sim.foot_forces()]))
+            rng = Range(radiation_type=Range.INFRARED, field_of_view=0.44, min_range=0.03, max_range=2.0,
+                        range=self.sim.tof_range())
+            rng.header.stamp, rng.header.frame_id = stamp, "tof_link"
+            self.tof_pub.publish(rng)
 
     return BazanMujocoBridge()
 

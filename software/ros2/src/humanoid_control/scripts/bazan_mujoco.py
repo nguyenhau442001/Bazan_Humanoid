@@ -8,6 +8,7 @@ build_mjcf() turns any such URDF into a MuJoCo model:
   * armature for the servo gearbox, which also keeps the tiny link inertias stable
   * contacts: robot <-> floor, left leg <-> right leg
   * imu site on imu_link: accelerometer, gyro, orientation; head_camera on camera_link
+  * foot_forces() and tof_range(): the FSR402 pads and the VL53L0X, as the policy sees them (bazan_policy_io)
 
 BazanSim steps the model and follows trajectories like joint_trajectory_controller does (linear interpolation
 on sim time, the zero stamp means "start now", hold the last point).
@@ -124,6 +125,35 @@ def cad_mjcf(kp=KP, kv=KV, armature=ARMATURE, timestep=TIMESTEP):
     return build_mjcf(CAD_URDF.read_text(), lambda f: f, kp, kv, armature, timestep)
 
 
+def foot_forces(model, data):
+    """Normal contact force (N) under the left heel, left toe, right heel, right toe: the four FSR402 pads. A
+    contact counts as toe when it is ahead of the ankle in the sole's own frame."""
+    out = np.zeros(4)
+    feet = {model.body(f"{s}_ankle_roll_link").id: i for i, s in enumerate("lr")}
+    soles = [model.body(f"{s}_sole").id for s in "lr"]
+    f6 = np.zeros(6)
+    for k in range(data.ncon):
+        c = data.contact[k]
+        for g in (c.geom1, c.geom2):
+            side = feet.get(int(model.geom_bodyid[g]))
+            if side is None:
+                continue
+            mujoco.mj_contactForce(model, data, k, f6)
+            sole = soles[side]
+            ahead = (data.xmat[sole].reshape(3, 3).T @ (c.pos - data.xpos[sole]))[0] >= 0.0
+            out[2 * side + int(ahead)] += abs(f6[0])
+    return out
+
+
+def tof_range(model, data, max_range=2.0):
+    """VL53L0X distance (m) along tof_link's x axis, ignoring the head; max_range when nothing is hit."""
+    tof = model.body("tof_link").id
+    geom = np.zeros(1, dtype=np.int32)
+    d = mujoco.mj_ray(model, data, data.xpos[tof], data.xmat[tof].reshape(3, 3)[:, 0], None, 1,
+                      model.body("head_pitch_link").id, geom)
+    return float(d) if 0.0 <= d <= max_range else max_range
+
+
 class Trajectory:
     """One JointTrajectory: point times (s from `start`, sim time) and positions (n x len(JOINTS)),
     received at sim time `received`."""
@@ -228,6 +258,12 @@ class BazanSim:
         """Specific force (m/s^2) and angular rate (rad/s) in imu_link, orientation (w x y z) in the world."""
         s = self.data.sensordata
         return s[self.sens["imu_acc"]].copy(), s[self.sens["imu_gyro"]].copy(), s[self.sens["imu_quat"]].copy()
+
+    def foot_forces(self):
+        return foot_forces(self.model, self.data)
+
+    def tof_range(self):
+        return tof_range(self.model, self.data)
 
     def tilt(self):
         """Angle between base_link z and the world z (rad)."""
