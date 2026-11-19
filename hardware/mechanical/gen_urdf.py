@@ -1,24 +1,28 @@
-"""The digital twin from the CAD: bazan_cad.urdf, generated, never edited by hand.
+"""The digital twin from the CAD: bazan_cad.urdf, generated, never edited by hand. It is the one robot description:
+MuJoCo, the gait, RViz2, MoveIt and the firmware joint table are all built from it.
 
     python gen_urdf.py            # writes software/ros2/src/humanoid_description/urdf/bazan_cad.urdf (about 2 min)
     python gen_urdf.py --check    # exit 1 if the committed file is not what the CAD gives today
     python gen_urdf.py --validate # also load it in Pinocchio and MuJoCo and print the sanity report
 
-Same link and joint names, joint axis signs and joint limits as bazan.urdf.xacro (the firmware, the controllers and
-the RL policy use those), but everything the CAD knows comes from the CAD:
+Link and joint names and the axis sign of each joint are the project convention (both sides share the left axis,
+so a right-side roll or yaw limit is the mirror of the left one). Everything else comes from the CAD:
 
     joint origins   a point on each CAD joint axis: the point closest to the next joint axis down the chain (or to
                     the child link's centre of mass at the end of a chain), so every axis passes exactly where the
                     printed parts put it
+    joint limits    the ranges the parts are drawn and checked for: check.RANGES (legs), robot.RANGES (arms, head)
+    effort, speed   the catalogue stall torque and speed of the servo in that joint (hardware.JOINT_SERVO)
     inertials       every component of audit.weigh() (printed parts with their print recipe, servos, boards,
                     battery, shell, wiring) integrated with its own solid: mass, centre of mass and the full inertia
                     tensor about the link CoM (parallel axis theorem), at the zero pose
     frames          l_sole / r_sole on the floor under the ankle, imu_link where the MPU6050 sits on the A+ board
 
 Units: the CAD is in mm and g, the URDF in m and kg. Every link frame is parallel to the robot frame at the zero
-pose (x forward, y left, z up, REP-103), base_link at the middle of the two hip points H as before. Collision and
-visual geometry are the link's bounding boxes; the visual meshes stay with gen_robot.py.
+pose (x forward, y left, z up, REP-103), base_link at the middle of the two hip points H. Collision and visual
+geometry are the link's bounding boxes.
 """
+import math
 import sys
 from pathlib import Path
 
@@ -27,6 +31,8 @@ from OCP.BRepGProp import BRepGProp
 from OCP.GProp import GProp_GProps
 
 import audit as A
+import check as C
+import hardware as HW
 import leg as LEG
 import pose as P
 import robot as R
@@ -34,7 +40,6 @@ import shell as SH
 
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "software" / "ros2" / "src" / "humanoid_description" / "urdf" / "bazan_cad.urdf"
-XACRO = A.XACRO
 
 # URDF link of every CAD link (robot.link_of names), and the URDF joints in chain order with their CAD joint
 LINK = {"torso": "base_link", "neck_link": "neck_yaw_link", "head_frame": "head_pitch_link"}
@@ -113,15 +118,33 @@ def cad_axes(body, leg):
     return ax
 
 
-def xacro_joints():
-    """{joint: dict(parent, child, axis, lower, upper, effort, velocity)} from bazan.urdf.xacro (kept as is)."""
-    import re
-    pat = re.compile(r'<joint name="(\w+)" type="revolute"><parent link="(\w+)"/><child link="(\w+)"/>'
-                     r'<origin xyz="[^"]+"/><axis xyz="([^"]+)"/><limit lower="([-\d.]+)" upper="([-\d.]+)" '
-                     r'effort="([\d.]+)" velocity="([\d.]+)"/>')
-    return {m[0]: dict(parent=m[1], child=m[2], axis=np.array(m[3].split(), float), lower=float(m[4]),
-                       upper=float(m[5]), effort=float(m[6]), velocity=float(m[7]))
-            for m in pat.findall(XACRO.read_text())}
+def cad_joints():
+    """{joint: dict(parent, child, axis, lower, upper, effort, velocity)}, in URDF order, from the CAD sources."""
+    axis = dict(P.AXIS, **{jn: a for jn, _, _, a in R.ARM_CHAIN + R.HEAD_CHAIN})
+    rng = dict(C.RANGES, **R.RANGES)
+    chain_links = {"leg": ["hip_yaw", "hip_roll", "hip_pitch", "knee", "ankle_pitch", "ankle_roll"],
+                   "arm": ["shoulder_pitch", "shoulder_roll", "elbow"]}
+
+    def row(jn, key, parent, child, mirror):
+        a = np.array(axis[key], float)
+        lo, hi = np.radians(rng[key])
+        if mirror and (a[0] or a[2]):                       # mirrored in y: rotations about x and z change sense
+            lo, hi = 0.0 - hi, 0.0 - lo
+        sv = HW.SERVOS[HW.JOINT_SERVO[key]]
+        return jn, dict(parent=parent, child=child, axis=a, lower=lo, upper=hi,
+                        effort=round(sv.stall_kgcm * 0.0980665, 3), velocity=round(math.pi / 3 / sv.speed_s60, 2))
+
+    rows = [row(f"{s}_{k}", k, "base_link", f"{s}_{k}_link", s == "r") for k in ("hip_yaw", "shoulder_pitch")
+            for s in "lr"]
+    rows.append(row("neck_yaw", "neck_yaw", "base_link", "neck_yaw_link", False))
+    for s in "lr":
+        ln = chain_links["leg"]
+        rows += [row(f"{s}_{k}", k, f"{s}_{ln[i]}_link", f"{s}_{k}_link", s == "r") for i, k in enumerate(ln[1:])]
+    for s in "lr":
+        ln = chain_links["arm"]
+        rows += [row(f"{s}_{k}", k, f"{s}_{ln[i]}_link", f"{s}_{k}_link", s == "r") for i, k in enumerate(ln[1:])]
+    rows.append(row("head_pitch", "head_pitch", "neck_yaw_link", "head_pitch_link", False))
+    return dict(rows)
 
 
 def build():
@@ -130,7 +153,7 @@ def build():
     _, _, items = A.weigh(leg, body, sh)
     inert = link_inertials(items)
     cad = cad_axes(body, leg)
-    xj = xacro_joints()
+    xj = cad_joints()
     links = {LINK.get(k, k): v for k, v in inert.items()}
     missing = set(LINK.values()) - set(links)
     assert not missing, f"links with no CAD component: {missing}"
@@ -237,7 +260,7 @@ def validate(m, path=OUT):
         ok = off <= 0.5 and par
         bad += not ok
         print(f"  {'ok  ' if ok else 'FAIL'} {jn:18s} origin {np.round(o, 1)}  off-axis {off:.2f}  "
-              f"axis {d['axis']} (kept from the xacro) parallel to the CAD axis: {par}")
+              f"axis {d['axis']} parallel to the CAD axis: {par}")
     tot = sum(g for g, _, _ in m["links"].values())
     com = sum(g * c for g, c, _ in m["links"].values()) / tot
     print(f"robot: {tot:.0f} g, CoM {np.round(com, 1)} mm ({com[2] - m['floor']:.1f} above the floor), hip point "

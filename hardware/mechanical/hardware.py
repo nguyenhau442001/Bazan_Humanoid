@@ -27,13 +27,15 @@ class Servo:
     cable_z: tuple       # cable exit window on the far end face, from the case bottom (min, max)
     cable_w: float       # window width
     mass: float          # g
+    stall_kgcm: float = 0.0   # catalogue stall torque at 6 V (MEASURE on the P0 bench)
+    speed_s60: float = 0.0    # catalogue no-load speed, s per 60 deg
 
 
 MG92B = Servo("MG92B", length=22.8, width=12.2, case_h=22.7, shaft_off=5.9, tab_span=32.4, tab_t=2.5,
               tab_low=15.9, hole_pitch=27.8, hole_d=2.0, tower_d=11.8, tower_h=4.0, spline_d=4.8, spline_top=8.3,
-              cable_z=(1.5, 5.5), cable_w=4.5, mass=14.0)                                       # MEASURE all
+              cable_z=(1.5, 5.5), cable_w=4.5, mass=14.0, stall_kgcm=3.5, speed_s60=0.08)       # MEASURE all
 MG90S = Servo("MG90S", 22.8, 12.2, 22.7, 5.9, 32.4, 2.5, 15.9, 27.8, 2.0, 11.8, 4.0, 4.8, 8.3, (1.5, 5.5), 4.5,
-              13.4)                                                                             # MEASURE all
+              13.4, stall_kgcm=2.2, speed_s60=0.08)                                             # MEASURE all
 # SG90 (shoulder roll, elbow, neck yaw, head pitch). Sizes from the web, not measured yet (2026-11-18):
 #   TowerPro sells the SG90 as 23.0 × 12.2 × 29 mm and the MG90S as "identical mounting dimensions to the SG90";
 #   the datasheet table gives F = 16 (case bottom to ear underside) like the MG90S column. The old numbers here
@@ -42,7 +44,7 @@ MG90S = Servo("MG90S", 22.8, 12.2, 22.7, 5.9, 32.4, 2.5, 15.9, 27.8, 2.0, 11.8, 
 #   tower (5.75): see docs/mechanical/test_print.md; measure one servo before the final print.
 SG90 = Servo("SG90", length=22.8, width=12.2, case_h=22.7, shaft_off=5.9, tab_span=32.4, tab_t=2.5,
              tab_low=15.9, hole_pitch=27.8, hole_d=2.0, tower_d=11.8, tower_h=4.0, spline_d=4.8, spline_top=8.3,
-             cable_z=(1.5, 5.5), cable_w=4.5, mass=9.0)                                         # MEASURE all
+             cable_z=(1.5, 5.5), cable_w=4.5, mass=9.0, stall_kgcm=1.8, speed_s60=0.10)         # MEASURE all
 SERVOS = {s.name: s for s in (MG92B, MG90S, SG90)}
 JOINT_SERVO = {  # which servo type sits in which joint (both sides)
     "hip_yaw": "MG90S", "hip_roll": "MG92B", "hip_pitch": "MG92B", "knee": "MG92B", "ankle_pitch": "MG92B",
