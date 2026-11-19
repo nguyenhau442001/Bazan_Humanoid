@@ -95,7 +95,7 @@ Cộng thêm cho vỏ (Design C, bắt sau): 16 × M2×6 vào các tán vỏ đ�
 | PCA | PCA9685 16-channel PWM module (Adafruit-style clone) | 62.5 × 25.4 | 4 × Ø2.5, 55.90 × 19.00 | 23.0 | S1 ×2 | P0: PCA_L, PCA_R |
 | RADXA | Radxa Zero 3W (Pi Zero outline) | 65.0 × 30.0 | 4 × Ø2.75, 58.00 × 23.00 | 4.0 | S3 | P2: RADXA |
 | PERF | A+ monitoring board: 7 × 5 cm perfboard carrying the STM32F411 Black Pill in female headers, LMV358 × 6, CD74HC4067, MPU6050 | 70.0 × 50.0 | 4 × Ø2.2, 63.00 × 43.00 | 21.0 | S2 | P1: PERF |
-| UBEC | 6 V 5 A UBEC (heat-shrunk, no holes) | 45.0 × 25.0 | không — dây rút + băng keo xốp | 10.0 | S4 | P1: UBEC |
+| UBEC | Hobbywing UBEC 8A (2-5S), 6 V 8 A cont. / 15 A burst (heat-shrunk, no holes) | 62.0 × 27.5 | không — dây rút + băng keo xốp | 10.0 | S4 | P1: UBEC |
 | BUCK | 5 V buck for the Radxa (Mini560 class) | 22.0 × 17.0 | không — dây rút + băng keo xốp | 5.0 | S5 | P1: BUCK |
 | INA | INA226 module CJMCU-226, R010 shunt | 21.0 × 16.0 | không — dây rút + băng keo xốp | 5.0 | S6 ×2 | P1: INA_L, INA_R |
 | BATT | 2S LiPo 7.4 V (about 1000 mAh) | 56.0 × 30.0 | không — dây rút + băng keo xốp | 19.0 | — | P0 hốc pin (velcro) |
@@ -113,7 +113,7 @@ Cộng thêm cho vỏ (Design C, bắt sau): 16 × M2×6 vào các tán vỏ đ�
 | S1 | `L_sled_pca` + `R_sled_pca` | PCA9685 Sled (L/R) | 2 | PLA | 9.6 | đế phẳng xuống bàn, trụ hướng lên | [bản vẽ](v4/drawings/sled_pca.png) |
 | S2 | `L_sled_perf` | A+ Board Sled (Black Pill) | 1 | PLA | 19.0 | đế phẳng xuống bàn | [bản vẽ](v4/drawings/sled_perf.png) |
 | S3 | `L_sled_radxa` | Radxa Zero 3W Sled | 1 | PLA | 10.7 | đế phẳng xuống bàn | [bản vẽ](v4/drawings/sled_radxa.png) |
-| S4 | `L_sled_ubec` | UBEC Sled | 1 | PLA | 6.9 | đế phẳng xuống bàn | [bản vẽ](v4/drawings/sled_ubec.png) |
+| S4 | `L_sled_ubec` | UBEC Sled | 1 | PLA | 9.2 | đế phẳng xuống bàn | [bản vẽ](v4/drawings/sled_ubec.png) |
 | S5 | `L_sled_buck` | 5 V Buck Sled | 1 | PLA | 2.6 | đế phẳng xuống bàn | [bản vẽ](v4/drawings/sled_buck.png) |
 | S6 | `L_sled_ina` + `R_sled_ina` | INA226 Sled (L/R) | 2 | PLA | 2.1 | đế phẳng xuống bàn | [bản vẽ](v4/drawings/sled_ina.png) |
 | A1 | `L_shoulder_mount` + `R_shoulder_mount` | Shoulder Mount (L/R) | 2 | PLA | 9.2 | mặt bích xuống bàn, ổ servo mở lên trên | [bản vẽ](v4/drawings/shoulder_mount.png) |
@@ -128,7 +128,7 @@ Cộng thêm cho vỏ (Design C, bắt sau): 16 × M2×6 vào các tán vỏ đ�
 | L1 | `L_foot` + `R_foot` | Foot | 2 | PLA | 15.1 | xem leg_v3.md | [bản vẽ](drawings/foot.png) |
 | L2 | `L_sole` + `R_sole` | TPU Sole | 2 | TPU 95A | 10.3 | xem leg_v3.md | [bản vẽ](drawings/sole.png) |
 | L3 | `L_ankle_block` + `R_ankle_block` | Ankle Block | 2 | PLA | 12.1 | xem leg_v3.md | [bản vẽ](drawings/ankle_block.png) |
-| L4 | `L_shin` + `R_shin` | Shin | 2 | PLA | 10.2 | xem leg_v3.md | [bản vẽ](drawings/shin.png) |
+| L4 | `L_shin` + `R_shin` | Shin | 2 | PLA | 12.3 | xem leg_v3.md | [bản vẽ](drawings/shin.png) |
 | L5 | `L_thigh` + `R_thigh` | Thigh | 2 | PLA | 18.1 | xem leg_v3.md | [bản vẽ](drawings/thigh.png) |
 | L6 | `L_hip_block` + `R_hip_block` | Hip Block | 2 | PLA | 12.1 | xem leg_v3.md | [bản vẽ](drawings/hip_block.png) |
 | L7 | `L_yaw_bracket` + `R_yaw_bracket` | Yaw Bracket | 2 | PLA | 15.4 | xem leg_v3.md | [bản vẽ](drawings/yaw_bracket.png) |
@@ -304,16 +304,16 @@ Toạ độ = điểm vào của lỗ, so với điểm tham chiếu của chi t
 
 | # | Lỗ | Loại | Ø | Sâu | Vị trí (x, y, z) | Hướng | Dùng cho |
 | --- | --- | --- | ---: | --- | --- | --- | --- |
-| H1 | `bay_buck1` | ins_m2_thru | 3.20 | xuyên | (-37.0, -23.5, +0.0) | −z | INS-M2 for sled_buck (M2x6) |
-| H2 | `bay_buck2` | ins_m2_thru | 3.20 | xuyên | (-17.0, -23.5, +0.0) | −z | INS-M2 for sled_buck (M2x6) |
+| H1 | `bay_buck1` | ins_m2_thru | 3.20 | xuyên | (-37.0, -31.5, +0.0) | −z | INS-M2 for sled_buck (M2x6) |
+| H2 | `bay_buck2` | ins_m2_thru | 3.20 | xuyên | (-17.0, -31.5, +0.0) | −z | INS-M2 for sled_buck (M2x6) |
 | H3 | `bay_ina_l1` | ins_m2_thru | 3.20 | xuyên | (-2.0, +45.5, +0.0) | −z | INS-M2 for sled_ina (M2x6) |
 | H4 | `bay_ina_l2` | ins_m2_thru | 3.20 | xuyên | (+18.0, +45.5, +0.0) | −z | INS-M2 for sled_ina (M2x6) |
 | H5 | `bay_ina_r1` | ins_m2_thru | 3.20 | xuyên | (-2.0, -45.5, +0.0) | −z | INS-M2 for sled_ina (M2x6) |
 | H6 | `bay_ina_r2` | ins_m2_thru | 3.20 | xuyên | (+18.0, -45.5, +0.0) | −z | INS-M2 for sled_ina (M2x6) |
 | H7 | `bay_perf1` | ins_m2_thru | 3.20 | xuyên | (-9.0, -20.0, +0.0) | −z | INS-M2 for sled_perf (M2x6) |
 | H8 | `bay_perf2` | ins_m2_thru | 3.20 | xuyên | (-9.0, +20.0, +0.0) | −z | INS-M2 for sled_perf (M2x6) |
-| H9 | `bay_ubec1` | ins_m2_thru | 3.20 | xuyên | (-29.5, -7.5, +0.0) | −z | INS-M2 for sled_ubec (M2x6) |
-| H10 | `bay_ubec2` | ins_m2_thru | 3.20 | xuyên | (-29.5, +32.5, +0.0) | −z | INS-M2 for sled_ubec (M2x6) |
+| H9 | `bay_ubec1` | ins_m2_thru | 3.20 | xuyên | (-28.0, -7.5, +0.0) | −z | INS-M2 for sled_ubec (M2x6) |
+| H10 | `bay_ubec2` | ins_m2_thru | 3.20 | xuyên | (-28.0, +32.5, +0.0) | −z | INS-M2 for sled_ubec (M2x6) |
 | H11 | `so1` | clr_so | 3.30 | xuyên | (-44.0, +49.0, +0.0) | −z | SO35 male thread down into SO40 |
 | H12 | `so2` | clr_so | 3.30 | xuyên | (-44.0, -49.0, +0.0) | −z | SO35 male thread down into SO40 |
 | H13 | `so3` | clr_so | 3.30 | xuyên | (+35.0, +49.0, +0.0) | −z | SO35 male thread down into SO40 |
@@ -494,7 +494,7 @@ Toạ độ = điểm vào của lỗ, so với điểm tham chiếu của chi t
 
 #### S5 · `sled_buck` — 5 V Buck Sled
 
-Điểm tham chiếu: tâm bay trên mặt deck 1 = robot (-27.0, -23.5, +120.5).
+Điểm tham chiếu: tâm bay trên mặt deck 1 = robot (-27.0, -31.5, +120.5).
 
 ![sled_buck](v4/drawings/sled_buck.png)
 
@@ -569,7 +569,7 @@ Toạ độ = điểm vào của lỗ, so với điểm tham chiếu của chi t
 
 #### S4 · `sled_ubec` — UBEC Sled
 
-Điểm tham chiếu: tâm bay trên mặt deck 1 = robot (-29.5, +12.5, +120.5).
+Điểm tham chiếu: tâm bay trên mặt deck 1 = robot (-28.0, +12.5, +120.5).
 
 ![sled_ubec](v4/drawings/sled_ubec.png)
 
@@ -577,10 +577,10 @@ Toạ độ = điểm vào của lỗ, so với điểm tham chiếu của chi t
 | --- | --- | --- | ---: | --- | --- | --- | --- |
 | H1 | `attach1` | cb_m2 | 2.30 | xuyên | (+0.0, -20.0, +4.0) | −z | M2x6 into the deck_1 bay UBEC |
 | H2 | `attach2` | cb_m2 | 2.30 | xuyên | (+0.0, +20.0, +4.0) | −z | M2x6 into the deck_1 bay UBEC |
-| H3 | `tie1a` | tie | 1.60 | xuyên | (-14.1, -16.5, +4.0) | −z | cable tie around the module |
-| H4 | `tie1b` | tie | 1.60 | xuyên | (+14.1, -16.5, +4.0) | −z | cable tie around the module |
-| H5 | `tie2a` | tie | 1.60 | xuyên | (-14.1, +16.5, +4.0) | −z | cable tie around the module |
-| H6 | `tie2b` | tie | 1.60 | xuyên | (+14.1, +16.5, +4.0) | −z | cable tie around the module |
+| H3 | `tie1a` | tie | 1.60 | xuyên | (-15.4, -25.0, +4.0) | −z | cable tie around the module |
+| H4 | `tie1b` | tie | 1.60 | xuyên | (+15.3, -25.0, +4.0) | −z | cable tie around the module |
+| H5 | `tie2a` | tie | 1.60 | xuyên | (-15.4, +25.0, +4.0) | −z | cable tie around the module |
+| H6 | `tie2b` | tie | 1.60 | xuyên | (+15.3, +25.0, +4.0) | −z | cable tie around the module |
 
 #### A3 · `upper_arm` — Upper Arm (L/R)
 
