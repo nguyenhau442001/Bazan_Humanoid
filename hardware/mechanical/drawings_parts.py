@@ -34,6 +34,13 @@ import drawings as D
 from drawings import DEPTH, FS_TITLE, INK, W_THICK, W_THIN, Sheet, fmt, fmt2, hlr, project, section
 
 ISO_SCALES = (5.0, 2.0, 1.0, 0.5)
+SERIES = {"H": "cụm đầu và cổ", "L": "chân (vẽ chân trái, chân phải là ảnh gương qua mặt XZ)", "B": "thân",
+          "A": "tay (vẽ tay trái, tay phải là ảnh gương qua mặt XZ)", "C": "vỏ thân"}
+DATUM = {"H": "O = trục gật đầu ∩ mặt phẳng giữa chồng khớp,\ntư thế 0 (chung cho mọi bản vẽ cụm đầu).",
+         "N1": "O = trục xoay cổ trên mặt đầu servo cổ,\ntư thế 0.",
+         "L": "O = gốc leg.py: điểm hông H của chân trái,\ntư thế 0 (chung cho mọi bản vẽ chân).",
+         "B": "O = gốc robot: giữa hai điểm hông H,\ntư thế 0 (chung cho thân và vỏ thân).",
+         "A": "O = trục vai (pitch) trái trên mặt đầu servo,\ntư thế 0 (chung cho mọi bản vẽ tay)."}
 OWNER = "Hau Nguyen Ngoc"
 STANDARDS = "ISO 128 · ISO 129-1 · ISO 5455 · ISO 5456-2 · ISO 5457 · ISO 7200 (tham chiếu)"
 STATUS = "SƠ BỘ — chưa phát hành chế tạo"
@@ -53,7 +60,12 @@ KIND_TEXT = {  # hole kind: what it is on the drawing
     "window": "cửa sổ quang học",
     "pocket": "ổ servo (thân SG90/MG92B), mở về phía trục",
     "recess": "hốc horn tròn (đĩa horn nằm phẳng đáy hốc)",
-    "cable": "rãnh luồn dây + giắc servo ở cuối ổ",
+    "cable": "rãnh / cửa sổ luồn dây",
+    "clr_so": "lỗ hở M3 cho ren đực trụ đồng (SO35/SO40)",
+    "clr_m3": "lỗ hở M3",
+    "ins_m3_thru": "lỗ tán cấy nhiệt M3 (L3, gai Ø4.6), xuyên",
+    "fsr": "hốc cảm biến lực FSR 402 + rãnh đuôi ra mép +Y",
+    "ntc": "lỗ NTC 10k qua thành ổ, áp vào vỏ servo",
 }
 
 
@@ -237,7 +249,9 @@ def draw_part(code, P, rev="P1"):
     c3 = (lo + hi) / 2
     # rooms: front (Y wide, Z tall), top (Y wide, X tall), left (X wide, Z tall)
     K = choose_scale((size[1], size[2], size[0]), (125.0, 90.0, 80.0))
-    tb = dict(owner=OWNER, project="Bazan Humanoid — cụm đầu (H)", title=P["title"], number=f"BZN-H-{code}",
+    ser = P.get("series", "H")
+    tb = dict(owner=OWNER, project=f"Bazan Humanoid — {SERIES[ser]} ({ser})", title=P["title"],
+              number=f"BZN-{ser}-{code}",
               material=P["material"], mass=f"{part_mass(P):.1f} g (ước tính)", scale=ratio(K), designed=OWNER,
               checked="TBD", approved="TBD", date=date.today().isoformat(), rev=rev, status=STATUS,
               standards=STANDARDS)
@@ -316,7 +330,7 @@ def draw_part(code, P, rev="P1"):
                 va="top")
         yy -= 7.6
     s1.text(xl, yy - 2, "Gốc toạ độ", fs=9, role="head", weight="bold", va="top")
-    s1.text(xl, yy - 8, "O = trục gật đầu ∩ mặt phẳng giữa chồng khớp,\ntư thế 0 (chung cho mọi bản vẽ cụm đầu).\n"
+    s1.text(xl, yy - 8, P.get("datum", DATUM["H"]) + "\n"
             "X tới trước, Y sang trái, Z lên.\nKích thước bao: hộp bao chính xác của chi tiết.\n"
             "Toạ độ từng đặc tính: tờ 2.", fs=7.0, role="note", va="top")
     sheets.append(s1)
@@ -376,7 +390,70 @@ def part_mass(P):
     import audit as A
     if P["material"].startswith("PETG"):
         return 1.27e-3 * P["solid"].Volume()
-    return A.printed_g(P["solid"], "arm")
+    if P["material"].startswith("TPU"):
+        return A.TPU * P["solid"].Volume()
+    return A.printed_g(P["solid"], P.get("recipe", "arm"))
+
+
+def other_parts():
+    """N1, the leg (L1-L9), the body decks (P0-P2), the arm (A1-A4) and the torso shells (C1, C2): each in the datum
+    of its assembly (DATUM), holes from the CAD hole lists, pockets and horn recesses from the joints."""
+    import body as B
+    import gen_manual as GM
+    import leg as LEG
+    import shell as SH
+    body, leg = B.Body(), LEG.Leg()
+    sh = SH.BazanShell(body, leg)
+    out = {}
+
+    def rows(holes, part, org):
+        return [dict(id=h.id, kind=h.kind, d=h.d, depth=h.depth, dir=np.round(np.asarray(h.dir, float), 6),
+                     pos=np.asarray(h.pos, float) - org, mate=h.fastener) for h in holes if h.part == part]
+
+    def add(code, name, title, solid, holes, joints, org, ser, datum, mat="PLA", pr="", recipe="arm", notes=()):
+        hs = rows(holes, name, org)
+        for j in joints:
+            if j.holder == name:
+                hs += joint_feats(j, "holder", org)
+            if j.driven == name:
+                hs += joint_feats(j, "driven", org)
+        out[code] = dict(name=name, title=f"{code} {title}", solid=solid.moved(cq.Location(cq.Vector(*(-org)))),
+                         holes=hs, material=mat, print=pr, ref=datum, series=ser, datum=datum, recipe=recipe,
+                         notes=list(notes))
+
+    # N1: neck mount, datum on the neck-yaw axis
+    org = np.array(body.joints["neck_yaw"].origin, float)
+    c, t, ref, pr = GM.BODY_PARTS["neck_mount"]
+    add("N1", "neck_mount", t, body.parts["neck_mount"], body.holes(), body.joints.values(), org, "H", DATUM["N1"],
+        pr=pr, notes=["Mặt bích bắt xuống tán N của deck 2 bằng 4 × M2×6 từ trên.",
+                      "Ổ servo neck yaw (MG90S/SG90), giắc ra phía sau."])
+    # the leg, left side, in the leg frame
+    org = np.zeros(3)
+    for name, (code, title) in GM.LEG_PARTS.items():
+        tpu = name == "sole"
+        add(code, name, title, leg.parts[name], leg.holes(), leg.joints.values(), org, "L", DATUM["L"],
+            mat="TPU 95A" if tpu else "PLA", recipe="leg",
+            pr="phẳng, 3 viền, 30 % gyroid" if tpu else "xem leg_v3.md",
+            notes=["Chân phải: ảnh gương qua mặt XZ (file R_*); mọi toạ độ Y đổi dấu."])
+    # body decks and the torso shells, robot frame
+    for name in ("pelvis_plate", "deck_1", "deck_2"):
+        c, t, ref, pr = GM.BODY_PARTS[name]
+        add(c, name, t, body.parts[name], body.holes(), body.joints.values(), org, "B", DATUM["B"], pr=pr,
+            recipe="deck")
+    for name, (code, title) in {"chest_shell": ("C1", "Chest Shell"), "back_shell": ("C2", "Back Shell")}.items():
+        holes = [dict(id=f"{name}.tab{k + 1}", kind="clr_m2", d=2 * SH.CLR_M2, depth=0.0, dir=np.asarray(d, float),
+                      pos=np.asarray(p, float), mate="M2×6 vào tán vỏ của tấm hông / deck 2")
+                 for k, (part, p, d) in enumerate([x for x in sh.screws if x[0] == name])]
+        out[code] = dict(name=name, title=f"{code} {title}", solid=sh.parts[name], holes=holes, material="PLA",
+                         print="mặt ngoài lớn nhất lên trên, support chỉ từ bàn", ref=DATUM["B"], series="C",
+                         datum=DATUM["B"], recipe="shell", notes=["Thành 1.2 mm = 3 đường đùn đầu 0.4."])
+    # the arm, left side, datum on the shoulder-pitch axis
+    org = np.array(body.joints["shoulder_pitch"].origin, float)
+    for name in ("shoulder_mount", "shoulder_link", "upper_arm", "forearm"):
+        c, t, ref, pr = GM.BODY_PARTS[name]
+        add(c, name, t, body.parts[name], body.holes(), body.joints.values(), org, "A", DATUM["A"], pr=pr,
+            notes=["Tay phải: ảnh gương qua mặt XZ (file R_*); mọi toạ độ Y đổi dấu."])
+    return out
 
 
 # ------------------------------------------------------------------ validation
@@ -660,7 +737,7 @@ def write(res, out):
     code = res["code"]
     rep, bad = validate(res)
     out.mkdir(parents=True, exist_ok=True)
-    num = f"BZN-H-{code}"
+    num = res["tb"]["number"]
     with PdfPages(out / f"{num}.pdf", metadata={"CreationDate": None, "ModDate": None}) as pdf:
         for sh in res["sheets"]:
             pdf.savefig(sh.fig)
@@ -680,13 +757,21 @@ def write(res, out):
     return bad
 
 
+HEAD = ["N2", "N4", "C3", "C4", "C5", "H0"]
+OTHER = ["N1", "L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8", "L9", "P0", "P1", "P2", "A1", "A2", "A3", "A4", "C1",
+         "C2"]
+
+
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
-    want = ["N2", "N4", "C3", "C4", "C5", "H0"] if not args or args == ["all"] else args
-    parts, org = head_parts()
+    want = HEAD + OTHER if not args or args == ["all"] else HEAD if args == ["head"] else args
     bad = 0
+    if set(want) & set(HEAD):
+        parts, org = head_parts()
+    if set(want) & set(OTHER):
+        other = other_parts()
     for code in want:
-        res = draw_h0(parts, org) if code == "H0" else draw_part(code, parts[code])
+        res = draw_h0(parts, org) if code == "H0" else draw_part(code, parts[code] if code in HEAD else other[code])
         bad += write(res, D.DOCS / code)
     return 1 if (bad and "--check" in sys.argv) else 0
 

@@ -102,6 +102,27 @@ def hlr(shape, view):
     return vis, hid
 
 
+def wire_points(w, defl=0.01):
+    """Ordered points along a wire, edge by edge (BRepTools_WireExplorer); degenerate edges skipped (cadquery's
+    Wire.positions crashes OCC on them)."""
+    from OCP.BRep import BRep_Tool
+    from OCP.BRepTools import BRepTools_WireExplorer
+    from OCP.TopAbs import TopAbs_REVERSED
+    pts = []
+    ex = BRepTools_WireExplorer(w.wrapped)
+    while ex.More():
+        e = ex.Current()
+        if not BRep_Tool.Degenerated_s(e):
+            a = BRepAdaptor_Curve(e)
+            q = GCPnts_QuasiUniformDeflection(a, defl)
+            ps = [a.Value(q.Parameter(i)) for i in range(1, q.NbPoints() + 1)]
+            if e.Orientation() == TopAbs_REVERSED:
+                ps = ps[::-1]
+            pts += [[p.X(), p.Y(), p.Z()] for p in ps]
+        ex.Next()
+    return np.array(pts)
+
+
 def section(shape, point, view):
     """Cut shape by the plane through point normal to the view direction, keep the half away from the eye.
     Returns (visible edges of the kept half, cut faces as lists of 2D loops)."""
@@ -122,7 +143,7 @@ def section(shape, point, view):
         if abs(abs(np.dot([n.x, n.y, n.z], d)) - 1) < 1e-6 and abs(np.dot(np.array([c.x, c.y, c.z]) - point, d)) < 1e-4:
             rings = []
             for w in [f.outerWire()] + list(f.innerWires()):
-                pts = np.array([[p.x, p.y, p.z] for p in w.positions(np.linspace(0, 1, 240))])
+                pts = wire_points(w)
                 rings.append([tuple(project(p, view)) for p in pts])
             loops.append(Polygon(rings[0], rings[1:]).buffer(0))
     return vis, loops, half
