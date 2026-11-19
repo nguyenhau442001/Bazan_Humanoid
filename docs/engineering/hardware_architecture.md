@@ -5,7 +5,7 @@ servos, and position, current and temperature monitoring added around them. Part
 `python docs/engineering/gen_docs.py` from `gen_robot.py` and `mass_report.json`.
 
 <!-- gen:stamp -->
-Generated from `design/blender/bazan_parts.py`, `design/blender/bazan_mass.py`, `sim/mini_humanoid/gen_robot.py`, `sim/mini_humanoid/tables/mj_servo_loads.csv`, `src/humanoid_control/scripts/mico_gait.py`, `docs/engineering/bom_aplus.csv` · source hash `31937b1081e9`
+Generated from `docs/engineering/cad_mass.json`, `software/ros2/src/humanoid_description/urdf/bazan_cad.urdf`, `software/ai/sim/mujoco/servo_loads.csv`, `software/ros2/src/humanoid_control/scripts/bazan_gait.py`, `hardware/mechanical/hardware.py`, `docs/engineering/bom_aplus.csv` · source hash `cfa7fd1757b5`
 <!-- /gen:stamp -->
 
 ## Rule
@@ -160,7 +160,7 @@ the F411 stays unless a Renesas part becomes a hard requirement.
 | MG90S | 4 | 2.20 | 13.4 | 53.6 | hip_yaw, shoulder_pitch |
 | MG92B | 10 | 3.50 | 14 | 140.0 | ankle_pitch, ankle_roll, hip_pitch, hip_roll, knee |
 | SG90 | 6 | 1.80 | 9 | 54.0 | elbow, head_pitch, neck_yaw, shoulder_roll |
-| **Total** | 20 |  |  | **247.6** | 37% of 677 g |
+| **Total** | 20 |  |  | **247.6** | 23% of 1083 g |
 <!-- /gen:servos -->
 
 All MG92B stay. No smart servos for now: the only small one with enough torque (Feetech STS3032, 4.5 kg·cm,

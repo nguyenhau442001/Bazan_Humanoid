@@ -41,12 +41,12 @@
 
 </div>
 
-**Bazan (BZN-01)** is a 303 mm, 20-DoF bipedal humanoid built from parts sold in Ho Chi Minh City, simulated in MuJoCo with ROS 2 and viewed in RViz2. *Cute outside, capable inside. Made in Vietnam 🇻🇳.*
+**Bazan (BZN-01)** is a 407 mm, 20-DoF bipedal humanoid built from parts sold in Ho Chi Minh City, simulated in MuJoCo from its printable CAD with ROS 2 and viewed in RViz2. *Cute outside, capable inside. Made in Vietnam 🇻🇳.*
 
 <!-- gen:readme_spec -->
 | Height | Mass | DoF | Compute | Sensors | BOM |
 | --- | --- | --- | --- | --- | --- |
-| 303 mm | 677 g (603 g in LW-PLA) | 20 (legs 2×6, arms 2×3, neck 2) | Radxa Zero 3W (Cortex-A55 + NPU) · STM32F411 (Cortex-M4) | IMU, camera, ToF, 2 mics, 4 foot FSRs | ≈ 5.88M VND |
+| 407 mm | 1083 g | 20 (legs 2×6, arms 2×3, neck 2) | Radxa Zero 3W (Cortex-A55 + NPU) · STM32F411 (Cortex-M4) | IMU, camera, ToF, 2 mics, 4 foot FSRs | ≈ 5.88M VND |
 <!-- /gen:readme_spec -->
 
 > **Documentation Subpages:** [Getting Started & Sim Guide](docs/getting_started.md) · [Upgrade Roadmap](docs/engineering/upgrade_roadmap.md) · [RL Benchmark Suite](docs/engineering/rl_benchmark.md) · [Theory & References](docs/references.md) · [Hardware Architecture](docs/engineering/hardware_architecture.md) · [Mass Budget](docs/engineering/mass_budget.md) · [Torque Validation](docs/engineering/torque_validation.md) · [Firmware Docs](firmware/stm32f411/README.md) · [Web Dashboard](https://nguyenhau442001.github.io/Synapse_Humanoid/)

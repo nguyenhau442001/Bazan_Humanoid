@@ -60,11 +60,8 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install numpy and trimesh
-        run: pip install numpy trimesh
-
-      - name: Recompute the mass budget from the shell
-        run: python design/blender/bazan_mass.py
+      - name: Install numpy
+        run: pip install numpy
 
       - name: Check the generated tables in docs/engineering and README
         run: python docs/engineering/gen_docs.py --check

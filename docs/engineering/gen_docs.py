@@ -1,38 +1,42 @@
-"""Fill the generated tables in docs/engineering/*.md and the README spec row from the sources. Stdlib only.
+"""Fill the generated tables in docs/engineering/*.md and the README spec row from the sources.
 
     python docs/engineering/gen_docs.py           # rewrite the blocks between <!-- gen:NAME --> markers
     python docs/engineering/gen_docs.py --check   # exit 1 if any block differs (CI)
 
-Sources:
-    docs/design/blender/mass_report.json     python docs/design/blender/mico_mass.py
-    sim/mini_humanoid/tables/mj_servo_loads.csv   python sim/mujoco/check_mujoco.py (MuJoCo)
-    sim/mini_humanoid/gen_robot.py           servo types and joint allocation
-    src/humanoid_control/scripts/mico_gait.py   gait duration
+Sources (all of them describe the robot generated from the CAD):
+    docs/engineering/cad_mass.json                    hardware/mechanical/gen_urdf.py (mass, CoM, height, groups)
+    software/ai/sim/mujoco/servo_loads.csv            python sim/mujoco/check_mujoco.py (MuJoCo, the demo gait)
+    software/ros2/src/humanoid_control/scripts/bazan_gait.py   gait length, static single-support torques
+    hardware/mechanical/hardware.py                   servo types, ratings and masses
+    software/ros2/src/humanoid_description/urdf/bazan_cad.urdf (through bazan_gait)
 
 Numbers are rounded so that floating-point noise between machines never changes a document. The stamp is a
 hash of the source files, not a commit SHA, so a document stays valid until its inputs actually change.
 """
 import csv
 import hashlib
-import importlib.util
 import json
 import re
 import sys
 from pathlib import Path
 
+import numpy as np
+
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[1]
-SIM = REPO / "sim" / "mini_humanoid"
-BLENDER = REPO / "design" / "blender"
-GAIT = REPO / "src" / "humanoid_control" / "scripts" / "mico_gait.py"
-sys.path.insert(0, str(SIM))
-import gen_robot  # noqa: E402
+SCRIPTS = REPO / "software" / "ros2" / "src" / "humanoid_control" / "scripts"
+CAD_MASS = HERE / "cad_mass.json"
+LOADS = REPO / "software" / "ai" / "sim" / "mujoco" / "servo_loads.csv"
+HW = REPO / "hardware" / "mechanical" / "hardware.py"
+sys.path.insert(0, str(SCRIPTS))
+sys.path.insert(0, str(HW.parent))
+import bazan_gait as gait  # noqa: E402
+import hardware  # noqa: E402
 
 G = 9.81
 BOM_APLUS = HERE / "bom_aplus.csv"
 BASE_BOM_VND = 5_650_000      # total of docs/design/sketch_shell_a/BOM.dc.html (P3 robot, before A+)
-SOURCES = [BLENDER / "bazan_parts.py", BLENDER / "bazan_mass.py", SIM / "gen_robot.py",
-           SIM / "tables" / "mj_servo_loads.csv", GAIT, BOM_APLUS]
+SOURCES = [CAD_MASS, gait.URDF, LOADS, SCRIPTS / "bazan_gait.py", HW, BOM_APLUS]
 LEG = ("hip_yaw", "hip_roll", "hip_pitch", "knee", "ankle_pitch", "ankle_roll")
 PEAK_FLAG, RMS_FLAG, TIME_FLAG = 0.80, 0.60, 0.10
 
@@ -63,71 +67,74 @@ def stamp():
 
 # ---------------------------------------------------------------- data
 def load():
-    r = json.loads((BLENDER / "mass_report.json").read_text())
-    with open(SIM / "tables" / "mj_servo_loads.csv", encoding="utf-8") as f:
+    r = json.loads(CAD_MASS.read_text())
+    with open(LOADS, encoding="utf-8") as f:
         mj = {row["joint"]: row for row in csv.DictReader(f)}
-    spec = importlib.util.spec_from_file_location("mico_gait", GAIT)
-    gait = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(gait)
-    sim_mass = sum(g.mass for b in gen_robot.walk(gen_robot.ROBOT) for g in b.geoms)
-    return r, mj, gait.T_END, sim_mass
+    return r, mj
+
+
+def servo_of(joint):
+    return hardware.SERVOS[hardware.JOINT_SERVO[joint[2:] if joint[:2] in ("l_", "r_") else joint]]
+
+
+def stall_nm(joint):
+    return servo_of(joint).stall_kgcm * G / 100
+
+
+def static_cases():
+    """Hold torque (N.m) per joint in the gait's start pose and halfway through a swing on the left foot."""
+    cases = {}
+    stand = gait.crouch_pose(1.0, sag=False)[0]
+    cases["stand"] = gait.MODEL.hold_torques(gait.MODEL.fk(stand), np.eye(3), {"l": 0.5, "r": 0.5})
+    single = gait.single_support("l")
+    T = gait.MODEL.fk(single)
+    cases["single"] = gait.MODEL.hold_torques(T, T["l_sole"][0].T, {"l": 1.0})    # the stance sole flat
+    return cases
 
 
 # ---------------------------------------------------------------- mass_budget.md
-def mass_blocks(r, sim_mass):
-    lw = r["variants"]["LW-PLA, walls as drawn"]
-    lipm = r["lipm"]
+def mass_blocks(r):
+    inertia = r["inertia_about_com_gmm2"]
     summary = table(
         ["Quantity", "Value"],
-        [["Total, PLA shell (baseline)", f"**{r['total_g']:.0f} g**"],
-         ["Total, LW-PLA shell", f"{lw:.0f} g"],
-         ["Height (top of head shell)", f"{r['height_mm']:.0f} mm"],
-         ["CoM above the floor", f"{r['com_mm'][2]:.0f} mm"],
-         ["CoM x / y from the hip point", f"{f1(r['com_mm'][0])} / {f1(r['com_mm'][1])} mm"],
+        [["Total", f"**{r['total_g']:.0f} g**"],
+         ["Height (floor to the top of the head)", f"{r['height_mm']:.0f} mm"],
+         ["CoM above the floor (straight legs)", f"{r['com_above_floor_mm']:.0f} mm"],
+         ["CoM x / y from the middle of the hip points", f"{f1(r['com_mm'][0])} / {f1(r['com_mm'][1])} mm"],
          ["Whole-body inertia about CoM (roll, pitch, yaw)",
-          " / ".join(f"{v / 1e6:.2f}" for v in r["I_body_principal"]) + " ×10⁻³ kg·m²"],
-         ["LIPM time constant √(z/g)", f"{lipm['tc_s'] * 1000:.0f} ms"],
-         ["Simulation model `mass:=sim` (for comparison)", f"{sim_mass:.0f} g"]],
+          " / ".join(f"{v / 1e6:.2f}" for v in inertia) + " ×10⁻³ kg·m²"],
+         ["LIPM time constant √(z/g)", f"{r['lipm_tc_ms']:.0f} ms"]],
         ["---", "---:"])
     groups = table(["Group", "g", "Share"],
-                   [[k, f"{v:.1f}", f"{100 * v / r['total_g']:.0f}%"] for k, v in r["categories"].items()],
+                   [[k, f"{v:.1f}", f"{100 * v / r['total_g']:.0f}%"] for k, v in r["groups_g"].items()],
                    ["---", "---:", "---:"])
-    variants = table(["Shell material and wall", "Total g", "vs baseline"],
-                     [[k, f"{v:.0f}", f"{v - r['total_g']:+.0f}" if abs(v - r['total_g']) >= 0.5 else "–"]
-                      for k, v in r["variants"].items()],
-                     ["---", "---:", "---:"])
-    order = ["base", "neck_yaw", "head_pitch"] + [f"l_{j}" for j in ("shoulder_pitch", "shoulder_roll", "elbow")] \
-        + [f"l_{j}" for j in LEG]
-    rows = []
-    for k in order:
-        v = r["links"][k]
-        i = v["I"]
-        rows.append([f"`{k}_link`", f"{v['mass']:.1f}", " / ".join(f1(c) for c in v["com"]),
-                     " / ".join(f"{i[n][n]:,.0f}" for n in range(3))])
+    order = ["base_link", "neck_yaw_link", "head_pitch_link"] + \
+        [f"l_{j}_link" for j in ("shoulder_pitch", "shoulder_roll", "elbow") + LEG]
+    rows = [[f"`{k}`", f"{r['links'][k]['g']:.1f}", " / ".join(f1(c) for c in r["links"][k]["com_mm"]),
+             " / ".join(f"{v:,.0f}" for v in r["links"][k]["I_diag_gmm2"])] for k in order]
     links = table(["Link", "g", "CoM x / y / z (mm)", "Ixx / Iyy / Izz (g·mm²)"], rows, ["---", "---:", "---:", "---:"])
-    return dict(summary=summary, groups=groups, variants=variants, links=links)
+    return dict(summary=summary, groups=groups, links=links)
 
 
 # ---------------------------------------------------------------- torque_validation.md
-def torque_blocks(r, mj, t_end, sim_mass):
-    scale = r["total_g"] / sim_mass
-    joints = {j["joint"]: j for j in r["joints"]}
+def torque_blocks(mj):
+    cases = static_cases()
     rows, flagged, others = [], [], []
-    for name, j in joints.items():
-        stall = gen_robot.SERVOS[j["servo"]]["stall"]
+    for name in gait.JOINTS:
+        stall = stall_nm(name)
         cont = stall / 3
-        g = mj.get(name)
-        p99 = float(g["p99_Nm"]) * scale if g else 0.0
-        rms = float(g["rms_Nm"]) * scale if g else 0.0
-        above = float(g["s_above_continuous"]) / t_end if g else 0.0
-        mirror = joints.get(("r_" + name[2:]) if name.startswith("l_") else ("l_" + name[2:]), j)
-        static = max(j["new"], mirror["new"]) * G / 100     # kg.cm -> N.m; static cases load one side only
+        g = mj[name]
+        p99, rms = float(g["p99_Nm"]), float(g["rms_Nm"])
+        above = float(g["s_above_continuous"]) / (gait.T_END + 3.0)        # check_mujoco runs 2 s + demo + 1 s
+        mirror = ("r_" + name[2:]) if name.startswith("l_") else ("l_" + name[2:]) if name.startswith("r_") else name
+        static = max(abs(c.get(n, 0.0)) for c in cases.values() for n in (name, mirror))
         flags = []
         if p99 / stall > PEAK_FLAG:
             flags.append("peak")
         if rms / cont > RMS_FLAG or above > TIME_FLAG:
             flags.append("thermal")
-        row = [f"`{name}`", j["servo"], f"{kgcm(stall):.2f}", f"{kgcm(p99):.2f} ({100 * p99 / stall:.0f}%)",
+        row = [f"`{name}`", hardware.JOINT_SERVO[name[2:] if name[:2] in ("l_", "r_") else name],
+               f"{kgcm(stall):.2f}", f"{kgcm(p99):.2f} ({100 * p99 / stall:.0f}%)",
                f"{kgcm(rms):.2f} ({100 * rms / cont:.0f}%)", f"{100 * above:.0f}%",
                f"{kgcm(static):.2f} ({100 * static / cont:.0f}%)", ", ".join(flags) or "–"]
         if name.split("_", 1)[1] in LEG:
@@ -139,9 +146,9 @@ def torque_blocks(r, mj, t_end, sim_mass):
     head = ["Joint", "Servo", "Stall kg·cm", "Peak p99 (/ stall)", "RMS (/ continuous)", "Time above continuous",
             "Static worst (/ continuous)", "Flag"]
     al = ["---", "---", "---:", "---:", "---:", "---:", "---:", "---"]
-    note = (f"Mass ratio used for the MuJoCo columns: {r['total_g']:.0f} g / {sim_mass:.0f} g = {scale:.3f}. "
-            f"Gait run: {t_end:.1f} s. Static worst is the larger of the left and right joint, since the static "
-            "cases stand on the left foot only.")
+    note = (f"MuJoCo on the CAD robot ({gait.MODEL.total * 1000:.0f} g), the demo gait ({gait.T_END:.1f} s). "
+            "Static worst is the larger of the left and right joint over two planned poses: the gait's start pose "
+            "and halfway through a swing on one foot.")
     legs = note + "\n\n" + table(head, rows, al)
     if flagged:
         lines = [f"- `{n}`: {', '.join(f)} (peak {100 * p:.0f}% of stall, RMS {100 * q:.0f}% of continuous, "
@@ -157,14 +164,13 @@ def torque_blocks(r, mj, t_end, sim_mass):
 # ---------------------------------------------------------------- hardware_architecture.md
 def hardware_blocks(r):
     alloc = {}
-    for b in gen_robot.walk(gen_robot.ROBOT):
-        if b.joint:
-            alloc.setdefault(b.joint.servo, []).append(b.joint.name)
+    for j in gait.JOINTS:
+        alloc.setdefault(hardware.JOINT_SERVO[j[2:] if j[:2] in ("l_", "r_") else j], []).append(j)
     rows = []
-    for servo, js in alloc.items():
-        s = gen_robot.SERVOS[servo]
+    for name, js in alloc.items():
+        sv = hardware.SERVOS[name]
         names = sorted({j.split("_", 1)[1] if j[:2] in ("l_", "r_") else j for j in js})
-        rows.append([servo, len(js), f"{kgcm(s['stall']):.2f}", f"{s['mass']:g}", f"{len(js) * s['mass']:.1f}",
+        rows.append([name, len(js), f"{sv.stall_kgcm:.2f}", f"{sv.mass:g}", f"{len(js) * sv.mass:.1f}",
                      ", ".join(names)])
     total = sum(x[1] for x in rows)
     mass = sum(float(x[4]) for x in rows)
@@ -200,11 +206,9 @@ def bom_blocks():
 
 # ---------------------------------------------------------------- README.md
 def readme_blocks(r):
-    lw = r["variants"]["LW-PLA, walls as drawn"]
-    n = sum(1 for b in gen_robot.walk(gen_robot.ROBOT) if b.joint)
     spec = table(["Height", "Mass", "DoF", "Compute", "Sensors", "BOM"],
-                 [[f"{r['height_mm']:.0f} mm", f"{r['total_g']:.0f} g ({lw:.0f} g in LW-PLA)",
-                   f"{n} (legs 2×6, arms 2×3, neck 2)",
+                 [[f"{r['height_mm']:.0f} mm", f"{r['total_g']:.0f} g",
+                   f"{len(gait.JOINTS)} (legs 2×6, arms 2×3, neck 2)",
                    "Radxa Zero 3W (Cortex-A55 + NPU) · STM32F411 (Cortex-M4)",
                    "IMU, camera, ToF, 2 mics, 4 foot FSRs",
                    f"≈ {(BASE_BOM_VND + load_bom()[1]) / 1e6:.2f}M VND"]])
@@ -223,11 +227,11 @@ def fill(text, blocks):
 
 def main():
     check = "--check" in sys.argv
-    r, mj, t_end, sim_mass = load()
+    r, mj = load()
     st = stamp()
     docs = {
-        "mass_budget.md": mass_blocks(r, sim_mass),
-        "torque_validation.md": torque_blocks(r, mj, t_end, sim_mass),
+        "mass_budget.md": mass_blocks(r),
+        "torque_validation.md": torque_blocks(mj),
         "hardware_architecture.md": dict(hardware_blocks(r), **bom_blocks()),
         "README.md": readme_blocks(r),
     }
