@@ -43,9 +43,9 @@
     <collision><origin xyz="-0.00090 0.00190 -0.02380"/><geometry><box size="0.02580 0.04860 0.07160"/></geometry></collision>
   </link>
   <link name="l_knee_link">
-    <inertial><origin xyz="0.00456 0.00571 -0.02166" rpy="0 0 0"/><mass value="0.01020"/><inertia ixx="8.8770e-06" iyy="5.2050e-06" izz="4.7683e-06" ixy="2.2295e-07" ixz="-1.4628e-07" iyz="9.0293e-08"/></inertial>
-    <visual><origin xyz="0.00090 0.00190 -0.02400"/><geometry><box size="0.02580 0.04860 0.07200"/></geometry><material name="frame"/></visual>
-    <collision><origin xyz="0.00090 0.00190 -0.02400"/><geometry><box size="0.02580 0.04860 0.07200"/></geometry></collision>
+    <inertial><origin xyz="0.00290 0.00566 -0.02483" rpy="0 0 0"/><mass value="0.01230"/><inertia ixx="1.0305e-05" iyy="5.5905e-06" izz="6.0891e-06" ixy="2.3138e-07" ixz="-2.7987e-07" iyz="2.0742e-07"/></inertial>
+    <visual><origin xyz="-0.00060 0.00190 -0.02550"/><geometry><box size="0.02880 0.04860 0.07500"/></geometry><material name="frame"/></visual>
+    <collision><origin xyz="-0.00060 0.00190 -0.02550"/><geometry><box size="0.02880 0.04860 0.07500"/></geometry></collision>
   </link>
   <link name="l_ankle_pitch_link">
     <inertial><origin xyz="0.00125 -0.00121 -0.00752" rpy="0 0 0"/><mass value="0.04657"/><inertia ixx="1.2517e-05" iyy="1.0917e-05" izz="5.4950e-06" ixy="1.6564e-07" ixz="7.4922e-07" iyz="-2.1387e-06"/></inertial>
@@ -68,9 +68,9 @@
     <collision><origin xyz="-0.00090 -0.00190 -0.02380"/><geometry><box size="0.02580 0.04860 0.07160"/></geometry></collision>
   </link>
   <link name="r_knee_link">
-    <inertial><origin xyz="0.00456 -0.00571 -0.02166" rpy="0 0 0"/><mass value="0.01020"/><inertia ixx="8.8770e-06" iyy="5.2050e-06" izz="4.7683e-06" ixy="-2.2295e-07" ixz="-1.4628e-07" iyz="-9.0293e-08"/></inertial>
-    <visual><origin xyz="0.00090 -0.00190 -0.02400"/><geometry><box size="0.02580 0.04860 0.07200"/></geometry><material name="frame"/></visual>
-    <collision><origin xyz="0.00090 -0.00190 -0.02400"/><geometry><box size="0.02580 0.04860 0.07200"/></geometry></collision>
+    <inertial><origin xyz="0.00290 -0.00566 -0.02483" rpy="0 0 0"/><mass value="0.01230"/><inertia ixx="1.0305e-05" iyy="5.5905e-06" izz="6.0891e-06" ixy="-2.3138e-07" ixz="-2.7987e-07" iyz="-2.0742e-07"/></inertial>
+    <visual><origin xyz="-0.00060 -0.00190 -0.02550"/><geometry><box size="0.02880 0.04860 0.07500"/></geometry><material name="frame"/></visual>
+    <collision><origin xyz="-0.00060 -0.00190 -0.02550"/><geometry><box size="0.02880 0.04860 0.07500"/></geometry></collision>
   </link>
   <link name="r_ankle_pitch_link">
     <inertial><origin xyz="0.00125 0.00121 -0.00752" rpy="0 0 0"/><mass value="0.04657"/><inertia ixx="1.2517e-05" iyy="1.0917e-05" izz="5.4950e-06" ixy="-1.6564e-07" ixz="7.4922e-07" iyz="2.1387e-06"/></inertial>
