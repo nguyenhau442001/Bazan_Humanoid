@@ -1,0 +1,18 @@
+ref,function,part,manufacturer,lcsc,package,rating that matters,why this part,note
+U1,real-time MCU module,WeAct BlackPill STM32F411CEU6,WeAct,-,module on 2 x 20 sockets,AP7343 3.3 V 300 mA on board,firmware runs on it today,bought locally; check the KEY button on PA0
+U2-U3,16-channel servo PWM,PCA9685PW118,NXP,C2678753,TSSOP-28,"I2C 0x40, 0x41; outputs 5.5 V max",firmware drives it today,PWM lines get 1 kOhm + SRV05-4 clamps (one-pin-off plug)
+U4-U6,branch current and bus voltage,INA226AIDGSR,TI,C49851,VSSOP-10,+-81.92 mV shunt full scale,firmware reads it today,"0x44, 0x45, 0x46; ALERT open drain to the trip latch"
+U7,6-axis IMU,MPU-6050,TDK InvenSense,C24112,QFN-24 4 x 4,I2C 0x68,firmware and policy use it,obsolete at the maker; LCSC stock covers rev A; ICM-42688 is the rev B path (register change)
+U8-U13,pot wiper followers x 12,MCP6002T-I/SN,Microchip,C7377,SOIC-8,"rail-to-rail in and out, 1.8-6 V",on 3.3 V its output cannot exceed the ADC range,replaces the LMV358 on 5 V
+U14,16:1 analog mux,CD74HC4067SM96,TI,C98457,SSOP-24,R_on about 300 Ohm at 3.3 V,firmware drives it today (PB12-PB15),powered from +3V3A
+U15,trip latch,SN74LVC1G74DCUT,TI,C82608,VSSOP-8,D flip-flop with preset and clear,latch powers up tripped (preset by RC),TRIP_CLR from the MCU
+U16-U17,OE = MCU_OE OR TRIP,SN74LVC1G32DBVR,TI,C10096,SOT-23-5,1.65-5.5 V,one per PCA9685,
+U18,5 V for the Black Pill,MCP1703AT-5002E/DB,Microchip,C622639,SOT-223,"16 V in, 250 mA",VBAT up to 8.4 V; 195 mW worst,
+Q1-Q2,reverse polarity + master servo switch,AONR21357,AOS,C431196,DFN 3 x 3,"-30 V, 12.3 mOhm at -4.5 V",back-to-back: blocks both ways when off,103 C junction at 8.5 A continuous (design_calc)
+F1-F2,leg branch fuse,0452005.MRL,Littelfuse,C66503,2410,"5 A slow-blow, 50 A interrupt",lets the firmware trip act first,I2t from the 452 datasheet to confirm in review
+F3,arms + neck branch fuse,0452004.MRL,Littelfuse,C99551,2410,"4 A slow-blow, I2t 34.4 A2s",,
+F4,VBAT lead,ASMD1206-020-16V,JDTfuse,C54874021,1206,"PTC 200 mA hold, 460 mA trip, 16 V",logic draws about 70 mA,
+RS1-RS3,branch shunt,WSL2512R0100FEB,Vishay,C1518135,2512,"10 mOhm 1 % 1 W",Kelvin pads; 0.25 W at 5 A,
+D1,servo rail clamp,SMBJ6.5A,Littelfuse,C83277,SMB,"6.5 V stand-off, 7.22 V breakdown, 600 W",catches servo back-EMF and plug spikes,
+D4-D12,clamp arrays (PWM x 20 + analog inputs),SRV05-4-P-T7,ProTek,C85364,SOT-23-6,4 lines to the 3.3 V rail,one-pin-off plug and ESD,VCC pin on +3V3
+J1,6 V servo input,XT30PW-M,Amass,C431092,through-hole right angle,"15 A, 30 A peak",locking polarised power plug,
