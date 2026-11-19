@@ -7,6 +7,7 @@
     python gen_docs.py            # writes everything (renders: run render.py first)
     python gen_docs.py --check    # fails if the markdown is stale (CI)
 """
+import re
 import shutil
 import sys
 from collections import Counter, defaultdict
@@ -189,7 +190,7 @@ def markdown(leg, holes_by_part):
         f = h.fastener
         if f.startswith("INS-M2"):
             cnt["INS-M2"] += 1
-            cnt["M2x6"] += 1
+            cnt[(re.search(r"M2x\d+", f) or ["M2x6"])[0]] += 1
         elif f.startswith("INS-M3"):
             cnt["INS-M3"] += 1
         elif f.startswith("MR63ZZ"):
@@ -203,7 +204,7 @@ def markdown(leg, holes_by_part):
     a("")
     a("| Code | Qty | Part | Ask the shop for |")
     a("| --- | --- | --- | --- |")
-    for code in ("M2x6", "M3x10B", "ST2x3", "INS-M2", "INS-M3", "MR63ZZ", "W3", "TUBE4"):
+    for code in ("M2x4", "M2x6", "M3x10B", "ST2x3", "INS-M2", "INS-M3", "MR63ZZ", "W3", "TUBE4"):
         f = hw.FASTENERS[code]
         a(f"| {code} | {cnt[code]} | {f.desc} | {f.shop} |")
     a("")

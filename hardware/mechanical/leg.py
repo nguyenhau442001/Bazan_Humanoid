@@ -298,7 +298,7 @@ class Leg:
         for i, (px, py) in enumerate([(sx0 + 7, sy0 + 7), (sx1 - 7, sy0 + 7), (sx0 + 7, sy1 - 7), (sx1 - 7, sy1 - 7)]):
             z0 = st - SOLE_PLATE
             body = body.cut(cq.Solid.makeCylinder(spec.d / 2, spec.depth - 1.0, cq.Vector(px, py, z0)))
-            self.extra_holes.append(J.Hole("foot", f"sole.ins{i + 1}", "ins_m2", "INS-M2 + M2x6 (TPU sole)",
+            self.extra_holes.append(J.Hole("foot", f"sole.ins{i + 1}", "ins_m2", "INS-M2 + M2x4 (TPU sole)",
                                            (px, py, round(z0, 3)), (0, 0, 1), spec.d, spec.depth - 1.0, "sole"))
         # FSR pockets and tail channels in the plate underside
         z0 = st - SOLE_PLATE
@@ -319,7 +319,7 @@ class Leg:
         for i, (px, py) in enumerate([(sx0 + 7, sy0 + 7), (sx1 - 7, sy0 + 7), (sx0 + 7, sy1 - 7), (sx1 - 7, sy1 - 7)]):
             s = s.cut(cq.Solid.makeCylinder(1.15, TPU_SOLE + 1, cq.Vector(px, py, z0 - 0.5)))
             s = s.cut(cq.Solid.makeCylinder(2.1, 2.0, cq.Vector(px, py, z0 - 0.01)))
-            self.extra_holes.append(J.Hole("sole", f"sole.screw{i + 1}", "clr_m2", "M2x6 from below, head sunk 2",
+            self.extra_holes.append(J.Hole("sole", f"sole.screw{i + 1}", "clr_m2", "M2x4 from below, head sunk 2",
                                            (px, py, round(z0, 3)), (0, 0, 1), 2.3, 0, "sole"))
         for x in FSR_X:                                  # actuator pucks under the FSR active areas
             s = s.fuse(cq.Solid.makeCylinder(FSR_PUCK[0] / 2, FSR_PUCK[1], cq.Vector(x, 0, z0 + TPU_SOLE)))

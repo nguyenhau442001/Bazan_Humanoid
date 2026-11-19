@@ -224,7 +224,7 @@ class Body:
         for name, (c, axis, pitch, off, sled) in bays.items():
             for k, (x, y) in enumerate(self.bay_points(c, axis, pitch, off)):
                 s = s.cut(cyl(1.6, (x, y, z - 1), (x, y, zt + 1)))
-                self._hole(p, f"bay_{name.lower()}{k + 1}", "ins_m2_thru", f"INS-M2 for {sled} (M2x6)", (x, y, zt),
+                self._hole(p, f"bay_{name.lower()}{k + 1}", "ins_m2_thru", f"INS-M2 for {sled} (M2x5)", (x, y, zt),
                            3.2, 0)
             self.bays[name] = (p, c, axis, pitch, sled)
         if p == "deck_2":
@@ -296,7 +296,7 @@ class Body:
             q = at(du, off_v)
             s = s.cut(cyl(1.15, q + [0, 0, -1], q + [0, 0, SLED_T + 1])).cut(
                 cyl(2.2, q + [0, 0, SLED_T - 2.2], q + [0, 0, SLED_T + 1]))
-            self._hole(p, f"attach{k + 1}", "cb_m2", f"M2x6 into the {deck} bay {bay}", q + [0, 0, SLED_T], 2.3, 0,
+            self._hole(p, f"attach{k + 1}", "cb_m2", f"M2x5 into the {deck} bay {bay}", q + [0, 0, SLED_T], 2.3, 0,
                        joint=bay)
         if not tie:
             for k, (hu, hv) in enumerate(b.holes):

@@ -72,6 +72,7 @@ LEG_PARTS = {  # from leg.py / leg_v3.md
     "hip_mount": ("L9", "Hip Mount"),
 }
 FAST_VI = {
+    "M2x4": "ốc lục giác chìm M2×4 inox (đế TPU)", "M2x5": "ốc lục giác chìm M2×5 inox (đế mạch)",
     "M2x6": "ốc lục giác chìm M2×6 inox", "M2x10": "ốc lục giác chìm M2×10 inox",
     "M3x6": "ốc lục giác chìm M3×6 inox", "M3x6B": "ốc đầu dù M3×6 inox (trục idler đầu)",
     "M3x10B": "ốc đầu dù M3×10 inox (trục idler chân)", "TUBE4": "ống đồng Ø4 dày 0.45 (cắt 1.3 / 5.1 mm)",
@@ -169,7 +170,7 @@ def count_body(body):
             if h.id.split(".")[-1].startswith("shell"):
                 shell += k
         elif kind in ("cb_m2", "clr_m2"):
-            cnt["M2x6"] += k
+            cnt[(re.search(r"M2x\d+", f) or ["M2x6"])[0]] += k
         elif kind == "pilot_st2":
             cnt["ST2x3"] += k
         elif kind == "bearing":
@@ -194,7 +195,7 @@ def count_leg(leg):
         if f.startswith("INS-M2"):
             cnt["INS-M2"] += 1
             if "pelvis floor" not in f:       # the hip_mount screws come from the pelvis (counted there)
-                cnt["M2x6"] += 1
+                cnt[(re.search(r"M2x\d+", f) or ["M2x6"])[0]] += 1
         elif f.startswith("INS-M3"):
             cnt["INS-M3"] += 1
         elif f.startswith("MR63ZZ"):
@@ -578,9 +579,8 @@ def write(body, leg, steps, holes_by, tot, cb, cl, shell_screws, S, floor, top):
     a("")
     a("| Mã | Tổng | Trong 2 chân | Trong thân + tay + đầu | Hỏi cửa hàng |")
     a("| --- | ---: | ---: | ---: | --- |")
-    for code in ("M2x6", "M3x6", "M3x6B", "M3x10B", "ST2x3", "INS-M2", "INS-M3", "MR63ZZ", "W3", "TUBE4", "SO40",
-                 "SO35", "TIE", "STRAP",
-                 "FOAM"):
+    for code in ("M2x4", "M2x5", "M2x6", "M3x6", "M3x6B", "M3x10B", "ST2x3", "INS-M2", "INS-M3", "MR63ZZ", "W3",
+                 "TUBE4", "SO40", "SO35", "TIE", "STRAP", "FOAM"):
         t, l_, b_ = tot[code], 2 * cl.get(code, 0), cb.get(code, 0)
         a(f"| {code} | {t:g} | {l_:g} | {b_:g} | {FAST_VI[code]} |")
     a("")

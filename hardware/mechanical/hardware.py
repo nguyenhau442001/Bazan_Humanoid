@@ -81,6 +81,9 @@ class Fastener:
 
 FASTENERS = {
     "M2x6": Fastener("M2x6", "M2×6 socket head cap screw, ISO 4762, stainless", "ốc lục giác M2×6 inox"),
+    # M2x4: TPU sole (1.0 under the sunk head + 3.0 insert); M2x5: board sleds (1.8 + 3.2 in the deck insert)
+    "M2x4": Fastener("M2x4", "M2×4 socket head cap screw, ISO 4762, stainless", "ốc lục giác M2×4 inox"),
+    "M2x5": Fastener("M2x5", "M2×5 socket head cap screw, ISO 4762, stainless", "ốc lục giác M2×5 inox"),
     "M2x8": Fastener("M2x8", "M2×8 socket head cap screw, ISO 4762, stainless", "ốc lục giác M2×8 inox"),
     "ST2x4": Fastener("ST2x4", "2×4 self-tapping pan head (horn to plate)", "vít tự ren đầu tròn 2×4"),
     # horn to plate: 3 long so the tip stops 0.9 short of the 0.4 skin over the blind pilot (N3 review E-1)
