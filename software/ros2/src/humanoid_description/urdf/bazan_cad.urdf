@@ -3,7 +3,7 @@
 <robot name="bazan">
   <material name="frame"><color rgba="0.88 0.88 0.86 1"/></material>
   <link name="base_link">
-    <inertial><origin xyz="-0.00269 0.00023 0.11179" rpy="0 0 0"/><mass value="0.52118"/><inertia ixx="1.2867e-03" iyy="1.0462e-03" izz="7.7794e-04" ixy="3.4929e-06" ixz="-3.1190e-05" iyz="-2.2811e-06"/></inertial>
+    <inertial><origin xyz="-0.00322 0.00043 0.11219" rpy="0 0 0"/><mass value="0.53333"/><inertia ixx="1.3017e-03" iyy="1.0571e-03" izz="7.9609e-04" ixy="5.7963e-06" ixz="-2.6356e-05" iyz="-4.2717e-06"/></inertial>
     <visual><origin xyz="-0.00400 -0.00000 0.11728"/><geometry><box size="0.10040 0.13760 0.15810"/></geometry><material name="frame"/></visual>
     <collision><origin xyz="-0.00400 -0.00000 0.11728"/><geometry><box size="0.10040 0.13760 0.15810"/></geometry></collision>
   </link>
