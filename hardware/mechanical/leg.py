@@ -118,13 +118,15 @@ class Leg:
     # ------------------------------------------------------------ hip block: hip roll pocket over hip pitch pocket
     def _hip_block_body(self):
         jr, jp = self.joints["hip_roll"], self.joints["hip_pitch"]
-        web = bx((-8.3, 4.4), (-15.3, 4.4), (8.0, HIP_ROLL_UP - 8.2))
+        iw_y = min(p[1] for p in jp.a_range(J.IW))     # web follows the hip pitch pocket
+        web = bx((-8.3, 4.4), (iw_y, iw_y + 19.7), (8.0, HIP_ROLL_UP - 8.2))
         return fuse(jr.holder_add(), jp.holder_add(), web)
 
     # ------------------------------------------------------------ ankle block: ankle pitch over ankle roll pocket
     def _ankle_block_body(self):
         jp, jr = self.joints["ankle_pitch"], self.joints["ankle_roll"]
-        web = bx((-8.3, 4.4), (-15.3, 4.4), (AR + 8.2, A - 8.0))
+        iw_y = min(p[1] for p in jp.a_range(J.IW))     # web follows the ankle pitch pocket
+        web = bx((-8.3, 4.4), (iw_y, iw_y + 19.7), (AR + 8.2, A - 8.0))
         return fuse(jp.holder_add(), jr.holder_add(), web)
 
     # ------------------------------------------------------------ yaw bracket: U around the hip block
@@ -132,7 +134,7 @@ class Leg:
         jy, jr = self.joints["hip_yaw"], self.joints["hip_roll"]
         zb = self.yaw_bottom
         hp_x = sorted(p[0] for p in jr.a_range(J.HP))           # horn plate (front) x range
-        ip_x = sorted(p[0] for p in jr.a_range(J.IP))           # idler plate (back) x range
+        ip_x = sorted(p[0] for p in jr.a_range(jr.IP))           # idler plate (back) x range
         top_t = J.HP[1] - J.HP[0]
         top = fuse(bx((ip_x[0], hp_x[1]), (-9.0, 9.0), (zb, zb + top_t)),
                    cq.Solid.makeCylinder(RING_R[1], top_t, cq.Vector(0, 0, zb)))     # thrust face for the ring
@@ -144,7 +146,7 @@ class Leg:
     def _thigh_body(self):
         jp, jk = self.joints["hip_pitch"], self.joints["knee"]
         hp_y = sorted(p[1] for p in jp.a_range(J.HP))
-        ip_y = sorted(p[1] for p in jp.a_range(J.IP))
+        ip_y = sorted(p[1] for p in jp.a_range(jp.IP))
         spine_x = (-12.0 - SPINE / 2, -12.0 + SPINE / 2)
         z_top = -24.5                                   # spine stays outside the hip block's reach from H
         # the knee servo slides in along -y: nothing on the +y side over the pocket (x -8.3..8.3, z up to K+23)
@@ -153,14 +155,15 @@ class Leg:
         idler_arm = fuse(bx((-9.0, 9.0), (ip_y[0], ip_y[0] + ARM), (K + 10, 0.0)),
                          bx((spine_x[0], 0), (ip_y[0], ip_y[0] + ARM), (K + 10, 0.0)))
         spine = bx(spine_x, (ip_y[0], hp_y[1]), (K + J.HORN_R + 2, z_top))
-        pocket_link = bx((spine_x[0], -6.0), (-15.3, 4.4), (K - 8.1, K + 19.1))
+        iw_y = min(p[1] for p in jk.a_range(J.IW))     # knee pocket wall: the link follows the pocket
+        pocket_link = bx((spine_x[0], -6.0), (iw_y, iw_y + 19.7), (K - 8.1, K + 19.1))
         return fuse(jp.horn_disc(), jp.idler_disc(), horn_arm, idler_arm, spine, jk.holder_add(), pocket_link)
 
     # ------------------------------------------------------------ shin: knee and ankle plates, front spine (shin bone)
     def _shin_body(self):
         jk, ja = self.joints["knee"], self.joints["ankle_pitch"]
         hp_y = sorted(p[1] for p in jk.a_range(J.HP))
-        ip_y = sorted(p[1] for p in jk.a_range(J.IP))
+        ip_y = sorted(p[1] for p in jk.a_range(jk.IP))
         spine_x = (12.0 - SPINE / 2, 12.0 + SPINE / 2)
         z0, z1 = A + 25.0, K - 15.0                     # clear of the ankle block's pitch pocket and the knee pocket
         plates = []
@@ -176,7 +179,7 @@ class Leg:
     def _foot_body(self):
         jr = self.joints["ankle_roll"]
         hp_x = sorted(p[0] for p in jr.a_range(J.HP))
-        ip_x = sorted(p[0] for p in jr.a_range(J.IP))
+        ip_x = sorted(p[0] for p in jr.a_range(jr.IP))
         st = self.sole_top
         sx0, sx1 = SOLE["x"] - SOLE["length"] / 2, SOLE["x"] + SOLE["length"] / 2
         sy0, sy1 = SOLE["y"] - SOLE["width"] / 2, SOLE["y"] + SOLE["width"] / 2
@@ -335,6 +338,8 @@ class Leg:
         for n, j in self.joints.items():
             for i, c in enumerate(j.caps()):
                 out[f"cap_{n}_{'horn' if i == 0 else 'idler'}"] = c
+            if j.idler:
+                out[f"spacer_{n}"] = j.spacer_solid()
         return out
 
     def sensors(self, side="l"):

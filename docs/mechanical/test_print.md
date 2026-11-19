@@ -22,14 +22,14 @@ Thước kẹp, đo mỗi số 2 lần lấy trung bình, ghi 2 số lẻ. Cột
 
 | Trường | Đo gì | MG92B datasheet | MG92B đo | MG90S datasheet | MG90S đo | SG90 datasheet | SG90 đo |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| `length` | [1] dài vỏ (không tính tai, không tính dây) | 22.8 |   | 22.8 |   | 22.2 |   |
-| `tab_span` | [2] tai: đầu này đến đầu kia | 32.4 |   | 32.4 |   | 32.2 |   |
-| `case_h` | [3] cao vỏ: đáy đến mặt trên vỏ (không tính tháp bánh răng) | 22.7 |   | 22.7 |   | 22.5 |   |
-| `tab_low` | [4] đáy vỏ đến MẶT DƯỚI tai | 15.9 |   | 15.9 |   | 15.7 |   |
+| `length` | [1] dài vỏ (không tính tai, không tính dây) | 22.8 |   | 22.8 |   | 22.8 |   |
+| `tab_span` | [2] tai: đầu này đến đầu kia | 32.4 |   | 32.4 |   | 32.4 |   |
+| `case_h` | [3] cao vỏ: đáy đến mặt trên vỏ (không tính tháp bánh răng) | 22.7 |   | 22.7 |   | 22.7 |   |
+| `tab_low` | [4] đáy vỏ đến MẶT DƯỚI tai | 15.9 |   | 15.9 |   | 15.9 |   |
 | `tab_t` | [5] dày tai | 2.5 |   | 2.5 |   | 2.5 |   |
-| `hole_pitch` | [6] tâm lỗ tai đến tâm lỗ tai (đo mép trong + Ø lỗ) | 27.8 |   | 27.8 |   | 27.6 |   |
+| `hole_pitch` | [6] tâm lỗ tai đến tâm lỗ tai (đo mép trong + Ø lỗ) | 27.8 |   | 27.8 |   | 27.8 |   |
 | `shaft_off` | [7] tâm trục đến đầu vỏ GẦN trục | 5.9 |   | 5.9 |   | 5.9 |   |
-| `width` | [8] rộng vỏ | 12.2 |   | 12.2 |   | 11.8 |   |
+| `width` | [8] rộng vỏ | 12.2 |   | 12.2 |   | 12.2 |   |
 | `tower_h` | [9] tháp bánh răng cao hơn mặt vỏ | 4 |   | 4 |   | 4 |   |
 | `spline_top` | [10] mặt vỏ đến đỉnh trục then hoa | 8.3 |   | 8.3 |   | 8.3 |   |
 | `hole_d` | [11] Ø lỗ tai (thử bằng chuôi mũi khoan 2.0 / 2.2 / 2.3) | 2 |   | 2 |   | 2 |   |
@@ -62,9 +62,7 @@ Kết quả `servo_fit.py` với số datasheet hiện tại (ổ servo chung d�
 | --- | --- | ---: | --- |
 | MG92B | ear holes: M2 passes (hole - screw) | +0.00 | +0.20…+1.00 |
 | MG90S | ear holes: M2 passes (hole - screw) | +0.00 | +0.20…+1.00 |
-| SG90 | width: gap per side | +0.40 | +0.05…+0.35 |
 | SG90 | ear holes: M2 passes (hole - screw) | +0.00 | +0.20…+1.00 |
-| SG90 | ear holes: offset to the inserts | +0.40 | +0.00…+0.00 |
 
 Lỗ tai servo Ø2.0 không cho ốc M2 (Ø2.0) lọt: khoan lỗ tai lên Ø2.3 bằng tay cho mọi servo là bình thường. Với SG90, theo số datasheet, tâm lỗ tai lệch tán cấy tới 0.4 mm, nên đo kỹ `hole_pitch` và `shaft_off`.
 

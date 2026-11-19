@@ -378,7 +378,7 @@ class Body:
     def _head_frame(self):
         jp = self.joints["head_pitch"]
         hp = sorted(p[1] for p in jp.a_range(J.HP))
-        ip = sorted(p[1] for p in jp.a_range(J.IP))
+        ip = sorted(p[1] for p in jp.a_range(jp.IP))
         hd = HEAD_DECK
         # the idler side is a separate part (head_idler, N3i): N3 slides onto the spline along the axis with
         # nothing in the way, then N3i goes on the idler pivot and is bolted under the deck (N3 review G-1)
@@ -422,7 +422,7 @@ class Body:
         on assembly the part takes its place from the bearing on the idler pivot: it absorbs ±0.15 mm of axial
         and radial error between the two pivots (N3 review B-1, C-1)."""
         jp = self.joints["head_pitch"]
-        ip = sorted(p[1] for p in jp.a_range(J.IP))
+        ip = sorted(p[1] for p in jp.a_range(jp.IP))
         hd = HEAD_DECK
         bar = bx((NECK_X - 6.0, NECK_X + 6.0), (ip[0], ip[1]), (HEAD_Z, hd - self.IDLER_PAD))
         pad = bx((self.IDLER_SCREW_X[0] - 3.0, NECK_X + 6.0), (ip[0], ip[1]), (hd - self.IDLER_PAD, hd))
@@ -482,6 +482,9 @@ class Body:
 
     def horns(self):
         return {f"horn_{n}": j.horn_solid() for n, j in self.joints.items()}
+
+    def spacers(self):
+        return {f"spacer_{n}": j.spacer_solid() for n, j in self.joints.items() if j.idler}
 
     def standoffs(self):
         out = {}

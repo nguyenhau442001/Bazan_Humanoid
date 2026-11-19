@@ -279,10 +279,9 @@ RING = {"ins_m2": 1.6, "ins_m3": 1.6, "ins_m2_thru": 1.6, "ins_m3_thru": 1.6, "b
 
 def ring_wall(part, h):
     """Largest of (0.4 .. wanted) mm of material that fully surrounds the hole: over its first 2 mm if blind, over
-    0.8 mm past the screw head if through. The idler insert is measured in the wall, past its 0.1 mm sleeve."""
+    0.8 mm past the screw head if through."""
     d = np.asarray(h.dir, float)
     sunk = hw.HOLES[h.kind].cb_h or (2.0 if h.part == "sole" else 2.2 if ".screw" in h.id else 0.0)   # sunk heads
-    sunk = J.BOSS[1] - J.BOSS[0] if h.id.endswith("idler_insert") else sunk
     start = np.asarray(h.pos, float) + d * (sunk + (0.2 if h.part != "sole" else 0.1))
     length = min(h.depth - sunk - 0.4, 2.0) if h.depth else 0.8
     best = 0.0
@@ -456,6 +455,8 @@ def weigh(leg, body, sh, q=None):
             continue
         if base.startswith("servo_"):
             g = SERVO_G[SERVO_OF.get(base[6:], "MG92B")] + (3.0 if ".leg." in n else 1.5)   # + hardware allowance
+        elif base.startswith("spacer_"):
+            g = BRASS * s.Volume()                                          # brass tube on the idler inner race
         elif base == "battery":
             g = B.el.BOARDS["BATT"].mass
         elif base.startswith("board_"):
@@ -469,6 +470,9 @@ def weigh(leg, body, sh, q=None):
         items.append((n, ln, g, s))
     items.append(("wiring", "torso", rep["categories"]["Wiring"], np.array([0.0, 0.0, B.Z0T + 10.0])))
     return rep, parts, items
+
+
+BRASS = 8.5e-3          # g/mm3
 
 
 def mass(leg, body, sh):

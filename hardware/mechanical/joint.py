@@ -34,9 +34,12 @@ IW = (CASE[0] - C - 3.6, CASE[0] - C)               # idler wall with the M3 ins
 GAP = 0.8                                           # holder to driven plate
 IP_IN = IW[0] - GAP                                 # idler plate inner face
 LIP = 0.5
-LIP_D = 5.0                                         # lip hole round the Ø4.2 boss: 0.4 radial (was 4.6, 0.2)
+LIP_D = 5.0                                         # lip hole round the Ø4.0 spacer tube: 0.5 radial
 BRG = (IP_IN - LIP - 2.5, IP_IN - LIP)              # MR63ZZ
-BOSS = (BRG[1], IW[0])                              # holder boss that clamps the inner race
+BOSS = (BRG[1], IW[0])                              # spacer tube on the inner race (default gap)
+SPACER_D = 4.0                                      # brass tube Ø4.0 × 0.45: clamps the inner race (land ~Ø3.9)
+INSERT_M3_DEPTH = 3.3                               # M3 short insert (L3) in the 3.6 wall: 0.3 skin to the pocket
+LEG_GAP = 4.6                                       # leg joints: ≥ 3.9 horn travel off the spline + 0.7
 WASHER = 0.5
 BUTTON_H = 1.65                                     # ISO 7380 M3 head
 CAP_T = 1.0
@@ -52,6 +55,15 @@ HORN_R = 12.0
 WINDOW = (max(S.cable_w, hw.PLUG[0]) + 0.6, S.cable_z[1] - S.cable_z[0] + 1.0)
 CAP_R = 5.0                                        # navy cap over the horn centre screw
 IDLER_R = 7.5
+
+
+def idler_screw(head_underside):
+    """Shortest ISO 7380 M3 button head that reaches 1.7..3.0 mm into the wall insert."""
+    for n in (6, 8, 10, 12, 14, 16):
+        tip = head_underside + n
+        if IW[0] + 1.7 <= tip <= IW[0] + 3.0:
+            return f"M3x{n}"
+    raise ValueError(f"no M3 button head length fits head at {head_underside}")
 
 
 def frame(origin, a, b):
@@ -104,12 +116,22 @@ class Joint:
     servo: hw.Servo = S
     idler: bool = True
     idler_part: str = ""     # the idler plate is a separate part (bolted to the driven link), see body.head_idler
+    gap: float = GAP         # holder wall to idler plate; ≥ the horn's travel off the spline to take the link off
+    keep_idler: bool = False  # a wider gap moves the servo and horn plate out instead of the idler plate in
     holes: list = field(default_factory=list)
 
     def __post_init__(self):
+        # idler stack of this joint (the horn side and the servo do not depend on the gap)
+        self.IP_IN = IW[0] - self.gap
+        self.BRG = (self.IP_IN - LIP - 2.5, self.IP_IN - LIP)
+        self.IP = (self.BRG[0] - WASHER - BUTTON_H - 0.15 - CAP_T, self.IP_IN)
+        self.SPACER = (self.BRG[1], IW[0])             # brass tube on the inner race (replaces the printed boss)
+        self.idler_screw = idler_screw(self.BRG[0] - WASHER)
         R, p = frame(self.origin, self.a, self.b)
         self.R = R
         self.p = p - CENTER * R[:, 2]          # local origin: case top plane on the axis
+        if self.keep_idler:
+            self.p = self.p + (self.gap - GAP) * R[:, 2]
         self.L = to_location(self.R, self.p)
 
     # ---------------------------------------------------------- helpers
@@ -161,8 +183,6 @@ class Joint:
                 (IW[0], top))
         for hb in HOLE_B:
             s = s.fuse(cyl(3.2, IW[0], top, hb))
-        if self.idler:
-            s = s.fuse(cyl(2.1, BOSS[0], BOSS[1]))
         return self.place(s)
 
     def holder_cut(self, part):
@@ -179,10 +199,13 @@ class Joint:
             self._hole(part, f"ear{i + 1}", "ins_m2", "INS-M2 + M2x6 (servo ear)", (hb, 0, TAB_A[0]), (0, 0, -1),
                        spec.d, spec.depth)
         if self.idler:
+            # M3 insert pressed into the wall face from outside (no boss: the Ø4.6 knurl never fitted the Ø4.2
+            # boss), 0.3 mm skin left to the pocket; the spacer tube clamps the inner race against it
             spec = hw.HOLES["ins_m3"]
-            s = s.fuse(cyl(spec.d / 2, BOSS[0], BOSS[0] + spec.depth))
-            self._hole(part, "idler_insert", "ins_m3", "INS-M3 (idler pivot)", (0, 0, BOSS[0]), (0, 0, 1),
-                       spec.d, spec.depth)
+            s = s.fuse(cyl(spec.d / 2, IW[0] - 0.01, IW[0] + INSERT_M3_DEPTH))
+            self._hole(part, "idler_insert", "ins_m3",
+                       f"INS-M3 + spacer tube Ø4×0.45 L{self.SPACER[1] - self.SPACER[0]:.1f} + "
+                       f"{self.idler_screw} (idler pivot)", (0, 0, IW[0]), (0, 0, 1), spec.d, INSERT_M3_DEPTH)
         return self.place(s)
 
     # ---------------------------------------------------------- driven: horn plate and idler plate
@@ -190,7 +213,12 @@ class Joint:
         return self.place(cyl(HORN_R, HP[0], HP[1]))
 
     def idler_disc(self):
-        return self.place(cyl(IDLER_R, IP[0], IP[1]))
+        return self.place(cyl(IDLER_R, self.IP[0], self.IP[1]))
+
+    def spacer_solid(self):
+        """Brass tube Ø4.0 × 0.45 (bought) between the holder wall and the bearing inner race."""
+        tube = cyl(SPACER_D / 2, *self.SPACER)
+        return self.place(tube.cut(cyl(SPACER_D / 2 - 0.45, self.SPACER[0] - 1, self.SPACER[1] + 1)))
 
     def driven_cut(self, part, side="both"):
         """Horn-plate features (side "horn"), idler-plate features (side "idler") or both."""
@@ -215,10 +243,11 @@ class Joint:
         return self.place(s)
 
     def _idler_cut(self, s, part):
-        s = s.fuse(cyl(LIP_D / 2, IP[1] - LIP - 0.01, IP[1] + 1))             # lip hole: holder boss passes
+        IP, BRG = self.IP, self.BRG
+        s = s.fuse(cyl(LIP_D / 2, IP[1] - LIP - 0.01, IP[1] + 1))             # lip hole: the spacer tube passes
         s = s.fuse(cyl(hw.HOLES["bearing"].d / 2, IP[0] + CAP_T - 0.01, BRG[1]))   # bearing + head pocket
         s = s.fuse(cyl(IDLER_R - 1.0, IP[0] - 1, IP[0] + CAP_T))                 # cap recess
-        self._hole(part, "bearing", "bearing", "MR63ZZ + W3 + M3x6 button head (idler)",
+        self._hole(part, "bearing", "bearing", f"MR63ZZ + W3 + {self.idler_screw} button head (idler)",
                    (0, 0, IP[0] + CAP_T), (0, 0, 1), hw.HOLES["bearing"].d, BRG[1] - IP[0] - CAP_T)
         return s
 
@@ -231,14 +260,14 @@ class Joint:
                         self.place(cyl(1.1, TAB_A[1] + 2.0, TAB_A[1] + 37.0, hb)), self.driven))
         out.append((f"{self.name}: horn centre screw (PH0)", self.place(cyl(1.5, HEAD_TOP, HEAD_TOP + 35.0)), None))
         if self.idler:
-            head = BRG[0] - WASHER - BUTTON_H
+            head = self.BRG[0] - WASHER - BUTTON_H
             out.append((f"{self.name}: idler screw (2.0 mm key)", self.place(cyl(1.3, head - 35.0, head)), None))
         return out
 
     def caps(self):
         c = [self.place(cyl(CAP_R - 0.05, HP[1] - CAP_T, HP[1]))]
         if self.idler:
-            c.append(self.place(cyl(IDLER_R - 1.05, IP[0], IP[0] + CAP_T)))
+            c.append(self.place(cyl(IDLER_R - 1.05, self.IP[0], self.IP[0] + CAP_T)))
         return c
 
 

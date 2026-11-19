@@ -73,10 +73,11 @@ LEG_PARTS = {  # from leg.py / leg_v3.md
 }
 FAST_VI = {
     "M2x6": "ốc lục giác chìm M2×6 inox", "M2x10": "ốc lục giác chìm M2×10 inox",
-    "M3x6": "ốc lục giác chìm M3×6 inox", "M3x6B": "ốc đầu dù M3×6 inox (trục idler)",
+    "M3x6": "ốc lục giác chìm M3×6 inox", "M3x6B": "ốc đầu dù M3×6 inox (trục idler đầu)",
+    "M3x10B": "ốc đầu dù M3×10 inox (trục idler chân)", "TUBE4": "ống đồng Ø4 dày 0.45 (cắt 1.3 / 5.1 mm)",
     "ST2x3": "vít tự ren đầu tròn 2×3 (bắt horn)", "INS-M2": "tán cấy nhiệt M2, dài 3, gai Ø3.6 (lỗ Ø3.2)",
     "INS-M3": "tán cấy nhiệt M3, dài 3, gai Ø4.6 (lỗ Ø4.0)", "MR63ZZ": "bạc đạn MR63ZZ 3×6×2.5",
-    "W3": "long đền mỏng M3 3.2×5×0.5", "SO40": "trụ nhựa M3 đực-cái 40 mm (+6 ren)",
+    "W3": "long đền thép mỏng M3 3.2×5×0.5", "SO40": "trụ nhựa M3 đực-cái 40 mm (+6 ren)",
     "SO35": "trụ nhựa M3 đực-cái 35 mm (+6 ren)", "TIE": "dây rút 2.5×100 mm", "STRAP": "dây dán pin velcro 20 mm",
     "FOAM": "băng keo xốp 2 mặt 1 mm",
 }
@@ -174,7 +175,8 @@ def count_body(body):
         elif kind == "bearing":
             cnt["MR63ZZ"] += k
             cnt["W3"] += k
-            cnt["M3x6B"] += k
+            cnt["TUBE4"] += k
+            cnt["M3x10B" if "M3x10" in f else "M3x6B"] += k
         elif kind == "tie":
             cnt["TIE"] += k / 2
     cnt["SO40"] += 4
@@ -198,7 +200,8 @@ def count_leg(leg):
         elif f.startswith("MR63ZZ"):
             cnt["MR63ZZ"] += 1
             cnt["W3"] += 1
-            cnt["M3x6B"] += 1
+            cnt["TUBE4"] += 1
+            cnt["M3x10B" if "M3x10" in f else "M3x6B"] += 1
         elif f.startswith("ST2x3"):
             cnt["ST2x3"] += 1
     return cnt                                 # sole and thrust-ring screws: counted with their inserts
@@ -303,19 +306,24 @@ def main():
     jn_of = {("ankle_block",): ["ankle_roll", "ankle_pitch"], ("thigh",): ["knee"], ("hip_block",):
              ["hip_pitch", "hip_roll"], ("thrust_ring", "hip_mount"): ["hip_yaw"]}
     shown = []
+    kj = LEG.Leg().joints["knee"]
+    tube, scr = f"{kj.SPACER[1] - kj.SPACER[0]:.1f}", kj.idler_screw.replace("x", "×")
     leg_text = {
         "foot": "Bắt đế TPU (L2) dưới bàn chân (L1): 4 × M2×6 từ dưới lên, đầu ốc chìm 2 mm trong đế, vặn vào 4 tán M2 "
                 "đã cấy ở 4 góc bàn chân.",
         "ankle_block": "Khối cổ chân (L3) mang 2 servo MG92B: ankle roll (trục x) và ankle pitch (trục y). Mỗi servo: "
                        "luồn dây qua rãnh cuối ổ, đẩy servo vào từ phía trục, 2 × M2×6 qua tai servo vào tán M2. "
                        "Lắp bàn chân vào ankle roll: đĩa horn ép vào trục khi servo ở 1500 µs, bàn chân song song mặt "
-                       "khối; vít giữa horn qua lỗ Ø5.2; phía đối diện: long đền W3 lên bạc đạn rồi ốc đầu dù M3×6 "
-                       "vào tán M3 — vặn vừa khít, bạc đạn phải còn quay.",
-        "shin": "Ống chân (L4) lên trục ankle pitch (ống chân thẳng đứng): horn + vít giữa, idler M3×6 + W3.",
+                       f"khối; vít giữa horn qua lỗ Ø5.2; phía đối diện: ống đồng {tube} giữa tán M3 và vòng trong "
+                       "bạc đạn, "
+                       f"long đền W3 dưới đầu ốc {scr} đầu dù — vặn vừa khít, vòng ngoài phải quay trơn.",
+        "shin": f"Ống chân (L4) lên trục ankle pitch (ống chân thẳng đứng): horn + vít giữa, idler: ống đồng {tube}, "
+                f"W3 + {scr} đầu dù.",
         "thigh": "Servo knee vào ổ trong đùi (L5); lắp đầu trên ống chân vào trục knee (gối thẳng): horn + vít "
-                 "giữa, idler M3×6 + W3.",
+                 f"giữa, idler: ống đồng {tube} lên tán M3, bạc đạn, W3 + {scr} đầu dù.",
         "hip_block": "Khối hông (L6) mang hip roll và hip pitch. Đùi lên trục hip pitch (chân thẳng).",
-        "yaw_bracket": "Giá yaw (L7) lên trục hip roll (khối hông nằm ngang): horn + vít giữa, idler M3×6 + W3.",
+        "yaw_bracket": "Giá yaw (L7) lên trục hip roll (khối hông nằm ngang): horn + vít giữa, idler: ống đồng "
+                       f"{tube}, W3 + {scr} đầu dù.",
         "thrust_ring": "Servo hip yaw MG90S vào đế gắn chân (L9) từ dưới, 2 × M2×6 qua tai. Ép mặt trên giá yaw vào "
                        "trục (chân hướng thẳng ra trước), vít giữa horn từ dưới. Lắp vòng chặn tải (L8) từ dưới: "
                        "2 × M2×6 vào đế gắn chân. Giá yaw phải xoay nhẹ, khe 0.2 mm với vòng; 1 giọt mỡ lithium.",
@@ -418,7 +426,8 @@ def main():
     add("head_03", "Head 3: Head Frame N3, Idler N3i, Camera Mount N4, Display",
         "Horn vào đĩa +y của N3 (2 × ST2×3). Servo head pitch ở 1500 µs: đẩy N3 dọc trục (từ +y) cho horn ăn hết "
         "then hoa, sàn đầu nằm ngang, vít giữa horn qua lỗ Ø5.2. Bạc đạn MR63ZZ trượt vào ổ của N3i (lắp trượt). "
-        "Đưa N3i vào từ phía −y lên trục idler: W3 + M3×6 đầu dù vào tán M3 của N2, siết. Sau cùng 2 × M2×6 từ "
+        "Đưa N3i vào từ phía −y lên trục idler: ống đồng 1.3 + W3 + M3×6 đầu dù vào tán M3 của N2, siết. "
+        "Sau cùng 2 × M2×6 từ "
         "dưới qua đế N3i vào 2 tán ở sàn đầu (lỗ hở Ø2.3 cho N3i tự định tâm theo trục idler). N4 lên sàn đầu, "
         "2 × M2×6. Camera Pi V2: 4 × M2×6 vào 4 trụ (cấy tán từ phía trước). ToF: 2 × M2×6. Màn 1.9″: băng keo "
         "xốp lên mặt trước khung + 2 dây rút qua 4 khe.", base, hf, az=35, el=20,
@@ -569,7 +578,8 @@ def write(body, leg, steps, holes_by, tot, cb, cl, shell_screws, S, floor, top):
     a("")
     a("| Mã | Tổng | Trong 2 chân | Trong thân + tay + đầu | Hỏi cửa hàng |")
     a("| --- | ---: | ---: | ---: | --- |")
-    for code in ("M2x6", "M3x6", "M3x6B", "ST2x3", "INS-M2", "INS-M3", "MR63ZZ", "W3", "SO40", "SO35", "TIE", "STRAP",
+    for code in ("M2x6", "M3x6", "M3x6B", "M3x10B", "ST2x3", "INS-M2", "INS-M3", "MR63ZZ", "W3", "TUBE4", "SO40",
+                 "SO35", "TIE", "STRAP",
                  "FOAM"):
         t, l_, b_ = tot[code], 2 * cl.get(code, 0), cb.get(code, 0)
         a(f"| {code} | {t:g} | {l_:g} | {b_:g} | {FAST_VI[code]} |")

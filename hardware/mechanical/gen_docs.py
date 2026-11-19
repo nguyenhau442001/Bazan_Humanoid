@@ -153,12 +153,17 @@ def markdown(leg, holes_by_part):
     a("")
     a("![exploded](images/leg_exploded.jpg)")
     a("")
+    jk = leg.joints["knee"]
+    a(f"Leg joints: idler gap {jk.gap} mm (the driven link slides {J.LEG_GAP - 0.7:.1f} mm off the spline only when "
+      f"the gap is ≥ {J.LEG_GAP}); the inner race is clamped by a brass tube Ø{J.SPACER_D} × 0.45 between the "
+      f"bearing and the M3 insert in the wall face, screw {jk.idler_screw} button head.")
+    a("")
     a("Along the shaft, from the case top of the servo (mm):")
     a("")
     a("| Element | From | To |")
     a("| --- | --- | --- |")
-    rows = [("Idler plate (driven link), MR63ZZ seat, cap recess", J.IP), ("MR63ZZ bearing", J.BRG),
-            ("Holder boss on the inner race", J.BOSS), ("Idler wall (holder) with M3 insert", J.IW),
+    rows = [("Idler plate (driven link), MR63ZZ seat, cap recess", jk.IP), ("MR63ZZ bearing", jk.BRG),
+            ("Brass spacer tube on the inner race", jk.SPACER), ("Idler wall (holder) with M3 insert", J.IW),
             ("Servo case", J.CASE), ("Servo ears", J.TAB_A),
             ("Horn disc", (hw.HORN.disc_low, J.HORN_TOP)), ("Horn plate (driven link)", J.HP)]
     for name, (lo, hi) in rows:
@@ -190,14 +195,15 @@ def markdown(leg, holes_by_part):
         elif f.startswith("MR63ZZ"):
             cnt["MR63ZZ"] += 1
             cnt["W3"] += 1
-            cnt["M3x6B"] += 1
+            cnt["TUBE4"] += 1
+            cnt["M3x10B" if "M3x10" in f else "M3x6B"] += 1
         elif f.startswith("ST2x3"):
             cnt["ST2x3"] += 1
     a("Bought parts (servos: 5 × MG92B and the hip-yaw MG90S, which sits in `hip_mount`):")
     a("")
     a("| Code | Qty | Part | Ask the shop for |")
     a("| --- | --- | --- | --- |")
-    for code in ("M2x6", "M3x6B", "ST2x3", "INS-M2", "INS-M3", "MR63ZZ", "W3"):
+    for code in ("M2x6", "M3x10B", "ST2x3", "INS-M2", "INS-M3", "MR63ZZ", "W3", "TUBE4"):
         f = hw.FASTENERS[code]
         a(f"| {code} | {cnt[code]} | {f.desc} | {f.shop} |")
     a("")
@@ -287,16 +293,16 @@ touched.
 
 ASSEMBLY = """## Assembly, one leg
 
-Before anything: power each servo once and drive it to the centre (1500 µs; `mico_link.py ... calibrate` or any
+Before anything: power each servo once and drive it to the centre (1500 µs; `bazan_link.py ... calibrate` or any
 servo tester). Fit the horns only with the servo centred and the leg straight, so the zero pose of the URDF is the
 centre of every servo.
 
 1. **Inserts.** Press every heat-set insert (M2 into the servo ear bosses, M3 into the idler walls, M2 into the
    foot plate) with the iron at 220 °C, flush with the surface. Let cool before screwing.
-2. **Bearings.** Press an MR63ZZ into every idler plate seat from the outside (thigh ×1, shin ×2, yaw bracket ×1,
-   foot ×1). It must spin freely.
+2. **Bearings.** Slide an MR63ZZ into every idler plate seat from the outside (thigh ×1, shin ×2, yaw bracket ×1,
+   foot ×1). Slip fit: it goes in by hand and must spin freely.
 3. **Horns to plates.** Open the two horn holes at radius 7 to Ø2.1 so the screws pass the horn. Screw each round
-   horn to its horn plate from the servo side with 2 × ST2×4 (heads end up between horn and case).
+   horn to its horn plate from the servo side with 2 × ST2×3 (heads end up between horn and case).
 4. **Servos into pockets.** Feed the plug flat through the window at the far end of the pocket (it is cut for the
    3-pin plug), then slide the servo in from the shaft side while drawing the lead through, and fix the ears with
    2 × M2×6: ankle roll and ankle pitch into `ankle_block`, knee into `thigh`, hip roll and hip pitch into
@@ -305,8 +311,10 @@ centre of every servo.
    ![pockets](images/step_03_pockets.jpg)
 5. **Foot.** Screw the TPU `sole` under `foot` with 4 × M2×6 from below.
 6. **Ankle roll.** With the ankle-roll servo centred, push the foot's horn plate onto its spline (foot level with
-   the block), drive in the horn centre screw through the access hole, then the idler: W3 washer on the bearing,
-   M3×6 button head into the block's M3 insert. Snug, not tight: the bearing must turn.
+   the block), drive in the horn centre screw through the access hole, then the idler: the 5.1 mm brass tube
+   between the bearing's inner race and the block's M3 insert, W3 washer under the head, M3×10 button head. Snug,
+   not tight: the outer race must turn freely (if it drags, the clamp touches the shield: check the tube end is
+   square).
 
    ![ankle roll](images/step_05_ankle_roll.jpg)
 7. **Ankle pitch.** Same with `shin` on the ankle-pitch servo (shin vertical).

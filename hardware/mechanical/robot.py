@@ -59,7 +59,7 @@ def owner(body, name):
         return "torso" if name in TORSO else PART_LINK.get(name, name)
     kind, jn = name.split("_", 1)
     j = body.joints[jn]
-    link = j.holder if kind == "servo" else j.driven
+    link = j.holder if kind in ("servo", "spacer") else j.driven
     return "torso" if link in TORSO else link
 
 
@@ -73,6 +73,7 @@ def assemble(body, leg, q=None, include_legs=True, use_cots=False):
     comps = dict(body.parts)
     comps.update(body.servos(cots=use_cots))
     comps.update(body.horns())
+    comps.update(body.spacers())
     arm_names = [n for n in comps if owner(body, n) in ("shoulder_link", "upper_arm", "forearm")
                  or n in ("servo_shoulder_pitch",)]
     head_names = [n for n in comps if owner(body, n) in ("neck_link", "head_frame") or n == "cam_mount"
@@ -136,7 +137,7 @@ def link_of(name, body, leg):
         return "head_frame"
     if base.startswith(("so40", "so35", "board_")) or base == "battery":
         return "torso"
-    if base in body.parts or base.startswith(("servo_", "horn_")):
+    if base in body.parts or base.startswith(("servo_", "horn_", "spacer_")):
         o = owner(body, base)
         if base == "cam_mount":
             o = "head_frame"

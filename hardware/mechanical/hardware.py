@@ -95,7 +95,13 @@ FASTENERS = {
     # MR63ZZ: OD 6 (0/−0.008), width 2.5 (0/−0.12). In every joint it is the floating bearing: the outer ring
     # slides in its seat (slip fit), the joint is located along its axis by the horn on the spline.
     "MR63ZZ": Fastener("MR63ZZ", "Ball bearing 3×6×2.5, shielded", "bạc đạn MR63ZZ 3×6×2.5"),
-    "W3": Fastener("W3", "M3 shim washer 3.2×5×0.5 (inner race only)", "long đền mỏng M3 3.2×5×0.5"),
+    "W3": Fastener("W3", "M3 steel shim washer 3.2×5×0.5 under the idler screw head (flat: bridges the recessed "
+                   "shield)", "long đền thép mỏng M3 3.2×5×0.5"),
+    "M3x10B": Fastener("M3x10B", "M3×10 button head, ISO 7380 (leg idler pivot)", "ốc đầu dù M3×10 inox"),
+    # idler spacer: clamps the bearing inner race (land ~Ø3.9) against the wall insert; Ø4.0 stays inside the
+    # shield's inner edge, a printed boss (Ø4.2) did not, and the M3 insert's Ø4.6 knurl never fitted in that boss
+    "TUBE4": Fastener("TUBE4", "Brass tube Ø4.0 × 0.45 wall (ID 3.1), cut square: 1.3 mm (head), 5.1 mm (legs)",
+                      "ống đồng Ø4 dày 0.45 (cắt đoạn 1.3 / 5.1 mm)"),
     # body v4 (torso stack, sleds, arms, head)
     "M2x10": Fastener("M2x10", "M2×10 socket head cap screw, ISO 4762, stainless", "ốc lục giác M2×10 inox"),
     "M3x6": Fastener("M3x6", "M3×6 socket head cap screw, ISO 4762, stainless", "ốc lục giác M3×6 inox"),

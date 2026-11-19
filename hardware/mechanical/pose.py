@@ -37,7 +37,7 @@ def owner(leg, name):
     kind, jn = name.split("_", 1)[0], name.split("_", 1)[1]
     jn = jn.rsplit("_horn", 1)[0].rsplit("_idler", 1)[0] if kind == "cap" else jn
     j = leg.joints[jn]
-    link = j.holder if kind == "servo" else j.driven
+    link = j.holder if kind in ("servo", "spacer") else j.driven
     return LINK_OF.get(link, link)
 
 
