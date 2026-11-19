@@ -194,8 +194,8 @@ class Body:
     # ------------------------------------------------------------------ decks 1 and 2
     DECK1_BAYS = {  # name: (centre, long axis, pitch, offset across, sled)
         "PERF": ((13.0, 0.0), "y", 40, -22.0, "sled_perf"),
-        "UBEC": ((-29.5, 12.5), "y", 40, 0.0, "sled_ubec"),
-        "BUCK": ((-27.0, -23.5), "x", 20, 0.0, "sled_buck"),
+        "UBEC": ((-28.0, 12.5), "y", 40, 0.0, "sled_ubec"),      # 8 A UBEC is 62 long: buck moved back
+        "BUCK": ((-27.0, -31.5), "x", 20, 0.0, "sled_buck"),
         "INA_L": ((8.0, 45.5), "x", 20, 0.0, "sled_ina"),
         "INA_R": ((8.0, -45.5), "x", 20, 0.0, "sled_ina"),
     }
@@ -245,7 +245,7 @@ class Body:
         "sled_pca": ("PCA", 64.0, 29.0, -6.5, False),
         "sled_perf": ("PERF", 72.0, 52.0, -22.0, False),
         "sled_radxa": ("RADXA", 67.0, 31.0, -12.5, False),
-        "sled_ubec": ("UBEC", 49.0, 29.0, 0.0, True),
+        "sled_ubec": ("UBEC", 64.0, 29.0, 0.0, True),
         "sled_buck": ("BUCK", 26.0, 21.0, 0.0, True),
         "sled_ina": ("INA", 25.0, 17.0, 0.0, True),
     }

@@ -38,8 +38,8 @@ BOARDS = {
                           "headers, LMV358 × 6, CD74HC4067, MPU6050", (70.0, 50.0),
                   holes=((-31.5, -21.5), (31.5, -21.5), (-31.5, 21.5), (31.5, 21.5)), hole_d=2.2, top=21.0,
                   bottom=3.0, mass=28.0, shop="phíp đồng lỗ 7×5 cm (khoan 4 lỗ Ø2.2 theo bản vẽ)"),
-    "UBEC": Board("UBEC", "6 V 5 A UBEC (heat-shrunk, no holes)", (45.0, 25.0), pcb=0, top=10.0, bottom=0,
-                  mass=14.0, shop="UBEC 5A 6V"),                                                        # MEASURE
+    "UBEC": Board("UBEC", "Hobbywing UBEC 8A (2-5S), 6 V 8 A cont. / 15 A burst (heat-shrunk, no holes)",
+                  (62.0, 27.5), pcb=0, top=10.0, bottom=0, mass=24.5, shop="Hobbywing UBEC 8A 2-5S"),   # ASSUMED
     "BUCK": Board("BUCK", "5 V buck for the Radxa (Mini560 class)", (22.0, 17.0), pcb=0, top=5.0, bottom=0,
                   mass=3.0, shop="mạch hạ áp Mini560 5V"),                                              # MEASURE
     "INA": Board("INA", "INA226 module CJMCU-226, R010 shunt", (21.0, 16.0), pcb=0, top=5.0, bottom=0,

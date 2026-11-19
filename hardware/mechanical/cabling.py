@@ -104,7 +104,7 @@ def power_harness_points():
         np.array([-5.0, 0.0, 78.0]),      # LiPo battery XT30/JST connector on pelvis
         np.array([-15.0, 15.0, 95.0]),    # Rising towards Deck 1
         np.array([0.0, 30.0, 118.0]),     # Into INA226 current shunt sensor on Deck 1
-        np.array([-22.0, 20.0, 122.0]),   # Branching to UBEC 6V 5A module
+        np.array([-22.0, 20.0, 122.0]),   # Branching to UBEC 6V 8A module
     ]
     return pts
 
