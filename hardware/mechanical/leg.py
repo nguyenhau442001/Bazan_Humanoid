@@ -15,7 +15,7 @@ Links and who carries which servo:
     yaw_bracket  driven by hip yaw (servo in the pelvis); carries nothing
     hip_block    carries hip roll and hip pitch; driven by hip roll through the yaw bracket
     thigh        driven by hip pitch; carries the knee servo
-    shin         driven by the knee and by ankle pitch: a frame with no servo
+    shin         driven by the knee and by ankle pitch: a frame with no servo, sides closed (see _shin_closed)
     ankle_block  carries ankle pitch and ankle roll
     foot         driven by ankle roll
 """
@@ -41,10 +41,13 @@ RING_R = (13.0, 21.0)    # yaw thrust ring: carries the robot's weight past the 
 # idler gap wide enough to take the driven link off the spline; the servo side moves out, the idler stays
 WIDE = dict(gap=J.LEG_GAP, keep_idler=True)
 ARM = 4.0                # side-plate arm thickness
-# hybrid shin (frame B): two cut metal side plates on the outer faces, a printed PETG core (the four joint discs,
+# closed shin (default): the side outline below, printed as 4 mm webs on the outer faces.
+# hybrid shin (frame B, only if the printed one fails test T4): two cut metal side plates on the outer faces, a
+# printed PETG core (the four joint discs,
 # 4 mm webs behind the plates, the front spine). The plates wrap the discs (bearing on the disc rims) and are held
 # by countersunk M2 screws into inserts in the webs. Outline stays inside the old silhouette above the knee axis
 # (thigh arms there) and above the ankle axis on the idler side (ankle roll parts below).
+SHIN_WEB = 2.4           # closed shin side web: 6 perimeters (solid); FEA peak 8.2 MPa of 12, +2 g over the open shin
 PLATE_T = 1.5            # 5052-H32 aluminium or 3K carbon, same DXF (FEA: 2.0 buys nothing)
 PLATE_RING = {"h": 15.0, "i": 10.5}          # plate outer radius round the horn / idler discs
 PLATE_HOLE = {"h": J.HORN_R + 0.15, "i": J.IDLER_R + 0.15}
@@ -77,7 +80,7 @@ def fuse(*shapes):
 
 
 class Leg:
-    def __init__(self, shin="printed"):
+    def __init__(self, shin="closed"):
         self.shin_frame = shin
         self.joints = {
             # gap = LEG_GAP: the driven link comes off the spline along the shaft (N3 review G-2)
@@ -105,7 +108,9 @@ class Leg:
             core, plates = self._shin_hybrid()
             self.parts["shin"] = self._finish("shin", core)
             self.parts.update(plates)
-        else:
+        elif shin == "closed":
+            self.parts["shin"] = self._finish("shin", self._shin_closed())
+        else:                                   # "open": the first shin, kept for comparison (fea.py)
             self.parts["shin"] = self._finish("shin", self._shin_body())
         self.parts["foot"] = self._finish("foot", self._foot_body())
         self.parts["sole"] = self._sole()
@@ -218,6 +223,17 @@ class Leg:
         fillet = bx((-rf, 0.0), (y0, y1), (zc, K - top + 1.0))
         fillet = fillet.cut(cyl_y(0, rf).moved(cq.Location(cq.Vector(-rf, 0, zc))))
         return fuse(knee, band, ankle, fillet).intersect(bx((-50, SHIN_FRONT), (y0, y1), (-300, 50)))
+
+    def _shin_closed(self):
+        """Printed shin with closed sides: the hybrid outline as 4 mm side webs on the outer faces, no metal.
+        FEA (fea.py): deflection 7.8 -> 0.4 mm, peak 54 -> 8 MPa (PLA limit 12); metal only if test T4 fails."""
+        jk, ja = self.joints["knee"], self.joints["ankle_pitch"]
+        hp_out = max(p[1] for p in jk.a_range(J.HP))
+        ip_out = min(p[1] for p in jk.a_range(jk.IP))
+        spine_x = (12.0 - SPINE / 2, 12.0 + SPINE / 2)
+        spine = bx(spine_x, (ip_out, hp_out), (A + 25.0, K - 15.0))
+        return fuse(jk.horn_disc(), jk.idler_disc(), ja.horn_disc(), ja.idler_disc(), spine,
+                    self._shin_side(hp_out - SHIN_WEB, hp_out, "h"), self._shin_side(ip_out, ip_out + SHIN_WEB, "i"))
 
     def _shin_hybrid(self):
         jk, ja = self.joints["knee"], self.joints["ankle_pitch"]

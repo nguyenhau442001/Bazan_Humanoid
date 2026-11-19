@@ -208,14 +208,14 @@ def leg_link_cases(xyz, upper, lower, weight_g, stall_nmm, side_sign=1.0):
 
 def shin_variants():
     import leg as LEG
-    old, hy = LEG.Leg(), LEG.Leg("hybrid")
+    old, new, hy = LEG.Leg("open"), LEG.Leg("closed"), LEG.Leg("hybrid")
     core, ph, pi = hy.parts["shin"], hy.parts["shin_plate_h"], hy.parts["shin_plate_i"]
-    return {"A printed PLA (today)": [("shin", old.parts["shin"], "PLA")],
+    return {"open sides, PLA (first shin)": [("shin", old.parts["shin"], "PLA")],
+            "closed sides, PLA (default)": [("shin", new.parts["shin"], "PLA")],
             f"B PETG core + Al 5052 {LEG.PLATE_T:g}": [
                 ("plate_h", ph, "AL5052"), ("plate_i", pi, "AL5052"), ("core", core, "PETG")],
             f"B PETG core + carbon {LEG.PLATE_T:g}": [
-                ("plate_h", ph, "CF3K"), ("plate_i", pi, "CF3K"), ("core", core, "PETG")],
-            "core alone, PETG (no plates)": [("core", core, "PETG")]}
+                ("plate_h", ph, "CF3K"), ("plate_i", pi, "CF3K"), ("core", core, "PETG")]}
 
 
 def shin(hybrid_parts=None):
