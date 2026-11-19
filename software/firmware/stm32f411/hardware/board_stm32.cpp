@@ -13,6 +13,9 @@
 #ifndef MICO_HAS_INA226
 #define MICO_HAS_INA226 1
 #endif
+#ifndef MICO_HAS_BATT_INA226
+#define MICO_HAS_BATT_INA226 1     // INA226 on the battery lead, before the UBEC and the buck
+#endif
 #ifndef MICO_NTC_MASK
 #define MICO_NTC_MASK 0x3          // bit k: NTC k fitted
 #endif
@@ -30,6 +33,7 @@ namespace {
 
 constexpr uint16_t PCA_ADDR[2] = {0x40 << 1, 0x41 << 1};   // HAL takes the 8-bit address
 constexpr uint16_t INA_ADDR[2] = {0x44 << 1, 0x45 << 1};
+constexpr uint16_t BATT_INA_ADDR = 0x40 << 1;             // I2C2, A0 and A1 to GND
 constexpr uint16_t MPU_ADDR = 0x68 << 1;
 constexpr uint32_t I2C_TIMEOUT_MS = 2;                     // HAL tick is 1 ms: 2 means 1..2 ms
 
@@ -103,6 +107,17 @@ bool read_ina(Inputs& in, int k) {
   return true;
 }
 
+// Battery lead: IN+ on the battery side, so discharge reads positive. The R010 shunt clips at 8.19 A; the
+// fuel gauge rides through short peaks above that (they are corrected at the next rest).
+bool read_batt(float& v, float& a) {
+  uint8_t d[2];
+  if (!reg_read(&hi2c2, BATT_INA_ADDR, 0x01, d, 2)) return false;
+  a = ina226_current_a(static_cast<int16_t>((d[0] << 8) | d[1]), INA226_SHUNT_OHM);
+  if (!reg_read(&hi2c2, BATT_INA_ADDR, 0x02, d, 2)) return false;
+  v = ina226_bus_v(static_cast<uint16_t>((d[0] << 8) | d[1]));
+  return true;
+}
+
 bool read_imu(Inputs& in) {
   uint8_t d[14];
   if (!reg_read(&hi2c2, MPU_ADDR, 0x3B, d, 14)) return false;
@@ -116,6 +131,7 @@ bool pca_ready[2] = {false, false};
 void sensors_init() {
   if (MICO_HAS_INA226)  // AVG 4, bus and shunt conversion 1.1 ms, continuous: a new value every 8.8 ms
     for (int k = 0; k < 2; ++k) reg_write16(&hi2c2, INA_ADDR[k], 0x00, 0x4327);
+  if (MICO_HAS_BATT_INA226) reg_write16(&hi2c2, BATT_INA_ADDR, 0x00, 0x4327);
   if (MICO_HAS_IMU) {
     uint8_t wake = 0x00, dlpf = 0x03;                      // clock on, 44 Hz low-pass
     reg_write(&hi2c2, MPU_ADDR, 0x6B, &wake, 1);
@@ -188,6 +204,14 @@ void read_inputs(Inputs& in, uint32_t cycle) {
       memcpy(in.rail_v, v_last, sizeof(v_last));
     }
   }
+  // Battery INA226 on the other cycles. It only feeds the fuel gauge: a failed read marks the battery
+  // reading invalid (State reports it unknown) rather than faulting the robot.
+  static float bv_last, ba_last;
+  static bool batt_ok = false;
+  if (MICO_HAS_BATT_INA226 && cycle % 2 == 1) batt_ok = read_batt(bv_last, ba_last);
+  in.batt_v = bv_last;
+  in.batt_a = ba_last;
+  in.batt_v_valid = in.batt_i_valid = MICO_HAS_BATT_INA226 && batt_ok;
   if (MICO_HAS_IMU) ok = read_imu(in) && ok;
   in.sensors_ok = ok;
 }

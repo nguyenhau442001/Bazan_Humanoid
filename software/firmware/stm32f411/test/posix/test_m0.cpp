@@ -94,6 +94,8 @@ void normal_run() {
   CHECK(sim::refreshes > 200);                         // 1 kHz supervisor, refreshing
   CHECK(!sim::oe_ever_on);                             // nothing enabled the servos
   CHECK(states > 10 && mode() == Mode::IDLE && last_state.faults == 0);
+  CHECK(last_state.batt_mv == 7900 && last_state.batt_ma == 1200);   // battery INA226 reaches State
+  CHECK(last_state.soc_pct >= 60 && last_state.soc_pct <= 95);        // fuel gauge running on the MCU
 
   // ---- Enable: the supervisor drives OE because control asks and is healthy
   uint8_t on = 1;

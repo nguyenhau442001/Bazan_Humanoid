@@ -2,7 +2,7 @@ id,item,qty,placement,length_mm,width_mm,height_mm,mass_g,mounting,status,unit_v
 M01,Radxa Zero 3W 2 GB + 16 GB eMMC (application computer),1,tray,65.0,30.0,7.1,12.0,4 x M2.5 holes,in BOM,900000,electronics.py RADXA (MEASURE),eMMC version as in the CAD (BOM v0.8)
 M02,STM32F411 Black Pill on perfboard (+ mux + op-amps + series R),1,tray,70.0,50.0,25.6,28.0,4 x M2 holes (perfboard drilled),in BOM,185000,electronics.py PERF (MEASURE),145k Black Pill + 40k perfboard parts; op-amps change to MCP6002 on 3.3 V (step 5 analysis)
 M03,PCA9685 16-channel PWM module,2,tray,62.5,25.4,26.1,9.0,4 x M2.5 holes,in BOM,75000,electronics.py PCA (MEASURE),height is with the 3 x 16 servo headers fitted
-M04,INA226 module CJMCU-226 (R010),3,tray,21.0,16.0,5.0,2.0,glue or clip (CAD: no holes),changed: 2 -> 3,65000,electronics.py INA (MEASURE),third one for the arms + neck branch; check the shunt reads R010
+M04,INA226 module CJMCU-226 (R010),4,tray,21.0,16.0,5.0,2.0,glue or clip (CAD: no holes),changed: 2 -> 4,65000,electronics.py INA (MEASURE),third for the arms + neck branch; fourth on the battery lead at 0x40 (fuel gauge); check the shunt reads R010
 M05,MPU6050 module GY-521,1,tray,21.0,16.0,3.0,2.0,2 x M3 holes,in BOM,58000,typical listing (MEASURE),must sit rigid and level near the torso centre line; today it is on the perfboard
 M06,CD74HC4067 16-channel mux module,1,tray,40.0,18.0,3.0,3.0,on the perfboard headers,in BOM (A+),15000,typical listing (MEASURE),rides on M02 in the current layout
 M07,UBEC 6 V 8 A (Hobbywing),1,tray,62.0,27.5,10.0,24.5,strap or clip (heat-shrunk),in BOM,250000,electronics.py UBEC (ASSUMED),gets warm: needs airflow and must not touch the battery

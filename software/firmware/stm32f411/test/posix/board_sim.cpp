@@ -34,6 +34,9 @@ void read_inputs(Inputs& in, uint32_t) {
   in.rail_v[0] = in.rail_v[1] = 6.0f;
   in.current_a[0] = in.current_a[1] = 0.5f;
   in.rail_valid = true;
+  in.batt_v = 7.90f;                               // 2S pack about 70 %, electronics plus idle servos
+  in.batt_a = 1.2f;
+  in.batt_v_valid = in.batt_i_valid = true;
   in.sensors_ok = true;
 }
 

@@ -30,7 +30,7 @@ puts them on two boards joined by a serial link. Everything below follows from t
 │ FreeRTOS. 200 Hz control task: sense · safety · interpolate · PWM. Supervisor task owns OE and the IWDG      │
 │   ├─ I²C1 ── PCA9685 #1 ── PWM, 12 leg servos         ├─ ADC ── CD74HC4067 ── 12 leg pots + 4 FSR            │
 │   ├─ I²C1 ── PCA9685 #2 ── PWM, arms and neck         ├─ ADC ── NTC × 2 ── hip-roll servo cases              │
-│   └─ I²C2 ── INA226 × 2 (leg branches) · MPU6050                                                             │
+│   └─ I²C2 ── INA226 × 3 (leg branches, battery) · MPU6050                                                    │
 └──────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 2S LiPo → fuse → 6 V UBEC (servos)  ·  5 V buck (Radxa)  ·  3.3 V LDO (logic)
 ```
@@ -202,6 +202,14 @@ INA226 reads ±81.92 mV full scale, so a 0.1 Ω shunt saturates at 0.8 A. 10 mΩ
 2.5 µV LSB and 0.25 W at 5 A. The CJMCU-226 module sold in HCMC already carries a 10 mΩ shunt: check that
 the resistor reads **R010**, not R100, before buying, and ignore the 3.2 A rating on the shop page (it is
 copied from INA219 listings). The 2512 shunt is rated 1 W; mount the module away from the servo bundle.
+
+**Battery INA226 (0x40, I2C2).** A third module on the battery lead, after the main fuse and before the UBEC
+and the buck, IN+ on the battery side. It sees everything the pack delivers, the Radxa included, and feeds
+the software fuel gauge in `software/core/power/battery.cpp`: coulomb counting on its current, corrected
+towards the IR-compensated rest voltage. State reports `batt_mv`, `batt_ma` and `soc_pct` (255 = not known
+yet). Against a simulated pack that differs from the model the error stays within 3.4 %; with only the VBAT
+divider it is about 10 %. The R010 shunt clips at 8.19 A, above the walking average; short peaks are
+absorbed by the next rest correction.
 
 **NTC × 2.** 10 kΩ NTC (MF52) glued to each hip-roll servo case with thermal epoxy. Shops do not state the
 B value, so calibrate each one against a thermometer at two temperatures. Case temperature lags the motor
