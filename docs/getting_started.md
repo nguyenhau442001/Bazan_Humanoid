@@ -45,7 +45,7 @@ ros2 launch humanoid_description mico_view.launch.py
 ### Physics Checks Without ROS
 ```bash
 python3 sim/mujoco/check_mujoco.py             # physics verification: distance, heading, servo loads
-mjpython sim/mujoco/mico_viewer.py --physics   # interactive simulation in MuJoCo viewer
+mjpython sim/mujoco/bazan_viewer.py --physics  # interactive simulation in MuJoCo viewer
 ```
 
 ---
@@ -53,7 +53,7 @@ mjpython sim/mujoco/mico_viewer.py --physics   # interactive simulation in MuJoC
 ## 📐 2. Kinematics and Load Tables
 ```bash
 python3 sim/mujoco/check_mujoco.py       # gait in MuJoCo: fell or not, distance, heading, writes servo loads
-python3 sim/mini_humanoid/kin_dyn.py     # check DH tables against URDF, static loads, merge the MuJoCo loads
+python3 docs/engineering/gen_docs.py     # mass and torque tables (MuJoCo loads + static single-support loads)
 ```
 
 ---
@@ -64,7 +64,8 @@ Run the full pytest suite for kinematics and bridge physics:
 ```bash
 python3 -m pytest src/humanoid_control/test
 ```
-Validate the URDF and xacro (links, joints, limits, frames, gait joints):
+Regenerate and validate the URDF from the CAD (Pinocchio and MuJoCo sanity report), then the MuJoCo model:
 ```bash
-python3 sim/mini_humanoid/check_urdf.py
+(cd hardware/mechanical && python3 gen_urdf.py --validate)
+python3 sim/mujoco/bazan_mjcf.py
 ```

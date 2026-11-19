@@ -2,16 +2,18 @@
 
 Tài liệu này tổng hợp phân tích kỹ thuật, các điểm nghẽn vật lý (thermal, latency, power, structure) và lộ trình nâng cấp thực tế cho robot Bazan từ phiên bản nguyên mẫu giá rẻ (Hobby Servos) đến nền tảng bipedal chuyên nghiệp.
 
+Số liệu lấy từ robot sinh ra từ CAD (1083 g, cao 407 mm): `mass_budget.md` và `torque_validation.md` (MuJoCo trên `bazan_cad.urdf`).
+
 ---
 
 ## 📌 Tổng quan các thách thức kỹ thuật cốt lõi
 
 | Thách thức | Hiện tượng thực tế | Giới hạn thiết kế | Hậu quả nếu không xử lý |
 | :--- | :--- | :--- | :--- |
-| **Quá nhiệt khớp hông** | Servo `hip_roll` (MG92B) gánh RMS 77% tải liên tục, 21% thời gian vượt ngưỡng | Ngưỡng an toàn liên tục = 1/3 stall (1.17 kg·cm) | Sau 1–2 phút bước đi, servo trôi nhiệt (thermal drift) hoặc cháy cuộn dây |
-| **Trễ điều khiển 50 Hz** | Chu kỳ PWM 20 ms, trong khi thời gian con lắc ngã $\sqrt{z/g} = 121\text{ ms}$ | Trễ lệnh chiếm ~17% thời gian sụp đổ của robot | Dễ dao động cộng hưởng, trượt chân khi tiếp đất, Sim2Real gap lớn |
+| **Quá nhiệt gối và hông** | Servo `knee` (MG92B) gánh RMS 125% tải liên tục, `hip_roll` 81–86%; cả hai vượt ngưỡng 35–39% thời gian demo | Ngưỡng an toàn liên tục = 1/3 stall (1.17 kg·cm) | Sau 1–2 phút bước đi, servo trôi nhiệt (thermal drift) hoặc cháy cuộn dây |
+| **Trễ điều khiển 50 Hz** | Chu kỳ PWM 20 ms, trong khi thời gian con lắc ngã $\sqrt{z/g} = 145\text{ ms}$ | Trễ lệnh chiếm ~14% thời gian sụp đổ của robot | Dễ dao động cộng hưởng, trượt chân khi tiếp đất, Sim2Real gap lớn |
 | **Sụt áp nguồn (Voltage Sag)** | 12 servo chân đồng thời tăng tốc hoặc gập gối, dòng đỉnh > 8A–10A | UBEC 6V 8A giới hạn, pin 2S LiPo 1100 mAh | Nhiễu EMI / sụt áp gây reset STM32F411 hoặc treo Radxa Zero 3W |
-| **Võng khung & rơ khớp** | Vỏ PLA mỏng 1.0–1.2 mm, trục servo đơn điểm (single horn) | Diện tích bàn chân nhỏ ($45 \times 32\text{ mm}$) | Biến dạng đàn hồi 2°–3° làm điểm ZMP văng ra ngoài bàn chân $\to$ ngã |
+| **Võng khung & rơ khớp** | Vỏ PLA mỏng 1.0–1.2 mm, trục servo đơn điểm (single horn) | Diện tích bàn chân nhỏ ($76 \times 38\text{ mm}$) | Biến dạng đàn hồi 2°–3° làm điểm ZMP văng ra ngoài bàn chân $\to$ ngã |
 
 ---
 
@@ -19,7 +21,7 @@ Tài liệu này tổng hợp phân tích kỹ thuật, các điểm nghẽn v�
 
 ```mermaid
 flowchart LR
-  P1["<b>Giai đoạn 1: Ngắn hạn (Zero-Cost / Low-Cost)</b><br/>• In LW-PLA / TPU Sole<br/>• Tụ Low-ESR 2200µF<br/>• Action Smoothing RL<br/>• Tinh chỉnh góc SWAY"]
+  P1["<b>Giai đoạn 1: Ngắn hạn (Zero-Cost / Low-Cost)</b><br/>• In LW-PLA / TPU Sole<br/>• Tụ Low-ESR 2200µF<br/>• Action Smoothing RL<br/>• Tinh chỉnh LEAN / T_SWING"]
   P2["<b>Giai đoạn 2: Trung hạn (Độ bền P1/P2)</b><br/>• Khung PETG-CF<br/>• Vòng bi đối đỉnh Idler Horn<br/>• Đo nhiệt NTC + Shunt INA226<br/>• UBEC 12A Peak + Mass sao"]
   P3["<b>Giai đoạn 3: Dài hạn (Bazan 2.0 Pro)</b><br/>• Smart Bus Servos (STS3215/Dynamixel)<br/>• Cơ cấu Parallel Linkage hông<br/>• Actuator Net Sim2Real<br/>• Đo lường ZMP / LIPM khép vòng"]
 
@@ -31,10 +33,9 @@ flowchart LR
 ### 🟢 Giai đoạn 1: Khắc phục tức thời (Chi phí thấp / Tối ưu phần mềm & in 3D)
 *Mục tiêu: Đảm bảo nguyên mẫu ban đầu chạy ổn định, không bị sập nguồn hay cháy servo hông.*
 
-1. **Giảm tải khối lượng bằng vật liệu in LW-PLA (Lightweight PLA):**
-   - Thay thế toàn bộ vỏ thân (trunk) và đầu từ PLA tiêu chuẩn sang **LW-PLA (active foaming)**.
-   - Giảm tổng trọng lượng robot từ **677 g $\to$ 603 g** (giảm 74 g, tương đương ~11% toàn thân).
-   - Tải RMS của servo hông `hip_roll` tự động giảm từ 77% xuống **~68%**, đưa điểm làm việc về vùng an toàn.
+1. **Giảm khối lượng phần in:**
+   - Khung in (473 g) là nhóm nặng nhất trong 1083 g, vỏ in 109 g (`mass_budget.md`). Giảm thành/infill của khung và in vỏ thân, đầu bằng **LW-PLA (active foaming)**.
+   - Mức giảm thật phải cân sau khi in (test T8); chạy lại `check_mujoco.py` và `gen_docs.py` để thấy tải `knee` / `hip_roll` mới.
 
 2. **Đế giày đàn hồi triệt tiêu phản lực tiếp đất (TPU 95A Sole):**
    - In 3D lớp đệm đáy bàn chân dày 2.0 mm bằng **TPU 95A** dạng tổ ong (gyroid/infill 25%).
@@ -45,7 +46,7 @@ flowchart LR
    - Bù dòng xả tức thời trong 1–5 ms đầu khi motor đảo chiều, dập tắt gai điện áp (voltage spikes).
 
 4. **Tối ưu phần mềm & Hàm thưởng RL (Action Smoothing & Gait Tuning):**
-   - Trong `mico_gait.py`: Giảm góc lắc ngang `SWAY` từ `0.20 rad` xuống `0.16 rad`, tăng tốc độ chuyển trọng tâm để rút ngắn thời gian giữ tải tĩnh trên một chân.
+   - Trong `bazan_gait.py`: rút ngắn pha một chân (`T_SWING`) và chọn cặp `LEAN` / `H0` theo số đo P0 — nghiêng xương chậu nhiều thì đỡ tải `hip_roll` nhưng gối phải gập sâu hơn (`H0_LEANED`), tải `knee` tăng.
    - Trong huấn luyện RL (`train_mico_ppo.py`): Bật phạt gia tốc hành động $\|\ddot{a}\| = \|a_t - 2a_{t-1} + a_{t-2}\|^2$ để triệt tiêu hiện tượng rung giật tần số cao (chattering).
 
 ---
@@ -95,7 +96,7 @@ flowchart LR
 | Giải pháp | Hạng mục | Chi phí ước tính (VND) | Tác động kỹ thuật |
 | :--- | :--- | :--- | :--- |
 | **Giai đoạn 1** | Tụ Low-ESR 2200µF × 2 | ~15,000 | Chống sập nguồn, dập xung nhọn 6V |
-| | Cuộn nhựa LW-PLA (0.8 kg) | ~450,000 | Giảm 76 g khối lượng, giảm 12% nhiệt hông |
+| | Cuộn nhựa LW-PLA (0.8 kg) | ~450,000 | Giảm khối lượng vỏ (cân sau khi in), giảm tải nhiệt gối/hông |
 | | Cuộn nhựa TPU 95A (0.5 kg) | ~300,000 | Chống mẻ nhông kim loại khi chạm đất |
 | | Tối ưu code Gait / PPO | 0 | Giảm rung lắc, hạ thời gian chịu tải tĩnh |
 | **Giai đoạn 2** | Cuộn nhựa PETG-CF | ~480,000 | Tăng gấp 3 độ cứng khung chân |

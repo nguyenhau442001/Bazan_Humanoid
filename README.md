@@ -217,7 +217,7 @@ flowchart TB
     GAIT["<b>bazan_gait.py</b><br/>demo gait: walk 8 steps, turn 60°, wave"]
     RL_NODE["<b>rl_locomotion_node</b><br/>ONNX Policy inference @ 50 Hz"]
     PLAY["<b>bazan_playback.py</b><br/>kinematic playback, no physics"]
-    RSP["<b>robot_state_publisher</b><br/>bazan.urdf.xacro"]
+    RSP["<b>robot_state_publisher</b><br/>bazan_cad.urdf"]
     RVIZ["<b>RViz2</b><br/>rviz/bazan.rviz · fixed frame odom"]
     subgraph PERC["humanoid_perception"]
       CAM["camera_subscriber_node<br/>RGB-D sync"]
@@ -555,12 +555,14 @@ flowchart TD
   <img src="docs/design/sketch_shell_a/images/frames.png" width="450" alt="TF frames">
 </p>
 
-Conforms to REP-103 (x forward, y left, z up) and REP-120. `base_link` sits at the hip center (z = 115 mm), `imu_link` sits on the pelvis top plate (z = 145 mm).
+Conforms to REP-103 (x forward, y left, z up) and REP-120. `base_link` sits at the middle of the two hip points (137 mm above the floor with straight legs), `imu_link` on the MPU6050 on deck 1. The picture above shows the retired 303 mm model; the frame names are the same.
+
+One robot description, generated from the printable CAD (`hardware/mechanical/gen_urdf.py`):
 
 | Model Target | Source File |
 | :--- | :--- |
-| ROS 2, RViz2 (URDF / Xacro) | [`src/humanoid_description/urdf/bazan.urdf.xacro`](src/humanoid_description/urdf/bazan.urdf.xacro) |
-| MuJoCo Engine | [`sim/mini_humanoid/humanoid.urdf`](sim/mini_humanoid/humanoid.urdf) |
+| ROS 2, RViz2, MoveIt, firmware joint table | [`src/humanoid_description/urdf/bazan_cad.urdf`](src/humanoid_description/urdf/bazan_cad.urdf) |
+| MuJoCo Engine | [`sim/mujoco/bazan.xml`](sim/mujoco/bazan.xml), built from the same URDF by `sim/mujoco/bazan_mjcf.py` |
 
 ---
 

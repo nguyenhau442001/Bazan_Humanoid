@@ -9,6 +9,11 @@ at the end.
 
 ## The finding that decides everything else
 
+> **Status 2026-11-19: resolved.** The twin is now generated from the printable CAD (`gen_urdf.py` →
+> `bazan_cad.urdf` → MuJoCo, gait, RViz2, MoveIt, firmware joint table and engineering docs). `gen_robot.py`,
+> `bazan.urdf.xacro`, `mini_humanoid/` and the Design C Blender scripts and mass report have been removed. The
+> table below is kept as the record of what the audit found.
+
 The repository holds **two different robots under one name**, and only one of them can be printed.
 
 | | Digital twin | Printable CAD |

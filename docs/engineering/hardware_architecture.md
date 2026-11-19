@@ -2,10 +2,10 @@
 
 Electronics for P1 and later: two compute domains in the style of Renesas' robot processors, the existing hobby
 servos, and position, current and temperature monitoring added around them. Parts are sold in Ho Chi Minh City. Tables between `gen:` markers are written by
-`python docs/engineering/gen_docs.py` from `gen_robot.py` and `mass_report.json`.
+`python docs/engineering/gen_docs.py` from the CAD mass budget (`cad_mass.json`) and `hardware.py`.
 
 <!-- gen:stamp -->
-Generated from `docs/engineering/cad_mass.json`, `software/ros2/src/humanoid_description/urdf/bazan_cad.urdf`, `software/ai/sim/mujoco/servo_loads.csv`, `software/ros2/src/humanoid_control/scripts/bazan_gait.py`, `hardware/mechanical/hardware.py`, `docs/engineering/bom_aplus.csv` · source hash `cfa7fd1757b5`
+Generated from `docs/engineering/cad_mass.json`, `software/ros2/src/humanoid_description/urdf/bazan_cad.urdf`, `software/ai/sim/mujoco/servo_loads.csv`, `software/ros2/src/humanoid_control/scripts/bazan_gait.py`, `hardware/mechanical/hardware.py`, `docs/engineering/bom_aplus.csv` · source hash `2247e7c80149`
 <!-- /gen:stamp -->
 
 ## Rule

@@ -173,7 +173,7 @@ When redesigning the mechanical leg joints (e.g., repositioning motor brackets f
 
 1. **Compatibility:** **100% tensor shape compatibility** ($s_t \in \mathbb{R}^{47}$, $a_t \in \mathbb{R}^{12}$).
 2. **Reuse Strategy — Warm-Start Fine-Tuning:**
-   - Update mechanical parameters in the URDF/MJCF models (`mico.urdf.xacro` / `humanoid.urdf`): link masses $m_i$, inertia tensors $I_i$, peak torque limits $\tau_{max}$, and gear ratios.
+   - Change the CAD (`hardware/mechanical/`) and regenerate `bazan_cad.urdf` (`gen_urdf.py`) and `bazan.xml` (`bazan_mjcf.py`): link masses $m_i$, inertia tensors $I_i$ and torque limits $\tau_{max}$ follow from it.
    - Load the top-performing checkpoint as pretrained initialization:
      ```bash
      python3 src/humanoid_control/scripts/train_mico_ppo.py \
