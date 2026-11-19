@@ -272,6 +272,16 @@ flowchart LR
 > has been removed from `models/` (they stay in git history). The RL environment (`bazan_rl_env.py`) now runs on the
 > robot generated from the CAD (1083 g, 407 mm); its residual reference, `bazan_gait.walk_continuous`, walks on it with
 > zero action. Retrain before using `bazan_rl_node.py`. The figures in this section describe the old twin.
+>
+> Training and the node share one definition of what the policy sees and does (`bazan_policy_io.py`; a test
+> checks they match step for step). The INA226 and NTC inputs come from servo torque, FSR and ToF from MuJoCo
+> contacts and rays, and commands are in units of the reference gait's speed (about 9 mm/s). To retrain:
+>
+> ```bash
+> python3 src/humanoid_control/scripts/train_bazan_ppo.py --arch perceptive_titan --residual --domain-rand \
+>     --iterations 500 --version-tag v17.0_cad --activate
+> ros2 launch humanoid_description bazan_mujoco.launch.py      # then: ros2 run humanoid_control bazan_rl_node.py
+> ```
 
 End-to-End Goal-Conditioned RL Policy trained with hardware-accelerated MuJoCo and Apple Silicon Metal GPU (PyTorch MPS).
 
