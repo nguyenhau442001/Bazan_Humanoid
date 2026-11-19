@@ -130,4 +130,7 @@
   <link name="l_sole"/><joint name="l_sole_joint" type="fixed"><parent link="l_ankle_roll_link"/><child link="l_sole"/><origin xyz="0 0 -0.02133" rpy="0 0 0"/></joint>
   <link name="r_sole"/><joint name="r_sole_joint" type="fixed"><parent link="r_ankle_roll_link"/><child link="r_sole"/><origin xyz="0 0 -0.02133" rpy="0 0 0"/></joint>
   <link name="imu_link"/><joint name="imu_link_joint" type="fixed"><parent link="base_link"/><child link="imu_link"/><origin xyz="0.01300 0.00000 0.13193" rpy="0 0 0"/></joint>
+  <link name="camera_link"/><joint name="camera_link_joint" type="fixed"><parent link="head_pitch_link"/><child link="camera_link"/><origin xyz="0.03411 -0.00018 0.04541" rpy="0.00000 0.26180 0.00000"/></joint>
+  <link name="tof_link"/><joint name="tof_link_joint" type="fixed"><parent link="head_pitch_link"/><child link="tof_link"/><origin xyz="0.02971 -0.00018 0.02899" rpy="0.00000 0.26180 0.00000"/></joint>
+  <link name="camera_optical_frame"/><joint name="camera_optical_joint" type="fixed"><parent link="camera_link"/><child link="camera_optical_frame"/><origin xyz="0 0 0" rpy="-1.57080 0.00000 -1.57080"/></joint>
 </robot>

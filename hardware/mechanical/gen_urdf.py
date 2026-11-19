@@ -16,7 +16,8 @@ so a right-side roll or yaw limit is the mirror of the left one). Everything els
     inertials       every component of audit.weigh() (printed parts with their print recipe, servos, boards,
                     battery, shell, wiring) integrated with its own solid: mass, centre of mass and the full inertia
                     tensor about the link CoM (parallel axis theorem), at the zero pose
-    frames          l_sole / r_sole on the floor under the ankle, imu_link where the MPU6050 sits on the A+ board
+    frames          l_sole / r_sole on the floor under the ankle, imu_link where the MPU6050 sits on the A+ board,
+                    camera_link (+ camera_optical_frame) and tof_link where the camera mount holds them (sensors.py)
 
 Units: the CAD is in mm and g, the URDF in m and kg. Every link frame is parallel to the robot frame at the zero
 pose (x forward, y left, z up, REP-103), base_link at the middle of the two hip points H. Collision and visual
@@ -225,9 +226,19 @@ def urdf_text(m):
                  f'<parent link="{s}_ankle_roll_link"/><child link="{s}_sole"/>'
                  f'<origin xyz="0 0 {(m["floor"] - ar[2]) / 1000:.5f}" rpy="0 0 0"/></joint>')
     import sensors
-    imu = np.array(sensors.get_body_sensors(m["body"])["imu_frame"].pos)          # one source for the IMU frame
+    sens = sensors.get_body_sensors(m["body"])                                     # one source for sensor frames
+    imu = np.array(sens["imu_frame"].pos)
     L.append('  <link name="imu_link"/><joint name="imu_link_joint" type="fixed"><parent link="base_link"/>'
              f'<child link="imu_link"/><origin xyz="{f(imu / 1000)}" rpy="0 0 0"/></joint>')
+    for ln, key in (("camera_link", "camera_frame"), ("tof_link", "tof_frame")):
+        sf = sens[key]
+        o = (np.array(sf.pos) - m["frame"]["head_pitch_link"]) / 1000
+        L.append(f'  <link name="{ln}"/><joint name="{ln}_joint" type="fixed"><parent link="head_pitch_link"/>'
+                 f'<child link="{ln}"/><origin xyz="{f(o)}" rpy="{f(np.radians(sf.rpy_deg))}"/></joint>')
+    opt = np.radians(sens["camera_optical_frame"].rpy_deg)
+    L.append('  <link name="camera_optical_frame"/><joint name="camera_optical_joint" type="fixed">'
+             f'<parent link="camera_link"/><child link="camera_optical_frame"/><origin xyz="0 0 0" rpy="{f(opt)}"/>'
+             '</joint>')
     L.append("</robot>")
     return "\n".join(L) + "\n"
 
