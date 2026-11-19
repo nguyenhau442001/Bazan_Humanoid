@@ -47,7 +47,7 @@ jobs:
         working-directory: hardware/mechanical
         run: python drawings.py N3 --check
 
-      - name: Head drawings match the CAD (N2, N4, C3, C4, C5, H0)
+      - name: Part and assembly drawings match the CAD (drawings_parts.py all)
         working-directory: hardware/mechanical
         run: python drawings_parts.py all --check
 
