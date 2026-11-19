@@ -4,8 +4,9 @@ on:
   push:
     branches: [jazzy, main]
     paths: ["hardware/mechanical/**", "mechanical/**", "docs/mechanical/**",
-            "software/ros2/src/humanoid_control/scripts/mico_gait.py",
-            "src/humanoid_control/scripts/mico_gait.py",
+            "software/ros2/src/humanoid_control/scripts/bazan_gait.py",
+            "software/ros2/src/humanoid_control/scripts/bazan_mujoco.py",
+            "software/ai/sim/mujoco/**",
             "software/ros2/src/humanoid_description/urdf/bazan_cad.urdf",
             ".github/workflows/mechanical.yaml"]
   pull_request:
@@ -42,6 +43,12 @@ jobs:
       - name: URDF twin matches the CAD and loads in Pinocchio and MuJoCo
         working-directory: hardware/mechanical
         run: python gen_urdf.py --check --validate
+
+      - name: MuJoCo model (bazan.xml) matches the CAD URDF
+        run: python software/ai/sim/mujoco/bazan_mjcf.py --check
+
+      - name: The demo walks, turns and waves on the CAD robot in MuJoCo
+        run: python software/ai/sim/mujoco/check_mujoco.py --no-write
 
       - name: N3 drawing matches the CAD (dimensions, features, layout)
         working-directory: hardware/mechanical
