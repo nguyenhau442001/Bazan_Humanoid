@@ -3,7 +3,7 @@ project(humanoid_description)
 
 find_package(ament_cmake REQUIRED)
 
-install(DIRECTORY urdf launch rviz meshes
+install(DIRECTORY urdf launch rviz
   DESTINATION share/${PROJECT_NAME}
 )
 
