@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""MuJoCo <-> ROS 2 bridge for Mico: physics in MuJoCo, the topics a ros2_control robot would use.
+"""MuJoCo <-> ROS 2 bridge for Bazan: physics in MuJoCo, the topics a ros2_control robot would use.
 
 Publishes (stamped with sim time):
     /clock                      rosgraph_msgs/Clock
-    /joint_states               sensor_msgs/JointState (position, velocity, servo torque), mico_gait.JOINTS order
+    /joint_states               sensor_msgs/JointState (position, velocity, servo torque), bazan_gait.JOINTS order
     /tf  odom -> base_link      ground truth of the free base
     /odom                       nav_msgs/Odometry, same pose, twist in base_link
     /imu                        sensor_msgs/Imu in imu_link (+9.81 m/s^2 on z at rest)
@@ -12,10 +12,11 @@ Subscribes:
                                                     linear interpolation on sim time, zero stamp = start now
     /position_controller/commands                   std_msgs/Float64MultiArray, 20 targets in JOINTS order
 
-    ros2 launch humanoid_description mico_mujoco.launch.py gait:=true        # bridge + RViz2 + demo gait
-    ros2 run humanoid_control mico_mujoco_bridge.py --ros-args -p robot_description:="$(xacro ...)"
+    ros2 launch humanoid_description bazan_mujoco.launch.py gait:=true       # bridge + RViz2 + demo gait
+    ros2 run humanoid_control bazan_mujoco_bridge.py      # robot_description defaults to bazan_cad.urdf
 
-The servo model and the MJCF are in mico_mujoco.py. viewer:=true opens the MuJoCo viewer (macOS: run the bridge
+The robot is bazan_cad.urdf (generated from the CAD); the servo model and the MJCF are in bazan_mujoco.py.
+viewer:=true opens the MuJoCo viewer (macOS: run the bridge
 with mjpython, the launch file does that).
 """
 import os
@@ -58,25 +59,13 @@ def make_node():
             self.declare_parameter("kp", mm.KP)
             self.declare_parameter("kv", mm.KV)
             self.declare_parameter("armature", mm.ARMATURE)
-            urdf = self.get_parameter("robot_description").value
-            if not urdf:
-                raise RuntimeError("parameter robot_description is empty")
+            urdf = self.get_parameter("robot_description").value or mm.CAD_URDF.read_text()
             p = self.get_parameter
             self.sim = mm.BazanSim(
                 mm.build_mjcf(urdf, resolve_mesh, p("kp").value, p("kv").value, p("armature").value)
             )
-            # Initialize with nominal crouch standing pose so robot never falls during node startup
-            try:
-                import bazan_gait as gait
-            except ImportError:
-                import mico_gait as gait
-            hp, kn, ap = gait.leg_ik(0, gait.H0)
-            nominal_pose = {
-                "l_hip_pitch": hp, "l_knee": kn, "l_ankle_pitch": ap,
-                "r_hip_pitch": hp, "r_knee": kn, "r_ankle_pitch": ap,
-                "l_elbow": -0.4, "r_elbow": -0.4,
-            }
-            self.sim.reset(pose=nominal_pose)
+            # Start in the gait's crouch (CoM between the feet) so the robot never falls during node startup
+            self.sim.reset(pose=mm.gait.crouch_pose(1.0)[0])
             self.steps = max(1, int(round(1.0 / (p("publish_rate").value * self.sim.model.opt.timestep))))
             self.rtf = p("real_time_factor").value
 

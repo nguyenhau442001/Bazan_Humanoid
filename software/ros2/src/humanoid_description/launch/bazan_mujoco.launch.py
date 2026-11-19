@@ -5,7 +5,9 @@ Native on macOS (ros2_jazzy conda env) or in the Ubuntu VM:
     ros2 launch humanoid_description bazan_mujoco.launch.py gait:=true          # walk 8 steps, turn 60 deg, wave
     ros2 launch humanoid_description bazan_mujoco.launch.py gait:=true loop:=true viewer:=true   # nonstop
     ros2 launch humanoid_description bazan_mujoco.launch.py viewer:=true        # also the MuJoCo viewer
-    ros2 launch humanoid_description bazan_mujoco.launch.py rviz:=false look:=boxes
+    ros2 launch humanoid_description bazan_mujoco.launch.py rviz:=false
+
+The robot is urdf/bazan_cad.urdf, generated from the CAD (hardware/mechanical/gen_urdf.py).
 """
 import sys
 
@@ -22,8 +24,6 @@ VIEWER_PYTHON = 'mjpython' if sys.platform == 'darwin' else ''
 
 
 def generate_launch_description():
-    look = LaunchConfiguration('look')
-    mass = LaunchConfiguration('mass')
     gait = LaunchConfiguration('gait')
     rl = LaunchConfiguration('rl')
     loop = LaunchConfiguration('loop')
@@ -36,17 +36,12 @@ def generate_launch_description():
                               description='repeat the demo nonstop (each pass turns another 60 deg)'),
         DeclareLaunchArgument('rviz', default_value='true', description='open RViz2 with rviz/bazan.rviz'),
         DeclareLaunchArgument('viewer', default_value='false', description='open the MuJoCo viewer'),
-        DeclareLaunchArgument('look', default_value='bazan',
-                              description='bazan: Blender shell meshes, boxes: servo boxes'),
-        DeclareLaunchArgument('mass', default_value='sim',
-                              description='sim: masses the gait was tuned on, blender: shell mass budget'),
     ]
 
     share = FindPackageShare('humanoid_description')
     robot_description = ParameterValue(
         Command([PathJoinSubstitution([FindExecutable(name='xacro')]), ' ',
-                 PathJoinSubstitution([share, 'urdf', 'bazan.urdf.xacro']),
-                 ' look:=', look, ' mass:=', mass]),
+                 PathJoinSubstitution([share, 'urdf', 'bazan_cad.urdf'])]),
         value_type=str)
 
     rsp = Node(package='robot_state_publisher', executable='robot_state_publisher', output='screen',

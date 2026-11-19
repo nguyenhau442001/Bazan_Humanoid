@@ -4,7 +4,6 @@ Runs with:
     python3 -m pytest src/humanoid_control/test/test_mico_rl.py
 """
 from pathlib import Path
-import shutil
 import sys
 
 import numpy as np
@@ -65,8 +64,6 @@ except ImportError:
 def check_prerequisites():
     if env_mod is None:
         pytest.skip("mico_rl_env or dependencies not installed")
-    if shutil.which("xacro") is None:
-        pytest.skip("xacro not found in PATH")
 
 
 def test_quat_to_rot_matrix():

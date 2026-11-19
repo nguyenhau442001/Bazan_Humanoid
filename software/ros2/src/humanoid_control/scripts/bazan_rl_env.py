@@ -18,8 +18,6 @@ Action space (12-dim):
 """
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-import shutil
-import subprocess
 import sys
 
 import mujoco
@@ -119,41 +117,9 @@ assert len(ACTION_32_NAMES) == 32
 
 
 def build_bazan_model():
-    """Build Bazan MuJoCo model from xacro description."""
-    desc = REPO / "src" / "humanoid_description"
-    if not desc.exists():
-        for p in [HERE, HERE.parent, HERE.parents[1], HERE.parents[2]]:
-            candidate = p / "src" / "humanoid_description"
-            if candidate.exists():
-                desc = candidate
-                break
-
-    xacro_exe = shutil.which("xacro")
-    if not xacro_exe:
-        cand_xacro = Path(sys.executable).parent / "xacro"
-        if cand_xacro.exists():
-            xacro_exe = str(cand_xacro)
-    if not xacro_exe:
-        raise RuntimeError("xacro command not found in PATH")
-
-    xacro_file = desc / "urdf" / "bazan.urdf.xacro"
-    if not xacro_file.exists():
-        xacro_file = desc / "urdf" / "mico.urdf.xacro"
-
-    cmd = [
-        xacro_exe,
-        str(xacro_file),
-        "look:=bazan",
-        "mass:=sim",
-    ]
-    urdf = subprocess.run(cmd, check=True, capture_output=True, text=True).stdout
-
-    def resolve(filename):
-        return str(desc / filename[len("package://humanoid_description/"):])
-
-    xml = mm.build_mjcf(urdf, resolve)
-    model = mujoco.MjModel.from_xml_string(xml)
-    return model, xml
+    """Bazan MuJoCo model: the twin generated from the CAD (bazan_cad.urdf)."""
+    xml = mm.cad_mjcf()
+    return mujoco.MjModel.from_xml_string(xml), xml
 
 
 build_mico_model = build_bazan_model
@@ -234,19 +200,14 @@ class BazanEnv:
             self.default_friction = 1.0
 
         # Nominal stand pose
-        self.q_nominal = np.zeros(len(gait.JOINTS), dtype=np.float64)
-        hp, kn, ap = gait.leg_ik(0, gait.H0)
-        for side in ("l", "r"):
-            self.q_nominal[gait.JOINTS.index(f"{side}_hip_pitch")] = hp
-            self.q_nominal[gait.JOINTS.index(f"{side}_knee")] = kn
-            self.q_nominal[gait.JOINTS.index(f"{side}_ankle_pitch")] = ap
-        self.q_nominal[gait.JOINTS.index("l_elbow")] = -0.4
-        self.q_nominal[gait.JOINTS.index("r_elbow")] = -0.4
+        stand = gait.crouch_pose(1.0)[0]                          # the gait's start pose, CoM between the feet
+        self.q_nominal = np.array([stand[j] for j in gait.JOINTS], dtype=np.float64)
 
         self.leg_q_nominal = np.array([self.q_nominal[gait.JOINTS.index(j)] for j in LEG_JOINTS])
         self.arm_q_nominal = np.array([self.q_nominal[gait.JOINTS.index(j)] for j in ARM_JOINTS])
         self.neck_q_nominal = np.array([self.q_nominal[gait.JOINTS.index(j)] for j in NECK_JOINTS])
-        self.nominal_height = 0.112
+        self.nominal_height = gait.SOLE + gait.ROLL_DOWN + gait.H0   # pelvis above the floor
+        self.fall_height = 0.6 * self.nominal_height
         self.target_prob = 0.0
 
         # Physics baseline snapshots for domain randomization
@@ -599,7 +560,7 @@ class BazanEnv:
         if self.domain_rand or self.obstacle_rand or self.terrain_roughness > 0.0:
             if self.terrain_roughness > 0.0 and (self.step_count % 6 == 0):
                 z_jitter = float(np.random.uniform(-self.terrain_roughness, self.terrain_roughness))
-                self.data.qpos[2] = max(0.065, self.data.qpos[2] + z_jitter)
+                self.data.qpos[2] = max(self.fall_height, self.data.qpos[2] + z_jitter)
 
             if getattr(self, "obstacle_active", False) and (self.step_count % 25 == 12):
                 l_z = self.data.xpos[self.sole_ids[0]][2]
@@ -693,7 +654,7 @@ class BazanEnv:
         proj_gravity_z = (r_mat.T @ np.array([0.0, 0.0, -1.0]))[2]
 
         # Termination: fallen or severe pitch/roll (> 75 deg)
-        terminated = bool((base_z < 0.065) or (proj_gravity_z > -0.25))
+        terminated = bool((base_z < self.fall_height) or (proj_gravity_z > -0.25))
         truncated = bool(self.step_count >= self.max_episode_steps)
 
         action_arr = np.asarray(action, dtype=np.float64)

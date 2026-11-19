@@ -12,8 +12,6 @@ Usage:
 from concurrent.futures import ThreadPoolExecutor
 import os
 from pathlib import Path
-import shutil
-import subprocess
 import sys
 import time
 
@@ -40,30 +38,9 @@ import mico_mujoco as mm  # noqa: E402
 
 
 def build_mico_model():
-    """Build Mico MuJoCo model from xacro description."""
-    desc = REPO / "src" / "humanoid_description"
-    xacro_exe = shutil.which("xacro")
-    if not xacro_exe:
-        cand_xacro = Path(sys.executable).parent / "xacro"
-        if cand_xacro.exists():
-            xacro_exe = str(cand_xacro)
-    if not xacro_exe:
-        raise RuntimeError("xacro command not found in PATH")
-
-    cmd = [
-        xacro_exe,
-        str(desc / "urdf" / "mico.urdf.xacro"),
-        "look:=mico",
-        "mass:=sim",
-    ]
-    urdf = subprocess.run(cmd, check=True, capture_output=True, text=True).stdout
-
-    def resolve(filename):
-        return str(desc / filename[len("package://humanoid_description/"):])
-
-    xml = mm.build_mjcf(urdf, resolve)
-    model = mujoco.MjModel.from_xml_string(xml)
-    return model, xml
+    """Bazan MuJoCo model: the twin generated from the CAD (bazan_cad.urdf)."""
+    xml = mm.cad_mjcf()
+    return mujoco.MjModel.from_xml_string(xml), xml
 
 
 def benchmark_mujoco_c_single(model, steps=10000):

@@ -1,12 +1,13 @@
-"""Offline checks of mico_playback.py (numpy only, no ROS): FK from the URDF and stance-foot odometry.
+"""Offline checks of bazan_playback.py (numpy only, no ROS): FK from the CAD URDF and stance-foot odometry.
 
-    python3 -m pytest src/humanoid_control/test/test_mico_playback.py
+    python3 -m pytest software/ros2/src/humanoid_control/test/test_bazan_playback.py
 """
 import math
 import sys
 from pathlib import Path
 
 import numpy as np
+import pytest
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE
@@ -22,13 +23,12 @@ try:
 except ImportError:
     import mico_playback as mp  # noqa: E402
 
-XACRO = HERE.parents[1] / "humanoid_description" / "urdf" / "bazan.urdf.xacro"
-URDF = REPO / "software" / "ai" / "sim" / "mini_humanoid" / "humanoid.urdf"
+URDF = gait.URDF
 DT = 0.02       # 50 Hz, as the node
 MM = 1e-3
 
 
-def kinematics(path=XACRO):
+def kinematics(path=URDF):
     return mp.Kinematics(path.read_text())
 
 
@@ -38,7 +38,7 @@ def run_demo(kin):
     rows = []
     for i in range(int(gait.T_END / DT) + 1):
         t = i * DT
-        q = gait.targets(t)
+        q = gait.targets(t, sag=False)
         base = anchor.reset(q) if i == 0 else anchor.update(q)
         rows.append((t, anchor.stance, base, {s: base @ kin.pose(q, s) for s in mp.SOLES}))
     return rows
@@ -46,23 +46,26 @@ def run_demo(kin):
 
 def test_standing_pose():
     kin = kinematics()
-    q = gait.targets(0.0)
-    for side, y in (("l_sole", 0.022), ("r_sole", -0.022)):
+    q = gait.targets(0.0, sag=False)
+    z = gait.SOLE + gait.ROLL_DOWN + gait.L1 + gait.L2                 # straight legs, as spawned
+    for side, y in (("l_sole", gait.HIP_Y), ("r_sole", -gait.HIP_Y)):
         sole = kin.pose(q, side)
-        assert abs(sole[2, 3] + 0.115) < 1 * MM, "base_link is 115 mm above the soles"
+        assert abs(sole[2, 3] + z) < 1 * MM, "base_link sits at the hip pitch axes"
         assert abs(sole[1, 3] - y) < 1 * MM and abs(sole[0, 3]) < 1 * MM
     base = mp.SoleAnchor(kin).reset(q)
-    assert abs(base[2, 3] - 0.115) < 1 * MM
+    assert abs(base[2, 3] - z) < 1 * MM
     assert np.allclose(base[:2, 3], 0.0, atol=1 * MM) and np.allclose(base[:3, :3], np.eye(3), atol=1e-9)
 
 
-def test_fk_matches_plain_urdf():
-    """The xacro and sim/mini_humanoid/humanoid.urdf come from the same generator: same FK."""
-    a, b = kinematics(XACRO), kinematics(URDF)
-    for t in np.linspace(0.0, gait.T_END, 40):
-        q = gait.targets(t)
-        for link in mp.SOLES + ("l_gripper", "r_gripper", "camera_link"):
-            assert np.allclose(a.pose(q, link), b.pose(q, link), atol=1e-9)
+def test_planned_com_over_the_stance_foot():
+    """Halfway through a swing the CoM of the CAD masses is over the stance sole (within 1 mm)."""
+    q = gait.single_support("l")
+    T = gait.MODEL.fk(q)
+    sole_R, sole_p = T["l_sole"]
+    d = sole_R.T @ (gait.MODEL.com_of(T) - sole_p)          # CoM in the stance sole frame (z up, flat on the floor)
+    assert np.linalg.norm(d[:2]) < 1 * MM
+    roll = math.atan2(sole_R[2, 1], sole_R[2, 2])                  # pelvis rolled toward the loaded foot
+    assert roll == pytest.approx(gait.LEAN, abs=1e-3)
 
 
 def test_stance_foot_stays_put():
@@ -97,24 +100,29 @@ def test_feet_on_the_floor_do_not_slide():
 
 def test_walks_forward_and_turns_left_60():
     rows = run_demo(kinematics())
-    end_walk = next(base for t, _, base, _ in rows if t >= gait.T_TURN0)
-    assert abs(end_walk[0, 3] - 7 * gait.STEP) < 2 * MM, "8 steps: 7 full strides of 24 mm"
+    t_end, end_walk = next((t, base) for t, _, base, _ in rows if t >= gait.T_TURN0)
+    q = gait.targets(t_end, sag=False)
+    com = end_walk[:3, :3] @ gait.MODEL.com_of(gait.MODEL.fk(q)) + end_walk[:3, 3]
+    planned = (gait.WALK_STEPS - 1.5) * gait.STEP                       # both feet end 6.5 strides ahead
+    assert abs(com[0] - planned) < 3 * MM, "the CoM ends between the feet (odometry slips ~0.2 mm per step)"
     assert abs(end_walk[1, 3]) < 2 * MM and abs(math.degrees(mp.yaw_of(end_walk))) < 0.5
     xs = [base[0, 3] for t, _, base, _ in rows if t <= gait.T_TURN0]
-    assert all(b >= a - 1 * MM for a, b in zip(xs, xs[1:])), "x never goes backwards while walking"
+    assert all(b >= a - 10 * MM for a, b in zip(xs, xs[1:])), "the pelvis only backs off to balance a swing leg"
     end = rows[-1][2]
-    assert abs(math.degrees(mp.yaw_of(end)) - 60.0) < 1.0
-    assert 0.105 < min(base[2, 3] for _, _, base, _ in rows) and max(base[2, 3] for _, _, base, _ in rows) < 0.116
+    assert abs(math.degrees(mp.yaw_of(end)) - 60.0) < 2.0           # the same slip as above, in yaw
+    zs = [base[2, 3] for _, _, base, _ in rows]
+    assert gait.SOLE + gait.ROLL_DOWN + gait.H0_LEANED - 2 * MM < min(zs)               # crouched in single support
+    assert max(zs) < gait.SOLE + gait.ROLL_DOWN + gait.L1 + gait.L2 + 1 * MM
 
 
 def test_trajectory_points():
-    """mico_gait.trajectory_points (what the gait node sends to MuJoCo) samples targets() at 50 Hz."""
+    """bazan_gait.trajectory_points (what the gait node sends to MuJoCo) samples targets() at 50 Hz."""
     times, positions = gait.trajectory_points(50.0, 2.0)
     assert len(times) == len(positions) == int(round((2.0 + gait.T_END) * 50)) + 1
     assert all(p == [0.0] * len(gait.JOINTS) for t, p in zip(times, positions) if t <= 2.0)
     for i in (150, 800, 1500):
         q = gait.targets(times[i] - 2.0)
-        assert positions[i] == [float(q.get(j, 0.0)) for j in gait.JOINTS]
+        assert np.allclose(positions[i], [q[j] for j in gait.JOINTS], atol=1e-4)   # IK solved to 1e-6 m
 
 
 def test_quaternion():

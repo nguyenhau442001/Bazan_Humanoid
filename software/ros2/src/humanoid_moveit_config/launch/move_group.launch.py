@@ -29,8 +29,7 @@ def generate_launch_description():
     # Robot Description (URDF from xacro)
     robot_description_content = Command([
         PathJoinSubstitution([FindExecutable(name="xacro")]), " ",
-        PathJoinSubstitution([desc_share, "urdf", "bazan.urdf.xacro"]),
-        " look:=bazan mass:=sim"
+        PathJoinSubstitution([desc_share, "urdf", "bazan_cad.urdf"]),
     ])
     robot_description = {"robot_description": ParameterValue(robot_description_content, value_type=str)}
 

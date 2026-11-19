@@ -8,7 +8,7 @@ forward kinematics from the URDF gives l_sole and r_sole in base_link, the lower
 roll = pitch = 0, yaw kept). Every tick T_odom_base = T_odom_sole * inv(T_base_sole), so a planted foot
 never slides.
 
-    ros2 run humanoid_control mico_playback.py --ros-args -p robot_description:="$(xacro mico.urdf.xacro)"
+    ros2 run humanoid_control bazan_playback.py --ros-args -p robot_description:="$(cat bazan_cad.urdf)"
     ros2 run humanoid_control mico_playback.py --ros-args -p motion:=stand -p robot_description:=...
 
 The kinematics (Kinematics, SoleAnchor) only need numpy, so they can be tested without ROS.
@@ -187,7 +187,7 @@ def make_node():
         def tick(self):
             now = self.get_clock().now()
             t = 0.0 if self.motion == "stand" else ((now - self.start).nanoseconds * 1e-9) % gait.T_END
-            q = gait.targets(t)
+            q = gait.targets(t, sag=False)                  # the planned pose, not the servo command
             if self.last_t is None or t < self.last_t:
                 odom_base = self.anchor.reset(q)          # each loop starts again at the odom origin
             else:

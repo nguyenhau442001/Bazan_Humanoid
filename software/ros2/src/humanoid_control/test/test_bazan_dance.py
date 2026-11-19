@@ -4,7 +4,6 @@ Runs with:
     python3 -m pytest src/humanoid_control/test/test_mico_dance.py
 """
 from pathlib import Path
-import shutil
 import sys
 import tempfile
 import wave
@@ -38,8 +37,6 @@ except ImportError:
 def check_prerequisites():
     if dance is None or env_mod is None:
         pytest.skip("mico_dance or dependencies not installed")
-    if shutil.which("xacro") is None:
-        pytest.skip("xacro not found in PATH")
 
 
 def test_nhe_buong_kinematics(check_prerequisites):
