@@ -47,6 +47,10 @@ jobs:
         working-directory: hardware/mechanical
         run: python drawings.py N3 --check
 
+      - name: Head drawings match the CAD (N2, N4, C3, C4, C5, H0)
+        working-directory: hardware/mechanical
+        run: python drawings_parts.py all --check
+
       - name: Build print files
         working-directory: hardware/mechanical
         run: python -c "import gen_docs, leg; gen_docs.write_print_files(leg.Leg())"
