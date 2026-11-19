@@ -13,7 +13,8 @@ CHAIN = [  # (joint, parent link, child link)
 # kinematic joint axis (sign as in the URDF): hip yaw +z, roll +x, pitch +y
 AXIS = {"hip_yaw": (0, 0, 1), "hip_roll": (1, 0, 0), "hip_pitch": (0, 1, 0), "knee": (0, 1, 0),
         "ankle_pitch": (0, 1, 0), "ankle_roll": (1, 0, 0)}
-LINK_OF = {"sole": "foot", "hip_mount": "pelvis", "thrust_ring": "pelvis"}
+LINK_OF = {"sole": "foot", "hip_mount": "pelvis", "thrust_ring": "pelvis", "shin_plate_h": "shin",
+           "shin_plate_i": "shin"}
 
 
 def link_locations(leg, q):

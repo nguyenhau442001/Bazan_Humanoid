@@ -43,6 +43,7 @@ XACRO = REPO / "software" / "ros2" / "src" / "humanoid_description" / "urdf" / "
 MASS_REPORT = REPO / "design" / "blender" / "mass_report.json"
 CLEAR = hw.GAP_MOVING                    # moving parts closer than this are reported as near-collisions
 PLA, PETG, TPU = 1.24e-3, 1.27e-3, 1.21e-3   # g/mm3
+METAL = {"shin_plate_h": 2.68e-3, "shin_plate_i": 2.68e-3}   # cut plates, solid: Al 5052 (carbon 3K 1.55e-3)
 SERVO_OF = {"hip_yaw": "MG90S", "shoulder_pitch": "MG90S", "shoulder_roll": "SG90", "elbow": "SG90",
             "neck_yaw": "SG90", "head_pitch": "SG90"}          # the rest MG92B (gen_robot.py)
 SERVO_G = {"MG92B": hw.MG92B.mass, "MG90S": hw.MG90S.mass, "SG90": 9.0}
@@ -439,7 +440,8 @@ def weigh(leg, body, sh, q=None):
     rep = json.loads(MASS_REPORT.read_text())
     parts = {}
     for n, s in leg.parts.items():
-        parts[f"leg.{n}"] = (TPU * s.Volume() if n == "sole" else printed_g(s, "leg"), 2)
+        parts[f"leg.{n}"] = (TPU * s.Volume() if n == "sole" else METAL[n] * s.Volume() if n in METAL
+                             else printed_g(s, "leg"), 2)
     for n, s in body.parts.items():
         parts[n] = (printed_g(s, "arm" if n in ARM_PARTS else "deck"), 2 if n in SIDED else 1)
     for n, s in sh.parts.items():

@@ -41,6 +41,17 @@ RING_R = (13.0, 21.0)    # yaw thrust ring: carries the robot's weight past the 
 # idler gap wide enough to take the driven link off the spline; the servo side moves out, the idler stays
 WIDE = dict(gap=J.LEG_GAP, keep_idler=True)
 ARM = 4.0                # side-plate arm thickness
+# hybrid shin (frame B): two cut metal side plates on the outer faces, a printed PETG core (the four joint discs,
+# 4 mm webs behind the plates, the front spine). The plates wrap the discs (bearing on the disc rims) and are held
+# by countersunk M2 screws into inserts in the webs. Outline stays inside the old silhouette above the knee axis
+# (thigh arms there) and above the ankle axis on the idler side (ankle roll parts below).
+PLATE_T = 1.5            # 5052-H32 aluminium or 3K carbon, same DXF (FEA: 2.0 buys nothing)
+PLATE_RING = {"h": 15.0, "i": 10.5}          # plate outer radius round the horn / idler discs
+PLATE_HOLE = {"h": J.HORN_R + 0.15, "i": J.IDLER_R + 0.15}
+PLATE_SCREWS = [(3.5, -L1 - 18.0), (10.0, -L1 - 18.0), (-4.0, -L1 - L2 + 17.0), (6.0, -L1 - L2 + 17.0)]  # (x, z)
+SHIN_FRONT = 13.8
+PLATE_FILLET = 3.0
+PLATE_BACK = 30.0        # back edge of the shin plates starts this far below the knee axis (thigh folds in above)
 
 X, Y, Z = (1, 0, 0), (0, 1, 0), (0, 0, 1)
 NX, NY, NZ = (-1, 0, 0), (0, -1, 0), (0, 0, -1)
@@ -66,7 +77,8 @@ def fuse(*shapes):
 
 
 class Leg:
-    def __init__(self):
+    def __init__(self, shin="printed"):
+        self.shin_frame = shin
         self.joints = {
             # gap = LEG_GAP: the driven link comes off the spline along the shaft (N3 review G-2)
             "hip_roll": J.Joint("hip_roll", "hip_block", "yaw_bracket", (0, 0, HIP_ROLL_UP), X, NY, **WIDE),
@@ -89,7 +101,12 @@ class Leg:
         self.parts["ankle_block"] = self._finish("ankle_block", ab)
         self.parts["yaw_bracket"] = self._finish("yaw_bracket", self._yaw_bracket_body())
         self.parts["thigh"] = self._finish("thigh", self._thigh_body())
-        self.parts["shin"] = self._finish("shin", self._shin_body())
+        if shin == "hybrid":
+            core, plates = self._shin_hybrid()
+            self.parts["shin"] = self._finish("shin", core)
+            self.parts.update(plates)
+        else:
+            self.parts["shin"] = self._finish("shin", self._shin_body())
         self.parts["foot"] = self._finish("foot", self._foot_body())
         self.parts["sole"] = self._sole()
         self.parts["hip_mount"] = self._finish("hip_mount", self._hip_mount_body())
@@ -177,6 +194,68 @@ class Leg:
         side_i = bx(spine_x, (ip_y[0], ip_y[0] + ARM), (A, K))
         spine = bx(spine_x, (ip_y[0], hp_y[1]), (z0, z1))
         return fuse(jk.horn_disc(), jk.idler_disc(), ja.horn_disc(), ja.idler_disc(), *plates, side_h, side_i, spine)
+
+    # ------------------------------------------------------------ hybrid shin: metal side plates + PETG core
+    def _shin_side(self, y0, y1, side):
+        """Outline of one side of the hybrid shin between y0 and y1 (leg frame), without the disc holes."""
+        R = PLATE_RING[side]
+        top = J.HORN_R if side == "h" else J.IDLER_R           # stay inside the old silhouette above the knee
+
+        def cyl_y(z, r):
+            return cq.Solid.makeCylinder(r, y1 - y0, cq.Vector(0, y0, z), cq.Vector(0, 1, 0))
+
+        # round the knee: the old disc radius behind the axis, the plate radius in front; behind and below the knee
+        # the thigh folds in at full bend, so the back edge stays at x = 0 down to PLATE_BACK below the knee
+        knee = fuse(cyl_y(K, top).intersect(bx((-50, 0), (y0, y1), (K - 50, K))),
+                    cyl_y(K, R).intersect(bx((0, SHIN_FRONT), (y0, y1), (K - 50, K + top))))
+        ankle = cyl_y(A, R) if side == "h" else cyl_y(A, R).intersect(bx((-50, 50), (y0, y1), (A, A + 50)))
+        pts = [(SHIN_FRONT, K), (SHIN_FRONT, A), (-R, A), (-R, K - PLATE_BACK), (0.0, K - PLATE_BACK + 5.0),
+               (0.0, K)]
+        band = cq.Workplane("XZ", origin=(0, y1, 0)).polyline(pts).close().extrude(y1 - y0).val()
+        # concave fillet where the back edge leaves the knee disc (no sharp inside corner)
+        rf = PLATE_FILLET
+        zc = K - np.sqrt((top + rf) ** 2 - rf ** 2)
+        fillet = bx((-rf, 0.0), (y0, y1), (zc, K - top + 1.0))
+        fillet = fillet.cut(cyl_y(0, rf).moved(cq.Location(cq.Vector(-rf, 0, zc))))
+        return fuse(knee, band, ankle, fillet).intersect(bx((-50, SHIN_FRONT), (y0, y1), (-300, 50)))
+
+    def _shin_hybrid(self):
+        jk, ja = self.joints["knee"], self.joints["ankle_pitch"]
+        hp_out = max(p[1] for p in jk.a_range(J.HP))                     # horn-side outer face
+        ip_out = min(p[1] for p in jk.a_range(jk.IP))                    # idler-side outer face
+        layers = {"h": ((hp_out - PLATE_T, hp_out), (hp_out - PLATE_T - ARM, hp_out - PLATE_T)),
+                  "i": ((ip_out, ip_out + PLATE_T), (ip_out + PLATE_T, ip_out + PLATE_T + ARM))}
+        spine_x = (12.0 - SPINE / 2, 12.0 + SPINE / 2)
+        z0, z1 = A + 25.0, K - 15.0
+        spine = bx(spine_x, (layers["i"][1][0], layers["h"][1][1]), (z0, z1))
+        core = [jk.horn_disc(), jk.idler_disc(), ja.horn_disc(), ja.idler_disc(), spine]
+        plates = {}
+        ins = hw.HOLES["ins_m2"]
+        for side, ((py0, py1), (wy0, wy1)) in layers.items():
+            hole_r = PLATE_HOLE[side]
+            holes = [cq.Solid.makeCylinder(hole_r, 60, cq.Vector(0, -30, z), cq.Vector(0, 1, 0)) for z in (K, A)]
+            plate = self._shin_side(py0, py1, side)
+            web = self._shin_side(wy0, wy1, side)
+            for h in holes:
+                plate = plate.cut(h)
+            # behind the knee the outline is the disc itself: no plate sliver round the back of the hole
+            plate = plate.cut(cq.Solid.makeCylinder(hole_r + 1.5, 60, cq.Vector(0, -30, K), cq.Vector(0, 1, 0))
+                              .intersect(bx((-50, 0), (-30, 30), (K - 50, K + 50))))
+            inward = 1 if side == "h" else -1                             # from the plate face into the web
+            face = py0 if side == "h" else py1
+            for k, (x, z) in enumerate(PLATE_SCREWS):
+                # countersunk M2 through the plate, insert in the web (3.4 deep, 0.6 skin behind)
+                plate = plate.cut(cq.Solid.makeCylinder(1.15, 60, cq.Vector(x, -30, z), cq.Vector(0, 1, 0)))
+                cs_top = py1 if side == "h" else py0
+                cone = cq.Solid.makeCone(2.0, 0.9, 1.1, cq.Vector(x, cs_top, z), cq.Vector(0, -inward, 0))
+                plate = plate.cut(cone)
+                web = web.cut(cq.Solid.makeCylinder(ins.d / 2, 3.4, cq.Vector(x, face, z), cq.Vector(0, -inward, 0)))
+                self.extra_holes.append(J.Hole("shin", f"plate_{side}{k + 1}", "ins_m2",
+                                               "INS-M2 + M2x5 countersunk ISO 10642 (side plate)",
+                                               (x, face, z), (0, -inward, 0), ins.d, 3.4, "knee"))
+            core.append(web)
+            plates[f"shin_plate_{side}"] = plate.clean()
+        return fuse(*core), plates
 
     # ------------------------------------------------------------ foot: ankle-roll uprights on the sole plate
     def _foot_body(self):
