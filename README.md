@@ -10,8 +10,6 @@
 [![MuJoCo](https://img.shields.io/badge/MuJoCo-3.8%2B-orange?style=for-the-badge&logo=google)](https://mujoco.org)
 [![RViz2](https://img.shields.io/badge/RViz2-native_macOS-purple?style=for-the-badge)](docs/getting_started.md)
 [![PyTorch](https://img.shields.io/badge/PyTorch-MPS_Metal-EE4C2C?style=for-the-badge&logo=pytorch)](docs/engineering/rl_benchmark.md)
-[![Generations](https://img.shields.io/badge/Evolved_Generations-251_Gen-success?style=for-the-badge&logo=dna)](docs/engineering/rl_benchmark.md)
-[![Training Time](https://img.shields.io/badge/Cumulative_Training-22.2_Hours-blueviolet?style=for-the-badge&logo=clockify)](docs/engineering/rl_benchmark.md)
 [![License](https://img.shields.io/badge/License-Apache_2.0-lightgrey?style=for-the-badge)](LICENSE)
 
 <br/>
@@ -269,6 +267,11 @@ flowchart LR
 
 <a id="sota-rl-locomotion-policies"></a>
 ## 🧠 SOTA RL Locomotion Policies
+
+> **Status 2026-11-19: no trained policy.** Every policy below was trained on the retired 303 mm / 536 g twin and
+> has been removed from `models/` (they stay in git history). The RL environment (`bazan_rl_env.py`) now runs on the
+> robot generated from the CAD (1083 g, 407 mm); its residual reference, `bazan_gait.walk_continuous`, walks on it with
+> zero action. Retrain before using `bazan_rl_node.py`. The figures in this section describe the old twin.
 
 End-to-End Goal-Conditioned RL Policy trained with hardware-accelerated MuJoCo and Apple Silicon Metal GPU (PyTorch MPS).
 

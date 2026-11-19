@@ -1,5 +1,9 @@
 # RL Locomotion Benchmark Suite & Model Evaluation
 
+> **Status 2026-11-19:** every model and score in this document was produced on the retired 303 mm / 536 g twin.
+> Those policies have been removed; the environment now simulates the robot generated from the CAD. The method
+> below still applies; the numbers have to be measured again after retraining.
+
 This document details the multi-dimensional evaluation methodology, foundation model comparison cards, 10-criteria violent disturbance benchmarks, 20 canonical motion scenarios, and 20 biomechanical human-likeness parameters (HLI-20) for the Bazan humanoid platform.
 
 ---
