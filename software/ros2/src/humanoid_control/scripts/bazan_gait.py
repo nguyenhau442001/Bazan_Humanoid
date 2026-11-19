@@ -346,7 +346,7 @@ def turn(t):
 def single_support(stance="l"):
     """The planned pose halfway through a swing, standing on `stance` (static load checks)."""
     plan = Plan(walk_steps=1 if stance == "l" else 2, turn_pairs=0, wave=False)
-    T, fn = plan.segs[-2]
+    T, fn = plan.segs[1 if stance == "l" else 4]                   # each step: shift, swing, settle
     return pose(*fn(0.5), sag=False)[0]
 
 
