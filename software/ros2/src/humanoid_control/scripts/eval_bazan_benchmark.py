@@ -104,7 +104,7 @@ class BenchmarkEvaluator:
         is_res = False
         reg = reg_mod.load_registry()
         active_ver = reg.get("active_version")
-        if self.model_name == "mico_policy.onnx" and active_ver in reg.get("models", {}):
+        if self.model_name == "bazan_policy.onnx" and active_ver in reg.get("models", {}):
             val = reg["models"][active_ver].get("residual")
             if val is True or str(val).lower() == "true":
                 is_res = True
@@ -157,7 +157,7 @@ class BenchmarkEvaluator:
             if reg_mod.ACTIVE_SYMLINK.exists():
                 return reg_mod.ACTIVE_SYMLINK.resolve()
             # fallback
-            def_path = reg_mod.MODELS_DIR / "mico_policy.onnx"
+            def_path = reg_mod.MODELS_DIR / "bazan_policy.onnx"
             if def_path.exists():
                 return def_path.resolve()
 

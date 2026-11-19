@@ -37,7 +37,7 @@ while REPO.parent != REPO and not (REPO / ".git").exists() and not (REPO / "AGEN
     REPO = REPO.parent
 MODELS_DIR = REPO / "software" / "ai" / "models" if (REPO / "software" / "ai" / "models").exists() else REPO / "models"
 REGISTRY_FILE = MODELS_DIR / "model_registry.json"
-ACTIVE_SYMLINK = MODELS_DIR / "mico_policy.onnx"
+ACTIVE_SYMLINK = MODELS_DIR / "bazan_policy.onnx"   # what bazan_rl_node.py loads by default
 
 
 def load_registry():
@@ -161,7 +161,7 @@ def register_model(model_path, version, description="", arch="deep_res",
 
 
 def activate_model(version, registry=None):
-    """Point the active mico_policy.onnx symlink to the specified version."""
+    """Point the active bazan_policy.onnx symlink to the specified version."""
     if registry is None:
         registry = load_registry()
 

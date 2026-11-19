@@ -241,7 +241,7 @@ def main():
     tracker = trk_mod.EvolutionTracker()
 
     # Determine baseline champion
-    current_champion_path = REPO / "src" / "humanoid_control" / "models" / "mico_policy.onnx"
+    current_champion_path = REPO / "src" / "humanoid_control" / "models" / "bazan_policy.onnx"
     champion_tag = tracker.data.get("champion_tag", "baseline_active")
     champion_score = float(tracker.data.get("champion_score", 0.0))
 

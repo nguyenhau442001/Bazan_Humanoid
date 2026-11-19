@@ -486,7 +486,8 @@ def main():
     parser.add_argument("--model", type=str, default=None, help="Path to ONNX model to evaluate")
     args = parser.parse_args()
 
-    model_path = Path(args.model) if args.model else (REPO / "src" / "humanoid_control" / "models" / "mico_policy.onnx")
+    default = REPO / "src" / "humanoid_control" / "models" / "bazan_policy.onnx"
+    model_path = Path(args.model) if args.model else default
     if not model_path.exists():
         print(f"[!] Error: Model path {model_path} does not exist.")
         sys.exit(1)

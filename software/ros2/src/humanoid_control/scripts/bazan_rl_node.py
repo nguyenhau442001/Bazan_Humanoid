@@ -1,20 +1,23 @@
 #!/usr/bin/env python3
-"""ROS 2 Real-Time Locomotion Controller Node for Mico Humanoid.
+"""ROS 2 locomotion node for Bazan: runs a trained ONNX policy at 50 Hz exactly as it was trained.
 
-Executes a trained lightweight ONNX policy at 50 Hz.
-Subscribes to:
-- /joint_states (sensor_msgs/msg/JointState)
-- /imu (sensor_msgs/msg/Imu)
-- /cmd_vel (geometry_msgs/msg/Twist)
+The observation, the action -> joint target mapping (EMA filter, residual on the reference gait, scales) and the
+INA226 / NTC models all come from bazan_policy_io.py, the module the training environment uses. The mapping
+settings are read from the ONNX file (written by train_bazan_ppo.py); policies without robot=bazan_cad (trained
+on the retired twin) are refused.
 
-Publishes to:
-- /position_controller/commands (std_msgs/msg/Float64MultiArray)
-- /joint_trajectory_controller/joint_trajectory (trajectory_msgs/msg/JointTrajectory)
+Subscribes:
+    /joint_states   sensor_msgs/JointState (position, velocity, effort = servo torque)
+    /imu            sensor_msgs/Imu (orientation, gyro, specific force) in imu_link
+    /foot_forces    std_msgs/Float32MultiArray, N under L heel, L toe, R heel, R toe
+    /tof            sensor_msgs/Range (VL53L0X)
+    /cmd_vel        geometry_msgs/Twist
+Publishes:
+    /position_controller/commands                   std_msgs/Float64MultiArray, 20 targets (bazan_gait.JOINTS)
+    /joint_trajectory_controller/joint_trajectory   the same as a one-point trajectory, when someone listens
 
-Usage:
-    ros2 run humanoid_control mico_rl_node.py
+    ros2 run humanoid_control bazan_rl_node.py --ros-args -p model_path:=/path/to/policy.onnx
 """
-import math
 import os
 from pathlib import Path
 import sys
@@ -27,32 +30,15 @@ except ImportError:
     ort = None
 
 HERE = Path(__file__).resolve().parent
-REPO = HERE
-while REPO.parent != REPO and not (REPO / ".git").exists() and not (REPO / "AGENTS.md").exists():
-    REPO = REPO.parent
 sys.path.insert(0, str(HERE))
 try:
     import bazan_gait as gait
 except ImportError:
     import mico_gait as gait  # noqa: E402
+import bazan_policy_io as io  # noqa: E402
 
-LEG_JOINTS = [
-    "l_hip_yaw", "l_hip_roll", "l_hip_pitch", "l_knee", "l_ankle_pitch", "l_ankle_roll",
-    "r_hip_yaw", "r_hip_roll", "r_hip_pitch", "r_knee", "r_ankle_pitch", "r_ankle_roll"
-]
-
-ARM_6_JOINTS = [
-    "l_shoulder_pitch", "l_shoulder_roll", "l_elbow",
-    "r_shoulder_pitch", "r_shoulder_roll", "r_elbow"
-]
-
-NECK_JOINTS = [
-    "neck_yaw", "head_pitch"
-]
-
-OBS_ARM_JOINTS = [
-    "l_shoulder_pitch", "l_elbow", "r_shoulder_pitch", "r_elbow"
-]
+LEG_JOINTS, ARM_6_JOINTS, NECK_JOINTS, OBS_ARM_JOINTS = io.LEG_JOINTS, io.ARM_JOINTS, io.NECK_JOINTS, \
+    io.OBS_ARM_JOINTS
 
 
 def find_default_model():
@@ -96,237 +82,152 @@ def quat_to_rot_matrix(qx, qy, qz, qw):
     ])
 
 
+def read_policy_meta(session):
+    """Training settings stored in the ONNX file, as typed values. Raises on a policy of another robot."""
+    raw = dict(session.get_modelmeta().custom_metadata_map)
+    if raw.get("robot") != io.ROBOT_TAG:
+        raise RuntimeError(f"policy was not trained on {io.ROBOT_TAG} (metadata robot={raw.get('robot')}); retrain "
+                           "it with train_bazan_ppo.py")
+    flag = lambda k: raw.get(k, "False") == "True"                                     # noqa: E731
+    return dict(residual=flag("residual"), straight_line=flag("straight_line"), perception=flag("perception"),
+                action_scale=float(raw["action_scale"]), action_filter=float(raw["action_filter"]),
+                control_dt=float(raw["control_dt"]))
+
+
+class PolicyRunner:
+    """Everything between sensor values and joint targets, without ROS (tested offline)."""
+
+    def __init__(self, session):
+        self.session = session
+        self.meta = read_policy_meta(session)
+        self.input_name = session.get_inputs()[0].name
+        self.obs_dim = int(session.get_inputs()[0].shape[-1])
+        self.act_dim = int(session.get_outputs()[0].shape[-1])
+        self.map = io.ActionMap(self.meta["action_scale"], self.meta["action_filter"], self.meta["residual"],
+                                self.meta["straight_line"])
+        self.power, self.thermal, self.camera = io.PowerModel(), io.ThermalModel(), io.CameraProxy()
+        self.hip = [gait.JOINTS.index(j) for j in ("l_hip_roll", "r_hip_roll")]
+        self.leg = [gait.JOINTS.index(j) for j in LEG_JOINTS]
+        self.arm = [gait.JOINTS.index(j) for j in OBS_ARM_JOINTS]
+        self.leg_q_nominal = self.map.q_nominal[self.leg]
+        self.reset()
+
+    def reset(self):
+        self.t, self.prev_action = 0.0, np.zeros(self.act_dim)
+        self.map.reset()
+        self.camera.reset()
+
+    def observe(self, s):
+        """s: q, dq, effort (20, JOINTS order), gravity, gyro, acc_z, foot_forces (4), tof_m, command (3)."""
+        if self.t > 0.0:            # temperatures integrate the load since the previous period (as in training)
+            self.thermal.step(self.meta["control_dt"], s["effort"][self.hip], io.STALL_NM[self.hip])
+        leg_q_err = s["q"][self.leg] - self.leg_q_nominal
+        leg_dq = s["dq"][self.leg]
+        if self.obs_dim == 64:
+            bus_v, current = self.power.read(s["effort"])
+            return io.obs64(s["gravity"], s["gyro"], s["acc_z"], leg_q_err, leg_dq, s["q"][self.arm],
+                            self.prev_action[:12], s["command"], self.t, s["foot_forces"], s["tof_m"],
+                            self.camera(s["tof_m"]), bus_v, current, self.thermal.temps)
+        obs = [s["gravity"], s["gyro"], leg_q_err, leg_dq, self.prev_action[:12], s["command"]]
+        if self.obs_dim in (47, 51):
+            obs.append(io.phase_vec(self.t))
+        if self.obs_dim in (49, 51):
+            obs.append(io.fsr_vec(s["foot_forces"]))
+        return np.concatenate(obs).astype(np.float32)
+
+    def step(self, s):
+        """One control period: observation -> policy -> 20 joint targets."""
+        obs = self.observe(s)
+        action = np.clip(self.session.run(None, {self.input_name: obs[None].astype(np.float32)})[0][0], -1, 1)
+        q = self.map(action, self.t, s["command"])
+        self.prev_action = action.copy()
+        self.t += self.meta["control_dt"]
+        return q
+
+
 def make_rl_node():
     from builtin_interfaces.msg import Duration
     from geometry_msgs.msg import Twist
     from rclpy.node import Node
-    from sensor_msgs.msg import Imu, JointState
-    from std_msgs.msg import Float64MultiArray
+    from sensor_msgs.msg import Imu, JointState, Range
+    from std_msgs.msg import Float32MultiArray, Float64MultiArray
     from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
     class BazanRLNode(Node):
         def __init__(self):
-            super().__init__("bazan_rl_node", automatically_declare_parameters_from_overrides=True)
-
-            def declare_if_not(name, default):
-                if not self.has_parameter(name):
-                    return self.declare_parameter(name, default)
-                return self.get_parameter(name)
-
-            default_model = find_default_model()
-            declare_if_not("model_path", default_model)
-            declare_if_not("action_scale", 0.25)
-            declare_if_not("control_rate", 50.0)
-            declare_if_not("default_vx", 0.0)
-            declare_if_not("use_sim_time", True)
-
-            model_path = self.get_parameter("model_path").value
+            super().__init__("bazan_rl_node")
+            model_path = self.declare_parameter("model_path", find_default_model()).value
             self.get_logger().info(f"Loading ONNX policy from: {model_path}")
             if not Path(model_path).exists():
-                self.get_logger().error(f"Policy file not found: {model_path}")
-                raise FileNotFoundError(model_path)
-
+                raise FileNotFoundError(f"policy not found: {model_path} (no policy is trained for the CAD robot "
+                                        "yet: run train_bazan_ppo.py)")
             if ort is None:
-                raise RuntimeError("onnxruntime is required to run MicoRLNode")
-            self.session = ort.InferenceSession(model_path)
-            self.input_name = self.session.get_inputs()[0].name
-            self.expected_obs_dim = int(self.session.get_inputs()[0].shape[1])
-            self.expected_act_dim = int(self.session.get_outputs()[0].shape[1])
-            self.action_scale = float(self.get_parameter("action_scale").value)
-            rate_hz = float(self.get_parameter("control_rate").value)
-            self.dt = 1.0 / rate_hz
+                raise RuntimeError("onnxruntime is required to run bazan_rl_node")
+            self.runner = PolicyRunner(ort.InferenceSession(model_path))
+            m = self.runner.meta
+            self.get_logger().info(f"policy: residual={m['residual']} action_scale={m['action_scale']} "
+                                   f"filter={m['action_filter']} obs={self.runner.obs_dim} act={self.runner.act_dim}")
+            n = len(gait.JOINTS)
+            self.s = dict(q=np.zeros(n), dq=np.zeros(n), effort=np.zeros(n), gravity=np.array([0.0, 0.0, -1.0]),
+                          gyro=np.zeros(3), acc_z=9.81, foot_forces=np.zeros(4), tof_m=io.TOF_MAX,
+                          command=np.zeros(3))
+            self.has_joint_state = self.has_imu = self.walking = False
 
-            # Joint indices & nominal pose
-            self.joint_positions = {j: 0.0 for j in gait.JOINTS}
-            self.joint_velocities = {j: 0.0 for j in gait.JOINTS}
+            self.pub_pos = self.create_publisher(Float64MultiArray, "/position_controller/commands", 10)
+            self.pub_traj = self.create_publisher(JointTrajectory, "/joint_trajectory_controller/joint_trajectory", 10)
+            self.create_subscription(JointState, "/joint_states", self.on_joints, 10)
+            self.create_subscription(Imu, "/imu", self.on_imu, 10)
+            self.create_subscription(Float32MultiArray, "/foot_forces", self.on_feet, 10)
+            self.create_subscription(Range, "/tof", self.on_tof, 10)
+            self.create_subscription(Twist, "/cmd_vel", self.on_cmd, 10)
+            self.msgs = (Float64MultiArray, JointTrajectory, JointTrajectoryPoint, Duration)
+            self.create_timer(m["control_dt"], self.control_loop)
+            self.get_logger().info(f"BazanRLNode ready @ {1.0 / m['control_dt']:.0f} Hz")
 
-            self.q_nominal = np.zeros(len(gait.JOINTS), dtype=np.float32)
-            hp, kn, ap = gait.leg_ik(0, gait.H0)
-            for side in ("l", "r"):
-                self.q_nominal[gait.JOINTS.index(f"{side}_hip_pitch")] = hp
-                self.q_nominal[gait.JOINTS.index(f"{side}_knee")] = kn
-                self.q_nominal[gait.JOINTS.index(f"{side}_ankle_pitch")] = ap
-            self.q_nominal[gait.JOINTS.index("l_elbow")] = -0.4
-            self.q_nominal[gait.JOINTS.index("r_elbow")] = -0.4
-
-            self.leg_q_nominal = np.array([self.q_nominal[gait.JOINTS.index(j)] for j in LEG_JOINTS])
-            self.arm_6_q_nominal = np.array([self.q_nominal[gait.JOINTS.index(j)] for j in ARM_6_JOINTS])
-            self.neck_q_nominal = np.array([self.q_nominal[gait.JOINTS.index(j)] for j in NECK_JOINTS])
-
-            # State cache
-            self.prev_action = np.zeros(self.expected_act_dim, dtype=np.float32)
-            self.command = np.array([0.0, 0.0, 0.0], dtype=np.float32)
-            self.proj_gravity = np.array([0.0, 0.0, -1.0], dtype=np.float32)
-            self.omega_base = np.zeros(3, dtype=np.float32)
-            self.step_count = 0
-
-            self.has_joint_state = False
-            self.has_imu = False
-            self.logged_active = False
-
-            # ROS 2 Pub / Sub
-            self.pub_pos = self.create_publisher(
-                Float64MultiArray, "/position_controller/commands", 10
-            )
-            self.pub_traj = self.create_publisher(
-                JointTrajectory, "/joint_trajectory_controller/joint_trajectory", 10
-            )
-            self.sub_joint = self.create_subscription(
-                JointState, "/joint_states", self.joint_callback, 10
-            )
-            self.sub_imu = self.create_subscription(
-                Imu, "/imu", self.imu_callback, 10
-            )
-            self.sub_cmd = self.create_subscription(
-                Twist, "/cmd_vel", self.cmd_vel_callback, 10
-            )
-
-            self.timer = self.create_timer(self.dt, self.control_loop)
-            self.get_logger().info(f"BazanRLNode ready @ {rate_hz:.1f} Hz")
-
-        def joint_callback(self, msg: JointState):
-            for name, pos, vel in zip(msg.name, msg.position, msg.velocity):
-                if name in self.joint_positions:
-                    self.joint_positions[name] = pos
-                    self.joint_velocities[name] = vel
+        def on_joints(self, msg):
+            for name, *vals in zip(msg.name, msg.position, msg.velocity, msg.effort or [0.0] * len(msg.name)):
+                if name in gait.JOINTS:
+                    i = gait.JOINTS.index(name)
+                    self.s["q"][i], self.s["dq"][i], self.s["effort"][i] = vals
             self.has_joint_state = True
 
-        def imu_callback(self, msg: Imu):
+        def on_imu(self, msg):
             q = msg.orientation
-            norm = math.sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w)
-            if norm > 1e-6:
-                qx, qy, qz, qw = q.x / norm, q.y / norm, q.z / norm, q.w / norm
-                r_mat = quat_to_rot_matrix(qx, qy, qz, qw)
-                self.proj_gravity = (r_mat.T @ np.array([0.0, 0.0, -1.0])).astype(np.float32)
-
-            gyro = msg.angular_velocity
-            self.omega_base = np.array([gyro.x, gyro.y, gyro.z], dtype=np.float32)
+            self.s["gravity"] = quat_to_rot_matrix(q.x, q.y, q.z, q.w).T @ np.array([0.0, 0.0, -1.0])
+            g = msg.angular_velocity
+            self.s["gyro"] = np.array([g.x, g.y, g.z])
+            self.s["acc_z"] = msg.linear_acceleration.z
             self.has_imu = True
 
-        def cmd_vel_callback(self, msg: Twist):
-            self.command = np.array([msg.linear.x, msg.linear.y, msg.angular.z], dtype=np.float32)
-            self.get_logger().info(f"Received /cmd_vel: vx={msg.linear.x:.2f}, wz={msg.angular.z:.2f}")
+        def on_feet(self, msg):
+            self.s["foot_forces"] = np.asarray(msg.data, float)
+
+        def on_tof(self, msg):
+            self.s["tof_m"] = min(float(msg.range), io.TOF_MAX)
+
+        def on_cmd(self, msg):
+            self.s["command"] = np.array([msg.linear.x, msg.linear.y, msg.angular.z])
 
         def control_loop(self):
-            if not self.has_joint_state or not self.has_imu:
+            if not (self.has_joint_state and self.has_imu):
                 return
-
-            if not self.logged_active:
-                self.get_logger().info("Sensors online. Standing stable in nominal pose, awaiting /cmd_vel...")
-                self.logged_active = True
-
-            cmd_speed = float(np.linalg.norm(self.command[:2])) + abs(float(self.command[2]))
-            if cmd_speed < 0.02:
-                # Standby: hold rock-solid nominal stance until destination/velocity command arrives
-                pos_msg = Float64MultiArray(data=[float(p) for p in self.q_nominal])
-                self.pub_pos.publish(pos_msg)
-                return
-
-            self.step_count += 1
-            leg_q = np.array([self.joint_positions[j] for j in LEG_JOINTS], dtype=np.float32)
-            leg_dq = np.array([self.joint_velocities[j] for j in LEG_JOINTS], dtype=np.float32)
-            leg_q_err = leg_q - self.leg_q_nominal
-
-            if self.expected_obs_dim == 64:
-                arm_q = np.array([self.joint_positions[j] for j in OBS_ARM_JOINTS], dtype=np.float32)
-                prev_leg_act = self.prev_action[:12]
-                cmd_vec = self.command
-                phase = (self.step_count * self.dt) % 1.6 / 1.6
-                phase_vec = np.array([
-                    math.sin(2.0 * math.pi * phase),
-                    math.cos(2.0 * math.pi * phase)
-                ], dtype=np.float32)
-                fsr_vec = np.zeros(4, dtype=np.float32)
-                tof_val = np.float32(1.0)
-                cam_vec = np.array([0.0, 0.0, 1.0], dtype=np.float32)
-                power_vec = np.array([0.5, 0.2], dtype=np.float32)
-                temp_vec = np.array([0.35, 0.35], dtype=np.float32)
-                accel_z_impact = np.float32(0.0)
-
-                obs = np.concatenate([
-                    self.proj_gravity,       # 3
-                    self.omega_base,         # 3
-                    [accel_z_impact],        # 1
-                    leg_q_err,               # 12
-                    leg_dq,                  # 12
-                    arm_q,                   # 4
-                    prev_leg_act,            # 12
-                    cmd_vec,                 # 3
-                    phase_vec,               # 2
-                    fsr_vec,                 # 4
-                    [tof_val],               # 1
-                    cam_vec,                 # 3
-                    power_vec,               # 2
-                    temp_vec,                # 2
-                ]).reshape(1, 64).astype(np.float32)
+            Float64MultiArray, JointTrajectory, JointTrajectoryPoint, Duration = self.msgs
+            c = self.s["command"]
+            moving = abs(c[0]) > 0.2 * io.V_REF or abs(c[1]) > 0.2 * io.V_REF or abs(c[2]) > 0.2 * io.W_REF
+            if not moving:                                      # hold the gait's start pose, restart the clock
+                if self.walking:
+                    self.runner.reset()
+                    self.walking = False
+                q = self.runner.map.q_nominal
             else:
-                obs = np.concatenate([
-                    self.proj_gravity,       # 3
-                    self.omega_base,         # 3
-                    leg_q_err,               # 12
-                    leg_dq,                  # 12
-                    self.prev_action[:12],   # 12
-                    self.command,            # 3
-                ]).reshape(1, self.expected_obs_dim).astype(np.float32)
-
-            # ONNX Inference (< 0.3 ms)
-            outputs = self.session.run(None, {self.input_name: obs})
-            action = np.clip(outputs[0][0], -1.0, 1.0)
-            self.prev_action = action.copy()
-
-            # Map 12 leg actions to target angles
-            target_leg_q = self.leg_q_nominal + action[:12] * self.action_scale
-
-            full_positions = self.q_nominal.copy()
-            for idx, joint_name in enumerate(LEG_JOINTS):
-                j_idx = gait.JOINTS.index(joint_name)
-                full_positions[j_idx] = float(target_leg_q[idx])
-
-            # Whole-Body 32-dim action space (20 joints + 12 adaptive controls)
-            if self.expected_act_dim >= 32:
-                # 1. Anti-Backlash Pre-Tension Offsets [20..23]
-                backlash = action[20:24] * 0.015
-                target_leg_q[1] += backlash[0]   # l_hip_roll
-                target_leg_q[7] += backlash[1]   # r_hip_roll
-                target_leg_q[4] += backlash[2]   # l_ankle_pitch
-                target_leg_q[10] += backlash[3]  # r_ankle_pitch
-
-                # 2. 6 Arm Joints [12..17] (Pitch, Roll, Elbow for balance & flaring)
-                target_arm_q = self.arm_6_q_nominal + action[12:18] * (self.action_scale * 1.5)
-                for idx, joint_name in enumerate(ARM_6_JOINTS):
-                    j_idx = gait.JOINTS.index(joint_name)
-                    full_positions[j_idx] = float(target_arm_q[idx])
-
-                # 3. 2 Neck Joints [18..19] with Gimbal Stabilization [31]
-                gimbal_gain = float(np.clip(0.5 + action[31] * 0.5, 0.0, 1.0))
-                torso_lean = float(np.clip(action[29] * 0.08, -0.08, 0.08))
-                target_neck_q = self.neck_q_nominal + action[18:20] * self.action_scale
-                target_neck_q[1] += float(-torso_lean * gimbal_gain)
-                for idx, joint_name in enumerate(NECK_JOINTS):
-                    j_idx = gait.JOINTS.index(joint_name)
-                    full_positions[j_idx] = float(target_neck_q[idx])
-
-            elif self.expected_act_dim >= 16:
-                # Backward-compatible 16-dim action space
-                target_arm_q = self.arm_6_q_nominal[[0, 2, 3, 5]] + action[12:16] * (self.action_scale * 1.5)
-                for idx, joint_name in enumerate(OBS_ARM_JOINTS):
-                    j_idx = gait.JOINTS.index(joint_name)
-                    full_positions[j_idx] = float(target_arm_q[idx])
-
-            # 1. Publish directly to position commands (instant in MuJoCo bridge)
-            pos_msg = Float64MultiArray(data=[float(p) for p in full_positions])
-            self.pub_pos.publish(pos_msg)
-
-            # 2. Also publish JointTrajectory for the trajectory topic (MuJoCo bridge)
+                self.walking = True
+                q = self.runner.step(self.s)
+            self.pub_pos.publish(Float64MultiArray(data=[float(v) for v in q]))
             if self.pub_traj.get_subscription_count() > 0:
-                traj = JointTrajectory(joint_names=gait.JOINTS)
-                ns = int(round(self.dt * 1e9))
-                pt = JointTrajectoryPoint(
-                    positions=[float(p) for p in full_positions],
-                    time_from_start=Duration(sec=ns // 10**9, nanosec=ns % 10**9)
-                )
-                traj.points.append(pt)
-                self.pub_traj.publish(traj)
+                ns = int(round(self.runner.meta["control_dt"] * 1e9))
+                pt = JointTrajectoryPoint(positions=[float(v) for v in q],
+                                          time_from_start=Duration(sec=ns // 10**9, nanosec=ns % 10**9))
+                self.pub_traj.publish(JointTrajectory(joint_names=gait.JOINTS, points=[pt]))
 
     return BazanRLNode()
 
