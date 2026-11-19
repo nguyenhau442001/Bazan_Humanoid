@@ -225,7 +225,7 @@ def shin(hybrid_parts=None):
     import shell as SH
     lg = LEG.Leg()
     sh = SH.BazanShell(leg=lg)
-    _, _, items = A.weigh(sh.leg, sh.body, sh)
+    _, items = A.weigh(sh.leg, sh.body, sh)
     weight = sum(g for _, _, g, _ in items)
     stall = hw.MG92B_STALL_NMM if hasattr(hw, "MG92B_STALL_NMM") else 343.0
     jk, ja = lg.joints["knee"], lg.joints["ankle_pitch"]

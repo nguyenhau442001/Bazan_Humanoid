@@ -152,7 +152,7 @@ def cad_joints():
 def build():
     sh = SH.BazanShell()
     body, leg = sh.body, sh.leg
-    _, _, items = A.weigh(leg, body, sh)
+    _, items = A.weigh(leg, body, sh)
     inert = link_inertials(items)
     cad = cad_axes(body, leg)
     xj = cad_joints()

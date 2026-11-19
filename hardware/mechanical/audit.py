@@ -5,7 +5,7 @@
     python audit.py --strict        # exit 1 if a section reports a defect
 
 Sections
-    twin      CAD joint positions and checked ranges against the URDF (the digital twin)
+    twin      CAD joint positions and checked ranges against bazan_cad.urdf (the generated digital twin)
     limits    each leg joint driven to its URDF limit: first angle at which the printed parts collide
     reach     how far a leg adducts and an arm rolls inward before it meets the robot's own body
     sweep     every joint alone over the range the CAD was drawn for, every 5 degrees
@@ -13,7 +13,7 @@ Sections
     walls     material left around every insert, pilot and clearance hole; thin sections by design
     fits      connector through the cable window, screw engagement, constants copied between files
     print     per part: best print orientation, overhang area, bed contact, height
-    mass      printed mass estimate per part, mass and CoM per link, hip-roll holding torque against the twin
+    mass      printed mass estimate per part, mass and CoM per link, hip-roll holding torque on one foot
     cables    lead length change over the joint ranges against the slack loops
     access    straight tool path to every body and shell screw at the zero pose: what must come off first
 
@@ -22,7 +22,6 @@ servo holds: docs/engineering/mechanical_verification.md lists the bench tests t
 """
 import itertools
 import json
-import re
 import sys
 from pathlib import Path
 
@@ -39,26 +38,29 @@ import robot as R
 import shell as SH
 
 REPO = C.REPO
-XACRO = REPO / "software" / "ros2" / "src" / "humanoid_description" / "urdf" / "bazan.urdf.xacro"
-MASS_REPORT = REPO / "design" / "blender" / "mass_report.json"
+URDF = REPO / "software" / "ros2" / "src" / "humanoid_description" / "urdf" / "bazan_cad.urdf"   # gen_urdf.py
+WIRING_G = 30.0                          # wiring allowance in the pelvis (weigh the harness when it exists)
 CLEAR = hw.GAP_MOVING                    # moving parts closer than this are reported as near-collisions
 PLA, PETG, TPU = 1.24e-3, 1.27e-3, 1.21e-3   # g/mm3
 METAL = {"shin_plate_h": 2.68e-3, "shin_plate_i": 2.68e-3}   # cut plates, solid: Al 5052 (carbon 3K 1.55e-3)
 SERVO_OF = {"hip_yaw": "MG90S", "shoulder_pitch": "MG90S", "shoulder_roll": "SG90", "elbow": "SG90",
-            "neck_yaw": "SG90", "head_pitch": "SG90"}          # the rest MG92B (gen_robot.py)
+            "neck_yaw": "SG90", "head_pitch": "SG90"}          # the rest MG92B (hardware.JOINT_SERVO)
 SERVO_G = {"MG92B": hw.MG92B.mass, "MG90S": hw.MG90S.mass, "SG90": 9.0}
 LEG_J = list(C.RANGES)
 
 
 # ------------------------------------------------------------------ the twin
 def urdf():
-    """{joint: (world position at the zero pose in mm, (lower, upper) in degrees)} from the xacro."""
+    """{joint: (world position at the zero pose in mm, (lower, upper) in degrees)} from bazan_cad.urdf."""
+    import xml.etree.ElementTree as ET
     rows = {}
-    pat = re.compile(r'<joint name="(\w+)" type="revolute"><parent link="(\w+)"/><child link="(\w+)"/>'
-                     r'<origin xyz="([^"]+)"/>.*?<limit lower="([-\d.]+)" upper="([-\d.]+)"')
-    for name, parent, child, xyz, lo, hi in pat.findall(XACRO.read_text()):
-        lim = (np.degrees(float(lo)), np.degrees(float(hi)))
-        rows[name] = (parent, child, np.array(xyz.split(), float) * 1000, lim)
+    for j in ET.parse(URDF).getroot().findall("joint"):
+        lim = j.find("limit")
+        if j.get("type") != "revolute":
+            continue
+        xyz = np.array(j.find("origin").get("xyz").split(), float) * 1000
+        rows[j.get("name")] = (j.find("parent").get("link"), j.find("child").get("link"), xyz,
+                               (np.degrees(float(lim.get("lower"))), np.degrees(float(lim.get("upper")))))
     pos = {"base_link": np.zeros(3)}
     out = {}
     while len(out) < len(rows):
@@ -84,16 +86,13 @@ def twin(leg, body):
         rows.append(dict(joint=name, cad_mm=[round(float(v), 1) for v in p], urdf_mm=[round(float(v), 1) for v in up],
                          axis_offset_mm=[round(float(v), 1) for v in off], cad_range=list(rng), urdf_range=list(urng),
                          range_covered=covered))
-    sh_top = SH.H_TOP - leg.floor
-    twin_h = json.loads(MASS_REPORT.read_text())["height_mm"]
-    print("twin: joint axes, CAD (robot frame, mm) against the URDF")
+    print("twin: joint axes, CAD (robot frame, mm) against bazan_cad.urdf (generated from it: expect no offset)")
     for r in rows:
         print(f"  {r['joint']:18s} CAD {str(r['cad_mm']):24s} URDF {str(r['urdf_mm']):22s} off-axis "
               f"{str(r['axis_offset_mm']):20s} CAD checked {r['cad_range']} URDF {r['urdf_range']}"
               f"{'' if r['range_covered'] else '  RANGE NOT COVERED'}")
-    print(f"  hip point above the floor: CAD {-leg.floor:.1f}, URDF 115.0; top of the helmet: CAD {sh_top:.1f}, "
-          f"documented {twin_h:.0f}")
-    return dict(joints=rows, hip_height=(round(-leg.floor, 1), 115.0), height=(round(sh_top, 1), twin_h), defects=bad)
+    print(f"  hip point above the floor: {-leg.floor:.1f} mm; top of the helmet: {SH.H_TOP - leg.floor:.1f} mm")
+    return dict(joints=rows, hip_height=round(-leg.floor, 1), height=round(SH.H_TOP - leg.floor, 1), defects=bad)
 
 
 # ------------------------------------------------------------------ leg joints to their URDF limits
@@ -439,8 +438,7 @@ def printed_g(s, recipe):
 
 def weigh(leg, body, sh, q=None):
     """Every component of the assembled robot with its link and its mass in grams: the one weighing that audit.py
-    mass and gen_urdf.py share. Returns (mass report, {printed part: (g, count)}, [(name, link, g, solid or point)])."""
-    rep = json.loads(MASS_REPORT.read_text())
+    mass and gen_urdf.py share. Returns ({printed part: (g, count)}, [(name, link, g, solid or point)])."""
     parts = {}
     for n, s in leg.parts.items():
         parts[f"leg.{n}"] = (TPU * s.Volume() if n == "sole" else METAL[n] * s.Volume() if n in METAL
@@ -473,28 +471,26 @@ def weigh(leg, body, sh, q=None):
         else:
             g = parts[base][0]
         items.append((n, ln, g, s))
-    items.append(("wiring", "torso", rep["categories"]["Wiring"], np.array([0.0, 0.0, B.Z0T + 10.0])))
-    return rep, parts, items
+    items.append(("wiring", "torso", WIRING_G, np.array([0.0, 0.0, B.Z0T + 10.0])))
+    return parts, items
 
 
 BRASS = 8.5e-3          # g/mm3
 
 
 def mass(leg, body, sh):
-    rep, parts, items = weigh(leg, body, sh)
+    parts, items = weigh(leg, body, sh)
     frame = sum(g * k for n, (g, k) in parts.items() if not n.startswith("shell.") and n != "leg.sole")
     skin = sum(g * k for n, (g, k) in parts.items() if n.startswith("shell."))
     soles = parts["leg.sole"][0] * 2
-    cat = rep["categories"]
-    bought = cat["Servos"] + cat["Electronics"] + cat["Battery 2S"] + cat["Wiring"] + cat["Sensors, brackets, screws"]
-    total = frame + skin + soles + bought
+    total = sum(i[2] for i in items)
+    bought = total - frame - skin - soles
     print("mass: printed parts, estimate (walls + infill recipe per group; weigh the first prints)")
     for n, (g, k) in parts.items():
         print(f"  {n:22s} {g:6.1f} g x {k}")
-    print(f"  printed frame {frame:.0f} g, shell {skin:.0f} g, TPU soles {soles:.0f} g; bought parts and allowances "
-          f"from mass_report.json {bought:.0f} g")
-    print(f"  whole robot from the CAD: {total:.0f} g; mass budget document: {rep['total_g']:.0f} g "
-          f"(its printed shell {cat['Printed shell']:.0f} g)")
+    print(f"  printed frame {frame:.0f} g, shell {skin:.0f} g, TPU soles {soles:.0f} g; servos, boards, battery, "
+          f"spacers and wiring {bought:.0f} g")
+    print(f"  whole robot from the CAD: {total:.0f} g")
     # mass and CoM per link at the zero pose, and what the stance hip-roll servo holds on one foot
     link, m = {}, {}
     for n, ln, g, s in items:
@@ -512,21 +508,13 @@ def mass(leg, body, sh):
     # stance on the left foot, pelvis level: everything above the left hip-roll axis hangs on that servo
     above = [k for k in m if not k.startswith("L.leg.") or k == "L.leg.yaw_bracket"]
     tau = 9.81e-6 * sum(m[k][0] * (LEG.HIP_Y - m[k][1][1]) for k in above)            # N.m
-    u = urdf()
-    tw = 0.0
-    for name, lk in rep["links"].items():
-        if name.startswith("l_hip") and name != "l_hip_yaw" or name.startswith(("l_knee", "l_ankle")):
-            continue
-        base = np.zeros(3) if name == "base" else u[name][0]
-        tw += lk["mass"] * (u["l_hip_roll"][0][1] - (base[1] + lk["com"][1]))
-    tw *= 9.81e-6
-    print(f"  hip-roll holding torque, one foot, pelvis level: CAD {tau:.3f} N.m, twin by the same sum {tw:.3f} N.m "
-          f"(x{tau / tw:.2f}); MG92B stall 0.343, continuous rule 0.114")
+    print(f"  hip-roll holding torque, one foot, pelvis level: {tau:.3f} N.m; MG92B stall 0.343, continuous rule 0.114"
+          " (the gait leans the pelvis to cut it: docs/engineering/torque_validation.md)")
     return dict(parts={n: [round(g, 1), k] for n, (g, k) in parts.items()}, frame=round(frame), shell=round(skin),
-                soles=round(soles), bought=round(bought), total=round(total), budget=round(rep["total_g"]),
+                soles=round(soles), bought=round(bought), total=round(total),
                 links={k: [round(g, 1)] + [round(float(v), 1) for v in c] for k, (g, c) in m.items()},
                 com=[round(float(v), 1) for v in com], com_above_floor=round(float(com[2] - leg.floor)),
-                hip_roll_hold=dict(cad=round(tau, 3), twin=round(tw, 3), ratio=round(tau / tw, 2)), defects=0)
+                hip_roll_hold=round(tau, 3), defects=0)
 
 
 # ------------------------------------------------------------------ cables

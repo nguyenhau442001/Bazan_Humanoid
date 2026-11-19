@@ -1,10 +1,10 @@
-"""The whole of Mico: both legs (leg.py) on the body (body.py), posed, and the whole-body checks.
+"""The whole of Bazan: both legs (leg.py) on the body (body.py), posed, and the whole-body checks.
 
     python robot.py            # static fit, arm/neck/head sweeps, tool access, servo removal; exit 1 on a problem
     python robot.py --quick    # fewer poses
 
 Right side = mirror of the left in y. Arm and head angles follow the URDF signs (shoulder pitch about +y, roll and
-elbow as named in mico.urdf.xacro). A pose is a dict like {"l_shoulder_pitch": -90, "neck_yaw": 30}.
+elbow as named in bazan_cad.urdf). A pose is a dict like {"l_shoulder_pitch": -90, "neck_yaw": 30}.
 """
 import itertools
 import math
