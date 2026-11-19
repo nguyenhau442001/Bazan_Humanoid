@@ -70,7 +70,9 @@ SG90 hẹp hơn MG92B 0.4 mm: nếu servo lắc trong ổ, dán 1 lớp băng ke
 
 | Mã | Tổng | Trong 2 chân | Trong thân + tay + đầu | Hỏi cửa hàng |
 | --- | ---: | ---: | ---: | --- |
-| M2x6 | 114 | 36 | 78 | ốc lục giác chìm M2×6 inox |
+| M2x4 | 8 | 8 | 0 | ốc lục giác chìm M2×4 inox (đế TPU) |
+| M2x5 | 16 | 0 | 16 | ốc lục giác chìm M2×5 inox (đế mạch) |
+| M2x6 | 90 | 28 | 62 | ốc lục giác chìm M2×6 inox |
 | M3x6 | 4 | 0 | 4 | ốc lục giác chìm M3×6 inox |
 | M3x6B | 1 | 0 | 1 | ốc đầu dù M3×6 inox (trục idler đầu) |
 | M3x10B | 10 | 10 | 0 | ốc đầu dù M3×10 inox (trục idler chân) |
@@ -304,16 +306,16 @@ Toạ độ = điểm vào của lỗ, so với điểm tham chiếu của chi t
 
 | # | Lỗ | Loại | Ø | Sâu | Vị trí (x, y, z) | Hướng | Dùng cho |
 | --- | --- | --- | ---: | --- | --- | --- | --- |
-| H1 | `bay_buck1` | ins_m2_thru | 3.20 | xuyên | (-37.0, -31.5, +0.0) | −z | INS-M2 for sled_buck (M2x6) |
-| H2 | `bay_buck2` | ins_m2_thru | 3.20 | xuyên | (-17.0, -31.5, +0.0) | −z | INS-M2 for sled_buck (M2x6) |
-| H3 | `bay_ina_l1` | ins_m2_thru | 3.20 | xuyên | (-2.0, +45.5, +0.0) | −z | INS-M2 for sled_ina (M2x6) |
-| H4 | `bay_ina_l2` | ins_m2_thru | 3.20 | xuyên | (+18.0, +45.5, +0.0) | −z | INS-M2 for sled_ina (M2x6) |
-| H5 | `bay_ina_r1` | ins_m2_thru | 3.20 | xuyên | (-2.0, -45.5, +0.0) | −z | INS-M2 for sled_ina (M2x6) |
-| H6 | `bay_ina_r2` | ins_m2_thru | 3.20 | xuyên | (+18.0, -45.5, +0.0) | −z | INS-M2 for sled_ina (M2x6) |
-| H7 | `bay_perf1` | ins_m2_thru | 3.20 | xuyên | (-9.0, -20.0, +0.0) | −z | INS-M2 for sled_perf (M2x6) |
-| H8 | `bay_perf2` | ins_m2_thru | 3.20 | xuyên | (-9.0, +20.0, +0.0) | −z | INS-M2 for sled_perf (M2x6) |
-| H9 | `bay_ubec1` | ins_m2_thru | 3.20 | xuyên | (-28.0, -7.5, +0.0) | −z | INS-M2 for sled_ubec (M2x6) |
-| H10 | `bay_ubec2` | ins_m2_thru | 3.20 | xuyên | (-28.0, +32.5, +0.0) | −z | INS-M2 for sled_ubec (M2x6) |
+| H1 | `bay_buck1` | ins_m2_thru | 3.20 | xuyên | (-37.0, -31.5, +0.0) | −z | INS-M2 for sled_buck (M2x5) |
+| H2 | `bay_buck2` | ins_m2_thru | 3.20 | xuyên | (-17.0, -31.5, +0.0) | −z | INS-M2 for sled_buck (M2x5) |
+| H3 | `bay_ina_l1` | ins_m2_thru | 3.20 | xuyên | (-2.0, +45.5, +0.0) | −z | INS-M2 for sled_ina (M2x5) |
+| H4 | `bay_ina_l2` | ins_m2_thru | 3.20 | xuyên | (+18.0, +45.5, +0.0) | −z | INS-M2 for sled_ina (M2x5) |
+| H5 | `bay_ina_r1` | ins_m2_thru | 3.20 | xuyên | (-2.0, -45.5, +0.0) | −z | INS-M2 for sled_ina (M2x5) |
+| H6 | `bay_ina_r2` | ins_m2_thru | 3.20 | xuyên | (+18.0, -45.5, +0.0) | −z | INS-M2 for sled_ina (M2x5) |
+| H7 | `bay_perf1` | ins_m2_thru | 3.20 | xuyên | (-9.0, -20.0, +0.0) | −z | INS-M2 for sled_perf (M2x5) |
+| H8 | `bay_perf2` | ins_m2_thru | 3.20 | xuyên | (-9.0, +20.0, +0.0) | −z | INS-M2 for sled_perf (M2x5) |
+| H9 | `bay_ubec1` | ins_m2_thru | 3.20 | xuyên | (-28.0, -7.5, +0.0) | −z | INS-M2 for sled_ubec (M2x5) |
+| H10 | `bay_ubec2` | ins_m2_thru | 3.20 | xuyên | (-28.0, +32.5, +0.0) | −z | INS-M2 for sled_ubec (M2x5) |
 | H11 | `so1` | clr_so | 3.30 | xuyên | (-44.0, +49.0, +0.0) | −z | SO35 male thread down into SO40 |
 | H12 | `so2` | clr_so | 3.30 | xuyên | (-44.0, -49.0, +0.0) | −z | SO35 male thread down into SO40 |
 | H13 | `so3` | clr_so | 3.30 | xuyên | (+35.0, +49.0, +0.0) | −z | SO35 male thread down into SO40 |
@@ -327,8 +329,8 @@ Toạ độ = điểm vào của lỗ, so với điểm tham chiếu của chi t
 
 | # | Lỗ | Loại | Ø | Sâu | Vị trí (x, y, z) | Hướng | Dùng cho |
 | --- | --- | --- | ---: | --- | --- | --- | --- |
-| H1 | `bay_radxa1` | ins_m2_thru | 3.20 | xuyên | (+12.0, -21.0, +0.0) | −z | INS-M2 for sled_radxa (M2x6) |
-| H2 | `bay_radxa2` | ins_m2_thru | 3.20 | xuyên | (+12.0, +19.0, +0.0) | −z | INS-M2 for sled_radxa (M2x6) |
+| H1 | `bay_radxa1` | ins_m2_thru | 3.20 | xuyên | (+12.0, -21.0, +0.0) | −z | INS-M2 for sled_radxa (M2x5) |
+| H2 | `bay_radxa2` | ins_m2_thru | 3.20 | xuyên | (+12.0, +19.0, +0.0) | −z | INS-M2 for sled_radxa (M2x5) |
 | H3 | `neck1` | ins_m2_thru | 3.20 | xuyên | (-26.0, +12.5, +0.0) | −z | INS-M2 for neck_mount (M2x6) |
 | H4 | `neck2` | ins_m2_thru | 3.20 | xuyên | (-26.0, -12.5, +0.0) | −z | INS-M2 for neck_mount (M2x6) |
 | H5 | `neck3` | ins_m2_thru | 3.20 | xuyên | (+2.0, +12.5, +0.0) | −z | INS-M2 for neck_mount (M2x6) |
@@ -498,8 +500,8 @@ Toạ độ = điểm vào của lỗ, so với điểm tham chiếu của chi t
 
 | # | Lỗ | Loại | Ø | Sâu | Vị trí (x, y, z) | Hướng | Dùng cho |
 | --- | --- | --- | ---: | --- | --- | --- | --- |
-| H1 | `attach1` | cb_m2 | 2.30 | xuyên | (-10.0, +0.0, +4.0) | −z | M2x6 into the deck_1 bay BUCK |
-| H2 | `attach2` | cb_m2 | 2.30 | xuyên | (+10.0, +0.0, +4.0) | −z | M2x6 into the deck_1 bay BUCK |
+| H1 | `attach1` | cb_m2 | 2.30 | xuyên | (-10.0, +0.0, +4.0) | −z | M2x5 into the deck_1 bay BUCK |
+| H2 | `attach2` | cb_m2 | 2.30 | xuyên | (+10.0, +0.0, +4.0) | −z | M2x5 into the deck_1 bay BUCK |
 | H3 | `tie1a` | tie | 1.60 | xuyên | (-5.0, -10.1, +4.0) | −z | cable tie around the module |
 | H4 | `tie1b` | tie | 1.60 | xuyên | (-5.0, +10.1, +4.0) | −z | cable tie around the module |
 | H5 | `tie2a` | tie | 1.60 | xuyên | (+5.0, -10.1, +4.0) | −z | cable tie around the module |
@@ -513,8 +515,8 @@ Toạ độ = điểm vào của lỗ, so với điểm tham chiếu của chi t
 
 | # | Lỗ | Loại | Ø | Sâu | Vị trí (x, y, z) | Hướng | Dùng cho |
 | --- | --- | --- | ---: | --- | --- | --- | --- |
-| H1 | `attach1` | cb_m2 | 2.30 | xuyên | (-10.0, +0.0, +4.0) | −z | M2x6 into the deck_1 bay INA_L |
-| H2 | `attach2` | cb_m2 | 2.30 | xuyên | (+10.0, +0.0, +4.0) | −z | M2x6 into the deck_1 bay INA_L |
+| H1 | `attach1` | cb_m2 | 2.30 | xuyên | (-10.0, +0.0, +4.0) | −z | M2x5 into the deck_1 bay INA_L |
+| H2 | `attach2` | cb_m2 | 2.30 | xuyên | (+10.0, +0.0, +4.0) | −z | M2x5 into the deck_1 bay INA_L |
 | H3 | `tie1a` | tie | 1.60 | xuyên | (-4.5, -9.6, +4.0) | −z | cable tie around the module |
 | H4 | `tie1b` | tie | 1.60 | xuyên | (-4.5, +9.6, +4.0) | −z | cable tie around the module |
 | H5 | `tie2a` | tie | 1.60 | xuyên | (+4.5, -9.6, +4.0) | −z | cable tie around the module |
@@ -528,8 +530,8 @@ Toạ độ = điểm vào của lỗ, so với điểm tham chiếu của chi t
 
 | # | Lỗ | Loại | Ø | Sâu | Vị trí (x, y, z) | Hướng | Dùng cho |
 | --- | --- | --- | ---: | --- | --- | --- | --- |
-| H1 | `attach1` | cb_m2 | 2.30 | xuyên | (-20.0, -6.5, +4.0) | −z | M2x6 into the pelvis_plate bay PCA_L |
-| H2 | `attach2` | cb_m2 | 2.30 | xuyên | (+20.0, -6.5, +4.0) | −z | M2x6 into the pelvis_plate bay PCA_L |
+| H1 | `attach1` | cb_m2 | 2.30 | xuyên | (-20.0, -6.5, +4.0) | −z | M2x5 into the pelvis_plate bay PCA_L |
+| H2 | `attach2` | cb_m2 | 2.30 | xuyên | (+20.0, -6.5, +4.0) | −z | M2x5 into the pelvis_plate bay PCA_L |
 | H3 | `boss1` | boss_m2 | 3.20 | 5.0 | (-27.9, -9.5, +9.0) | −z | INS-M2 in the boss, M2x6 through the PCA board |
 | H4 | `boss2` | boss_m2 | 3.20 | 5.0 | (+27.9, -9.5, +9.0) | −z | INS-M2 in the boss, M2x6 through the PCA board |
 | H5 | `boss3` | boss_m2 | 3.20 | 5.0 | (-27.9, +9.5, +9.0) | −z | INS-M2 in the boss, M2x6 through the PCA board |
@@ -543,8 +545,8 @@ Toạ độ = điểm vào của lỗ, so với điểm tham chiếu của chi t
 
 | # | Lỗ | Loại | Ø | Sâu | Vị trí (x, y, z) | Hướng | Dùng cho |
 | --- | --- | --- | ---: | --- | --- | --- | --- |
-| H1 | `attach1` | cb_m2 | 2.30 | xuyên | (-22.0, -20.0, +4.0) | −z | M2x6 into the deck_1 bay PERF |
-| H2 | `attach2` | cb_m2 | 2.30 | xuyên | (-22.0, +20.0, +4.0) | −z | M2x6 into the deck_1 bay PERF |
+| H1 | `attach1` | cb_m2 | 2.30 | xuyên | (-22.0, -20.0, +4.0) | −z | M2x5 into the deck_1 bay PERF |
+| H2 | `attach2` | cb_m2 | 2.30 | xuyên | (-22.0, +20.0, +4.0) | −z | M2x5 into the deck_1 bay PERF |
 | H3 | `boss1` | boss_m2 | 3.20 | 5.0 | (-21.5, -31.5, +9.0) | −z | INS-M2 in the boss, M2x6 through the PERF board |
 | H4 | `boss2` | boss_m2 | 3.20 | 5.0 | (-21.5, +31.5, +9.0) | −z | INS-M2 in the boss, M2x6 through the PERF board |
 | H5 | `boss3` | boss_m2 | 3.20 | 5.0 | (+21.5, -31.5, +9.0) | −z | INS-M2 in the boss, M2x6 through the PERF board |
@@ -558,8 +560,8 @@ Toạ độ = điểm vào của lỗ, so với điểm tham chiếu của chi t
 
 | # | Lỗ | Loại | Ø | Sâu | Vị trí (x, y, z) | Hướng | Dùng cho |
 | --- | --- | --- | ---: | --- | --- | --- | --- |
-| H1 | `attach1` | cb_m2 | 2.30 | xuyên | (-12.5, -20.0, +4.0) | −z | M2x6 into the deck_2 bay RADXA |
-| H2 | `attach2` | cb_m2 | 2.30 | xuyên | (-12.5, +20.0, +4.0) | −z | M2x6 into the deck_2 bay RADXA |
+| H1 | `attach1` | cb_m2 | 2.30 | xuyên | (-12.5, -20.0, +4.0) | −z | M2x5 into the deck_2 bay RADXA |
+| H2 | `attach2` | cb_m2 | 2.30 | xuyên | (-12.5, +20.0, +4.0) | −z | M2x5 into the deck_2 bay RADXA |
 | H3 | `boss1` | boss_m2 | 3.20 | 5.0 | (-11.5, -29.0, +9.0) | −z | INS-M2 in the boss, M2x6 through the RADXA board |
 | H4 | `boss2` | boss_m2 | 3.20 | 5.0 | (-11.5, +29.0, +9.0) | −z | INS-M2 in the boss, M2x6 through the RADXA board |
 | H5 | `boss3` | boss_m2 | 3.20 | 5.0 | (+11.5, -29.0, +9.0) | −z | INS-M2 in the boss, M2x6 through the RADXA board |
@@ -573,8 +575,8 @@ Toạ độ = điểm vào của lỗ, so với điểm tham chiếu của chi t
 
 | # | Lỗ | Loại | Ø | Sâu | Vị trí (x, y, z) | Hướng | Dùng cho |
 | --- | --- | --- | ---: | --- | --- | --- | --- |
-| H1 | `attach1` | cb_m2 | 2.30 | xuyên | (+0.0, -20.0, +4.0) | −z | M2x6 into the deck_1 bay UBEC |
-| H2 | `attach2` | cb_m2 | 2.30 | xuyên | (+0.0, +20.0, +4.0) | −z | M2x6 into the deck_1 bay UBEC |
+| H1 | `attach1` | cb_m2 | 2.30 | xuyên | (+0.0, -20.0, +4.0) | −z | M2x5 into the deck_1 bay UBEC |
+| H2 | `attach2` | cb_m2 | 2.30 | xuyên | (+0.0, +20.0, +4.0) | −z | M2x5 into the deck_1 bay UBEC |
 | H3 | `tie1a` | tie | 1.60 | xuyên | (-15.4, -25.0, +4.0) | −z | cable tie around the module |
 | H4 | `tie1b` | tie | 1.60 | xuyên | (+15.3, -25.0, +4.0) | −z | cable tie around the module |
 | H5 | `tie2a` | tie | 1.60 | xuyên | (-15.4, +25.0, +4.0) | −z | cable tie around the module |

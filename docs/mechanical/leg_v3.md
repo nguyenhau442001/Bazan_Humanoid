@@ -65,7 +65,8 @@ Bought parts (servos: 5 × MG92B and the hip-yaw MG90S, which sits in `hip_mount
 
 | Code | Qty | Part | Ask the shop for |
 | --- | --- | --- | --- |
-| M2x6 | 22 | M2×6 socket head cap screw, ISO 4762, stainless | ốc lục giác M2×6 inox |
+| M2x4 | 4 | M2×4 socket head cap screw, ISO 4762, stainless | ốc lục giác M2×4 inox |
+| M2x6 | 18 | M2×6 socket head cap screw, ISO 4762, stainless | ốc lục giác M2×6 inox |
 | M3x10B | 5 | M3×10 button head, ISO 7380 (leg idler pivot) | ốc đầu dù M3×10 inox |
 | ST2x3 | 12 | 2×3 self-tapping pan head (horn to plate) | vít tự ren đầu tròn PA 2×3 |
 | INS-M2 | 22 | M2 brass heat-set insert, L3.0, knurl Ø3.6, for a Ø3.2 hole (CNC Kitchen TC-M2x3.0 or equal) | tán cấy nhiệt M2 dài 3, gai Ø3.6, lỗ Ø3.2 |
@@ -95,10 +96,10 @@ is for checking a print and for pressing the inserts in the right place.
 | H4 | `ankle_roll.horn2` | 1.60 | 2.4 | (+23.4, +0.0, -7.0) | +x | ST2x3 through the horn (plate to horn) |
 | H5 | `fsr1` | 18.80 | 0.6 | (+22.0, +0.0, -18.3) | +z | FSR 402 pocket, tail out to +y (obs[50..53]) |
 | H6 | `fsr2` | 18.80 | 0.6 | (-22.0, +0.0, -18.3) | +z | FSR 402 pocket, tail out to +y (obs[50..53]) |
-| H7 | `sole.ins1` | 3.20 | 3.0 | (-31.0, -12.0, -18.3) | +z | INS-M2 + M2x6 (TPU sole) |
-| H8 | `sole.ins2` | 3.20 | 3.0 | (+31.0, -12.0, -18.3) | +z | INS-M2 + M2x6 (TPU sole) |
-| H9 | `sole.ins3` | 3.20 | 3.0 | (-31.0, +12.0, -18.3) | +z | INS-M2 + M2x6 (TPU sole) |
-| H10 | `sole.ins4` | 3.20 | 3.0 | (+31.0, +12.0, -18.3) | +z | INS-M2 + M2x6 (TPU sole) |
+| H7 | `sole.ins1` | 3.20 | 3.0 | (-31.0, -12.0, -18.3) | +z | INS-M2 + M2x4 (TPU sole) |
+| H8 | `sole.ins2` | 3.20 | 3.0 | (+31.0, -12.0, -18.3) | +z | INS-M2 + M2x4 (TPU sole) |
+| H9 | `sole.ins3` | 3.20 | 3.0 | (-31.0, +12.0, -18.3) | +z | INS-M2 + M2x4 (TPU sole) |
+| H10 | `sole.ins4` | 3.20 | 3.0 | (+31.0, +12.0, -18.3) | +z | INS-M2 + M2x4 (TPU sole) |
 
 ### `sole` · origin: ankle roll axis
 
@@ -106,10 +107,10 @@ is for checking a print and for pressing the inserts in the right place.
 
 | # | Hole | Ø | Depth | Position (x, y, z) | Direction | For |
 | --- | --- | --- | --- | --- | --- | --- |
-| H1 | `sole.screw1` | 2.30 | through | (-31.0, -12.0, -21.3) | +z | M2x6 from below, head sunk 2 |
-| H2 | `sole.screw2` | 2.30 | through | (+31.0, -12.0, -21.3) | +z | M2x6 from below, head sunk 2 |
-| H3 | `sole.screw3` | 2.30 | through | (-31.0, +12.0, -21.3) | +z | M2x6 from below, head sunk 2 |
-| H4 | `sole.screw4` | 2.30 | through | (+31.0, +12.0, -21.3) | +z | M2x6 from below, head sunk 2 |
+| H1 | `sole.screw1` | 2.30 | through | (-31.0, -12.0, -21.3) | +z | M2x4 from below, head sunk 2 |
+| H2 | `sole.screw2` | 2.30 | through | (+31.0, -12.0, -21.3) | +z | M2x4 from below, head sunk 2 |
+| H3 | `sole.screw3` | 2.30 | through | (-31.0, +12.0, -21.3) | +z | M2x4 from below, head sunk 2 |
+| H4 | `sole.screw4` | 2.30 | through | (+31.0, +12.0, -21.3) | +z | M2x4 from below, head sunk 2 |
 
 ### `ankle_block` · origin: point A
 
