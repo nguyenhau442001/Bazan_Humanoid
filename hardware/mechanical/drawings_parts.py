@@ -33,8 +33,9 @@ from OCP.TopAbs import TopAbs_OUT
 import drawings as D
 from drawings import DEPTH, FS_TITLE, INK, W_THICK, W_THIN, Sheet, fmt, fmt2, hlr, project, section
 
-ISO_SCALES = (5.0, 2.0, 1.0, 0.5)
-SERIES = {"H": "cụm đầu và cổ", "L": "chân (vẽ chân trái, chân phải là ảnh gương qua mặt XZ)", "B": "thân",
+ISO_SCALES = (5.0, 2.0, 1.0, 0.5, 0.2)
+SERIES = {"R": "robot", "H": "cụm đầu và cổ", "L": "chân (vẽ chân trái, chân phải là ảnh gương qua mặt XZ)",
+          "B": "thân",
           "A": "tay (vẽ tay trái, tay phải là ảnh gương qua mặt XZ)", "C": "vỏ thân"}
 DATUM = {"H": "O = trục gật đầu ∩ mặt phẳng giữa chồng khớp,\ntư thế 0 (chung cho mọi bản vẽ cụm đầu).",
          "N1": "O = trục xoay cổ trên mặt đầu servo cổ,\ntư thế 0.",
@@ -447,6 +448,14 @@ def other_parts():
         out[code] = dict(name=name, title=f"{code} {title}", solid=sh.parts[name], holes=holes, material="PLA",
                          print="mặt ngoài lớn nhất lên trên, support chỉ từ bàn", ref=DATUM["B"], series="C",
                          datum=DATUM["B"], recipe="shell", notes=["Thành 1.2 mm = 3 đường đùn đầu 0.4."])
+    # board sleds: built where they sit (the left one of a pair), robot frame
+    for name in ("sled_pca", "sled_perf", "sled_radxa", "sled_ubec", "sled_buck", "sled_ina"):
+        c, t, ref, pr = GM.BODY_PARTS[name]
+        pair = name in GM.SIDED
+        add(c, name, t, body.parts[name], body.holes(), body.joints.values(), org, "B", DATUM["B"], pr=pr,
+            recipe="deck", notes=(["Cặp trái/phải: in 2 cái giống nhau (bản vẽ là cái bên trái, đặt đúng chỗ)."]
+                                  if pair else []) + ["Bắt xuống tán của tầng bằng 2 × M2×5 qua lỗ bậc (đầu ốc chìm).",
+                                                      f"Mạch: {GM.el.BOARDS[B.Body.SLEDS[name][0]].name}"[:110]])
     # the arm, left side, datum on the shoulder-pitch axis
     org = np.array(body.joints["shoulder_pitch"].origin, float)
     for name in ("shoulder_mount", "shoulder_link", "upper_arm", "forearm"):
@@ -609,54 +618,139 @@ def draw_h0(parts, org):
     add("M2x6", "Ốc M2×6 lục giác chìm", len(ear) + len(shell_scr) + len(cam_scr) + len(idl),
         "tai servo, vỏ, N4, N3i")
     boss = [h for h in body.holes() if h.part == "cam_mount" and h.kind == "boss_m2"]
-    # sheet 1: assembled views + parts list
+    steps = ["1. Ép tán: N2 (tai servo, tán M3 ở mặt ngoài thành idler), N3 (A, B, G), N4 (trụ).",
+             "2. SG90 vào ổ N2, 2 × M2×6 qua tai (lỗ tai khoan Ø2.3); servo ở 1500 µs.",
+             "3. Horn lên N3 (2 × ST2×3); đẩy N3 dọc trục cho horn ăn then hoa; vít tâm horn qua lỗ Ø5.2.",
+             "4. MR63ZZ trượt vào N3i; ống đồng 1.3 + W3 + M3×6 đầu dù vào tán M3 của N2.",
+             "5. 2 × M2×6 từ dưới qua đế N3i vào tán G của N3 (siết sau cùng: tự định tâm).",
+             "6. Cắm cáp màn hình qua cửa sổ C, trượt màn hình xuống ray tấm mặt tới khi qua chốt; camera "
+             "(giắc quay lên) + ToF lên N4, cáp dẹt qua khe I; N4 lên sàn (2 × M2×6).",
+             "7. Dán C5 vào C3 từ trong; C3, C4 lên sàn: 4 × M2×6 thả qua ống từ đỉnh mũ.",
+             "Tháo: ngược lại; không banh khung."]
+    explode = {"head_front": (55, 0, 34), "head_back": (-60, 0, 30), "visor": (95, 0, 40), "cam_mount": (22, 0, 22),
+               "board_CAM": (48, 0, 30), "board_TOF": (48, 0, 30), "board_DISP": (40, 0, -12),
+               "head_idler": (0, -30, -12), "spacer_head_pitch": (0, -18, -2), "horn_head_pitch": (0, 18, -2),
+               "head_frame": (0, 0, 10), "servo_head_pitch": (0, 0, -26), "neck_link": (0, 0, -40)}
+    checks = [("số tán M2 = số lỗ tán M2 của N2, N3, N4 trong CAD",
+               fast["INS-M2"][1] == len([h for h in body.holes() if h.part in ("neck_link", "head_frame", "cam_mount")
+                                         and h.kind in ("ins_m2", "ins_m2_thru", "boss_m2")]), f"{fast['INS-M2'][1]}"),
+              ("số ốc M2×6 = tai servo + vỏ + N4 + N3i + trụ board trong CAD",
+               fast["M2x6"][1] == len(ear) + len(shell_scr) + len(cam_scr) + len(idl) + len(boss),
+               f"{fast['M2x6'][1]}"),
+              ("cụm đầu lắp xong không chồng khối (robot.collisions ở tư thế 0)",
+               not [h for h in R.collisions(body, LEG.Leg(), {}) if any(k in str(h) for k in solids)], "")]
+    return draw_assembly(dict(code="H0", ser="H", title="H0 Cụm đầu (bản vẽ lắp)",
+                              items=[([k], c, n, 1, m) for k, c, n, m in items], solids=solids, explode=explode,
+                              fast=fast, steps=steps, checks=checks, front="Cụm đầu lắp xong (nhìn từ +X)",
+                              left="Nhìn từ −Y; dấu tâm = trục gật đầu O"))
+
+
+def fast_from(counter, where=""):
+    """{code: [what, n, where]} from a gen_manual-style Counter, Vietnamese names from gen_manual.FAST_VI."""
+    import gen_manual as GM
+    return {k: [GM.FAST_VI.get(k, k), v, {where}] for k, v in sorted(counter.items()) if v}
+
+
+def count_parts(holes, parts):
+    """gen_manual.count_body's rules, for the holes of some parts only, one of each sided part."""
+    from collections import Counter
+    import re
+    cnt = Counter()
+    for h in holes:
+        if h.part not in parts:
+            continue
+        kind, f = h.kind, h.fastener
+        if kind in ("ins_m3", "ins_m3_thru"):
+            cnt["INS-M3"] += 1
+        elif kind in ("ins_m2", "ins_m2_thru", "boss_m2"):
+            cnt["INS-M2"] += 1
+            if kind == "boss_m2" or "servo ear" in f:
+                cnt["M2x6"] += 1
+        elif kind in ("cb_m2", "clr_m2"):
+            cnt[(re.search(r"M2x\d+", f) or ["M2x6"])[0]] += 1
+        elif kind == "pilot_st2":
+            cnt["ST2x3"] += 1
+        elif kind == "bearing":
+            cnt["MR63ZZ"] += 1
+            cnt["W3"] += 1
+            cnt["TUBE4"] += 1
+            cnt["M3x10B" if "M3x10" in f else "M3x6B"] += 1
+        elif kind == "tie":
+            cnt["TIE"] += 0.5
+    return cnt
+
+
+def draw_assembly(A):
+    """Two sheets: the assembled front and left views with the parts list, then an exploded isometric view with one
+    balloon per item, the fastener list from the CAD and the assembly order. A: code, ser, title, items
+    [(solid keys, code, name, qty, source)], solids (in the assembly datum), explode ({key: offset} or None for a
+    radial explode), fast, steps, checks, front / left captions."""
+    items, solids = A["items"], A["solids"]
     sheets = []
-    allfix = [solids[k] for k in solids]
+    allfix = list(solids.values())
     lo = np.min([exact_bbox(x)[0] for x in allfix], axis=0)
     hi = np.max([exact_bbox(x)[1] for x in allfix], axis=0)
     size, c3 = hi - lo, (lo + hi) / 2
-    K = choose_scale((size[1], size[2], size[0]), (110.0, 95.0, 95.0))
-    tb = dict(owner=OWNER, project="Bazan Humanoid — cụm đầu (H)", title="H0 Cụm đầu (bản vẽ lắp)", number="BZN-H-H0",
-              material="xem danh mục", mass="xem danh mục", scale=ratio(K), designed=OWNER, checked="TBD",
-              approved="TBD", date=date.today().isoformat(), rev="P1", status=STATUS, standards=STANDARDS)
+    room_z = 95.0 if len(items) <= 14 else max(40.0, 160.0 - 5.0 * len(items))
+    K = choose_scale((size[1], size[2], size[0]), (110.0, room_z, 95.0))
+    ser = A["ser"]
+    tb = dict(owner=OWNER, project=f"Bazan Humanoid — {SERIES[ser]} ({ser})", title=A["title"],
+              number=f"BZN-{ser}-{A['code']}", material="xem danh mục", mass="xem danh mục", scale=ratio(K),
+              designed=OWNER, checked="TBD", approved="TBD", date=date.today().isoformat(), rev="P1", status=STATUS,
+              standards=STANDARDS)
     s1 = Sheet(1, "assembly")
     fx, fy = 30 + 25 + K * size[1] / 2, 287 - 30 - K * size[2] / 2
-    lx = fx + K * size[1] / 2 + 40 + K * size[0] / 2
+    lx = max(fx + K * size[1] / 2 + 40 + K * size[0] / 2, fx + 105.0)      # room for both captions
     fc, lc = project(c3, "front"), project(c3, "left")
     s1.place("front", "front", fx, fy, fc[0], fc[1], K)
     s1.place("left", "left", lx, fy, lc[0], fc[1], K)
-    whole = cq.Compound.makeCompound([x for x in allfix])
+    whole = cq.Compound.makeCompound(allfix)
     for nm in ("front", "left"):
         vis, _ = hlr(whole, nm)
         s1.draw_edges(nm, vis, w=W_THICK * 0.7)
     s1.dim("front", (c3[0], lo[1], hi[2]), (c3[0], hi[1], hi[2]), (0, 1, 0), "above", on_surface=False)
     s1.dim("front", (c3[0], lo[1], lo[2]), (c3[0], lo[1], hi[2]), (0, 0, 1), "left", on_surface=False)
     s1.dim("left", (lo[0], c3[1], hi[2]), (hi[0], c3[1], hi[2]), (1, 0, 0), "above", on_surface=False)
-    s1.dim("left", (0, 0, lo[2]), (0, 0, 0), (0, 0, 1), "right", on_surface=False)
-    s1.centermark("left", (0, 0, 0), 3.0)
-    s1.caption("front", "Cụm đầu lắp xong (nhìn từ +X)", ratio(K))
-    s1.caption("left", "Nhìn từ −Y; dấu tâm = trục gật đầu O", ratio(K))
+    if np.all(lo < 0) and np.all(hi > 0):                 # the datum O inside the assembly: mark it
+        s1.dim("left", (0, 0, lo[2]), (0, 0, 0), (0, 0, 1), "right", on_surface=False)
+        s1.centermark("left", (0, 0, 0), 3.0)
+    s1.caption("front", A["front"], ratio(K))
+    s1.caption("left", A["left"], ratio(K))
     # parts list (ISO 7573 style), bottom left
-    cols = [("Mục", 10), ("Mã", 14), ("Tên", 70), ("SL", 9), ("Vật liệu / nguồn", 62)]
+    cols = [("Mục", 10), ("Mã", 16), ("Tên", 74), ("SL", 9), ("Vật liệu / nguồn", 62)]
     xs = np.cumsum([0] + [w for _, w in cols]) + 25.0
-    rh = 5.0
+    rh = 4.6 if len(items) > 14 else 5.0
     y0 = min(s1.bbox["front"][1], s1.bbox["left"][1]) - 22
     s1.text(25, y0 + 5, "DANH MỤC CHI TIẾT", fs=9, role="head", weight="bold", va="bottom")
-    for r, row in enumerate([[c for c, _ in cols]] + [[str(i + 1), it[1], it[2], "1", it[3]]
-                                                      for i, it in enumerate(items)]):
+    rows = [[c for c, _ in cols]] + [[str(i + 1), it[1], textwrap.shorten(it[2], 58, placeholder="…"), f"{it[3]:g}",
+                                      textwrap.shorten(it[4], 46, placeholder="…")] for i, it in enumerate(items)]
+    for r, row in enumerate(rows):
         y = y0 - r * rh
         for c, val in enumerate(row):
             s1.ax.add_patch(plt.Rectangle((xs[c], y - rh), xs[c + 1] - xs[c], rh, fill=r == 0, facecolor="#e8e8e8",
                                           edgecolor=INK, lw=W_THIN))
-            s1.text(xs[c] + 1.0, y - rh / 2, val, fs=6.4, role="table", va="center", weight="bold" if r == 0 else
+            s1.text(xs[c] + 1.0, y - rh / 2, val, fs=6.2, role="table", va="center", weight="bold" if r == 0 else
                     "normal")
     sheets.append(s1)
     # sheet 2: exploded isometric view with balloons
     s2 = Sheet(2, "exploded")
-    explode = {"head_front": (55, 0, 34), "head_back": (-60, 0, 30), "visor": (95, 0, 40), "cam_mount": (22, 0, 22),
-               "board_CAM": (48, 0, 30), "board_TOF": (48, 0, 30), "board_DISP": (40, 0, -12),
-               "head_idler": (0, -30, -12), "spacer_head_pitch": (0, -18, -2), "horn_head_pitch": (0, 18, -2),
-               "head_frame": (0, 0, 10), "servo_head_pitch": (0, 0, -26), "neck_link": (0, 0, -40)}
+    explode = A.get("explode")
+    if explode == "z":                         # a chain (leg): spread along z, bought parts out along y
+        explode = {}
+        for keys, code, *_r in items:
+            for k in keys:
+                lo_, hi_ = exact_bbox(solids[k])
+                cc = (lo_ + hi_) / 2 - c3
+                side = 0.0 if code.startswith("L") else (22.0 if cc[1] >= 0 else -22.0)
+                explode[k] = (0.0, side, 0.55 * cc[2])
+    if explode is None:                       # radial: each item moves away from the middle of the assembly
+        explode = {}
+        span_ = max(size)
+        for keys, *_r in items:
+            cc = np.mean([(exact_bbox(solids[k])[0] + exact_bbox(solids[k])[1]) / 2 for k in keys], axis=0)
+            v = cc - c3
+            for k in keys:
+                explode[k] = tuple(v * 0.55 + np.sign(v) * 0.03 * span_)
     ex = {k: solids[k].moved(cq.Location(cq.Vector(*explode.get(k, (0, 0, 0))))) for k in solids}
     whole = cq.Compound.makeCompound(list(ex.values()))
     elo, ehi = exact_bbox(whole)
@@ -664,25 +758,26 @@ def draw_h0(parts, org):
     corners = np.array([project((x, y, z), "iso") for x in (elo[0], ehi[0]) for y in (elo[1], ehi[1])
                         for z in (elo[2], ehi[2])])
     span = np.ptp(corners, axis=0)
-    ke = max(k for k in ISO_SCALES if k * span[0] <= 220 and k * span[1] <= 200) if any(
-        k * span[0] <= 220 and k * span[1] <= 200 for k in ISO_SCALES) else 0.5
+    fits = [k for k in ISO_SCALES if k * span[0] <= 220 and k * span[1] <= 200]
+    ke = max(fits) if fits else ISO_SCALES[-1]
     ic = project(ec, "iso")
     s2.place("xiso", "iso", 160, 160, ic[0], ic[1], ke)
     vis, _ = hlr(whole, "iso")
     s2.draw_edges("xiso", vis, w=W_THICK * 0.6)
     s2.caption("xiso", "Hình tách rời (trục đo)", ratio(ke) + ", minh hoạ")
-    # balloons in two columns, spaced 10 mm, leaders to each part's centre
+    # balloons in two columns, spaced 10 mm, leaders to each item's first solid
     cx0, cy0, cx1, cy1 = s2.bbox["xiso"]
     mid = (cx0 + cx1) / 2
     targets = []
-    for i, (key, *_r) in enumerate(items):
-        lo_, hi_ = exact_bbox(ex[key])
+    for i, (keys, *_r) in enumerate(items):
+        lo_, hi_ = exact_bbox(ex[keys[0]])
         targets.append((i + 1, s2.P("xiso", (lo_ + hi_) / 2)))
+    pitch = 10.0 if len(items) <= 18 else 8.6
     for side in (-1, 1):
         col = sorted([t for t in targets if (t[1][0] < mid) == (side < 0)], key=lambda t: -t[1][1])
         ys, prev = [], None
         for _, P in col:
-            y = P[1] if prev is None else min(P[1], prev - 10.0)
+            y = min(P[1], 268.0) if prev is None else min(P[1], prev - pitch)
             ys.append(y)
             prev = y
         shift = max(0.0, 20.0 - ys[-1]) if ys else 0.0
@@ -692,46 +787,228 @@ def draw_h0(parts, org):
             s2.line([P[0], bx - side * 4.2], [P[1], y], w=W_THIN)
             s2.ax.plot([P[0]], [P[1]], "o", color=INK, ms=1.6)
             s2.ax.add_patch(plt.Circle((bx, y), 4.2, fill=False, lw=W_THIN, color=INK))
-            s2.text(bx, y, str(num), fs=8, role="balloon", ha="center", va="center", weight="bold")
+            s2.text(bx, y, str(num), fs=8 if num < 10 else 7, role="balloon", ha="center", va="center",
+                    weight="bold")
     # fastener list and the assembly order
     xt = 302
     s2.text(xt, 281, "BỘ ỐC / LINH KIỆN NHỎ (từ CAD)", fs=8.5, role="head", weight="bold", va="top")
     yy = 274
-    for code, (what, n, where) in fast.items():
-        s2.text(xt, yy, f"{code}  ×{int(round(n))}", fs=7.0, role="table", va="top", weight="bold")
-        s2.text(xt + 22, yy, textwrap.shorten(what, 48, placeholder="…"), fs=6.6, role="table", va="top")
+    for code, (what, n, where) in A["fast"].items():
+        s2.text(xt, yy, f"{code}  ×{n:g}", fs=7.0, role="table", va="top", weight="bold")
+        s2.text(xt + 24, yy, textwrap.shorten(what, 44, placeholder="…"), fs=6.6, role="table", va="top")
         yy -= 4.6
     s2.text(xt, yy - 3, "TRÌNH TỰ LẮP", fs=8.5, role="head", weight="bold", va="top")
-    steps = ["1. Ép tán: N2 (tai servo, tán M3 ở mặt ngoài thành idler), N3 (A, B, G), N4 (trụ).",
-             "2. SG90 vào ổ N2, 2 × M2×6 qua tai (lỗ tai khoan Ø2.3); servo ở 1500 µs.",
-             "3. Horn lên N3 (2 × ST2×3); đẩy N3 dọc trục cho horn ăn then hoa; vít tâm horn qua lỗ Ø5.2.",
-             "4. MR63ZZ trượt vào N3i; ống đồng 1.3 + W3 + M3×6 đầu dù vào tán M3 của N2.",
-             "5. 2 × M2×6 từ dưới qua đế N3i vào tán G của N3 (siết sau cùng: tự định tâm).",
-             "6. Màn hình buộc dây rút vào tấm mặt; N4 + camera + ToF lên sàn (2 × M2×6).",
-             "7. Dán C5 vào C3 từ trong; C3, C4 lên sàn: 4 × M2×6 thả qua ống từ đỉnh mũ.",
-             "Tháo: ngược lại; không banh khung."]
     yy -= 9
-    for st in steps:
+    for st in A["steps"]:
         w = textwrap.wrap(st, 52)
         s2.text(xt, yy, "\n".join(w), fs=6.6, role="note", va="top", linespacing=1.25)
         yy -= 3.1 * len(w) + 1.0
     sheets.append(s2)
     for sh_ in sheets:
         sh_.furniture(tb, len(sheets))
-    # checks specific to an assembly
     n_ball = sum(1 for t, role in s2.texts if role == "balloon")
     nums = sorted(int(t.get_text()) for t, role in s2.texts if role == "balloon")
     checks = [("mọi mục trong danh mục có đúng một số chỉ dẫn (balloon)", nums == list(range(1, len(items) + 1)),
                f"{n_ball} số chỉ dẫn, {len(items)} mục"),
-              ("số tán M2 = số lỗ tán M2 của N2, N3, N4 trong CAD",
-               fast["INS-M2"][1] == len([h for h in body.holes() if h.part in ("neck_link", "head_frame", "cam_mount")
-                                         and h.kind in ("ins_m2", "ins_m2_thru", "boss_m2")]), f"{fast['INS-M2'][1]}"),
-              ("số ốc M2×6 = tai servo + vỏ + N4 + N3i + trụ board trong CAD",
-               fast["M2x6"][1] == len(ear) + len(shell_scr) + len(cam_scr) + len(idl) + len(boss),
-               f"{fast['M2x6'][1]}"),
-              ("cụm đầu lắp xong không chồng khối (robot.collisions ở tư thế 0)",
-               not [h for h in R.collisions(body, LEG.Leg(), {}) if any(k in str(h) for k in solids)], "")]
-    return dict(code="H0", sheets=sheets, solid=None, tb=tb, checks=checks, items=items, fast=fast)
+              ("trình tự lắp nằm trên khổ giấy", yy > D.BORDER[1] + 50.0, f"đáy {yy:.0f}")] + A["checks"]
+    return dict(code=A["code"], sheets=sheets, solid=None, tb=tb, checks=checks, items=items, fast=A["fast"])
+
+
+# ------------------------------------------------------------------ the other assemblies
+def _bought(key):
+    """Item (code, name, source) of a bought solid from its key."""
+    import hardware as hw
+    base = key.split(".")[-1]
+    if base.startswith("servo_"):
+        import audit as A
+        sv = A.SERVO_OF.get(base[6:], "MG92B")
+        return sv, f"Servo {sv}", "mua"
+    if base.startswith("horn_"):
+        return "HORN", "Horn tròn (kèm servo)", "mua, kèm servo"
+    if base.startswith("cap_"):
+        return "CAP", "Nắp che trục (navy)", "in PLA"
+    if base.startswith("spacer_"):
+        return "TUBE4", "Ống đồng Ø4 × 0.45", "mua, cắt"
+    if base.startswith("so40"):
+        return "SO40", hw.FASTENERS["SO40"].desc if "SO40" in hw.FASTENERS else "Trụ M3 40 mm", "mua"
+    if base.startswith("so35"):
+        return "SO35", hw.FASTENERS["SO35"].desc if "SO35" in hw.FASTENERS else "Trụ M3 35 mm", "mua"
+    if base == "battery":
+        return "BATT", "Pin LiPo 2S", "mua"
+    if base.startswith("board_"):
+        import electronics as el
+        c = base[6:].split("_")[0]
+        return c, el.BOARDS[c].name, "mua"
+    return None
+
+
+def _group(comps, keys, printed):
+    """Items for the given solid keys, grouped by code (a left/right pair or 5 servos of a kind is one item)."""
+    items, seen = [], {}
+    for k in keys:
+        base = k.split(".")[-1]
+        if base in printed:
+            b = printed[base]
+        else:
+            b = _bought(k)
+        if b is None:
+            continue
+        if b[0] in seen:
+            it = items[seen[b[0]]]
+            it[0].append(k)
+            items[seen[b[0]]] = (it[0], it[1], it[2], it[3] + 1, it[4])
+        else:
+            seen[b[0]] = len(items)
+            items.append(([k], *b[:2], 1, b[2]))
+    return items
+
+
+def spec_l0():
+    import gen_manual as GM
+    import leg as LEG
+    import pose as P
+    leg = LEG.Leg()
+    comps = P.posed(leg, {}, include=("parts", "servos", "horns", "caps"))
+    printed = {n: (c, f"{c} {t}", "TPU 95A" if n == "sole" else "PLA, bản vẽ BZN-L-" + c)
+               for n, (c, t) in GM.LEG_PARTS.items()}
+    order = ["hip_mount", "thrust_ring", "yaw_bracket", "hip_block", "thigh", "shin", "ankle_block", "foot", "sole"]
+    keys = order + sorted(k for k in comps if k not in order)
+    items = _group(comps, keys, printed)
+    solids = {k: comps[k] for it in items for k in it[0]}
+    fast = fast_from(GM.count_leg(leg), "chân trái")
+    steps = ["1. Ép mọi tán M2/M3 (leg_v3.md, bảng lỗ từng chi tiết; tán M3 vào mặt ngoài thành idler).",
+             "2. Đặt mọi servo ở 1500 µs; servo vào ổ, 2 × M2×6 qua tai mỗi con.",
+             "3. Từ hông xuống: horn lên đĩa link bằng 2 × ST2×3, đẩy link dọc trục cho horn ăn then hoa, "
+             "vít tâm horn.",
+             "4. Phía idler mỗi khớp: MR63ZZ vào ổ, ống đồng + W3 + M3×10 đầu dù vào tán M3 (gối tự do).",
+             "5. Đế TPU: FSR 402 vào hốc mũi và gót, đuôi ra mép +Y; 4 × M2×4 từ dưới.",
+             "6. NTC: hạt vào lỗ thành trên ổ hip roll, dán Kapton lên vỏ servo.",
+             "7. Nắp navy ép vào hốc ngoài mỗi khớp; dây servo + FSR bó dọc chân lên tấm hông.",
+             "Tháo một servo: nắp, ốc idler, vít tâm horn, kéo link dọc trục (không banh khung)."]
+    return dict(code="L0", ser="L", title="L0 Chân trái (bản vẽ lắp)", items=items, solids=solids, explode="z",
+                fast=fast, steps=steps, checks=[("số servo trên chân = 6", sum(it[3] for it in items
+                                                                               if it[1].startswith("MG")) == 6, "")],
+                front="Chân trái lắp xong (nhìn từ +X)", left="Nhìn từ −Y; dấu tâm = điểm hông H (O)")
+
+
+def spec_a0():
+    import body as B
+    import gen_manual as GM
+    import leg as LEG
+    import robot as R
+    body = B.Body()
+    comps = R.assemble(body, LEG.Leg(), {}, include_legs=False)
+    org = np.array(body.joints["shoulder_pitch"].origin, float)
+    mv = cq.Location(cq.Vector(*(-org)))
+    names = ["shoulder_mount", "shoulder_link", "upper_arm", "forearm"]
+    printed = {n: (GM.BODY_PARTS[n][0], f"{GM.BODY_PARTS[n][0]} {GM.BODY_PARTS[n][1]}",
+                   "PLA, bản vẽ BZN-A-" + GM.BODY_PARTS[n][0]) for n in names}
+    keys = [f"L.{n}" for n in names] + sorted(k for k in comps if k.startswith("L.") and ("servo" in k or "horn" in k))
+    items = _group(comps, keys, printed)
+    solids = {k: comps[k].moved(mv) for it in items for k in it[0]}
+    fast = fast_from(count_parts(body.holes(), names), "tay trái")
+    steps = ["1. Ép tán M2 vào A1 (mặt bích, tai servo vai) và các ổ servo của A2, A3.",
+             "2. Servo ở 1500 µs; vào ổ, 2 × M2×6 qua tai mỗi con.",
+             "3. Horn lên đĩa link (2 × ST2×3), đẩy link vào then hoa, vít tâm horn: A2 lên vai, A3 lên A2, A4 lên A3.",
+             "4. A1 lên deck 2: 4 × M2×6 vào tán vai của P2 (giắc servo cắm PCA #2).",
+             "Tay phải: ảnh gương, cùng thứ tự."]
+    return dict(code="A0", ser="A", title="A0 Tay trái (bản vẽ lắp)", items=items, solids=solids, explode=None,
+                fast=fast, steps=steps, checks=[], front="Tay trái lắp xong (nhìn từ +X)",
+                left="Nhìn từ −Y; dấu tâm = trục vai O")
+
+
+def spec_b0():
+    import body as B
+    import gen_manual as GM
+    import leg as LEG
+    import robot as R
+    body = B.Body()
+    comps = R.assemble(body, LEG.Leg(), {}, include_legs=False)
+    names = ["pelvis_plate", "deck_1", "deck_2", "sled_pca", "sled_perf", "sled_radxa", "sled_ubec", "sled_buck",
+             "sled_ina"]
+    printed = {n: (GM.BODY_PARTS[n][0], f"{GM.BODY_PARTS[n][0]} {GM.BODY_PARTS[n][1]}",
+                   "PLA, bản vẽ BZN-B-" + GM.BODY_PARTS[n][0]) for n in names}
+    keys = ["pelvis_plate", "L.sled_pca", "R.sled_pca", "deck_1", "sled_perf", "sled_ubec", "sled_buck", "L.sled_ina",
+            "R.sled_ina", "deck_2", "sled_radxa"]
+    keys += sorted(k for k in comps if k.startswith(("so4", "so3", "board_", "battery")) and k != "board_DISP")
+    items = _group(comps, keys, printed)
+    solids = {k: comps[k] for it in items for k in it[0]}
+    cnt = count_parts(body.holes(), names + ["L.sled_pca", "L.sled_ina"])
+    for n in ("sled_pca", "sled_ina"):
+        for k, v in count_parts(body.holes(), [n]).items():
+            cnt[k] += v                                    # the right one of each pair
+    cnt["SO40"] += 4
+    cnt["SO35"] += 4
+    cnt["M3x6"] += 4
+    fast = fast_from(cnt, "thân")
+    steps = ["1. Ép tán xuyên tấm hông P0 và hai tầng P1, P2 (bằng mặt đánh dấu).",
+             "2. Đế mạch S1–S6 lên tán bay: 2 × M2×5 qua lỗ bậc mỗi đế; mạch bắt vít hoặc dây rút + băng keo xốp.",
+             "3. Pin 2S vào hốc tấm hông, dây đeo; nối pin → cầu chì → công tắc → INA226 → UBEC / buck.",
+             "4. 4 × SO40 vặn vào P0, P1 lên; 4 × SO35 vặn qua P1 vào SO40, P2 lên; 4 × M3×6 từ trên.",
+             "5. Radxa (eMMC) lên S3: cổng USB-C quay ra trước, đầu CSI phía +Y để cáp camera gập lên.",
+             "Sửa mạch tầng 1: tháo vỏ, rồi cả khối trên (P2 + tay + đầu)."]
+    return dict(code="B0", ser="B", title="B0 Thân (bản vẽ lắp)", items=items, solids=solids, explode=None, fast=fast,
+                steps=steps, checks=[], front="Thân lắp xong (nhìn từ +X), không vỏ",
+                left="Nhìn từ −Y; dấu tâm = gốc robot O")
+
+
+def spec_r0():
+    import body as B
+    import gen_manual as GM
+    import leg as LEG
+    import robot as R
+    import shell as SH
+    body, leg = B.Body(), LEG.Leg()
+    sh = SH.BazanShell(body, leg)
+    comps = R.assemble(body, leg, {})
+    for n, s_ in sh.parts.items():
+        comps[n] = s_
+    head = {"neck_link", "head_frame", "head_idler", "cam_mount", "servo_head_pitch", "horn_head_pitch",
+            "spacer_head_pitch", "board_DISP", "head_front", "head_back", "visor"}
+    neck = {"neck_mount", "servo_neck_yaw", "horn_neck_yaw"}
+    groups = [("L0", "Chân trái", lambda k: k.startswith("L.leg."), "BZN-L-L0", 1),
+              ("L0", "Chân phải (ảnh gương)", lambda k: k.startswith("R.leg."), "BZN-L-L0", 1),
+              ("B0", "Thân", lambda k: (not k.startswith(("L.", "R.")) and k not in head | neck
+                                        and k not in ("chest_shell", "back_shell")) or "sled" in k, "BZN-B-B0", 1),
+              ("A0", "Tay trái", lambda k: k.startswith("L.") and not k.startswith("L.leg.") and "sled" not in k,
+               "BZN-A-A0", 1),
+              ("A0", "Tay phải (ảnh gương)", lambda k: k.startswith("R.") and not k.startswith("R.leg.")
+               and "sled" not in k, "BZN-A-A0", 1),
+              ("N1", "Cổ: N1 + servo xoay cổ", lambda k: k in neck, "BZN-H-N1", 1),
+              ("H0", "Cụm đầu", lambda k: k in head, "BZN-H-H0", 1),
+              ("C1", "Vỏ ngực", lambda k: k == "chest_shell", "BZN-C-C1", 1),
+              ("C2", "Vỏ lưng", lambda k: k == "back_shell", "BZN-C-C2", 1)]
+    items, solids = [], {}
+    for code, name, f, ref, q in groups:
+        ks = [k for k in comps if f(k)]
+        items.append((ks, code, name, q, ref))
+        for k in ks:
+            solids[k] = comps[k]
+    cb, _ = GM.count_body(body)
+    cl = GM.count_leg(leg)
+    tot = cb.copy()
+    for k, v in cl.items():
+        tot[k] += 2 * v
+    tot["M2x6"] += len(sh.screws)
+    fast = fast_from(tot, "robot")
+    # explode by group: legs down and out, arms out, head up, shells front / back
+    off = {"Chân trái": (0, 25, -40), "Chân phải (ảnh gương)": (0, -25, -40), "Tay trái": (0, 45, 0),
+           "Tay phải (ảnh gương)": (0, -45, 0), "Cổ: N1 + servo xoay cổ": (0, 0, 35), "Cụm đầu": (0, 0, 75),
+           "Vỏ ngực": (70, 0, 0), "Vỏ lưng": (-70, 0, 0)}
+    explode = {k: off.get(it[2], (0, 0, 0)) for it in items for k in it[0]}
+    steps = ["1. Thân B0 (BZN-B-B0), chưa vỏ.",
+             "2. Hai chân L0 lên tấm hông: 4 × M2×6 mỗi chân từ trên qua lỗ bậc vào tán hip_mount.",
+             "3. Cổ N1 lên P2 (4 × M2×6), rồi cụm đầu H0 lên trục gật đầu.",
+             "4. Hai tay A0 lên P2 (4 × M2×6 mỗi tay).",
+             "5. Đi dây: chân → PCA #1, tay + đầu → PCA #2, cáp camera theo cabling.py tới đầu CSI của Radxa.",
+             "6. Vỏ ngực C1, lưng C2: 12 × M2×6 vào tán vỏ của P0 và P2.",
+             "Số liệu ốc: toàn robot (cả hai chân, hai tay, vỏ)."]
+    return dict(code="R0", ser="R", title="R0 Robot Bazan (bản vẽ lắp tổng)", items=items, solids=solids,
+                explode=explode, fast=fast, steps=steps, checks=[], front="Robot lắp xong (nhìn từ +X)",
+                left="Nhìn từ −Y; dấu tâm = gốc robot O")
+
+
+ASSY_SPEC = {"L0": spec_l0, "A0": spec_a0, "B0": spec_b0, "R0": spec_r0}
 
 
 # ------------------------------------------------------------------ main
@@ -760,20 +1037,25 @@ def write(res, out):
 
 
 HEAD = ["N2", "N4", "C3", "C4", "C5", "H0"]
-OTHER = ["N1", "L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8", "L9", "P0", "P1", "P2", "A1", "A2", "A3", "A4", "C1",
-         "C2"]
+OTHER = ["S1", "S2", "S3", "S4", "S5", "S6", "N1", "L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8", "L9", "P0", "P1",
+         "P2", "A1", "A2", "A3", "A4", "C1", "C2"]
+ASSY = ["L0", "A0", "B0", "R0"]
 
 
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
-    want = HEAD + OTHER if not args or args == ["all"] else HEAD if args == ["head"] else args
+    want = HEAD + OTHER + ASSY if not args or args == ["all"] else HEAD if args == ["head"] else args
     bad = 0
     if set(want) & set(HEAD):
         parts, org = head_parts()
     if set(want) & set(OTHER):
         other = other_parts()
     for code in want:
-        res = draw_h0(parts, org) if code == "H0" else draw_part(code, parts[code] if code in HEAD else other[code])
+        if code in ASSY:
+            res = draw_assembly(ASSY_SPEC[code]())
+        else:
+            res = draw_h0(parts, org) if code == "H0" else draw_part(code, parts[code] if code in HEAD else
+                                                                     other[code])
         bad += write(res, D.DOCS / code)
     return 1 if (bad and "--check" in sys.argv) else 0
 
