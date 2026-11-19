@@ -1,0 +1,82 @@
+// BZN-MB rev A block diagram. Render: dot -Tsvg block_diagram.dot -o block_diagram.svg
+digraph bzn_mb {
+  graph [rankdir=LR, fontname="Helvetica", fontsize=11, nodesep=0.25, ranksep=0.55, splines=true, bgcolor="white"];
+  node  [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=10, fillcolor="#f4f2ec", color="#8d8778"];
+  edge  [fontname="Helvetica", fontsize=9, color="#555555", arrowsize=0.6];
+
+  subgraph cluster_off {
+    label="Off the board"; style="rounded,dashed"; color="#999999"; fontcolor="#666666";
+    batt  [label="2S LiPo\n6.0–8.4 V", fillcolor="#ffe3d3"];
+    mfuse [label="Main fuse 15 A\n+ power switch\n(battery lead)", fillcolor="#ffe3d3"];
+    ubec  [label="UBEC 6 V 8 A\n(15 A burst)", fillcolor="#ffe3d3"];
+    buck  [label="Buck 5 V 3 A"];
+    radxa [label="Radxa Zero 3W"];
+    servoL [label="6 × MG92B\nleft leg"];
+    servoR [label="6 × MG92B\nright leg"];
+    servoA [label="6 × arm + 2 × neck\nMG90S / SG90"];
+    pots   [label="12 leg-servo\npot wipers"];
+    fsr    [label="4 × FSR402"];
+    ntc    [label="2 × NTC 10k\nhip-roll cases"];
+  }
+
+  subgraph cluster_pwr {
+    label="Power (6 V servo rail, thick copper)"; style="rounded"; color="#c4622f"; fontcolor="#c4622f";
+    vin   [label="XT30 6 V in\nreverse-polarity FET\n+ TVS", fillcolor="#ffe3d3"];
+    brL   [label="Fuse + 10 mΩ shunt\nleft leg", fillcolor="#ffe3d3"];
+    brR   [label="Fuse + 10 mΩ shunt\nright leg", fillcolor="#ffe3d3"];
+    brA   [label="Fuse + 10 mΩ shunt\narms + neck", fillcolor="#ffe3d3"];
+    hdrL  [label="6 servo headers\n+ bulk cap"];
+    hdrR  [label="6 servo headers\n+ bulk cap"];
+    hdrA  [label="8 servo headers\n+ bulk cap"];
+  }
+
+  subgraph cluster_logic {
+    label="Logic and analog (3.3 V / 5 V, quiet side)"; style="rounded"; color="#3c4c72"; fontcolor="#3c4c72";
+    vbat  [label="VBAT lead (1 wire)\nPTC + reverse diode"];
+    ldo5  [label="LDO 5 V logic\n→ Black Pill 5 V\n(Schottky, USB-safe)"];
+    ldoA  [label="LDO 5 V analog\n(op-amps)"];
+    bp    [label="STM32F411\nBlack Pill (socketed)\nown 3.3 V AP7343", fillcolor="#dfe5f2"];
+    pcaL  [label="PCA9685 #1 0x40\nlegs ch 0–11"];
+    pcaA  [label="PCA9685 #2 0x41\narms + neck ch 0–7"];
+    inaL  [label="INA226 0x44"];
+    inaR  [label="INA226 0x45"];
+    inaA  [label="INA226 0x46"];
+    imu   [label="MPU6050 0x68\nboard centre"];
+    buf   [label="6 × LMV358\nwiper followers"];
+    mux   [label="CD74HC4067\n16:1 mux"];
+    div   [label="FSR + NTC dividers\nseries R + clamps"];
+    trip  [label="Trip latch\n(INA ALERT wired-OR)\nOE = MCU OR trip", fillcolor="#ffe3d3"];
+    vdiv  [label="VBAT divider → PA3"];
+    swd   [label="SWD header"];
+    uart  [label="JST-GH UART\n921 600 Bd"];
+  }
+
+  batt -> mfuse -> ubec -> vin [color="#c4622f", penwidth=2.2];
+  mfuse -> buck -> radxa;
+  mfuse -> vbat;
+  vin -> brL -> hdrL -> servoL [color="#c4622f", penwidth=2.0];
+  vin -> brR -> hdrR -> servoR [color="#c4622f", penwidth=2.0];
+  vin -> brA -> hdrA -> servoA [color="#c4622f", penwidth=2.0];
+
+  vbat -> ldo5 -> bp;
+  vbat -> ldoA -> buf;
+  vbat -> vdiv -> bp;
+
+  bp -> pcaL [label="I²C1"];
+  bp -> pcaA [label="I²C1"];
+  pcaL -> hdrL [label="PWM + 220 Ω"];
+  pcaL -> hdrR [label="PWM + 220 Ω"];
+  pcaA -> hdrA [label="PWM + 220 Ω"];
+  bp -> inaL [label="I²C2"]; bp -> inaR [label="I²C2"]; bp -> inaA [label="I²C2"]; bp -> imu [label="I²C2"];
+  brL -> inaL [style=dashed, label="Kelvin"]; brR -> inaR [style=dashed]; brA -> inaA [style=dashed];
+  inaL -> trip [label="ALERT"]; inaR -> trip; inaA -> trip;
+  bp -> trip [label="OE, clear"];
+  trip -> pcaL [label="OE"]; trip -> pcaA [label="OE"];
+  pots -> buf -> mux;
+  fsr -> div -> mux;
+  ntc -> div;
+  mux -> bp [label="PA0"];
+  div -> bp [label="PA1, PA2"];
+  bp -> uart -> radxa;
+  swd -> bp;
+}
