@@ -487,21 +487,11 @@ class TitanTransformerActorCritic(nn.Module):
 
 
 class PerceptiveTitanTransformerActorCritic(nn.Module):
-    """SOTA Hardware-Faithful Perceptive Titan Transformer Policy (~1.6M parameters).
+    """Two-stream transformer actor-critic.
 
-    Grounded strictly in Bazan BZN-01 physical BOM (~5.9M VND):
-    - Stream 1: Proprioception & Foot Contact (51 dims):
-      * MPU9250 6-DOF IMU (proj gravity 3, gyro 3)
-      * 12 Leg servo potentiometers via CD74HC4067 (q_err 12, dq 12)
-      * 4 Foot sole FSR402 contact forces (L/R heel & toe normal forces 4)
-      * Action buffer (12), Velocity command (3), Gait clock phase (2)
-    - Stream 2: Physical Exteroception & Telemetry (9 dims):
-      * MPU9250 3-axis Magnetometer heading vector (3 dims)
-      * VL53L0X ToF frontal laser distance (1 dim)
-      * INA226 Bus voltage & total current telemetry (2 dims)
-      * NTC 10 kΩ Left & right hip-roll servo temperatures (2 dims)
-      * Radxa Zero 3W NPU camera visual target detected flag (1 dim)
-    Total Observation Dimension: Exactly 60 dims.
+    The first prop_dim observation entries (proprioception: MPU6050 gravity and gyro, leg pots, FSR, previous
+    action, command, gait clock) go through one stem, the rest (ToF, camera, INA226, NTC) through the other.
+    The robot's observation layout is bazan_policy_io.OBS_64_NAMES; the IMU is a 6-axis MPU6050, no magnetometer.
     """
 
     def __init__(
