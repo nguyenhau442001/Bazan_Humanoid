@@ -256,7 +256,7 @@ LEG_JOINTS = ("hip_yaw", "hip_roll", "hip_pitch", "knee", "ankle_pitch", "ankle_
 def static_cases(u):
     """Worst static torque per joint (N.m) and the case it comes from."""
     hp, kn, ap = gait.leg_ik(0, 0.070)                                 # squat: hip-to-ankle 70 mm
-    single = gait.step_pose(0.5, "r", 0, 0, (0, 0), (0, 0))           # on the left foot, right foot lifted
+    single = gait.single_support("l")                                # on the left foot, right foot lifted
     single.update(l_elbow=-0.4, r_elbow=-0.4)
     hd = u.joints["head_pitch"]["upper"]                              # head fully down, at its joint limit
     squat = {f"{s}_{j}": a for s in "lr" for j, a in zip(("hip_pitch", "knee", "ankle_pitch"), (hp, kn, ap))}
