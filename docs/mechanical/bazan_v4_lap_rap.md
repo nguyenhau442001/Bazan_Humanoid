@@ -625,13 +625,12 @@ Mỗi servo: rút dây ở đầu nối gần PCA, thay servo đã căn 1500 µs
 
 - `robot.py`: toàn robot ở tư thế 0 không có 2 chi tiết nào chồng nhau (dung sai 0.05 mm³); quét shoulder pitch −180…60°, shoulder roll 0…160°, elbow −130…0°, neck yaw ±90°, head pitch −30…32° và các tư thế kết hợp: 0 va chạm; mọi ốc của tay/cổ/đầu vặn được bằng dụng cụ thẳng (elbow: ở tư thế roll 90°); mọi servo tay/cổ/đầu rút ra được theo trục khi tháo khâu phía sau nó.
 - `check.py`: chân như leg_v3 (va chạm, rút servo, dụng cụ, 2 chân cạnh nhau).
-- Roll vai bị giới hạn ≥ 0° (bản cũ −10°): dưới 0° cẳng tay chạm thân và đế gắn chân. Cập nhật giới hạn này trong URDF và firmware.
+- Roll vai bị giới hạn ≥ 0° (bản cũ −10°): dưới 0° cẳng tay chạm thân và đế gắn chân. URDF (`bazan_cad.urdf`) và bảng khớp firmware lấy giới hạn này từ CAD.
 
 ## 11. Open Items
 
 1. Mọi kích thước MEASURE (servo, horn, module) — đo trước khi in.
-2. Robot cao ~400 mm, nặng ước tính 0.85–0.95 kg có vỏ: chạy lại `mass_budget` / `torque_validation` và bench P0 với MG92B trước khi mua đủ servo (nguyên tắc A+: đo trên bàn trước, không nâng cấp theo mô phỏng).
-3. URDF `mico.urdf.xacro` cần sinh lại từ `body.py` + `leg.py` (vị trí khớp mới, giới hạn roll vai 0…160°).
-4. ToF lắp cùng mặt nghiêng 15° với camera (bản thiết kế cũ 20°): tia chạm sàn xa hơn ~20 %.
-5. Vỏ Design C phải vẽ lại quanh khung này, bắt vào 16 tán vỏ đã chừa sẵn.
+2. Robot cao ~407 mm, nặng ~1083 g theo CAD (`docs/engineering/mass_budget.md`): `torque_validation.md` đánh dấu knee và hip roll quá tải nhiệt; chạy bench P0 với MG92B trước khi mua đủ servo (nguyên tắc A+: đo trên bàn trước, không nâng cấp theo mô phỏng).
+3. ToF lắp cùng mặt nghiêng 15° với camera (bản thiết kế cũ 20°): tia chạm sàn xa hơn ~20 %.
+4. Vỏ Design C phải vẽ lại quanh khung này, bắt vào 16 tán vỏ đã chừa sẵn.
 

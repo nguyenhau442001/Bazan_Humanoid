@@ -703,17 +703,17 @@ def write(body, leg, steps, holes_by, tot, cb, cl, shell_screws, S, floor, top):
       "chạm; mọi ốc của tay/cổ/đầu vặn được bằng dụng cụ thẳng (elbow: ở tư thế roll 90°); mọi servo tay/cổ/đầu rút "
       "ra được theo trục khi tháo khâu phía sau nó.")
     a("- `check.py`: chân như leg_v3 (va chạm, rút servo, dụng cụ, 2 chân cạnh nhau).")
-    a("- Roll vai bị giới hạn ≥ 0° (bản cũ −10°): dưới 0° cẳng tay chạm thân và đế gắn chân. Cập nhật giới hạn này "
-      "trong URDF và firmware.")
+    a("- Roll vai bị giới hạn ≥ 0° (bản cũ −10°): dưới 0° cẳng tay chạm thân và đế gắn chân. URDF (`bazan_cad.urdf`) "
+      "và bảng khớp firmware lấy giới hạn này từ CAD.")
     a("")
     a("## 11. Open Items")
     a("")
     a("1. Mọi kích thước MEASURE (servo, horn, module) — đo trước khi in.")
-    a("2. Robot cao ~400 mm, nặng ước tính 0.85–0.95 kg có vỏ: chạy lại `mass_budget` / `torque_validation` và bench "
-      "P0 với MG92B trước khi mua đủ servo (nguyên tắc A+: đo trên bàn trước, không nâng cấp theo mô phỏng).")
-    a("3. URDF `mico.urdf.xacro` cần sinh lại từ `body.py` + `leg.py` (vị trí khớp mới, giới hạn roll vai 0…160°).")
-    a("4. ToF lắp cùng mặt nghiêng 15° với camera (bản thiết kế cũ 20°): tia chạm sàn xa hơn ~20 %.")
-    a("5. Vỏ Design C phải vẽ lại quanh khung này, bắt vào 16 tán vỏ đã chừa sẵn.")
+    a("2. Robot cao ~407 mm, nặng ~1083 g theo CAD (`docs/engineering/mass_budget.md`): `torque_validation.md` "
+      "đánh dấu knee và hip roll quá tải nhiệt; chạy bench P0 với MG92B trước khi mua đủ servo (nguyên tắc A+: đo "
+      "trên bàn trước, không nâng cấp theo mô phỏng).")
+    a("3. ToF lắp cùng mặt nghiêng 15° với camera (bản thiết kế cũ 20°): tia chạm sàn xa hơn ~20 %.")
+    a("4. Vỏ Design C phải vẽ lại quanh khung này, bắt vào 16 tán vỏ đã chừa sẵn.")
     a("")
     text = "\n".join(md) + "\n"
     (DOCS / "bazan_v4_lap_rap.md").write_text(text)
