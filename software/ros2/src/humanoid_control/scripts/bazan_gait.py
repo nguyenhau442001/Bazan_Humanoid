@@ -379,7 +379,7 @@ def trajectory_points(sample_rate=50.0, start_delay=2.0):
 
 
 def make_node():
-    """ROS imports live here so the gait math above can be imported without ROS (sim/mini_humanoid/kin_dyn.py)."""
+    """ROS imports live here so the gait math above can be imported without ROS (MuJoCo, firmware tables, docs)."""
     from builtin_interfaces.msg import Duration
     from rclpy.node import Node
     from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
