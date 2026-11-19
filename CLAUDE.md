@@ -16,7 +16,7 @@ You are **Claude**, operating as the **Master Architect & Lead Engineer** for th
 - `software/ros2/src/`: ROS 2 Jazzy packages (`humanoid_control`, `humanoid_description`, `humanoid_perception`, `humanoid_infrastructure`, `humanoid_interfaces`).
 - `software/firmware/`: STM32F411 FreeRTOS 200 Hz real-time firmware.
 - `software/core/`: Hardware-independent C++ real-time control libraries (1 kHz).
-- `software/ai/`: MuJoCo 3.8+ simulation (`mico.xml`), 60-dim Perceptive Titan Transformer PPO RL models.
+- `software/ai/`: MuJoCo 3.8+ simulation (`sim/mujoco/bazan.xml`, generated from the CAD), PPO RL on the 64-dim observation.
 - `design/`: Industrial design, Blender 3D models and renders.
 - `docs/`: Technical manuals, interactive 3D web visualizer, engineering reports.
 
@@ -53,24 +53,22 @@ When delegating tasks to Gemini, structure your prompts with 4 sections:
 
 ## 📐 3. Key Technical Specifications
 
-### Hardware-Grounded 60-Dimensional Observation Space:
-The RL observation space (`obs[0..59]`) strictly maps to physical BOM components:
-1. `obs[0..2]`: MPU9250 Projected gravity vector (3)
-2. `obs[3..5]`: MPU9250 Angular velocity gyro (3)
-3. `obs[6..8]`: MPU9250 3-axis Magnetometer heading vector (3) [Attenuated when $I_{total} > 5\text{A}$]
-4. `obs[9..20]`: 12 Leg servo potentiometer position errors (12)
-5. `obs[21..32]`: 12 Leg servo joint angular velocities (12)
-6. `obs[33..44]`: 12 Previous action vector (12)
-7. `obs[45..47]`: Desired velocity command $(v_x, v_y, \omega_z)$ from camera/planner (3)
-8. `obs[48..49]`: Cyclic gait clock phase $[\sin(2\pi\phi), \cos(2\pi\phi)]$ (2)
-9. `obs[50..53]`: 4 Foot sole FSR402 contact forces with sigmoid conditioning (4)
-10. `obs[54]`: VL53L0X ToF laser distance with kinematic tilt compensation (1)
-11. `obs[55..56]`: INA226 Bus voltage (with LiPo load sag) & total current (2)
-12. `obs[57..58]`: NTC 10 kΩ Left & right hip-roll servo temperatures (2)
-13. `obs[59]`: Camera visual target detected flag with leaky integrator debouncing (1)
+### Observation Space (64 dims):
+The single source is `OBS_64_NAMES` in `software/ros2/src/humanoid_control/scripts/bazan_policy_io.py`; training
+and the robot node both import it. Every entry maps to a BOM sensor:
+1. `obs[0..6]`: MPU6050 projected gravity (3), gyro (3), vertical acceleration impact (1)
+2. `obs[7..30]`: 12 leg servo pot position errors (12) and joint velocities (12)
+3. `obs[31..34]`: shoulder pitch and elbow positions, both arms (4)
+4. `obs[35..46]`: previous leg action (12)
+5. `obs[47..51]`: velocity command $(v_x, v_y, \omega_z)$ (3), gait clock $[\sin, \cos]$ (2)
+6. `obs[52..55]`: 4 foot FSR402 forces (heel, toe per foot)
+7. `obs[56]`: VL53L0X ToF distance
+8. `obs[57..59]`: camera target detected, angle, distance
+9. `obs[60..63]`: INA226 bus voltage and total current (2), NTC hip-roll servo temperatures (2)
 
 ### Sensor Mounting:
-- **MPU9250 IMU** is mounted on `head_pitch_link` at `(0.002, 0.0, 0.048)` to isolate the magnetometer from hip servo electromagnetic interference.
+- **IMU: MPU6050, 6-axis (accelerometer + gyro), no magnetometer.** It sits on the torso (`imu_link`, today on
+  the deck 1 board), rigid to `base_link` and close to the CoM. There is no MPU9250 in this robot.
 
 ---
 
