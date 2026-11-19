@@ -22,6 +22,7 @@ static void MX_I2C1_Init(void);
 static void MX_I2C2_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_TIM5_Init(void);
+static void BOR_Config(void);
 
 int main(void) {
   /* USER CODE BEGIN 0: keep the reset cause (watchdog or power-on) before clearing the flags */
@@ -33,6 +34,7 @@ int main(void) {
   SystemClock_Config();
 
   MX_GPIO_Init();          /* OE high first */
+  BOR_Config();
   MX_DMA_Init();
   MX_USART1_UART_Init();
   MX_I2C1_Init();
@@ -51,6 +53,23 @@ int main(void) {
 }
 
 uint32_t mico_reset_flags(void) { return reset_flags; }
+
+/* Brown-out reset at level 3 (VDD falling through about 2.7 V). Without it the MCU keeps running down to
+   1.7 V with flash reads and the I2C peripherals out of specification, and the reset that eventually comes
+   looks like a power-on. With it a sag resets cleanly and is reported as RESET_BROWNOUT. The option byte
+   keeps the level, so this programs it once, on the first boot of a new board; only the BOR bits change. */
+static void BOR_Config(void) {
+  FLASH_OBProgramInitTypeDef ob = {0};
+  HAL_FLASHEx_OBGetConfig(&ob);
+  if (ob.BORLevel == OB_BOR_LEVEL3) return;
+  HAL_FLASH_Unlock();
+  HAL_FLASH_OB_Unlock();
+  ob.OptionType = OPTIONBYTE_BOR;
+  ob.BORLevel = OB_BOR_LEVEL3;
+  if (HAL_FLASHEx_OBProgram(&ob) == HAL_OK) HAL_FLASH_OB_Launch();
+  HAL_FLASH_OB_Lock();
+  HAL_FLASH_Lock();
+}
 
 /* HSE 25 MHz -> PLL (M 25, N 192, P 2, Q 4): SYSCLK 96 MHz, USB 48 MHz for later. APB1 48 MHz, APB2 96 MHz. */
 static void SystemClock_Config(void) {

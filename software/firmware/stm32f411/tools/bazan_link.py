@@ -326,7 +326,11 @@ def cmd_calibrate(link, a):
 
 
 SUP_BITS = {1: "healthy", 2: "latched", 4: "clear_pending", 8: "oe_legs", 16: "oe_arms"}
-RESET_CAUSES = ["unknown", "power-on", "pin", "software", "iwdg", "wwdg", "low-power"]
+RESET_CAUSES = ["unknown", "power-on", "pin", "software", "iwdg", "wwdg", "low-power", "brownout"]
+
+
+def reset_name(code):
+    return RESET_CAUSES[code] if code < len(RESET_CAUSES) else "unknown"
 
 
 def print_diag(d):
@@ -340,7 +344,7 @@ def print_diag(d):
           f"last latch {d['latch_delay_us']}us after deadline\n   cpu {cpu}\n"
           f"   stack free (words) {stk}  heap free {d['heap_free']} "
           f"(min {d['heap_min_free']}) allocs={d['allocs_after_start']} rx_overruns={d['rx_overruns']} "
-          f"tx_drops={d['tx_drops']} supervisor={sup} reset={RESET_CAUSES[min(d['reset_cause'], 6)]}")
+          f"tx_drops={d['tx_drops']} supervisor={sup} reset={reset_name(d['reset_cause'])}")
 
 
 def cmd_diag(link, _):
@@ -529,7 +533,7 @@ def cmd_m0_accept(link, a):
         check("boots in FAULT WATCHDOG_RESET", w.until(
             lambda: w.state["mode_name"] == "FAULT" and "WATCHDOG_RESET" in w.state["fault_names"], 1))
         d4 = w.next_diag()
-        hang["reset_cause"] = d4 and RESET_CAUSES[min(d4["reset_cause"], 6)]
+        hang["reset_cause"] = d4 and reset_name(d4["reset_cause"])
         hang["oe_after_reset"] = oe(d4)
         check("reset cause IWDG", d4 and d4["reset_cause"] == 4, hang["reset_cause"])
         check("OE off after the reset", oe(d4) == {"legs": False, "arms": False}, oe(d4))

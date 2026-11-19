@@ -196,6 +196,8 @@ error to the command, and stall or jam detection. It does not give torque or vel
   - Electrical faults (over-current, NTC over-temperature, rail under-voltage): OE off. A fall is cheaper
     than a burnt servo. Run P1 on a harness until this is proven.
   - STM32 independent watchdog (IWDG): a hung MCU resets, and OE stays high until it is back.
+  - Brown-out reset at 2.7 V (BOR level 3, set by the firmware on first boot): a sagging supply resets the
+    MCU cleanly, and Diag reports `reset_cause` = brownout instead of power-on, next to the battery log.
 
 **INA226 × 2.** One per leg branch (6 servos each), with rail voltage. The shunt must suit the branch:
 INA226 reads ±81.92 mV full scale, so a 0.1 Ω shunt saturates at 0.8 A. 10 mΩ gives 8.2 A full scale,

@@ -168,7 +168,10 @@ uint8_t reset_cause() {
   if (f & RCC_CSR_WWDGRSTF) return RESET_WWDG;
   if (f & RCC_CSR_SFTRSTF) return RESET_SOFTWARE;
   if (f & RCC_CSR_LPWRRSTF) return RESET_LOW_POWER;
-  if (f & (RCC_CSR_PORRSTF | RCC_CSR_BORRSTF)) return RESET_POWER_ON;
+  // A power-on sets both POR and BOR; the supply sagging below the BOR level (2.7 V) without dropping out
+  // sets BOR alone: the battery or the buck could not hold the load.
+  if (f & RCC_CSR_PORRSTF) return RESET_POWER_ON;
+  if (f & RCC_CSR_BORRSTF) return RESET_BROWNOUT;
   if (f & RCC_CSR_PINRSTF) return RESET_PIN;               // set by every reset: checked last
   return RESET_UNKNOWN;
 }

@@ -15,7 +15,7 @@ uint32_t micros();                 // monotonic 32-bit microseconds (TIM5), wrap
 bool reset_by_watchdog();          // the last reset came from the IWDG
 // Cause of the last reset, for Diag.reset_cause.
 enum ResetCause : uint8_t { RESET_UNKNOWN = 0, RESET_POWER_ON = 1, RESET_PIN = 2, RESET_SOFTWARE = 3,
-                            RESET_IWDG = 4, RESET_WWDG = 5, RESET_LOW_POWER = 6 };
+                            RESET_IWDG = 4, RESET_WWDG = 5, RESET_LOW_POWER = 6, RESET_BROWNOUT = 7 };
 uint8_t reset_cause();
 // Servo outputs off now (OE high). Only ever disables, so any context may call it: fault handlers,
 // FreeRTOS hooks, Error_Handler. Turning outputs on stays the supervisor's job.
