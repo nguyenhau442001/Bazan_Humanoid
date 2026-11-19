@@ -20,7 +20,10 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Generated headers match gen_robot, mico_gait and calibration.json
+      - name: Install numpy (bazan_gait reads the CAD URDF with it)
+        run: pip install numpy
+
+      - name: Generated headers match the CAD URDF, hardware.py, bazan_gait and calibration.json
         run: python software/firmware/stm32f411/tools/gen_tables.py --check
 
       - name: Vendored HAL, CMSIS and FreeRTOS match their pinned commits

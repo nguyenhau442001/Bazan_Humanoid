@@ -64,7 +64,7 @@ python firmware/stm32f411/tools/gen_tables.py --check
 python firmware/stm32f411/tools/fetch_drivers.py --check
 ```
 
-After any change to `gen_robot.py`, `mico_gait.py` or `config/calibration.json`: `python tools/gen_tables.py`, then
+After any change to `bazan_cad.urdf` (regenerated from the CAD), `hardware.py`, `mico_gait.py` or `config/calibration.json`: `python tools/gen_tables.py`, then
 rebuild. CI fails if the generated files are stale.
 
 ## Wiring

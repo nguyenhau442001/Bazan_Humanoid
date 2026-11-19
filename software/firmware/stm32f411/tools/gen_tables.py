@@ -4,7 +4,8 @@
     python firmware/stm32f411/tools/gen_tables.py --check   # exit 1 if any is out of date (CI)
 
 Inputs (nothing here is typed twice):
-    sim/mini_humanoid/gen_robot.py              joint names, axes limits, servo types
+    humanoid_description/urdf/bazan_cad.urdf    joint limits (the URDF generated from the CAD, via bazan_gait)
+    hardware/mechanical/hardware.py             servo type in each joint
     src/humanoid_control/scripts/mico_gait.py   wire order of the 20 joints, stand and crouch poses (leg IK)
     firmware/stm32f411/config/calibration.json   per-joint servo and pot calibration, NTC, FSR
 Outputs:
@@ -15,7 +16,6 @@ Outputs:
 import hashlib
 import importlib.util
 import json
-import math
 import sys
 from pathlib import Path
 
@@ -24,9 +24,8 @@ FW = HERE.parent
 REPO = HERE
 while REPO.parent != REPO and not (REPO / ".git").exists() and not (REPO / "AGENTS.md").exists():
     REPO = REPO.parent
-SIM = REPO / "software" / "ai" / "sim" / "mini_humanoid"
-sys.path.insert(0, str(SIM))
-import gen_robot  # noqa: E402
+sys.path.insert(0, str(REPO / "hardware" / "mechanical"))
+import hardware  # noqa: E402
 
 _spec = importlib.util.spec_from_file_location("mico_gait", REPO / "src/humanoid_control/scripts/mico_gait.py")
 gait = importlib.util.module_from_spec(_spec)
@@ -37,7 +36,7 @@ Q_SCALE = 10000          # joint angles on the wire: int16 in 1e-4 rad
 NTC_SITES = ["l_hip_roll", "r_hip_roll"]
 FSR_SITES = ["l_heel", "l_toe", "r_heel", "r_toe"]
 STAND_H = gait.H0        # hip-to-ankle height of the gait's start pose (m)
-CROUCH_H = 0.070         # safe crouch: the squat kin_dyn.py checks
+CROUCH_H = 0.8 * (gait.L1 + gait.L2)   # safe crouch: knees well bent, inside the CAD joint ranges
 
 # ---------------------------------------------------------------- protocol
 # Frame on the wire: COBS(type u8, seq u8, payload, crc16-ccitt u16 LE) followed by 0x00.
@@ -85,20 +84,20 @@ PYFMT = {"uint8_t": "B", "int8_t": "b", "uint16_t": "H", "int16_t": "h", "uint32
 
 
 def joints():
-    bodies = {b.joint.name: b for b in gen_robot.walk(gen_robot.ROBOT) if b.joint}
     cal = json.loads((FW / "config" / "calibration.json").read_text())
     stand = dict(zip(("hip_pitch", "knee", "ankle_pitch"), gait.leg_ik(0, STAND_H)))
     crouch = dict(zip(("hip_pitch", "knee", "ankle_pitch"), gait.leg_ik(0, CROUCH_H)))
     out = []
     for i, name in enumerate(gait.JOINTS):
-        j = bodies[name].joint
-        d = dict(cal["servo_defaults"][j.servo])
+        key = name[2:] if name[:2] in ("l_", "r_") else name
+        servo = hardware.JOINT_SERVO[key]
+        qmin, qmax = gait.LIMIT[name]
+        d = dict(cal["servo_defaults"][servo])
         d.update(dir=1)
         d.update({k: v for k, v in cal["joints"].get(name, {}).items() if k != "pot"})
         pot = cal["joints"].get(name, {}).get("pot")
-        key = name[2:] if name[:2] in ("l_", "r_") else name
         out.append(dict(
-            name=name, servo=j.servo, qmin=math.radians(j.range_deg[0]), qmax=math.radians(j.range_deg[1]),
+            name=name, servo=servo, qmin=qmin, qmax=qmax,
             board=0 if i < NLEG else 1, channel=i if i < NLEG else i - NLEG,
             stand=stand.get(key, 0.0), crouch=crouch.get(key, 0.0),
             center_us=d["center_us"], us_per_rad=d["us_per_rad"], dir=d["dir"],
