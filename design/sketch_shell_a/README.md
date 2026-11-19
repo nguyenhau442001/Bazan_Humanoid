@@ -13,7 +13,7 @@ mic grilles, each foot has heel and toe FSRs, the neck sits in an orange collar 
 
 ## Mechanical skeleton v2.1
 
-Drawn from the robot model (gen_robot.py), J01–J20 with every axis, with the Mico shell overlaid to check the fit.
+Drawn from the retired 303 mm robot model (`gen_robot.py`, since removed), J01–J20 with every axis, with the Mico shell overlaid to check the fit.
 Open items from the fit check: arms sit inside the torso shell (shoulder-roll offset 5 → 13 mm proposed),
 elbow and hip/ankle-roll housings need room, and the 2.42″ OLED plus the camera board do not fit the head.
 
@@ -35,8 +35,8 @@ All five share the same 20-DoF skeleton, joint axes and 303 mm height; only the 
 
 Claude Design canvas source for the 20-DoF mini humanoid. Shell A (cute) is the hero,
 shell B (armor) is the villain; both share the same skeleton and joint axes. All geometry is drawn in mm
-from the same dimensions as `sim/mini_humanoid/gen_robot.py` (303 mm tall, 481 g at the time; the current
-mass is in [`docs/engineering/mass_budget.md`](../../engineering/mass_budget.md)).
+from the retired 303 mm model (`gen_robot.py`, since removed; 481 g at the time). The robot that will be built is
+the CAD in `hardware/mechanical/`; its mass is in [`docs/engineering/mass_budget.md`](../../docs/engineering/mass_budget.md).
 
 | Front | Side |
 | --- | --- |
@@ -61,7 +61,7 @@ Pauldrons widen it to about 132 mm (A: 119) and must ride on the upper arm so sh
 | `Mico_Faces.dc.html` | Mico expression set on the OLED |
 | `Skeleton.dc.html` | v2.1 mechanical skeleton J01–J20, front / side / rear, fit check |
 | `Skeleton_Details.dc.html` | J01–J20 table, head packaging and sensor view, foot, pelvis, arm |
-| `Frames.dc.html` | TF frames (REP-103 / REP-120), sensor frames, TF tree from `humanoid.urdf` |
+| `Frames.dc.html` | TF frames (REP-103 / REP-120), sensor frames, TF tree of the retired `humanoid.urdf` |
 | `Main.dc.html` | A1 · Hero front view, with part sizes and joint heights |
 | `A3_Pico.dc.html`, `A4_Luno.dc.html`, `A5_Kiko.dc.html` | Hero family variants |
 | `ShellB.dc.html` | Shell B (villain) armor, front and side |
