@@ -32,11 +32,7 @@ One torso deck in the v4 CAD is 89 × 108 mm = 9 612 mm². The tray needs **two 
 | Wiper buffers MCP6002 on 3.3 V instead of LMV358 on 5 V | the buffer output can never exceed the ADC input range | ≈ 0 |
 | **Total** | | **≈ +210 000 VND** |
 
-## The BOM and the CAD disagree: decide before buying
+## The BOM follows the CAD
 
-| Item | BOM v0.7 | CAD (`electronics.py`) |
-| --- | --- | --- |
-| Battery | 2S 1100 mAh, 63 × 24 × 15 mm | 2S ≈ 1000 mAh, 56 × 30 × 19 mm |
-| Face display | 2.42″ OLED SSD1309 128 × 64 | Waveshare 1.9″ LCD ST7789V2 170 × 320 |
-| Radxa Zero 3W storage | 2 GB + 32 GB microSD | eMMC version, no card slot |
-| Microphones | 2 × INMP441 | not modelled |
+The CAD is the reference. BOM v0.8 now matches it: 2S ≈ 1000 mAh pack that fits 56 × 30 × 19 mm, Waveshare 1.9″
+LCD face, Radxa Zero 3W with eMMC. The two INMP441 microphones are in the BOM but not in the CAD yet.
