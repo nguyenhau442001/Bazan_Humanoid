@@ -60,6 +60,11 @@
   "detail": "13 số chỉ dẫn, 13 mục"
  },
  {
+  "check": "trình tự lắp nằm trên khổ giấy",
+  "ok": true,
+  "detail": "đáy 168"
+ },
+ {
   "check": "số tán M2 = số lỗ tán M2 của N2, N3, N4 trong CAD",
   "ok": true,
   "detail": "16"

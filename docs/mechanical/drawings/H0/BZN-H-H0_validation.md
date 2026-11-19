@@ -16,6 +16,7 @@ Sinh bởi `hardware/mechanical/drawings_parts.py H0`. Lỗi: **0**.
 | khung tên đủ trường | đạt | đủ |
 | đánh số tờ liên tục | đạt |  |
 | mọi mục trong danh mục có đúng một số chỉ dẫn (balloon) | đạt | 13 số chỉ dẫn, 13 mục |
+| trình tự lắp nằm trên khổ giấy | đạt | đáy 168 |
 | số tán M2 = số lỗ tán M2 của N2, N3, N4 trong CAD | đạt | 16 |
 | số ốc M2×6 = tai servo + vỏ + N4 + N3i + trụ board trong CAD | đạt | 16 |
 | cụm đầu lắp xong không chồng khối (robot.collisions ở tư thế 0) | đạt |  |
