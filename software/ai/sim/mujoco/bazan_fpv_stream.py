@@ -170,7 +170,7 @@ def embed_pip_view(main_bgr, fpv_bgr, pip_w=320, pip_h=240, pad=20):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--model", type=Path, default=HERE / "mico.xml", help="Path to mico.xml")
+    parser.add_argument("--model", type=Path, default=HERE / "bazan.xml", help="Path to bazan.xml")
     parser.add_argument("--obstacles", action="store_true", default=True, help="Spawn virtual obstacle markers")
     parser.add_argument("--no-obstacles", action="store_false", dest="obstacles", help="Do not spawn obstacles")
     parser.add_argument("--hud", action="store_true", default=True, help="Enable perception HUD overlay")

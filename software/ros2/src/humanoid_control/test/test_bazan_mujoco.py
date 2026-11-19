@@ -1,11 +1,9 @@
-"""MuJoCo physics of mico_mujoco.py (the ROS 2 bridge core), no ROS. Skipped where MuJoCo or xacro is missing
-(the Ubuntu CI has neither MuJoCo nor a reason to install it; run it in the ros2_jazzy conda env).
+"""MuJoCo physics of bazan_mujoco.py (the ROS 2 bridge core) on the robot generated from the CAD, no ROS. Skipped
+where MuJoCo is missing (pip install mujoco).
 
-    python3 -m pytest src/humanoid_control/test/test_mico_mujoco.py
+    python3 -m pytest software/ros2/src/humanoid_control/test/test_bazan_mujoco.py
 """
 import math
-import shutil
-import subprocess
 import sys
 from pathlib import Path
 
@@ -30,30 +28,24 @@ try:                       # skip test by test (a module-level skip collects not
 except ImportError:
     mm = None
 
-DESCRIPTION = REPO / "software" / "ros2" / "src" / "humanoid_description"
-
-
-def resolve(filename):
-    return str(DESCRIPTION / filename[len("package://humanoid_description/"):])
-
 
 @pytest.fixture(scope="module")
 def mjcf():
     if mm is None:
         pytest.skip("MuJoCo not installed (pip install mujoco)")
-    exe = shutil.which("xacro")
-    if exe is None:
-        pytest.skip("xacro not found")
-    urdf = subprocess.run([exe, str(DESCRIPTION / "urdf" / "bazan.urdf.xacro"), "look:=bazan",
-                           "mass:=sim"],
-                          check=True, capture_output=True, text=True).stdout
-    return mm.build_mjcf(urdf, resolve)
+    return mm.cad_mjcf()
+
+
+def stand_height():
+    """Pelvis (hip pitch axes) above the floor with straight legs, from the CAD URDF."""
+    return gait.SOLE + gait.ROLL_DOWN + gait.L1 + gait.L2
 
 
 def test_model(mjcf):
     sim = mm.BazanSim(mjcf)
     m = sim.model
-    assert m.nu == 20 and m.nmesh == 48 and m.opt.timestep == pytest.approx(0.001)
+    assert m.nu == 20 and m.opt.timestep == pytest.approx(0.001)
+    assert m.body_mass.sum() == pytest.approx(gait.MODEL.total), "the masses of the CAD URDF"
     stall = {j: abs(m.actuator_forcerange[m.actuator(j).id, 1]) for j in gait.JOINTS}
     assert stall["l_knee"] == pytest.approx(0.343) and stall["l_hip_yaw"] == pytest.approx(0.216)
     assert stall["neck_yaw"] == pytest.approx(0.177)
@@ -62,10 +54,11 @@ def test_model(mjcf):
 def test_stands_still(mjcf):
     sim = mm.BazanSim(mjcf)
     sim.reset()
-    assert sim.base_pose()[0][2] == pytest.approx(0.116, abs=0.001), "spawned with the soles 1 mm above the floor"
+    z0 = stand_height()
+    assert sim.base_pose()[0][2] == pytest.approx(z0 + 0.001, abs=0.0005), "spawned with the soles 1 mm above the floor"
     sim.step(2000)
     xyz, _ = sim.base_pose()
-    assert abs(xyz[2] - 0.115) < 0.003 and np.linalg.norm(xyz[:2]) < 0.003
+    assert abs(xyz[2] - z0) < 0.003 and np.linalg.norm(xyz[:2]) < 0.003
     assert math.degrees(sim.tilt()) < 1.0
     acc, gyro, _ = sim.imu()
     assert acc[2] == pytest.approx(9.81, abs=0.05) and np.linalg.norm(gyro) < 0.01
@@ -89,7 +82,7 @@ def test_trajectory_interpolates_like_jtc(mjcf):
 
 
 def test_demo_walks_and_turns(mjcf):
-    """The trajectory mico_gait.py sends: no fall, about the expected distance and heading."""
+    """The trajectory bazan_gait.py sends: no fall, about the planned distance and heading."""
     sim = mm.BazanSim(mjcf)
     sim.reset()
     sim.step(1000)
@@ -99,7 +92,9 @@ def test_demo_walks_and_turns(mjcf):
     for _ in range(int(times[-1] + 1.0) * 10):
         sim.step(100)
         worst = max(worst, sim.tilt())
-        assert sim.base_pose()[0][2] > 0.09, f"fell at t={sim.time:.1f} s"
+        assert sim.base_pose()[0][2] > 0.8 * stand_height(), f"fell at t={sim.time:.1f} s"
     xyz, (w, x, y, z) = sim.base_pose()
     heading = math.degrees(math.atan2(2 * (w * z + x * y), 1 - 2 * (y * y + z * z)))
-    assert 0.16 < xyz[0] < 0.21 and abs(heading - 60) < 6 and math.degrees(worst) < 15
+    planned = (gait.WALK_STEPS - 1.5) * gait.STEP                       # both feet end 6.5 strides ahead
+    assert abs(xyz[0] - planned) < 0.025 and abs(heading - 60) < 6
+    assert math.degrees(worst) < math.degrees(gait.LEAN) + 6, "only the planned pelvis roll, plus servo sag"

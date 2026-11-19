@@ -1,14 +1,15 @@
-"""MuJoCo physics for Mico, shared by the ROS 2 bridge (mico_mujoco_bridge.py) and sim/mujoco (no ROS).
+"""MuJoCo physics for Bazan, shared by the ROS 2 bridge (bazan_mujoco_bridge.py) and sim/mujoco (no ROS).
 
-build_mjcf() turns the URDF (xacro output of mico.urdf.xacro) into a MuJoCo model:
-  * the same links, joints, limits, damping and Blender meshes (group 1); collision boxes in group 0
+The robot is bazan_cad.urdf, generated from the CAD by hardware/mechanical/gen_urdf.py: cad_mjcf() builds it.
+build_mjcf() turns any such URDF into a MuJoCo model:
+  * the same links, joints, limits, damping and inertials; the link boxes collide (group 0)
   * a free base, a floor (group 2), 1 ms steps
   * one position servo per joint: torque = kp (target - q) - kv dq, clipped to the URDF effort limit (stall torque)
   * armature for the servo gearbox, which also keeps the tiny link inertias stable
-  * contacts: robot <-> floor and foot <-> foot only
-  * imu site on imu_link: accelerometer, gyro, orientation
+  * contacts: robot <-> floor, left leg <-> right leg
+  * imu site on imu_link: accelerometer, gyro, orientation; head_camera on camera_link
 
-MicoSim steps the model and follows trajectories like joint_trajectory_controller does (linear interpolation
+BazanSim steps the model and follows trajectories like joint_trajectory_controller does (linear interpolation
 on sim time, the zero stamp means "start now", hold the last point).
 """
 import math
@@ -26,11 +27,12 @@ except ImportError:
     import mico_gait as gait  # noqa: E402
 
 JOINTS = gait.JOINTS
-FEET = ("l_ankle_roll_link", "r_ankle_roll_link")
-ROBOT, FLOOR, FOOT = 1, 2, 4            # contact bits
+CAD_URDF = gait.URDF
+ROBOT, FLOOR, LEFT, RIGHT = 1, 2, 4, 8          # contact bits
+LEG_LINKS = ("hip_yaw", "hip_roll", "hip_pitch", "knee", "ankle_pitch", "ankle_roll")
 
 # servo model; MG92B / MG90S / SG90 stall torques come from the URDF effort limits
-KP = 6.0                 # N m / rad: stall torque at ~3-6 deg of error
+KP = gait.SERVO_KP       # N m / rad: the gait's sag feed-forward assumes the same stiffness
 KV = 0.03                # N m s / rad
 ARMATURE = 2e-5          # kg m^2 reflected rotor inertia
 TIMESTEP = 0.001
@@ -74,17 +76,18 @@ def build_mjcf(urdf_text, resolve_mesh, kp=KP, kv=KV, armature=ARMATURE, timeste
 
     world = spec.worldbody
     world.add_geom(name="floor", type=mujoco.mjtGeom.mjGEOM_PLANE, size=[2, 2, 0.01], group=2,
-                   rgba=[0.25, 0.3, 0.38, 1], contype=FLOOR, conaffinity=ROBOT | FOOT)
+                   rgba=[0.25, 0.3, 0.38, 1], contype=FLOOR, conaffinity=ROBOT | LEFT | RIGHT)
     world.add_light(pos=[0.3, -0.3, 1.0], dir=[-0.3, 0.3, -1], diffuse=[0.8, 0.8, 0.8])
     world.add_light(pos=[-0.4, 0.4, 0.8], dir=[0.4, -0.4, -1], diffuse=[0.4, 0.4, 0.4])
 
     for g in spec.geoms:
         if g.name == "floor":
             continue
+        side = g.parent.name[0] if g.parent.name[2:-5] in LEG_LINKS else None
         if g.group != 0:                                   # visual
             g.contype = g.conaffinity = 0
-        elif g.parent.name in FEET:
-            g.contype, g.conaffinity = ROBOT | FOOT, FLOOR | FOOT
+        elif side:                                         # a leg meets the floor and the other leg
+            g.contype, g.conaffinity = (LEFT, FLOOR | RIGHT) if side == "l" else (RIGHT, FLOOR | LEFT)
         else:
             g.contype, g.conaffinity = ROBOT, FLOOR
 
@@ -114,6 +117,11 @@ def build_mjcf(urdf_text, resolve_mesh, kp=KP, kv=KV, armature=ARMATURE, timeste
         cam.fovy = 60
     spec.compile()
     return spec.to_xml()
+
+
+def cad_mjcf(kp=KP, kv=KV, armature=ARMATURE, timestep=TIMESTEP):
+    """MJCF string of the robot: bazan_cad.urdf, the twin generated from the CAD."""
+    return build_mjcf(CAD_URDF.read_text(), lambda f: f, kp, kv, armature, timestep)
 
 
 class Trajectory:

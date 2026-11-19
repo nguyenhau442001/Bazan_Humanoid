@@ -193,7 +193,7 @@ def view_physics(model, stand, fpv=False):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--model", type=Path, default=HERE / "mico.xml")
+    ap.add_argument("--model", type=Path, default=HERE / "bazan.xml")
     ap.add_argument("--stand", action="store_true", help="hold the standing pose")
     ap.add_argument("--physics", action="store_true", help="servos and contacts instead of kinematic playback")
     ap.add_argument("--fpv", action="store_true", help="launch in First-Person View from head_camera (toggle: V key)")

@@ -1,18 +1,14 @@
 #!/usr/bin/env python3
-"""Mico URDF -> MuJoCo MJCF (mico.xml), with the servos, IMU and contacts of the ROS 2 bridge.
+"""CAD URDF -> MuJoCo MJCF (bazan.xml), with the servos, IMU, camera and contacts of the ROS 2 bridge.
 
-The MJCF is built by src/humanoid_control/scripts/mico_mujoco.py (build_mjcf), the same code the bridge runs,
-from the xacro output with the arguments every launch uses (look:=mico mass:=sim):
-    python3 sim/mujoco/mico_mjcf.py                    # runs xacro (ros2_jazzy conda env or the VM)
-    python3 sim/mujoco/mico_mjcf.py --urdf mico.urdf   # or give the xacro output
+The robot is software/ros2/src/humanoid_description/urdf/bazan_cad.urdf, generated from the CAD
+(hardware/mechanical/gen_urdf.py). The MJCF is built by bazan_mujoco.cad_mjcf(), the same code the bridge runs:
+    python3 sim/mujoco/bazan_mjcf.py            # write bazan.xml
+    python3 sim/mujoco/bazan_mjcf.py --check    # exit 1 if bazan.xml is not what the CAD URDF gives (CI)
 
-Run it again after sim/mini_humanoid/gen_robot.py changes the model. Meshes are referenced in place
-(src/humanoid_description/meshes/visual/mico), relative to this folder.
+Run it again after gen_urdf.py changes the URDF. No ROS, no xacro needed.
 """
 import argparse
-import os
-import shutil
-import subprocess
 import sys
 from pathlib import Path
 
@@ -22,47 +18,28 @@ while REPO.parent != REPO and not (REPO / ".git").exists() and not (REPO / "AGEN
     REPO = REPO.parent
 SCRIPTS_DIR = REPO / "software" / "ros2" / "src" / "humanoid_control" / "scripts"
 sys.path.insert(0, str(SCRIPTS_DIR))
-import mico_mujoco as mm  # noqa: E402
+import bazan_mujoco as mm  # noqa: E402
 
-XACRO = REPO / "software" / "ros2" / "src" / "humanoid_description" / "urdf" / "mico.urdf.xacro"
-PACKAGE = "package://humanoid_description/"
-
-
-def resolve_mesh(filename):
-    """package://humanoid_description/... -> absolute path in this checkout."""
-    if filename.startswith(PACKAGE):
-        base_desc = REPO / "software" / "ros2" / "src" / "humanoid_description"
-        return str(base_desc / filename[len(PACKAGE):])
-    return filename
-
-
-def resolve_mesh_relative(filename):
-    """Same, relative to sim/mujoco, so the saved mico.xml works in any checkout."""
-    return os.path.relpath(resolve_mesh(filename), HERE)
-
-
-def mico_urdf(path=None):
-    """xacro output with look:=mico mass:=sim, or the file at `path`."""
-    if path:
-        return Path(path).read_text()
-    exe = shutil.which("xacro")
-    if exe is None:
-        sys.exit("xacro not found: activate the ros2_jazzy env (or use the VM), or pass --urdf (xacro output)")
-    args = [exe, str(XACRO), "look:=mico", "mass:=sim"]
-    return subprocess.run(args, check=True, capture_output=True, text=True).stdout
+OUT = HERE / "bazan.xml"
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--urdf", help="xacro output of mico.urdf.xacro (default: run xacro)")
-    ap.add_argument("-o", "--out", type=Path, default=HERE / "mico.xml")
+    ap.add_argument("--check", action="store_true", help="compare with the committed bazan.xml instead of writing")
     args = ap.parse_args()
-    xml = mm.build_mjcf(mico_urdf(args.urdf), resolve_mesh_relative, modelfiledir=args.out.parent.resolve())
-    args.out.write_text(xml)
-    sim = mm.MicoSim(args.out)
-    m = sim.model
-    print(f"{args.out}: {m.nbody} bodies, {m.njnt} joints, {m.nu} servos, {m.nmesh} meshes, {m.nsensor} sensors")
+    xml = mm.cad_mjcf()
+    if args.check:
+        if not OUT.exists() or OUT.read_text() != xml:
+            print(f"{OUT.relative_to(REPO)} is stale: run python3 sim/mujoco/bazan_mjcf.py")
+            return 1
+        print("up to date")
+        return 0
+    OUT.write_text(xml)
+    m = mm.BazanSim(OUT).model
+    print(f"wrote {OUT.relative_to(REPO)}: {m.nbody} bodies, {m.njnt} joints, {m.nu} servos, {m.nsensor} sensors, "
+          f"{m.body_mass.sum() * 1000:.0f} g")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

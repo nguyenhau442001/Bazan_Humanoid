@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Mico demo in MuJoCo with physics, no ROS: the same trajectory mico_gait.py sends, the same servo model as
-the ROS 2 bridge. Reports fell or not, distance, heading, tilt, hip height and servo loads against stall, and
-writes the gait torques to sim/mini_humanoid/tables/mj_servo_loads.csv (read by kin_dyn.py and the engineering
-docs).
+"""Bazan demo in MuJoCo with physics, no ROS: the robot generated from the CAD (bazan_cad.urdf), the trajectory
+bazan_gait.py sends, the servo model of the ROS 2 bridge. Reports fell or not, distance, heading, tilt, hip height
+and servo loads against stall, and writes the gait torques to sim/mujoco/servo_loads.csv (read by the
+engineering docs).
 
-    python3 sim/mujoco/check_mujoco.py                 # needs xacro (the ros2_jazzy conda env or the VM)
-    python3 sim/mujoco/check_mujoco.py --urdf mico.urdf --kp 6 --kv 0.03
+    python3 sim/mujoco/check_mujoco.py
+    python3 sim/mujoco/check_mujoco.py --kp 6 --kv 0.03
 
 Exit code 1 if the robot falls.
 """
@@ -18,11 +18,12 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from mico_mjcf import REPO, mico_urdf, mm, resolve_mesh  # noqa: E402
+from bazan_mjcf import REPO, mm  # noqa: E402
 
-LOADS = REPO / "sim" / "mini_humanoid" / "tables" / "mj_servo_loads.csv"
+LOADS = Path(__file__).resolve().parent / "servo_loads.csv"
 
 gait = mm.gait
+FALLEN_Z = 0.6 * (gait.SOLE + gait.ROLL_DOWN + gait.H0)      # pelvis this low: the robot is down
 
 
 def yaw(quat):
@@ -48,7 +49,7 @@ def run(sim, start_delay=2.0, settle=1.0):
             hip_min = min(hip_min, xyz[2])
             efforts.append(np.abs(sim.joint_efforts()))
             loads.append(efforts[-1] / stall)
-            if fell is None and (xyz[2] < 0.07 or sim.tilt() > math.radians(45)):
+            if fell is None and (xyz[2] < FALLEN_Z or sim.tilt() > math.radians(45)):
                 fell = sim.time - t0
     xyz, quat = sim.base_pose()
     loads, efforts = np.array(loads), np.array(efforts)
@@ -73,13 +74,12 @@ def write_loads(r, path=LOADS):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--urdf", help="xacro output of mico.urdf.xacro (default: run xacro)")
     ap.add_argument("--kp", type=float, default=mm.KP)
     ap.add_argument("--kv", type=float, default=mm.KV)
     ap.add_argument("--armature", type=float, default=mm.ARMATURE)
     ap.add_argument("--no-write", action="store_true", help=f"do not write {LOADS.name}")
     args = ap.parse_args()
-    sim = mm.MicoSim(mm.build_mjcf(mico_urdf(args.urdf), resolve_mesh, args.kp, args.kv, args.armature))
+    sim = mm.BazanSim(mm.cad_mjcf(args.kp, args.kv, args.armature))
     r = run(sim)
     print("fell: no" if r["fell"] is None else f"fell: yes, {r['fell']:.1f} s after the trajectory arrived")
     print(f"walked {r['dx'] * 1e3:.0f} mm forward, {r['dy'] * 1e3:+.0f} mm sideways, heading {r['yaw']:+.1f} deg "
