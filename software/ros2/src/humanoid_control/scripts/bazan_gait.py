@@ -142,6 +142,7 @@ LIFT = 0.012         # foot clearance (m)
 LEAN = 0.20          # pelvis roll toward the loaded foot at full load (rad)
 SERVO_KP = 6.0       # hobby-servo stiffness, N.m/rad (the MuJoCo actuator uses the same; P0 measures it)
 SAG_FF = 1.25        # command += SAG_FF * hold torque / SERVO_KP; above 1 so an underestimated load errs stiff
+H0_LEANED = L1 + L2 - 2 * HIP_Y * math.sin(LEAN) - 0.002   # at full lean: the free leg reaches the floor, 2 mm spare
 T_SHIFT, T_SWING, T_SETTLE = 1.2, 1.2, 0.3   # seconds per step phase
 T_TURN = 1.2         # turning swings are this much slower
 WALK_STEPS = 8
@@ -284,26 +285,28 @@ class Plan:
         return self.segs[-1][1](1.0)
 
 
-def pose(com, yaw, feet, upper, z=None, guess=(0.0, 0.0)):
-    """Commanded joint angles for one planned instant, servo sag included. Returns (q, pelvis xy)."""
-    z = SOLE + ROLL_DOWN + H0 if z is None else z
+def pose(com, yaw, feet, upper, z=None, guess=(0.0, 0.0), sag=True):
+    """Joint angles for one planned instant: the servo command (sag included), or the planned pose itself
+    (sag=False, what the robot should look like). Returns (q, pelvis xy)."""
     a, b = np.array(feet["l"][:2]), np.array(feet["r"][:2])
     d = a - b
     f = float(np.clip(2 * np.dot(np.asarray(com) - (a + b) / 2, d) / np.dot(d, d), -1.0, 1.0))  # +1: all on left
+    if z is None:                       # the leaned pelvis lifts the free hip: crouch so the free foot still lands
+        z = SOLE + ROLL_DOWN + H0 - (H0 - H0_LEANED) * abs(f)
     xy, q, T, Rb = whole_body(com, z, yaw, -LEAN * f, feet, upper, guess)
     down = [s for s, ft in feet.items() if ft[2] < 1e-6]
     load = {down[0]: 1.0} if len(down) == 1 else {"l": (1 + f) / 2, "r": (1 - f) / 2}
-    tau = MODEL.hold_torques(T, Rb, load)
+    tau = MODEL.hold_torques(T, Rb, load) if sag else {}
     cmd = {j: q.get(j, 0.0) + SAG_FF * tau.get(j, 0.0) / SERVO_KP for j in JOINTS}
     return {j: min(max(v, LIMIT[j][0]), LIMIT[j][1]) for j, v in cmd.items()}, xy
 
 
-def crouch_pose(w, guess=(0.0, 0.0)):
+def crouch_pose(w, guess=(0.0, 0.0), sag=True):
     """From straight legs (w = 0) to the gait's start pose (w = 1), CoM between the feet."""
     feet = {"l": (0.0, HIP_Y, 0.0, 0.0), "r": (0.0, -HIP_Y, 0.0, 0.0)}
     z0 = SOLE + ROLL_DOWN + L1 + L2 - 1e-4
     return pose(np.zeros(2), 0.0, feet, {"l_elbow": ELBOW * w, "r_elbow": ELBOW * w},
-                z0 + (SOLE + ROLL_DOWN + H0 - z0) * smooth(w), guess)
+                z0 + (SOLE + ROLL_DOWN + H0 - z0) * smooth(w), guess, sag)
 
 
 class Demo:
@@ -311,11 +314,11 @@ class Demo:
         self.plan = plan or Plan()
         self.guess = (0.0, 0.0)
 
-    def targets(self, t):
+    def targets(self, t, sag=True):
         if t < T_CROUCH:
-            q, self.guess = crouch_pose(t / T_CROUCH, self.guess)
+            q, self.guess = crouch_pose(t / T_CROUCH, self.guess, sag)
         else:
-            q, self.guess = pose(*self.plan.sample(t - T_CROUCH), guess=self.guess)
+            q, self.guess = pose(*self.plan.sample(t - T_CROUCH), guess=self.guess, sag=sag)
         return q
 
 
@@ -327,9 +330,9 @@ T_END = T_CROUCH + _DEMO.plan.marks["end"]
 T_STEP = T_SHIFT + T_SWING + T_SETTLE
 
 
-def targets(t):
-    """The demo: joint angles (dict) t seconds after it starts."""
-    return _DEMO.targets(t)
+def targets(t, sag=True):
+    """The demo: joint commands (dict) t seconds after it starts; sag=False gives the planned pose."""
+    return _DEMO.targets(t, sag)
 
 
 def walk(t):
@@ -344,21 +347,21 @@ def single_support(stance="l"):
     """The planned pose halfway through a swing, standing on `stance` (static load checks)."""
     plan = Plan(walk_steps=1 if stance == "l" else 2, turn_pairs=0, wave=False)
     T, fn = plan.segs[-2]
-    return pose(*fn(0.5))[0]
+    return pose(*fn(0.5), sag=False)[0]
 
 
 _CYCLES = {}
 
 
 def walk_continuous(t, step_len=STEP, t_step=T_STEP, **_):
-    """Steady walking, periodic in t: one cycle is two steps of `t_step` seconds and `step_len` stride."""
+    """Endless walking from the start pose: two steps to get going, then periodic in t (two steps of `t_step`
+    seconds and `step_len` stride per cycle)."""
     key = (round(step_len, 4), round(t_step, 3))
     if key not in _CYCLES:
         plan = Plan(walk_steps=6, stride=step_len, scale=t_step / T_STEP, turn_pairs=0, wave=False)
-        start = sum(s[0] for s in plan.segs[:6])          # steps 3 and 4 are steady state
-        _CYCLES[key] = (Demo(plan), start, 2 * t_step)
+        _CYCLES[key] = (Demo(plan), sum(s[0] for s in plan.segs[:6]), 2 * t_step)   # steps 3 and 4: steady
     demo, start, period = _CYCLES[key]
-    return demo.targets(T_CROUCH + start + t % period)
+    return demo.targets(T_CROUCH + (t if t < start else start + (t - start) % period))
 
 
 def trajectory_points(sample_rate=50.0, start_delay=2.0):
