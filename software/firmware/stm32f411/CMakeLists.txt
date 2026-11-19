@@ -38,7 +38,7 @@ target_include_directories(vendor PUBLIC
   ${RTOS}/portable/GCC/ARM_CM4F)
 
 file(GLOB CORE_SRC ${CORE}/controller/*.cpp ${CORE}/trajectory/*.cpp ${CORE}/joint_manager/*.cpp
-     ${CORE}/link/*.cpp ${CORE}/safety/*.cpp ${CORE}/timing/*.cpp)
+     ${CORE}/link/*.cpp ${CORE}/safety/*.cpp ${CORE}/timing/*.cpp ${CORE}/power/*.cpp)
 set(APP_SRC
   Core/Startup/startup_stm32f411xe.s
   Core/Src/main.c
@@ -52,7 +52,7 @@ set(APP_SRC
   hardware/board_stm32.cpp
   ${CORE_SRC})
 set(APP_INC app hardware ${CORE} ${CORE}/controller ${CORE}/trajectory ${CORE}/joint_manager
-    ${CORE}/link ${CORE}/safety ${CORE}/timing ${CORE}/generated)
+    ${CORE}/link ${CORE}/safety ${CORE}/timing ${CORE}/power ${CORE}/generated)
 
 option(MICO_BENCH "P0 bench: no arms PCA9685, no IMU" OFF)
 set(BOARD_DEFS)

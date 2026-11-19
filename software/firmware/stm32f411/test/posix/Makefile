@@ -8,11 +8,11 @@ CC ?= gcc
 SAN ?= -fsanitize=undefined
 INC = -I. -I$(FW)/app -I$(RTOS)/include -I$(RTOS)/portable/ThirdParty/GCC/Posix \
       -I$(RTOS)/portable/ThirdParty/GCC/Posix/utils \
-      $(addprefix -I$(CORE)/,controller trajectory joint_manager link safety timing generated .)
+      $(addprefix -I$(CORE)/,controller trajectory joint_manager link safety timing power generated .)
 RTOS_SRC = $(RTOS)/tasks.c $(RTOS)/list.c $(RTOS)/queue.c $(RTOS)/portable/MemMang/heap_4.c \
            $(RTOS)/portable/ThirdParty/GCC/Posix/port.c $(RTOS)/portable/ThirdParty/GCC/Posix/utils/wait_for_event.c
 CORE_SRC = $(wildcard $(CORE)/controller/*.cpp $(CORE)/trajectory/*.cpp $(CORE)/joint_manager/*.cpp \
-           $(CORE)/link/*.cpp $(CORE)/safety/*.cpp $(CORE)/timing/*.cpp)
+           $(CORE)/link/*.cpp $(CORE)/safety/*.cpp $(CORE)/timing/*.cpp $(CORE)/power/*.cpp)
 APP_SRC = $(FW)/app/tasks.cpp $(FW)/app/diagnostics.cpp board_sim.cpp pty_bridge.cpp test_m0.cpp
 
 test: build/test_m0

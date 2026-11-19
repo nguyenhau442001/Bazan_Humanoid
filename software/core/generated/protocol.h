@@ -4,7 +4,7 @@
 
 namespace mico {
 
-constexpr uint8_t PROTO_VERSION = 1;
+constexpr uint8_t PROTO_VERSION = 2;
 constexpr int TRAJ_MAX_POINTS = 8;
 constexpr int N_TASKS = 4;
 constexpr int FAULT_HISTORY = 4;
@@ -38,6 +38,9 @@ struct State {
   int16_t temp_c10[2];
   int16_t i_ma[2];
   uint16_t v_mv[2];
+  uint16_t batt_mv;
+  int16_t batt_ma;
+  uint8_t soc_pct;
   int16_t imu[6];
   uint16_t loop_us_max;
   uint16_t rx_errors;
@@ -85,7 +88,7 @@ static_assert(sizeof(Enable) == 1, "Enable layout");
 static_assert(sizeof(Traj) == 2, "Traj layout");
 static_assert(sizeof(RawPulse) == 3, "RawPulse layout");
 static_assert(sizeof(TestHook) == 3, "TestHook layout");
-static_assert(sizeof(State) == 131, "State layout");
+static_assert(sizeof(State) == 136, "State layout");
 static_assert(sizeof(Info) == 8, "Info layout");
 static_assert(sizeof(Log) == 1, "Log layout");
 static_assert(sizeof(Diag) == 86, "Diag layout");

@@ -4,7 +4,7 @@ Q_MIN = [-0.7854, -0.3491, -1.3963, 0.0, -0.7854, -0.3491, -0.7854, -0.3491, -1.
 Q_MAX = [0.7854, 0.3491, 0.6981, 2.0944, 0.7854, 0.3491, 0.7854, 0.3491, 0.6981, 2.0944, 0.7854, 0.3491, 1.0472, 2.7925, 0.0, 1.0472, 0.0, 0.0, 1.5708, 0.5585]
 Q_STAND = [0.0, 0.0, -0.355421, 0.710842, -0.355421, 0.0, 0.0, 0.0, -0.355421, 0.710842, -0.355421, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 Q_CROUCH = [0.0, 0.0, -0.643501, 1.287002, -0.643501, 0.0, 0.0, 0.0, -0.643501, 1.287002, -0.643501, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-PROTO_VERSION = 1
+PROTO_VERSION = 2
 Q_SCALE = 10000
 NJ = 20
 NLEG = 12
@@ -24,10 +24,10 @@ MESSAGES = {
     'ClearFault': (4, '<', []),
     'RawPulse': (6, '<BH', [('joint', 1), ('pulse_us', 1)]),
     'TestHook': (7, '<BH', [('action', 1), ('arg_ms', 1)]),
-    'State': (128, '<IBH20h12h16H2h2h2H6hHH', [('t_ms', 1), ('mode', 1), ('faults', 1), ('q_cmd', 20), ('q_meas', 12), ('mux_adc', 16), ('temp_c10', 2), ('i_ma', 2), ('v_mv', 2), ('imu', 6), ('loop_us_max', 1), ('rx_errors', 1)]),
+    'State': (128, '<IBH20h12h16H2h2h2HHhB6hHH', [('t_ms', 1), ('mode', 1), ('faults', 1), ('q_cmd', 20), ('q_meas', 12), ('mux_adc', 16), ('temp_c10', 2), ('i_ma', 2), ('v_mv', 2), ('batt_mv', 1), ('batt_ma', 1), ('soc_pct', 1), ('imu', 6), ('loop_us_max', 1), ('rx_errors', 1)]),
     'Info': (129, '<BBBBI', [('fw_major', 1), ('fw_minor', 1), ('proto', 1), ('n_joints', 1), ('table_hash', 1)]),
     'Log': (130, '<B', [('level', 1)]),
     'Diag': (131, '<IIIHHHHHHHH5H4HIIHHHBB4I4H', [('t_ms', 1), ('cycles', 1), ('missed_deadlines', 1), ('exec_us_max', 1), ('exec_us_p99', 1), ('exec_us_avg', 1), ('jitter_us_max', 1), ('jitter_us_p99', 1), ('sup_jitter_us_max', 1), ('wdt_gap_us_max', 1), ('latch_delay_us', 1), ('cpu_permille', 5), ('stack_free_words', 4), ('heap_free', 1), ('heap_min_free', 1), ('allocs_after_start', 1), ('rx_overruns', 1), ('tx_drops', 1), ('supervisor', 1), ('reset_cause', 1), ('fault_t_ms', 4), ('fault_bits', 4)]),
     'TrajPoint': (None, '<H20h', [('dt_ms', 1), ('q', 20)]),
 }
-TABLE_HASH = 0x6F3416DA
+TABLE_HASH = 0x799A8B17

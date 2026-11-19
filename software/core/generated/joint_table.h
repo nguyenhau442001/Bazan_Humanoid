@@ -4,7 +4,7 @@
 
 namespace mico {
 
-constexpr uint32_t TABLE_HASH = 0x6F3416DAu;  // reported in Info; the host checks it
+constexpr uint32_t TABLE_HASH = 0x799A8B17u;  // reported in Info; the host checks it
 constexpr int NJ = 20;
 constexpr int NLEG = 12;
 constexpr int NNTC = 2;

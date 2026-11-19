@@ -5,6 +5,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "battery.h"
 #include "config.h"
 #include "frame.h"
 #include "joint_table.h"
@@ -21,6 +22,10 @@ struct Inputs {
   float current_a[2];         // left, right leg branch
   float rail_v[2];
   bool rail_valid;            // INA226 fitted: enables the over-current and under-voltage checks
+  float batt_v;               // battery lead, pack terminal voltage (V)
+  float batt_a;               // battery lead current, positive = discharge (A)
+  bool batt_v_valid;          // battery voltage read (INA226 or the VBAT divider)
+  bool batt_i_valid;          // battery current read (INA226 on the battery lead)
   int16_t imu[6];             // MPU6050 raw: ax, ay, az, gx, gy, gz
   bool pwm_ok;                // last PCA9685 writes succeeded
   bool sensors_ok;            // last INA226 / MPU6050 reads succeeded
@@ -64,6 +69,7 @@ class Controller {
   Mode mode() const { return mode_; }
   uint16_t faults() const { return faults_; }
   const float* q_cmd() const { return q_cmd_; }
+  const BatteryEstimator& battery() const { return batt_; }
 
  private:
   void on_frame(const Frame& f, uint32_t now_ms);
@@ -78,6 +84,7 @@ class Controller {
   uint8_t fw_major_, fw_minor_;
   FrameParser parser_;
   Trajectory traj_;
+  BatteryEstimator batt_;
   Mode mode_ = Mode::BOOT;
   uint16_t faults_ = 0;
   uint32_t mode_since_ = 0, last_rx_ = 0, last_tick_ = 0;

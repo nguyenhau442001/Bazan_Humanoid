@@ -31,7 +31,7 @@ _spec = importlib.util.spec_from_file_location("mico_gait", REPO / "src/humanoid
 gait = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(gait)
 
-PROTO_VERSION = 1
+PROTO_VERSION = 2        # 2: battery voltage, current and state of charge in State
 Q_SCALE = 10000          # joint angles on the wire: int16 in 1e-4 rad
 NTC_SITES = ["l_hip_roll", "r_hip_roll"]
 FSR_SITES = ["l_heel", "l_toe", "r_heel", "r_toe"]
@@ -57,6 +57,8 @@ MESSAGES = [
     ("State", 0x80, [("t_ms", "uint32_t", 1), ("mode", "uint8_t", 1), ("faults", "uint16_t", 1),
                      ("q_cmd", "int16_t", NJ), ("q_meas", "int16_t", NLEG), ("mux_adc", "uint16_t", 16),
                      ("temp_c10", "int16_t", len(NTC_SITES)), ("i_ma", "int16_t", 2), ("v_mv", "uint16_t", 2),
+                     # battery lead: 0 mV = no reading; soc_pct 255 = not known yet (software fuel gauge)
+                     ("batt_mv", "uint16_t", 1), ("batt_ma", "int16_t", 1), ("soc_pct", "uint8_t", 1),
                      ("imu", "int16_t", 6), ("loop_us_max", "uint16_t", 1), ("rx_errors", "uint16_t", 1)]),
     ("Info", 0x81, [("fw_major", "uint8_t", 1), ("fw_minor", "uint8_t", 1), ("proto", "uint8_t", 1),
                     ("n_joints", "uint8_t", 1), ("table_hash", "uint32_t", 1)]),

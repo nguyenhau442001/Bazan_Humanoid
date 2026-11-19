@@ -157,6 +157,10 @@ def csv_row(s):
     for k, side in enumerate("lr"):
         row[f"current_{side}_a"] = s["i_ma"][k] / 1000
         row[f"rail_{side}_v"] = s["v_mv"][k] / 1000
+    nan = float("nan")
+    row["batt_v"] = s["batt_mv"] / 1000 if s["batt_mv"] else nan
+    row["batt_a"] = s["batt_ma"] / 1000 if s["batt_mv"] else nan
+    row["soc_pct"] = s["soc_pct"] if s["soc_pct"] != 255 else nan
     for j, name in enumerate(P.JOINTS):
         row[f"cmd_{name}"] = s["q_cmd_rad"][j]
         if j < P.NLEG:
@@ -198,7 +202,9 @@ def cmd_monitor(link, a):
                 t = " ".join(f"{v:5.1f}" for v in s["temp_c"])
                 print(f"\r{s['mode_name']:6s} faults={s['fault_names'] or '-'} T={t} C  "
                       f"I={s['i_ma'][0] / 1000:5.2f}/{s['i_ma'][1] / 1000:5.2f} A  "
-                      f"V={s['v_mv'][0] / 1000:4.2f} V  loop={s['loop_us_max']} us   ", end="", flush=True)
+                      f"V={s['v_mv'][0] / 1000:4.2f} V  "
+                      f"batt={s['batt_mv'] / 1000:4.2f} V {'--' if s['soc_pct'] == 255 else s['soc_pct']:>3} %  "
+                      f"loop={s['loop_us_max']} us   ", end="", flush=True)
     finally:
         if f:
             f.close()

@@ -266,6 +266,16 @@ static void test_link_messages() {
   State s;
   memcpy(&s, p, sizeof(s));
   CHECK(s.mode == static_cast<uint8_t>(Mode::IDLE) && s.temp_c10[0] == 250 && s.q_meas[0] == INT16_MIN);
+  CHECK(s.batt_mv == 0 && s.batt_ma == 0 && s.soc_pct == 255);  // no battery reading: unknown, not 0 %
+
+  Inputs b = idle_inputs(20);                                // battery lead: full pack, electronics only
+  b.batt_v = 8.35f;
+  b.batt_a = 0.30f;
+  b.batt_v_valid = b.batt_i_valid = true;
+  run(c, b, 20, 40, out);
+  CHECK(last_frame(c, MSG_STATE, p, &n) && n == sizeof(State));
+  memcpy(&s, p, sizeof(s));
+  CHECK(s.batt_mv == 8350 && s.batt_ma == 300 && s.soc_pct >= 97 && s.soc_pct <= 100);
 
   RawPulse r = {5, 1600};                                    // calibration: one servo pulsed, others limp
   send(c, MSG_RAWPULSE, &r, sizeof(r), 30);

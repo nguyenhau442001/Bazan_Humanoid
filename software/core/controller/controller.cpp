@@ -175,6 +175,7 @@ void Controller::tick(const Inputs& in, Outputs& out) {
 
   for (int j = 0; j < NLEG; ++j) q_meas_ok_[j] = pot_to_angle(j, in.mux_adc[j], q_meas_[j]);
 
+  if (in.batt_v_valid) batt_.update(dt, in.batt_v, in.batt_a, in.batt_i_valid);
   if (mode_ != Mode::FAULT) check_safety(in, dt);
 
   uint32_t quiet = now - last_rx_;
@@ -222,6 +223,9 @@ void Controller::tick(const Inputs& in, Outputs& out) {
       s.i_ma[k] = static_cast<int16_t>(lroundf(clampf(in.current_a[k] * 1000, -32767, 32767)));
       s.v_mv[k] = static_cast<uint16_t>(lroundf(clampf(in.rail_v[k] * 1000, 0, 65535)));
     }
+    s.batt_mv = in.batt_v_valid ? static_cast<uint16_t>(lroundf(clampf(in.batt_v * 1000, 0, 65535))) : 0;
+    s.batt_ma = in.batt_i_valid ? static_cast<int16_t>(lroundf(clampf(in.batt_a * 1000, -32767, 32767))) : 0;
+    s.soc_pct = batt_.valid() ? batt_.soc_pct() : 255;
     memcpy(s.imu, in.imu, sizeof(s.imu));
     s.loop_us_max = loop_us_max_;
     s.rx_errors = parser_.errors();

@@ -96,7 +96,7 @@ application domain. Firmware: `firmware/stm32f411` (FreeRTOS, CubeMX layout); th
 | `Hello`: heartbeat while standing still | A → M | 20 Hz when no trajectory is queued (gap < 100 ms) | 0 bytes |
 | `Enable`, `ClearFault`, `RawPulse` | A → M | on request | ≤ 3 bytes |
 | `TestHook`: overrun or hang injection, M0 acceptance image only | A → M | on request | 3 bytes |
-| `State`: angles, pots, FSR, current, voltage, temperature, IMU, mode, faults | M → A | 100 Hz | 131 bytes |
+| `State`: angles, pots, FSR, current, voltage, battery V/I/%, temperature, IMU, mode, faults | M → A | 100 Hz | 136 bytes |
 | `Diag`: loop timing, CPU, stacks, heap, supervisor, reset cause, fault history | M → A | 1 Hz | 78 bytes |
 | `Info`, `Log` | M → A | on request / on events | small |
 
