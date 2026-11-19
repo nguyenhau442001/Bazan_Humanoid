@@ -221,7 +221,7 @@ moving), peak (turning, stepping onto one foot, recovering).
 
 ## Parts to add for A+
 
-Already in the BOM (`docs/design/sketch_shell_a`, ≈ 5.65M VND): STM32F411 Black Pill, PCA9685 × 2, MPU6050,
+Already in the BOM (`design/sketch_shell_a`, ≈ 5.79M VND): STM32F411 Black Pill, PCA9685 × 2, MPU6050,
 FSR × 4, 2S LiPo, 6 V 8 A UBEC, 5 V buck. A+ adds only the monitoring parts below. Prices are list prices from
 HCMC shops, checked on the date in `bom_aplus.csv`; "listed" means the shop page showed a price, not that stock
 was confirmed. Call the shop before going.
@@ -235,7 +235,7 @@ was confirmed. Call the shop before going.
 | LMV358 dual op-amp SOIC-8 | 6 | 7,000 | 42,000 | [icdayroi](https://icdayroi.com/lmv358idr) | 12 wiper buffers; MCP6002 (rail-to-rail input, Thế Giới IC) if P0 shows wipers near the supply |
 | Perfboard, headers, series resistors, clamp diodes | 1 | 40,000 (est.) | 40,000 | Nhật Tảo | monitoring board for P0 and P1 |
 | **A+ total** |  |  | **233,000** |  |  |
-| **Robot total** (BOM + A+) |  |  | **5,883,000** |  |  |
+| **Robot total** (BOM + A+) |  |  | **6,018,000** |  |  |
 
 Prices checked 2026-11-07.
 <!-- /gen:bom -->
