@@ -49,19 +49,19 @@
   "horn_hub_above_tower": 0.4
  },
  "stiffness": {
-  "k_b": 12.476560831016306,
-  "k_w": 10.187337063624886,
-  "k_a": 13.649593039089739,
-  "vm_per_N_b": 0.6972793243166935,
-  "vm_per_N_w": 0.863763179105837,
-  "vm_per_N_a": 0.7280705201782104,
+  "k_b": 11.999595853611652,
+  "k_w": 9.636614432174419,
+  "k_a": 12.6530680524124,
+  "vm_per_N_b": 0.7183710481788691,
+  "vm_per_N_w": 0.8566431575436599,
+  "vm_per_N_a": 0.7074011987801765,
   "hot_a_local": [
    -6.0,
    19.8,
    10.4
   ],
-  "nodes": 73755,
-  "elements": 41907,
+  "nodes": 67578,
+  "elements": 37050,
   "seat_nodes": 240,
   "fixed_nodes": 1757
  },
@@ -237,9 +237,27 @@
    },
    {
     "moving": "board_DISP",
+    "fixed": "neck_link",
+    "min_all": 10.939,
+    "min_off_axis": 10.939,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   },
+   {
+    "moving": "board_DISP",
     "fixed": "neck_mount",
-    "min_all": 12.465,
-    "min_off_axis": 12.465,
+    "min_all": 12.072,
+    "min_off_axis": 12.072,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   },
+   {
+    "moving": "board_DISP",
+    "fixed": "servo_neck_yaw",
+    "min_all": 12.111,
+    "min_off_axis": 12.111,
     "overlap": 0.0,
     "at_all": 32.0,
     "at_off_axis": 32.0
@@ -255,18 +273,9 @@
    },
    {
     "moving": "board_DISP",
-    "fixed": "servo_neck_yaw",
-    "min_all": 12.618,
-    "min_off_axis": 12.618,
-    "overlap": 0.0,
-    "at_all": 32.0,
-    "at_off_axis": 32.0
-   },
-   {
-    "moving": "board_DISP",
-    "fixed": "neck_link",
-    "min_all": 12.931,
-    "min_off_axis": 12.931,
+    "fixed": "horn_neck_yaw",
+    "min_all": 12.939,
+    "min_off_axis": 12.939,
     "overlap": 0.0,
     "at_all": 32.0,
     "at_off_axis": 32.0
@@ -299,6 +308,15 @@
     "at_off_axis": -30.0
    },
    {
+    "moving": "board_DISP",
+    "fixed": "servo_head_pitch",
+    "min_all": 13.563,
+    "min_off_axis": 13.563,
+    "overlap": 0.0,
+    "at_all": -26.0,
+    "at_off_axis": -26.0
+   },
+   {
     "moving": "head_front",
     "fixed": "horn_neck_yaw",
     "min_all": 15.038,
@@ -312,24 +330,6 @@
     "fixed": "horn_neck_yaw",
     "min_all": 15.293,
     "min_off_axis": 15.293,
-    "overlap": 0.0,
-    "at_all": -30.0,
-    "at_off_axis": -30.0
-   },
-   {
-    "moving": "board_DISP",
-    "fixed": "horn_neck_yaw",
-    "min_all": 15.843,
-    "min_off_axis": 15.843,
-    "overlap": 0.0,
-    "at_all": 32.0,
-    "at_off_axis": 32.0
-   },
-   {
-    "moving": "board_DISP",
-    "fixed": "servo_head_pitch",
-    "min_all": 18.684,
-    "min_off_axis": 18.684,
     "overlap": 0.0,
     "at_all": -30.0,
     "at_off_axis": -30.0
@@ -416,10 +416,10 @@
     "at_off_axis": 32.0
    },
    {
-    "moving": "board_DISP",
+    "moving": "head_frame",
     "fixed": "deck_2",
-    "min_all": 24.57,
-    "min_off_axis": 24.57,
+    "min_all": 24.188,
+    "min_off_axis": 24.188,
     "overlap": 0.0,
     "at_all": 32.0,
     "at_off_axis": 32.0
@@ -429,6 +429,15 @@
     "fixed": "servo_neck_yaw",
     "min_all": 24.677,
     "min_off_axis": 24.677,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   },
+   {
+    "moving": "board_DISP",
+    "fixed": "deck_2",
+    "min_all": 25.735,
+    "min_off_axis": 25.735,
     "overlap": 0.0,
     "at_all": 32.0,
     "at_off_axis": 32.0
@@ -452,19 +461,10 @@
     "at_off_axis": 32.0
    },
    {
-    "moving": "board_DISP",
-    "fixed": "chest_shell",
-    "min_all": 27.797,
-    "min_off_axis": 27.797,
-    "overlap": 0.0,
-    "at_all": 32.0,
-    "at_off_axis": 32.0
-   },
-   {
     "moving": "head_frame",
-    "fixed": "deck_2",
-    "min_all": 28.014,
-    "min_off_axis": 28.014,
+    "fixed": "chest_shell",
+    "min_all": 28.495,
+    "min_off_axis": 28.495,
     "overlap": 0.0,
     "at_all": 32.0,
     "at_off_axis": 32.0
@@ -474,6 +474,15 @@
     "fixed": "horn_neck_yaw",
     "min_all": 29.635,
     "min_off_axis": 29.635,
+    "overlap": 0.0,
+    "at_all": 32.0,
+    "at_off_axis": 32.0
+   },
+   {
+    "moving": "board_DISP",
+    "fixed": "chest_shell",
+    "min_all": 29.844,
+    "min_off_axis": 29.844,
     "overlap": 0.0,
     "at_all": 32.0,
     "at_off_axis": 32.0
@@ -504,15 +513,6 @@
     "overlap": 0.0,
     "at_all": 22.0,
     "at_off_axis": 22.0
-   },
-   {
-    "moving": "head_frame",
-    "fixed": "chest_shell",
-    "min_all": 33.901,
-    "min_off_axis": 33.901,
-    "overlap": 0.0,
-    "at_all": 32.0,
-    "at_off_axis": 32.0
    },
    {
     "moving": "head_back",
@@ -571,8 +571,8 @@
    {
     "moving": "board_DISP",
     "fixed": "back_shell",
-    "min_all": 46.71,
-    "min_off_axis": 46.71,
+    "min_all": 46.219,
+    "min_off_axis": 46.219,
     "overlap": 0.0,
     "at_all": 32.0,
     "at_off_axis": 32.0
@@ -719,9 +719,9 @@
    "severity": "Major",
    "status": "ASSUMED",
    "title": "Tải ngang thường trực do lệch trục",
-   "evidence": "k_b = 12.5 N/mm (FEA, N3 + N3i coi như liền), lệch còn lại 0.00 mm → 0.0 N (P1: 3.5–4.7 N).",
+   "evidence": "k_b = 12.0 N/mm (FEA, N3 + N3i coi như liền), lệch còn lại 0.00 mm → 0.0 N (P1: 3.5–4.7 N).",
    "numbers": {
-    "k_b": 12.5,
+    "k_b": 12.0,
     "preload": 0.0
    },
    "action": "Lắp tự định tâm (siết 2 ốc G/H sau cùng)."
@@ -851,7 +851,7 @@
     "blocked_at": {},
     "leg_gap": 4.6
    },
-   "action": "Chờ duyệt hình ngoài."
+   "action": "— (hình ngoài đã duyệt)"
   },
   {
    "id": "H-1",
@@ -883,19 +883,19 @@
   "orientations": {
    "O1 sàn úp xuống (hiện tại)": {
     "height": 35.0,
-    "grams": 17.75,
-    "grams_with_support": 20.03,
-    "support_g": 2.28,
-    "minutes": 130,
-    "minutes_with_support": 146,
+    "grams": 16.72,
+    "grams_with_support": 23.46,
+    "support_g": 6.74,
+    "minutes": 139,
+    "minutes_with_support": 169,
     "pitch_axis": "ngang",
-    "support_g_buildplate_only": 0.06,
+    "support_g_buildplate_only": 3.69,
     "skin_extrusion_mm": 16.5,
     "support_in_features_mm": {
-     "hốc horn Ø20.4": 4108.4,
-     "lỗ thao tác Ø5.2": 253.8,
-     "ổ bạc đạn Ø6.05": 575.4,
-     "lỗ lip Ø4.6": 32.5
+     "hốc horn Ø20.4": 4167.4,
+     "lỗ thao tác Ø5.2": 251.0,
+     "ổ bạc đạn Ø6.05": 597.1,
+     "lỗ lip Ø4.6": 36.0
     },
     "support_in_features_mm_buildplate_only": {
      "hốc horn Ø20.4": 0.0,
@@ -905,66 +905,66 @@
     }
    },
    "O2 đĩa horn xuống bàn": {
-    "height": 48.0,
-    "grams": 18.45,
-    "grams_with_support": 27.1,
-    "support_g": 8.65,
-    "minutes": 89,
-    "minutes_with_support": 126,
+    "height": 54.0,
+    "grams": 17.25,
+    "grams_with_support": 31.1,
+    "support_g": 13.85,
+    "minutes": 100,
+    "minutes_with_support": 154,
     "pitch_axis": "dọc (vuông góc bàn)",
-    "support_g_buildplate_only": 1.93,
+    "support_g_buildplate_only": 3.48,
     "skin_extrusion_mm": 13.6,
     "support_in_features_mm": {
-     "hốc horn Ø20.4": 3808.7,
-     "lỗ thao tác Ø5.2": 329.2,
+     "hốc horn Ø20.4": 3641.8,
+     "lỗ thao tác Ø5.2": 328.3,
      "ổ bạc đạn Ø6.05": 0.0,
      "lỗ lip Ø4.6": 0.0
     },
     "support_in_features_mm_buildplate_only": {
      "hốc horn Ø20.4": 247.7,
-     "lỗ thao tác Ø5.2": 294.2,
+     "lỗ thao tác Ø5.2": 293.3,
      "ổ bạc đạn Ø6.05": 0.0,
      "lỗ lip Ø4.6": 0.0
     }
    },
    "O3 đĩa idler xuống bàn": {
-    "height": 48.0,
-    "grams": 18.46,
-    "grams_with_support": 29.62,
-    "support_g": 11.16,
-    "minutes": 89,
-    "minutes_with_support": 139,
+    "height": 54.0,
+    "grams": 17.33,
+    "grams_with_support": 33.81,
+    "support_g": 16.48,
+    "minutes": 101,
+    "minutes_with_support": 168,
     "pitch_axis": "dọc (vuông góc bàn)",
-    "support_g_buildplate_only": 5.78,
+    "support_g_buildplate_only": 7.34,
     "skin_extrusion_mm": 13.2,
     "support_in_features_mm": {
-     "hốc horn Ø20.4": 2918.6,
+     "hốc horn Ø20.4": 2668.7,
      "lỗ thao tác Ø5.2": 0.0,
-     "ổ bạc đạn Ø6.05": 601.7,
-     "lỗ lip Ø4.6": 33.4
+     "ổ bạc đạn Ø6.05": 601.1,
+     "lỗ lip Ø4.6": 16.7
     },
     "support_in_features_mm_buildplate_only": {
-     "hốc horn Ø20.4": 312.7,
+     "hốc horn Ø20.4": 311.8,
      "lỗ thao tác Ø5.2": 0.0,
-     "ổ bạc đạn Ø6.05": 479.7,
+     "ổ bạc đạn Ø6.05": 479.2,
      "lỗ lip Ø4.6": 0.0
     }
    },
    "O4 tấm mặt xuống bàn": {
-    "height": 54.0,
-    "grams": 18.46,
-    "grams_with_support": 23.79,
-    "support_g": 5.33,
-    "minutes": 113,
-    "minutes_with_support": 142,
+    "height": 59.3,
+    "grams": 17.84,
+    "grams_with_support": 26.41,
+    "support_g": 8.57,
+    "minutes": 104,
+    "minutes_with_support": 144,
     "pitch_axis": "ngang",
-    "support_g_buildplate_only": 0.57,
-    "skin_extrusion_mm": 14.9,
+    "support_g_buildplate_only": 3.04,
+    "skin_extrusion_mm": 14.2,
     "support_in_features_mm": {
-     "hốc horn Ø20.4": 4224.5,
-     "lỗ thao tác Ø5.2": 259.5,
-     "ổ bạc đạn Ø6.05": 598.4,
-     "lỗ lip Ø4.6": 33.4
+     "hốc horn Ø20.4": 4247.7,
+     "lỗ thao tác Ø5.2": 258.1,
+     "ổ bạc đạn Ø6.05": 646.8,
+     "lỗ lip Ø4.6": 35.5
     },
     "support_in_features_mm_buildplate_only": {
      "hốc horn Ø20.4": 0.0,

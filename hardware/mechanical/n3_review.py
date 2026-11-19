@@ -327,7 +327,8 @@ def evaluate(k, sw, rem, legs):
                        f"Khớp bị chặn (mm): {bad or 'không'}. Chân dùng khe idler {J.LEG_GAP} mm, "
                        "phía servo/horn dịch ra "
                        "ngoài (chân rộng thêm 3.8 mm phía ngoài; ảnh trước/sau G2_before_after.png).",
-                       dict(blocked_at=bad, leg_gap=J.LEG_GAP), "Chờ duyệt hình ngoài." if not bad else "Sửa CAD."))
+                       dict(blocked_at=bad, leg_gap=J.LEG_GAP), "— (hình ngoài đã duyệt)" if not bad
+                       else "Sửa CAD."))
     # H. idler clamp vs bearing shield (new in P2)
     js = body.joints["head_pitch"]
     over = (J.SPACER_D - NSK_DB_MAX) / 2
