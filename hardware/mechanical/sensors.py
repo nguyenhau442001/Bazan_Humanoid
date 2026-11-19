@@ -132,49 +132,10 @@ def get_leg_sensors(leg, side: str = "l") -> dict[str, SensorFrame]:
     # Ground contact plane under TPU sole
     z_sole = round(leg.sole_top - L.SOLE_PLATE - L.TPU_SOLE, 3)
 
-    # 4 Quadrants on foot sole:
-    # Sole length = 76mm (-38..+38), width = 38mm (-19..+19)
-    x_toe, x_heel = 22.0, -22.0
+    # Two FSR 402 per foot (toe, heel) in pockets under the foot plate: leg.FSR_X; frames on the ground below them
+    x_toe, x_heel = L.FSR_X
 
-    # Front-Left, Front-Right, Rear-Left, Rear-Right
-    sensors[f"{prefix}fsr_front_left"] = SensorFrame(
-        name=f"{prefix}fsr_front_left",
-        kind="fsr",
-        parent_link=f"{prefix}foot",
-        pos=(x_toe, 9.5, z_sole),
-        rpy_deg=(0.0, 0.0, 0.0),
-        axis=(0, 0, -1),
-        description=f"Foot ground contact FSR front-left ({side.upper()} leg)"
-    )
-    sensors[f"{prefix}fsr_front_right"] = SensorFrame(
-        name=f"{prefix}fsr_front_right",
-        kind="fsr",
-        parent_link=f"{prefix}foot",
-        pos=(x_toe, -9.5, z_sole),
-        rpy_deg=(0.0, 0.0, 0.0),
-        axis=(0, 0, -1),
-        description=f"Foot ground contact FSR front-right ({side.upper()} leg)"
-    )
-    sensors[f"{prefix}fsr_rear_left"] = SensorFrame(
-        name=f"{prefix}fsr_rear_left",
-        kind="fsr",
-        parent_link=f"{prefix}foot",
-        pos=(x_heel, 9.5, z_sole),
-        rpy_deg=(0.0, 0.0, 0.0),
-        axis=(0, 0, -1),
-        description=f"Foot ground contact FSR rear-left ({side.upper()} leg)"
-    )
-    sensors[f"{prefix}fsr_rear_right"] = SensorFrame(
-        name=f"{prefix}fsr_rear_right",
-        kind="fsr",
-        parent_link=f"{prefix}foot",
-        pos=(x_heel, -9.5, z_sole),
-        rpy_deg=(0.0, 0.0, 0.0),
-        axis=(0, 0, -1),
-        description=f"Foot ground contact FSR rear-right ({side.upper()} leg)"
-    )
-
-    # Toe and Heel centroid contact points (used in 4-dim RL FSR observation)
+    # Toe and heel contact points (obs[50..53]: 2 per foot)
     sensors[f"{prefix}fsr_toe"] = SensorFrame(
         name=f"{prefix}fsr_toe",
         kind="fsr",
@@ -196,17 +157,19 @@ def get_leg_sensors(leg, side: str = "l") -> dict[str, SensorFrame]:
 
     # 2. NTC 10 kΩ Thermistor on hip-roll servo aluminum case
     # Attached to hip_block link carrying the hip_roll servo
-    j_roll = leg.joints["hip_roll"]
-    o_roll = j_roll.origin
-    # Servo case center: middle of aluminum case along b
-    ntc_pos = (round(float(o_roll[0]), 3), round(float(o_roll[1]) + 5.0 * sign_y, 3), round(float(o_roll[2]), 3))
+    # at the case surface under the NTC hole in the hip block's upper pocket wall (joint.ntc_cut)
+    import hardware as hw
+    import joint as J
+    h = next(h for h in leg.holes() if h.id == "hip_roll.ntc")
+    p = np.asarray(h.pos, float) + np.asarray(h.dir, float) * (J.C + hw.WALL + 0.5)     # through the wall to the case
+    ntc_pos = (round(float(p[0]), 3), round(float(p[1]) * sign_y, 3), round(float(p[2]), 3))
     sensors[f"{prefix}ntc_hip_roll"] = SensorFrame(
         name=f"{prefix}ntc_hip_roll",
         kind="ntc",
         parent_link=f"{prefix}hip_block",
         pos=ntc_pos,
         rpy_deg=(0.0, 0.0, 0.0),
-        axis=(0, sign_y, 0),
+        axis=tuple(float(v) for v in np.round(h.dir, 4)),
         description=f"NTC 10k thermistor on {side.upper()} hip-roll servo aluminum case"
     )
 

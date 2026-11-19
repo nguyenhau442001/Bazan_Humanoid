@@ -155,6 +155,18 @@ class Joint:
         self.holes.append(Hole(part, f"{self.name}.{hid}", kind, fastener, self.world(pos_l), self.wdir(dir_l), d,
                                depth, self.name))
 
+    def ntc_cut(self, part, side=1, r=1.8, out=0.0):
+        """Hole through a side wall of the pocket at the case middle, for an NTC bead pressed on the servo case
+        (Kapton tape over it). side = +1 / -1 along w; out extends the cylinder past the wall (keep-out checks)."""
+        a = (CASE[0] + TAB_A[0]) / 2
+        w0 = S.width / 2 - 0.5
+        w1 = S.width / 2 + C + hw.WALL + 0.5 + out
+        c = cq.Solid.makeCylinder(r, w1 - w0, cq.Vector(CMID, side * w0, a), cq.Vector(0, side, 0))
+        if not out:
+            self._hole(part, "ntc", "ntc", "NTC 10k bead on the servo case (Kapton), wire out", (CMID, side * w1, a),
+                       (0, -side, 0), 2 * r, 0)
+        return self.place(c)
+
     # ---------------------------------------------------------- the servo itself
     def servo_solid(self, cots=False):
         if cots:

@@ -34,6 +34,12 @@ ANKLE_ROLL_MAX = 20.0
 SOLE_PLATE = 3.0
 TPU_SOLE = 3.0
 SOLE = dict(length=76.0, width=38.0, x=0.0, y=0.0)     # foot outline, centred under the ankle axes
+# FSR 402 (Interlink datasheet, ASSUMED): disc Ø18.28, 0.46-0.55 thick, tail 56 long; toe and heel under the plate,
+# tails out along +y (outboard) to the leg harness; a TPU puck Ø10 x 0.3 on the sole presses the active area
+FSR_X = (22.0, -22.0)
+FSR_POCKET = (18.8, 0.6)       # diameter, depth in the plate underside
+FSR_TAIL = (8.4, 0.6)          # channel width, depth
+FSR_PUCK = (10.0, 0.3)
 SPINE = 3.6              # structural spine thickness
 HIP_Y = 28.0             # leg centre lines at y = ±HIP_Y on the pelvis (was ±22): 44.8 wide legs, 11 mm apart
 YAW_MAX = 45.0
@@ -100,6 +106,8 @@ class Leg:
         ab = self._ankle_block_body()
         self.sole_top = self._swept_bottom(ab, (0, 0, AR), X, ANKLE_ROLL_MAX) - hw.GAP_MOVING
         self.floor = self.sole_top - SOLE_PLATE - TPU_SOLE
+        # NTC bead on the hip-roll servo case (obs[57..58]): hole through the upper pocket wall
+        hb = hb.cut(self.joints["hip_roll"].ntc_cut("hip_block", side=-1))
         self.parts["hip_block"] = self._finish("hip_block", hb)
         self.parts["ankle_block"] = self._finish("ankle_block", ab)
         self.parts["yaw_bracket"] = self._finish("yaw_bracket", self._yaw_bracket_body())
@@ -292,6 +300,15 @@ class Leg:
             body = body.cut(cq.Solid.makeCylinder(spec.d / 2, spec.depth - 1.0, cq.Vector(px, py, z0)))
             self.extra_holes.append(J.Hole("foot", f"sole.ins{i + 1}", "ins_m2", "INS-M2 + M2x6 (TPU sole)",
                                            (px, py, round(z0, 3)), (0, 0, 1), spec.d, spec.depth - 1.0, "sole"))
+        # FSR pockets and tail channels in the plate underside
+        z0 = st - SOLE_PLATE
+        for k, x in enumerate(FSR_X):
+            body = body.cut(cq.Solid.makeCylinder(FSR_POCKET[0] / 2, FSR_POCKET[1], cq.Vector(x, 0, z0 - 0.01)))
+            body = body.cut(bx((x - FSR_TAIL[0] / 2, x + FSR_TAIL[0] / 2), (0.0, sy1 + 1.0),
+                               (z0 - 0.01, z0 + FSR_TAIL[1])))
+            self.extra_holes.append(J.Hole("foot", f"fsr{k + 1}", "fsr",
+                                           "FSR 402 pocket, tail out to +y (obs[50..53])", (x, 0.0, round(z0, 3)),
+                                           (0, 0, 1), FSR_POCKET[0], FSR_POCKET[1], "sole"))
         return body
 
     def _sole(self):
@@ -304,6 +321,8 @@ class Leg:
             s = s.cut(cq.Solid.makeCylinder(2.1, 2.0, cq.Vector(px, py, z0 - 0.01)))
             self.extra_holes.append(J.Hole("sole", f"sole.screw{i + 1}", "clr_m2", "M2x6 from below, head sunk 2",
                                            (px, py, round(z0, 3)), (0, 0, 1), 2.3, 0, "sole"))
+        for x in FSR_X:                                  # actuator pucks under the FSR active areas
+            s = s.fuse(cq.Solid.makeCylinder(FSR_PUCK[0] / 2, FSR_PUCK[1], cq.Vector(x, 0, z0 + TPU_SOLE)))
         return s
 
     # ------------------------------------------------------------ hip mount: yaw servo pocket, bolts to the pelvis

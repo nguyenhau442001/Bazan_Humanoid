@@ -27,7 +27,6 @@ from OCP.BRepGProp import BRepGProp
 from OCP.GProp import GProp_GProps
 
 import audit as A
-import body as B
 import leg as LEG
 import pose as P
 import robot as R
@@ -202,7 +201,8 @@ def urdf_text(m):
         L.append(f'  <link name="{s}_sole"/><joint name="{s}_sole_joint" type="fixed">'
                  f'<parent link="{s}_ankle_roll_link"/><child link="{s}_sole"/>'
                  f'<origin xyz="0 0 {(m["floor"] - ar[2]) / 1000:.5f}" rpy="0 0 0"/></joint>')
-    imu = np.array([B.Body.DECK1_BAYS["PERF"][0][0], B.Body.DECK1_BAYS["PERF"][0][1], B.Z1T + 12.0])
+    import sensors
+    imu = np.array(sensors.get_body_sensors(m["body"])["imu_frame"].pos)          # one source for the IMU frame
     L.append('  <link name="imu_link"/><joint name="imu_link_joint" type="fixed"><parent link="base_link"/>'
              f'<child link="imu_link"/><origin xyz="{f(imu / 1000)}" rpy="0 0 0"/></joint>')
     L.append("</robot>")

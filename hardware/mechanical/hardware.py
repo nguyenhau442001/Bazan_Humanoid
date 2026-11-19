@@ -138,6 +138,9 @@ HOLES = {
     "clr_so": HoleSpec(3.3, 0, note="M3 clearance for the standoff's male thread"),
     "boss_m2": HoleSpec(3.2, 5.0, note="board boss: M2 insert pressed flush with the boss top, hole 5 deep"),
     "tie": HoleSpec(1.6, 0, note="cable-tie slot 3.0 × 1.6, through"),
+    "cable": HoleSpec(0.0, 0, note="cable window, rectangular (size in the feature)"),
+    "ntc": HoleSpec(3.6, 0, note="NTC 10k epoxy bead (Ø3, ASSUMED) through the pocket wall onto the servo case"),
+    "fsr": HoleSpec(18.8, 0.6, note="FSR 402 pocket (Ø18.28 x 0.46-0.55, Interlink datasheet, ASSUMED) + tail channel"),
 }
 
 # ---------------------------------------------------------------- print and fit rules
