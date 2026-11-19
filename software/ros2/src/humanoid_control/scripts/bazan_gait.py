@@ -74,7 +74,8 @@ class Model:
             self.joints[j.get("name")] = dict(
                 parent=j.find("parent").get("link"), child=j.find("child").get("link"),
                 xyz=vec(j.find("origin").get("xyz")), axis=vec(ax.get("xyz")) if ax is not None else None,
-                limit=(float(lim.get("lower")), float(lim.get("upper"))) if lim is not None else None)
+                limit=(float(lim.get("lower")), float(lim.get("upper"))) if lim is not None else None,
+                effort=float(lim.get("effort")) if lim is not None else None)
         self.by_child = {d["child"]: n for n, d in self.joints.items()}
         self.order, todo = [], ["base_link"]
         while todo:                                     # parents before children
