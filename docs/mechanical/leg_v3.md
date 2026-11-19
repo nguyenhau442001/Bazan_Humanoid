@@ -53,13 +53,13 @@ Printed parts:
 | `foot` | PLA | 12.1 | 15.1 | sole plate down; uprights vertical | [drawing](drawings/foot.png) |
 | `sole` | TPU 95A | 8.5 | 10.3 | flat, 3 walls, 30 % gyroid | [drawing](drawings/sole.png) |
 | `ankle_block` | PLA | 9.8 | 12.1 | as the hip block: −y face down | [drawing](drawings/ankle_block.png) |
-| `shin` | PLA | 8.2 | 10.2 | lying on its −y side: all four plate holes print round | [drawing](drawings/shin.png) |
+| `shin` | PLA | 9.9 | 12.3 | lying on its −y side: all four plate holes print round | [drawing](drawings/shin.png) |
 | `thigh` | PLA | 14.6 | 18.1 | lying on its −y side (idler plate down): both bearing seats print as round holes | [drawing](drawings/thigh.png) |
 | `hip_block` | PLA | 9.8 | 12.1 | idler wall of the hip pitch pocket (−y face) down; no supports inside the pockets | [drawing](drawings/hip_block.png) |
 | `yaw_bracket` | PLA | 12.4 | 15.4 | top plate down on the bed; supports only under the roll horn recess | [drawing](drawings/yaw_bracket.png) |
 | `thrust_ring` | PLA | 3.9 | 4.8 | thrust face down on the bed (smooth face against the yaw bracket) | [drawing](drawings/thrust_ring.png) |
 | `hip_mount` | PLA | 10.5 | 13.0 | top flange down on the bed: the yaw pocket opens upward, no supports | [drawing](drawings/hip_mount.png) |
-| **Total** | | 89.9 | **111.2** | upper bound: printed at 4 walls, 40 % infill they come out about 30 % lighter | |
+| **Total** | | 91.5 | **113.3** | upper bound: printed at 4 walls, 40 % infill they come out about 30 % lighter | |
 
 Bought parts (servos: 5 × MG92B and the hip-yaw MG90S, which sits in `hip_mount`):
 
