@@ -443,13 +443,15 @@ def n3_model():
     groups = {"shell": ("A", "N3 · tán M2 (L3, gai Ø3.6) xuyên sàn — bắt vỏ đầu C3/C4, ốc M2×6 từ trên",
                         "C3/C4 tab Ø2.30"),
               "bay_cam": ("B", "N3 · tán M2 (L3, gai Ø3.6) xuyên sàn — bắt N4, ốc M2×6 từ trên", "N4 lỗ Ø2.30"),
-              "disp_tie": ("C", "N3 · khe dây rút 1.6 × 3.0 xuyên tấm mặt — buộc module màn hình", "dây rút 2.5 mm"),
+              "disp_win": ("C", "N3 · cửa sổ cáp xuyên tấm mặt — giắc GH1.25 và dây màn hình đi vào đầu",
+                           "màn hình 1.9″ trong ray giữ"),
               "horn": ("D", "N3 · lỗ mồi vít ST2×3, mù — bắt horn tròn SG90 vào đĩa", "horn SG90 (Ø lỗ: TBD)"),
               "access": ("E", "N3 · lỗ thao tác Ø5.2 xuyên — tua vít PH0 tới ốc tâm horn", "—"),
               "bearing": ("F", "N3i · ổ MR63ZZ lắp trượt (gối tự do) + hốc đầu ốc M3×6 + W3", "MR63ZZ, N2 tán M3"),
               "idler": ("G", "N3 · tán M2 (L3, gai Ø3.6) xuyên sàn — bắt N3i, ốc M2×6 từ dưới", "N3i lỗ Ø2.30"),
-              "pad": ("H", "N3i · lỗ hở M2 xuyên đế — N3i tự định tâm ±0.15 theo trục idler", "N3 tán G")}
-    order = ["shell", "bay_cam", "disp_tie", "horn", "access", "bearing", "idler", "pad"]
+              "pad": ("H", "N3i · lỗ hở M2 xuyên đế — N3i tự định tâm ±0.15 theo trục idler", "N3 tán G"),
+              "csi": ("I", "N3 · khe cáp camera xuyên sàn — cáp dẹt CSI đi xuống cổ", "cáp Pi Zero 22→15 chân")}
+    order = ["shell", "bay_cam", "disp_win", "horn", "access", "bearing", "idler", "pad", "csi"]
     for g in order:
         mem = sorted([h for h in holes if h.id.split(".")[-1].rstrip("0123456789") == g],
                      key=lambda h: (round(h.pos[0], 2), round(h.pos[1], 2), round(h.pos[2], 2)))
@@ -464,6 +466,8 @@ def n3_model():
 def size_text(ft):
     if ft["kind"] == "tie":
         return "1.60 × 3.00 xuyên (THRU)"
+    if ft["kind"] == "cable":
+        return f"{ft['d']:.0f} × {17 if ft['group'] == 'C' else 3.5:g} xuyên (THRU)"
     if ft["depth"]:
         return f"Ø{ft['d']:.2f} {DEPTH}{ft['depth']:.2f} (mù)"
     return f"Ø{ft['d']:.2f} xuyên (THRU)"
@@ -538,7 +542,7 @@ def draw_n3(out):
     tb = dict(owner="Hau Nguyen Ngoc", project="Bazan Humanoid — cụm đầu (H)", title="N3 Head Frame + N3i Idler",
               number="BZN-H-N3", material="PLA (xem ghi chú M1)", mass=f"{mass:.1f} g (ước tính)",
               scale="2:1 (C, D 5:1)",
-              designed="Hau Nguyen Ngoc", checked="TBD", approved="TBD", date=date.today().isoformat(), rev="P2",
+              designed="Hau Nguyen Ngoc", checked="TBD", approved="TBD", date=date.today().isoformat(), rev="P3",
               status="SƠ BỘ — chưa phát hành chế tạo",
               standards="ISO 128 · ISO 129-1 · ISO 5455 · ISO 5456-2 · ISO 5457 · ISO 7200 · ISO 1101 (tham chiếu)")
     K, KD = 2.0, 5.0
@@ -561,16 +565,15 @@ def draw_n3(out):
     for ft in feats:
         if ft["group"] in ("A", "B"):
             s1.centermark("top", ft["pos"], ft["d"] / 2)
-    # front: width, height, face plate height and the tie slots from datum A
+    # front: width, height, face plate height and the display cable window from datum A
     s1.dim("front", (0, deck["y"][0], zt), (0, deck["y"][1], zt), (0, 1, 0), "above")
     s1.dim("front", (xf, deck["y"][0], face["z"][0]), (xf, deck["y"][0], zt), (0, 0, 1), "left")
     s1.dim("front", (0, h["y_out"], -h["r"]), (xf, deck["y"][1], zt), (0, 0, 1), "right", on_surface=False)
-    c_feats = [ft for ft in feats if ft["group"] == "C"]
-    zc = sorted({round(ft["pos"][2], 3) for ft in c_feats})
-    ymax_c = max(ft["pos"][1] for ft in c_feats)
-    for zz in zc[::-1]:
-        s1.dim("front", (xf, ymax_c, zz), (xf, ymax_c, zt), (0, 0, 1), "right", on_surface=False)
-    s1.dim("front", (xf, -ymax_c, zc[0]), (xf, ymax_c, zc[0]), (0, 1, 0), "below", on_surface=False)
+    win = [ft for ft in feats if ft["group"] == "C"][0]
+    wz0, wz1, wy = win["pos"][2] - 8.5, win["pos"][2] + 8.5, win["d"] / 2
+    s1.dim("front", (xf, wy, wz1), (xf, wy, zt), (0, 0, 1), "right", on_surface=False)
+    s1.dim("front", (xf, wy, wz0), (xf, wy, wz1), (0, 0, 1), "right", on_surface=False)
+    s1.dim("front", (xf, -wy, wz0), (xf, wy, wz0), (0, 1, 0), "below", on_surface=False)
     # left: depth, axis position from datums A and B, bar width, deck thickness
     s1.dim("left", (deck["x"][0], 0, zt), (xf, 0, zt), (1, 0, 0), "above")
     s1.dim("left", (0, 0, 0), (xf, 0, 0), (1, 0, 0), "below", on_surface=False)
@@ -611,7 +614,8 @@ def draw_n3(out):
     for nm in ("top", "front", "left"):
         x0, y0, x1, y1 = s1.bbox[nm]
         s1.boxes.append((x0 - 1, y0 - 1, x1 + 1, y1 + 1)) if False else None
-    view_of = {"A": "top", "B": "top", "C": "front", "D": "left", "E": "left", "F": "left", "G": "top", "H": "front"}
+    view_of = {"A": "top", "B": "top", "C": "front", "D": "left", "E": "left", "F": "left", "G": "top", "H": "front",
+               "I": "top"}
     for ft in feats:
         s1.tag(view_of[ft["group"]], ft["pos"], ft["tag"])
     for nm, t, sc in (("front", "Hình chiếu đứng (nhìn từ +X)", "2:1"), ("left", "Hình chiếu cạnh (nhìn từ −Y)", "2:1"),
@@ -627,9 +631,9 @@ def draw_n3(out):
     xl = 302
     s1.text(xl, 281, "Ký hiệu đặc tính", fs=9, role="head", weight="bold", va="top")
     yy = 274
-    for g, what in (("A", "tán M2 bắt vỏ C3/C4"), ("B", "tán M2 bắt N4"), ("C", "khe dây rút màn hình"),
+    for g, what in (("A", "tán M2 bắt vỏ C3/C4"), ("B", "tán M2 bắt N4"), ("C", "cửa sổ cáp màn hình"),
                     ("D", "lỗ mồi ST2 (horn)"), ("E", "lỗ thao tác ốc tâm horn"), ("F", "N3i · ổ bạc đạn MR63ZZ"),
-                    ("G", "tán M2 bắt N3i"), ("H", "N3i · lỗ hở M2 (tự định tâm)")):
+                    ("G", "tán M2 bắt N3i"), ("H", "N3i · lỗ hở M2 (tự định tâm)"), ("I", "khe cáp camera")):
         mem = [ft for ft in feats if ft["group"] == g]
         s1.text(xl, yy, f"{g}1–{g}{len(mem)}" if len(mem) > 1 else f"{g}1", fs=7.5, role="legend", va="top",
                 weight="bold")
@@ -663,7 +667,7 @@ def draw_n3(out):
     s2.dim("A", (0, h["y_out"], -h["r"]), (0, h["y_out"], h["r"]), (0, 0, 1), "right", prefix="Ø")
     s2.dim("A", (0, i_["y_out"], -i_["r"]), (0, i_["y_out"], i_["r"]), (0, 0, 1), "left", prefix="Ø")
     s2.dim("A", (0, deck["y"][0], deck["z"][0]), (0, deck["y"][0], zt), (0, 0, 1), "left")
-    s2.dim("B", (face["x"][0], 0, zt - 10), (xf, 0, zt - 10), (1, 0, 0), "below")
+    s2.dim("B", (face["x"][0], 0, face["z"][0] + 2.0), (xf, 0, face["z"][0] + 2.0), (1, 0, 0), "below")
     s2.dim("B", (xf, 0, face["z"][0]), (xf, 0, zt), (0, 0, 1), "right")
     s2.dim("B", (deck["x"][0], 0, deck["z"][0]), (deck["x"][0], 0, zt), (0, 0, 1), "left")
     # detail windows (on A-A) and the details themselves at 4:1
@@ -796,7 +800,8 @@ def draw_n3(out):
             "nghiệm thu bằng dòng giữ servo (V6, TBD).",
             "K4. Dung sai vị trí A, B, G: lỗ đối tiếp Ø2.30, ốc M2 Ø2.00 → T = 0.30 → Ø0.15 mỗi chi tiết | A | B | C.",
             "R. Lịch sử: P1 bản đầu. P2 tách idler thành N3i (G, H), ST2×3, lip Ø5.0, ổ F lắp trượt — audit "
-            "G-1, C-1, E-1, F-1, D-1."]),
+            "G-1, C-1, E-1, F-1, D-1. P3: ray giữ màn hình (gờ trước, chốt bấm trên) thay 4 khe dây rút; "
+            "cửa sổ cáp C; khe cáp camera I."]),
     ]
     for head, items in notes:
         s3.text(25, yy, head, fs=8.5, role="head", weight="bold", va="top")

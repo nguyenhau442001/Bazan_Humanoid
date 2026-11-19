@@ -600,6 +600,8 @@ def draw_h0(parts, org):
             add("M3x6B", "Ốc M3×6 đầu dù ISO 7380 (idler)", 1, h.part)
         elif k == "tie":
             add("TIE", "Dây rút 2.5 mm (2 khe / dây)", 0.5, h.part)
+        elif k == "cable" and h.id.endswith("disp_win1"):
+            add("DISP", "Màn hình 1.9″ Waveshare, trượt vào ray giữ trên N3", 1, h.part)
     ear = [h for h in body.holes() if h.part == "neck_link" and h.id.startswith("head_pitch.ear")]
     shell_scr = [x for x in sh.screws if x[0] in ("head_front", "head_back")]
     cam_scr = [h for h in body.holes() if h.part == "cam_mount" and h.kind == "cb_m2"]

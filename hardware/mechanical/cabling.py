@@ -86,16 +86,35 @@ def arm_cable_points(side="L"):
 
 
 def camera_ribbon_points():
-    """Routing points for the Pi Camera CSI flat flex cable down to Radxa Zero."""
-    pts = [
-        np.array([22.0, 0.0, 250.0]),     # Camera back connector on cam_mount
-        np.array([12.0, 0.0, 238.0]),     # Curve around wedge
-        np.array([-2.0, 0.0, 222.0]),     # Through head deck center slot
-        np.array([-10.0, 0.0, 200.0]),    # Behind neck pitch & yaw
-        np.array([-18.0, 0.0, 178.0]),    # Through neck mount back cable notch
-        np.array([5.0, 0.0, 162.0]),      # Forward onto Deck 2 Radxa Zero CSI port
-    ]
-    return pts
+    """Camera FFC from the CAD: camera connector-up on cam_mount, over the top of the wedge, down its back, through
+    the head deck slot (body.CSI_SLOT), a service loop behind the head-pitch axis for pitch and neck yaw, down the
+    back of the neck mount to deck 2 and forward to the Radxa CSI connector on its +y end."""
+    import body as B
+    hd = B.HEAD_DECK + 3.0
+    t = np.radians(15.0)
+    n, up = np.array([np.cos(t), 0, -np.sin(t)]), np.array([np.sin(t), 0, np.cos(t)])
+    o = np.array([22.0, 0.0, hd])
+    cc = o + 3.0 * n + 24.0 * up                                   # camera lens centre on the wedge face
+    xs = sum(B.Body.CSI_SLOT[0]) / 2
+    rb = B.Body().boards["RADXA_RADXA"].BoundingBox()
+    return [cc + 13.0 * up + 3.5 * n,                              # camera connector (top edge, board flipped)
+            o + 3.0 * n + 38.5 * up,                               # fold over the top of the wedge
+            o + 33.0 * up - 6.0 * n,                               # down the back of the wedge
+            np.array([xs, 0.0, hd + 4.0]),                         # into the deck slot
+            np.array([xs, 0.0, B.HEAD_DECK - 3.0]),                # out under the deck
+            np.array([-29.0, 0.0, B.HEAD_DECK - 5.0]),             # back under the deck, over the neck link
+            np.array([-29.0, 0.0, B.NECK_CT_Z + 2.0]),             # loop behind the neck (pitch and yaw slack)
+            np.array([-33.0, 0.0, B.NECK_CT_Z - 6.0]),             # behind the neck mount
+            np.array([-33.0, 24.0, B.Z2T + 4.0]),                  # onto deck 2 between neck mount and shoulder
+            np.array([20.0, 25.0, rb.zmax + 4.0]),                 # forward over the Radxa end
+            np.array([(rb.xmin + rb.xmax) / 2, rb.ymax + 1.2, rb.zmax + 1.0])]   # Radxa CSI end (+y)
+
+
+def camera_ribbon_length(slack=1.25):
+    """Routed length in mm and the length to buy: + 25 % for pitch / yaw loops and the folds."""
+    p = camera_ribbon_points()
+    L = float(sum(np.linalg.norm(b - a) for a, b in zip(p, p[1:])))
+    return round(L), round(L * slack)
 
 
 def power_harness_points():

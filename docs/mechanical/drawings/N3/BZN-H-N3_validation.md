@@ -1,15 +1,15 @@
 # BZN-H-N3 · kiểm tra bản vẽ tự động
 
-Sinh bởi `hardware/mechanical/drawings.py N3`, 2026-11-18. Lỗi: **0**.
+Sinh bởi `hardware/mechanical/drawings.py N3`, 2026-11-19. Lỗi: **0**.
 
 | Kiểm tra | Kết quả | Chi tiết |
 | --- | --- | --- |
 | kích thước tờ 1 [front] 48 | đạt | đo trên CAD 48.000, ghi 48.0, điểm cách mặt 0.000 |
 | kích thước tờ 1 [front] 29 | đạt | đo trên CAD 29.000, ghi 29.0, điểm cách mặt 0.000 |
 | kích thước tờ 1 [front] 35 | đạt | đo trên CAD 35.000, ghi 35.0 (điểm chuẩn/trục, không nằm trên mặt) |
-| kích thước tờ 1 [front] 9 | đạt | đo trên CAD 9.000, ghi 9.0 (điểm chuẩn/trục, không nằm trên mặt) |
-| kích thước tờ 1 [front] 23 | đạt | đo trên CAD 23.000, ghi 23.0 (điểm chuẩn/trục, không nằm trên mặt) |
-| kích thước tờ 1 [front] 42 | đạt | đo trên CAD 42.000, ghi 42.0 (điểm chuẩn/trục, không nằm trên mặt) |
+| kích thước tờ 1 [front] 7 | đạt | đo trên CAD 7.000, ghi 7.0 (điểm chuẩn/trục, không nằm trên mặt) |
+| kích thước tờ 1 [front] 17 | đạt | đo trên CAD 17.000, ghi 17.0 (điểm chuẩn/trục, không nằm trên mặt) |
+| kích thước tờ 1 [front] 32 | đạt | đo trên CAD 32.000, ghi 32.0 (điểm chuẩn/trục, không nằm trên mặt) |
 | kích thước tờ 1 [left] 54 | đạt | đo trên CAD 54.000, ghi 54.0, điểm cách mặt 0.000 |
 | kích thước tờ 1 [left] 30 | đạt | đo trên CAD 30.000, ghi 30.0 (điểm chuẩn/trục, không nằm trên mặt) |
 | kích thước tờ 1 [left] 12 | đạt | đo trên CAD 12.000, ghi 12.0, điểm cách mặt 0.000 |
@@ -46,9 +46,9 @@ Sinh bởi `hardware/mechanical/drawings.py N3`, 2026-11-18. Lỗi: **0**.
 | kích thước tờ 3 [D] Ø13 | đạt | đo trên CAD 13.000, ghi 13.0, điểm cách mặt 0.000 |
 | kích thước tờ 3 [D] Ø5 | đạt | đo trên CAD 5.000, ghi 5.0 (điểm chuẩn/trục, không nằm trên mặt) |
 | kích thước tờ 3 [D] Ø15 | đạt | đo trên CAD 15.000, ghi 15.0, điểm cách mặt 0.000 |
-| mọi lỗ CAD có trong bảng, không thừa | đạt | 18 trong bảng, 18 trong CAD |
+| mọi lỗ CAD có trong bảng, không thừa | đạt | 16 trong bảng, 16 trong CAD |
 | toạ độ bảng = toạ độ CAD | đạt | lệch lớn nhất 0.00e+00 mm |
-| mã đặc tính không trùng | đạt | A1, A2, A3, A4, B1, B2, C1, C2, C3, C4, D1, D2, E1, F1, G1, G2, H1, H2 |
+| mã đặc tính không trùng | đạt | A1, A2, A3, A4, B1, B2, C1, D1, D2, E1, F1, G1, G2, H1, H2, I1 |
 | thẳng hàng đứng/bằng (cùng X giấy cho cùng điểm) | đạt | Δ = 0.00e+00 mm |
 | thẳng hàng đứng/cạnh (cùng Y giấy cho cùng điểm) | đạt | Δ = 0.00e+00 mm |
 | bằng nằm DƯỚI đứng, cạnh nằm PHẢI đứng (góc thứ nhất) | đạt |  |
@@ -77,9 +77,9 @@ Sinh bởi `hardware/mechanical/drawings.py N3`, 2026-11-18. Lỗi: **0**.
 
 | Hướng | Tiếp xúc bàn mm² | Mặt treo >45° mm² | Cao mm |
 | --- | ---: | ---: | ---: |
-| +Z lên (như CAD) | 12 | 2732 | 35.0 |
-| mặt trên sàn úp xuống (+Z xuống) | 2528 | 211 | 35.0 |
-| +X xuống | 1373 | 554 | 54.0 |
-| −X xuống | 144 | 1784 | 54.0 |
-| +Y xuống | 240 | 1002 | 48.0 |
-| −Y xuống | 240 | 1002 | 48.0 |
+| +Z lên (như CAD) | 12 | 3031 | 35.0 |
+| mặt trên sàn úp xuống (+Z xuống) | 2465 | 562 | 35.0 |
+| +X xuống | 301 | 1456 | 59.3 |
+| −X xuống | 144 | 1613 | 59.3 |
+| +Y xuống | 135 | 1429 | 54.0 |
+| −Y xuống | 135 | 1429 | 54.0 |

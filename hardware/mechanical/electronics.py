@@ -51,6 +51,7 @@ BOARDS = {
                  bottom=2.5, mass=3.0, shop="camera Raspberry Pi V2 IMX219"),                          # MEASURE
     "TOF": Board("TOF", "VL53L0X module (GY-VL53L0XV2)", (25.0, 10.7), holes=((-9.5, 0.0), (9.5, 0.0)), hole_d=2.2,
                  top=3.0, bottom=1.5, mass=1.0, shop="cảm biến VL53L0X"),                               # MEASURE
-    "DISP": Board("DISP", "1.9″ 170 × 320 IPS (ST7789) module", (50.0, 28.0), pcb=0, top=4.0, bottom=1.5, mass=6.0,
-                  shop="màn IPS 1.9 inch ST7789"),                                                       # MEASURE
+    "DISP": Board("DISP", "Waveshare 1.9inch LCD Module (ST7789V2, 170 x 320 IPS, GH1.25 8-pin on the back)",
+                  (51.2, 27.3), pcb=0, top=4.0, bottom=4.5, mass=6.0,
+                  shop="Waveshare 1.9inch LCD Module 23822"),                                            # ASSUMED
 }

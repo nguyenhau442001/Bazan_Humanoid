@@ -400,20 +400,58 @@ class Body:
             s = s.cut(cyl(1.6, (x, y, hd - 1), (x, y, hd + 4)))
             self._hole("head_frame", f"bay_cam{k + 1}", "ins_m2_thru", "INS-M2 for cam_mount (M2x6)", (x, y, hd + 3.0),
                        3.2, 0)
-        for k, (y, z) in enumerate([(-27.0, hd - 6.0), (27.0, hd - 6.0), (-27.0, hd - 20.0), (27.0, hd - 20.0)]):
-            yy = np.sign(y) * 21.0
-            s = s.cut(bx((self.HEAD_X[1] - 4, self.HEAD_X[1] + 1), (yy - 0.8, yy + 0.8), (z - 1.5, z + 1.5)))
-            self._hole("head_frame", f"disp_tie{k + 1}", "tie", "cable tie over the display module",
-                       (self.HEAD_X[1], yy, z), 1.6, 0, (-1, 0, 0))
+        # slot for the camera ribbon behind cam_mount: the camera sits connector-up (image flipped by the driver,
+        # libcamera rotation=180) so the FFC folds over the top of the wedge, runs down its back and through here
+        s = s.cut(bx(self.CSI_SLOT[0], self.CSI_SLOT[1], (hd - 1, hd + 4)))
+        self._hole("head_frame", "csi1", "cable", "slot 3.5 x 18 for the camera FFC (Pi Zero cable, 22 to 15 pin)",
+                   ((self.CSI_SLOT[0][0] + self.CSI_SLOT[0][1]) / 2, 0.0, hd + 3.0), 18.0, 0, (0, 0, -1))
+        s = fuse(s, self._disp_holder())
+        # cable window behind the display: the GH1.25 plug and its lead go into the head, then down the neck
+        x1 = self.HEAD_X[1]
+        zb = hd - 26.0
+        s = s.cut(bx((x1 - 3.1, x1 + 0.1), (-self.DISP_WIN / 2, self.DISP_WIN / 2), (zb + 5.0, zb + 22.0)))
+        self._hole("head_frame", "disp_win1", "cable", f"window {self.DISP_WIN:.0f} x 17 for the display plug and lead",
+                   (x1, 0.0, zb + 13.5), self.DISP_WIN, 0, (-1, 0, 0))
         # shell head: 4 inserts in the deck corners, from the top
         for k, (x, y) in enumerate([(-23.0, 20.0), (-23.0, -20.0), (2.0, 20.0), (2.0, -20.0)]):
             s = s.cut(cyl(1.6, (x, y, hd - 1), (x, y, hd + 4)))
             self._hole("head_frame", f"shell{k + 1}", "ins_m2_thru", "INS-M2, head shell (M2x6)", (x, y, hd + 3.0),
                        3.2, 0)
-        # display envelope behind the visor (front face, outside), camera and ToF on cam_mount
+        # display envelope on the face plate (panel + PCB in front, the GH1.25 plug through the window behind)
         d = el.BOARDS["DISP"]
-        self.boards["DISP"] = bx((self.HEAD_X[1] + 1.0, self.HEAD_X[1] + 1.0 + d.top + 1.5),
-                                 (-d.size[0] / 2, d.size[0] / 2), (hd - 26.0, hd - 26.0 + d.size[1]))
+        xb = self.HEAD_X[1] + self.DISP_GAP
+        self.boards["DISP"] = fuse(bx((xb, xb + d.top), (-d.size[0] / 2, d.size[0] / 2), (zb, zb + d.size[1])),
+                                   bx((xb - d.bottom, xb), (-8.0, 8.0), (zb + 8.0, zb + 19.0)))
+        return s
+
+    # display holder on the face plate: bottom ledge, two side rails with front lips over the panel border, a
+    # detent bump at the top of each rail; the module slides in from above and clicks past the bumps
+    DISP_GAP = 0.3          # face plate to module back
+    DISP_WALL = 1.2         # rail and ledge thickness (0.6 to the head shell)
+    DISP_LIP = (0.8, 1.8)   # front lip thickness, overlap onto the panel border (active area 42.7 of 51.2)
+    DISP_WIN = 32.0         # cable window width
+    CSI_SLOT = ((0.5, 4.0), (-9.0, 9.0))     # x, y of the camera ribbon slot in the head deck
+
+    def _disp_holder(self):
+        d = el.BOARDS["DISP"]
+        L, H = d.size
+        x0 = self.HEAD_X[1]
+        xf = x0 + self.DISP_GAP + d.top + 0.2               # module front + 0.2
+        zb = HEAD_DECK - 26.0
+        w, (lt, lo) = self.DISP_WALL, self.DISP_LIP
+        yo = L / 2 + 0.2
+        top = zb + H + 1.2
+        parts = [bx((x0, xf + lt), (-yo - w, yo + w), (zb - w, zb))]                       # ledge
+        for sy in (-1, 1):
+            parts.append(bx((x0, xf + lt), sorted((sy * yo, sy * (yo + w))), (zb - w, top)))   # rail
+            parts.append(bx((xf, xf + lt), sorted((sy * (L / 2 - lo), sy * (yo + w))), (zb - w, top)))   # lip
+            parts.append(bx((x0, xf), sorted((sy * (yo - 0.5), sy * yo)), (zb + H + 0.2, zb + H + 1.0)))  # bump
+        parts.append(bx((xf, xf + lt), (-yo - w, yo + w), (zb - w, zb + 1.5)))           # bottom lip
+        s = fuse(*parts)
+        # 45 deg chamfer on the two lower outer corners: the head shell narrows there
+        for sy in (-1, 1):
+            c = bx((x0 - 1, xf + lt + 1), (-3.0, 3.0), (-3.0, 3.0)).rotate((0, 0, 0), (1, 0, 0), 45)
+            s = s.cut(c.moved(cq.Location(cq.Vector(0, sy * (yo + w), zb - w))))
         return s
 
     IDLER_SCREW_X = (NECK_X - 15.0, NECK_X - 10.0)     # clear of the idler disc (R7.5) for a hex key from below
