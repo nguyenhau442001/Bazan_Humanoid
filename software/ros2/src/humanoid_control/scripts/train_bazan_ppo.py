@@ -1060,7 +1060,8 @@ def train(args):
         description=desc,
         arch=policy.arch_name,
         iterations=args.iterations,
-        extra_meta={"residual": args.residual},
+        extra_meta=env_mod.io.policy_meta(args.residual, getattr(args, "straight_line", False),
+                                          getattr(args, "perception", False)),
         activate=args.activate,
     )
 
