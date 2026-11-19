@@ -41,6 +41,7 @@ import shell as SH
 
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "software" / "ros2" / "src" / "humanoid_description" / "urdf" / "bazan_cad.urdf"
+MASS_OUT = REPO / "docs" / "engineering" / "cad_mass.json"          # mass budget of the same weighing (docs input)
 
 # URDF link of every CAD link (robot.link_of names), and the URDF joints in chain order with their CAD joint
 LINK = {"torso": "base_link", "neck_link": "neck_yaw_link", "head_frame": "head_pitch_link"}
@@ -175,7 +176,7 @@ def build():
     for jn, d in xj.items():
         frame[d["child"]] = origin[jn]
     return dict(body=body, leg=leg, links=links, frame=frame, origin=origin, xj=xj, cad=cad,
-                floor=leg.floor, items=items)
+                floor=leg.floor, items=items, shell_parts=list(sh.parts))
 
 
 def _box(link, m):
@@ -243,6 +244,51 @@ def urdf_text(m):
     return "\n".join(L) + "\n"
 
 
+def group_of(name, sh):
+    base = name.split(".")[-1]
+    if base.startswith("servo_"):
+        return "Servos (with horn and screw allowance)"
+    if base == "battery":
+        return "Battery 2S"
+    if base.startswith("board_"):
+        return "Electronics and sensors"
+    if name == "wiring":
+        return "Wiring"
+    if name in sh.parts:
+        return "Printed shell"
+    if base == "sole":
+        return "TPU soles"
+    if base.startswith("spacer_") or base.startswith("shin_plate"):
+        return "Metal parts"
+    return "Printed frame"
+
+
+def mass_report(m):
+    """Whole-robot mass figures of the URDF's weighing: total, groups, CoM, height, inertia, per link."""
+    sh = SH.BazanShell.__new__(SH.BazanShell)                       # only the part names are needed
+    sh.parts = {n: None for n in m["shell_parts"]}
+    groups = {}
+    for name, ln, g, s in m["items"]:
+        k = group_of(name, sh)
+        groups[k] = groups.get(k, 0.0) + g
+    links = m["links"]
+    tot = sum(g for g, _, _ in links.values())
+    com = sum(g * c for g, c, _ in links.values()) / tot
+    J_ = np.zeros((3, 3))
+    for g, c, Jl in links.values():
+        d = c - com
+        J_ += Jl + g * (np.dot(d, d) * np.eye(3) - np.outer(d, d))
+    top = max(s.BoundingBox().zmax for _, _, _, s in m["items"] if not isinstance(s, np.ndarray))
+    z = com[2] - m["floor"]
+    r = lambda v, n=1: [round(float(x), n) + 0.0 for x in v]                     # noqa: E731
+    return {"total_g": round(tot, 1), "height_mm": round(top - m["floor"], 1), "com_mm": r(com),
+            "com_above_floor_mm": round(z, 1), "lipm_tc_ms": round(1000 * math.sqrt(z / 1000 / 9.81), 1),
+            "inertia_about_com_gmm2": r(np.diag(J_), 0),                              # roll, pitch, yaw axes
+            "groups_g": {k: round(v, 1) for k, v in sorted(groups.items(), key=lambda kv: -kv[1])},
+            "links": {ln: {"g": round(g, 1), "com_mm": r(c - m["frame"][ln]), "I_diag_gmm2": r(np.diag(Jl), 0)}
+                      for ln, (g, c, Jl) in links.items()}}
+
+
 # ------------------------------------------------------------------ validation (the skill's checklist)
 def validate(m, path=OUT):
     import mujoco
@@ -299,16 +345,20 @@ def validate(m, path=OUT):
 
 
 def main():
+    import json
     m = build()
-    txt = urdf_text(m)
+    out = {OUT: urdf_text(m), MASS_OUT: json.dumps(mass_report(m), indent=1) + "\n"}
     if "--check" in sys.argv:
-        if not OUT.exists() or OUT.read_text() != txt:
-            print(f"{OUT.relative_to(REPO)} is stale: run python gen_urdf.py")
+        stale = [p for p, txt in out.items() if not p.exists() or p.read_text() != txt]
+        for p in stale:
+            print(f"{p.relative_to(REPO)} is stale: run python gen_urdf.py")
+        if stale:
             return 1
         print("up to date")
     else:
-        OUT.write_text(txt)
-        print("wrote", OUT.relative_to(REPO))
+        for p, txt in out.items():
+            p.write_text(txt)
+            print("wrote", p.relative_to(REPO))
     if "--validate" in sys.argv:
         return 1 if validate(m) else 0
     return 0
