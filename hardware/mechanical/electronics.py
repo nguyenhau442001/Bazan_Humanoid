@@ -31,9 +31,9 @@ BOARDS = {
     "PCA": Board("PCA", "PCA9685 16-channel PWM module (Adafruit-style clone)", (62.5, 25.4),
                  holes=((-27.95, -9.5), (27.95, -9.5), (-27.95, 9.5), (27.95, 9.5)), hole_d=2.5, top=23.0,
                  bottom=1.5, mass=9.0, shop="mạch PCA9685 16 kênh"),                                   # MEASURE
-    "RADXA": Board("RADXA", "Radxa Zero 3W (Pi Zero outline)", (65.0, 30.0),
+    "RADXA": Board("RADXA", "Radxa Zero 3W with eMMC (Pi Zero outline; no microSD card)", (65.0, 30.0),
                    holes=((-29.0, -11.5), (29.0, -11.5), (-29.0, 11.5), (29.0, 11.5)), hole_d=2.75, top=4.0,
-                   bottom=1.5, mass=12.0, shop="Radxa Zero 3W"),                                       # MEASURE
+                   bottom=1.5, mass=12.0, shop="Radxa Zero 3W 4GB + 32GB eMMC"),                     # MEASURE
     "PERF": Board("PERF", "A+ monitoring board: 7 × 5 cm perfboard carrying the STM32F411 Black Pill in female "
                           "headers, LMV358 × 6, CD74HC4067, MPU6050", (70.0, 50.0),
                   holes=((-31.5, -21.5), (31.5, -21.5), (-31.5, 21.5), (31.5, 21.5)), hole_d=2.2, top=21.0,

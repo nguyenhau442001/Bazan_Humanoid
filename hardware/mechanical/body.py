@@ -199,7 +199,9 @@ class Body:
         "INA_L": ((8.0, 45.5), "x", 20, 0.0, "sled_ina"),
         "INA_R": ((8.0, -45.5), "x", 20, 0.0, "sled_ina"),
     }
-    DECK2_BAYS = {"RADXA": ((24.5, 0.0), "y", 40, -12.5, "sled_radxa")}
+    # Radxa Zero 3W (eMMC, no microSD card): USB-C and micro HDMI face +x (front, 30 free), header on the back
+    # long edge; the CSI FPC end (+y) gets 2.5 to the shoulder mount for the ribbon's upward fold
+    DECK2_BAYS = {"RADXA": ((24.5, -1.0), "y", 40, -12.5, "sled_radxa")}
     SH_FLANGE_HOLES = [(-25.0, 37.0), (-25.0, 50.0), (15.5, 37.0), (15.5, 50.0)]
     NECK_FLANGE_HOLES = [(-26.0, 12.5), (-26.0, -12.5), (2.0, 12.5), (2.0, -12.5)]
 
@@ -244,7 +246,7 @@ class Body:
     SLEDS = {  # sled: (board, length along u, width across v, attach offset across, tie-mounted)
         "sled_pca": ("PCA", 64.0, 29.0, -6.5, False),
         "sled_perf": ("PERF", 72.0, 52.0, -22.0, False),
-        "sled_radxa": ("RADXA", 67.0, 31.0, -12.5, False),
+        "sled_radxa": ("RADXA", 65.0, 31.0, -12.5, False),
         "sled_ubec": ("UBEC", 64.0, 29.0, 0.0, True),
         "sled_buck": ("BUCK", 26.0, 21.0, 0.0, True),
         "sled_ina": ("INA", 25.0, 17.0, 0.0, True),
