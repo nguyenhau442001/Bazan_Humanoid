@@ -82,7 +82,7 @@ SG90 hẹp hơn MG92B 0.4 mm: nếu servo lắc trong ổ, dán 1 lớp băng ke
 | TUBE4 | 11 | 10 | 1 | ống đồng Ø4 dày 0.45 (cắt 1.3 / 5.1 mm) |
 | SO40 | 4 | 0 | 4 | trụ nhựa M3 đực-cái 40 mm (+6 ren) |
 | SO35 | 4 | 0 | 4 | trụ nhựa M3 đực-cái 35 mm (+6 ren) |
-| TIE | 10 | 0 | 10 | dây rút 2.5×100 mm |
+| TIE | 8 | 0 | 8 | dây rút 2.5×100 mm |
 | STRAP | 1 | 0 | 1 | dây dán pin velcro 20 mm |
 | FOAM | 1 | 0 | 1 | băng keo xốp 2 mặt 1 mm |
 
@@ -93,7 +93,7 @@ Cộng thêm cho vỏ (Design C, bắt sau): 16 × M2×6 vào các tán vỏ đ�
 | Mã | Module | Kích thước | Lỗ bắt | Cao trên PCB | Đế | Bay |
 | --- | --- | --- | --- | --- | --- | --- |
 | PCA | PCA9685 16-channel PWM module (Adafruit-style clone) | 62.5 × 25.4 | 4 × Ø2.5, 55.90 × 19.00 | 23.0 | S1 ×2 | P0: PCA_L, PCA_R |
-| RADXA | Radxa Zero 3W (Pi Zero outline) | 65.0 × 30.0 | 4 × Ø2.75, 58.00 × 23.00 | 4.0 | S3 | P2: RADXA |
+| RADXA | Radxa Zero 3W with eMMC (Pi Zero outline; no microSD card) | 65.0 × 30.0 | 4 × Ø2.75, 58.00 × 23.00 | 4.0 | S3 | P2: RADXA |
 | PERF | A+ monitoring board: 7 × 5 cm perfboard carrying the STM32F411 Black Pill in female headers, LMV358 × 6, CD74HC4067, MPU6050 | 70.0 × 50.0 | 4 × Ø2.2, 63.00 × 43.00 | 21.0 | S2 | P1: PERF |
 | UBEC | Hobbywing UBEC 8A (2-5S), 6 V 8 A cont. / 15 A burst (heat-shrunk, no holes) | 62.0 × 27.5 | không — dây rút + băng keo xốp | 10.0 | S4 | P1: UBEC |
 | BUCK | 5 V buck for the Radxa (Mini560 class) | 22.0 × 17.0 | không — dây rút + băng keo xốp | 5.0 | S5 | P1: BUCK |
@@ -101,7 +101,7 @@ Cộng thêm cho vỏ (Design C, bắt sau): 16 × M2×6 vào các tán vỏ đ�
 | BATT | 2S LiPo 7.4 V (about 1000 mAh) | 56.0 × 30.0 | không — dây rút + băng keo xốp | 19.0 | — | P0 hốc pin (velcro) |
 | CAM | Raspberry Pi Camera V2 (IMX219) | 25.0 × 24.0 | 4 × Ø2.2, 21.00 × 12.50 | 6.0 | — | N4 (4 trụ) |
 | TOF | VL53L0X module (GY-VL53L0XV2) | 25.0 × 10.7 | 2 × Ø2.2, cách 19.0 | 3.0 | — | N4 (2 trụ) |
-| DISP | 1.9″ 170 × 320 IPS (ST7789) module | 50.0 × 28.0 | không — dây rút + băng keo xốp | 4.0 | — | N3 mặt trước (dây rút) |
+| DISP | Waveshare 1.9inch LCD Module (ST7789V2, 170 x 320 IPS, GH1.25 8-pin on the back) | 51.2 × 27.3 | không — dây rút + băng keo xốp | 4.0 | — | N3 mặt trước (dây rút) |
 
 ### 4.4 Printed Parts
 
@@ -112,7 +112,7 @@ Cộng thêm cho vỏ (Design C, bắt sau): 16 × M2×6 vào các tán vỏ đ�
 | P2 | `L_deck_2` | Deck 2 | 1 | PLA | 34.7 | phẳng, 2 viền, 15 % infill | [bản vẽ](v4/drawings/deck_2.png) |
 | S1 | `L_sled_pca` + `R_sled_pca` | PCA9685 Sled (L/R) | 2 | PLA | 9.6 | đế phẳng xuống bàn, trụ hướng lên | [bản vẽ](v4/drawings/sled_pca.png) |
 | S2 | `L_sled_perf` | A+ Board Sled (Black Pill) | 1 | PLA | 19.0 | đế phẳng xuống bàn | [bản vẽ](v4/drawings/sled_perf.png) |
-| S3 | `L_sled_radxa` | Radxa Zero 3W Sled | 1 | PLA | 10.7 | đế phẳng xuống bàn | [bản vẽ](v4/drawings/sled_radxa.png) |
+| S3 | `L_sled_radxa` | Radxa Zero 3W Sled | 1 | PLA | 10.4 | đế phẳng xuống bàn | [bản vẽ](v4/drawings/sled_radxa.png) |
 | S4 | `L_sled_ubec` | UBEC Sled | 1 | PLA | 9.2 | đế phẳng xuống bàn | [bản vẽ](v4/drawings/sled_ubec.png) |
 | S5 | `L_sled_buck` | 5 V Buck Sled | 1 | PLA | 2.6 | đế phẳng xuống bàn | [bản vẽ](v4/drawings/sled_buck.png) |
 | S6 | `L_sled_ina` + `R_sled_ina` | INA226 Sled (L/R) | 2 | PLA | 2.1 | đế phẳng xuống bàn | [bản vẽ](v4/drawings/sled_ina.png) |
@@ -122,11 +122,11 @@ Cộng thêm cho vỏ (Design C, bắt sau): 16 × M2×6 vào các tán vỏ đ�
 | A4 | `L_forearm` + `R_forearm` | Forearm and Mitten (L/R) | 2 | PLA | 11.1 | nằm mặt đĩa horn xuống bàn | [bản vẽ](v4/drawings/forearm.png) |
 | N1 | `L_neck_mount` | Neck Mount | 1 | PLA | 10.0 | mặt bích xuống bàn | [bản vẽ](v4/drawings/neck_mount.png) |
 | N2 | `L_neck_link` | Neck Link | 1 | PLA | 7.6 | đĩa horn cổ xuống bàn | [bản vẽ](v4/drawings/neck_link.png) |
-| N3 | `L_head_frame` | Head Frame | 1 | PLA | 16.8 | mặt sàn đầu úp xuống bàn, support chỉ từ bàn (không support trong hốc horn) | [bản vẽ](v4/drawings/head_frame.png) |
+| N3 | `L_head_frame` | Head Frame | 1 | PLA | 15.6 | mặt sàn đầu úp xuống bàn, support chỉ từ bàn (không support trong hốc horn) | [bản vẽ](v4/drawings/head_frame.png) |
 | N3i | `L_head_idler` | Head Idler Bracket | 1 | PLA | 2.5 | mặt đế (pad) úp xuống bàn, ổ bạc đạn nằm ngang, support chỉ từ bàn | [bản vẽ](v4/drawings/head_idler.png) |
 | N4 | `L_cam_mount` | Camera + ToF Mount (15° Tilt) | 1 | PLA | 7.0 | đế xuống bàn | [bản vẽ](v4/drawings/cam_mount.png) |
-| L1 | `L_foot` + `R_foot` | Foot | 2 | PLA | 15.1 | xem leg_v3.md | [bản vẽ](drawings/foot.png) |
-| L2 | `L_sole` + `R_sole` | TPU Sole | 2 | TPU 95A | 10.3 | xem leg_v3.md | [bản vẽ](drawings/sole.png) |
+| L1 | `L_foot` + `R_foot` | Foot | 2 | PLA | 14.5 | xem leg_v3.md | [bản vẽ](drawings/foot.png) |
+| L2 | `L_sole` + `R_sole` | TPU Sole | 2 | TPU 95A | 10.4 | xem leg_v3.md | [bản vẽ](drawings/sole.png) |
 | L3 | `L_ankle_block` + `R_ankle_block` | Ankle Block | 2 | PLA | 12.1 | xem leg_v3.md | [bản vẽ](drawings/ankle_block.png) |
 | L4 | `L_shin` + `R_shin` | Shin | 2 | PLA | 12.3 | xem leg_v3.md | [bản vẽ](drawings/shin.png) |
 | L5 | `L_thigh` + `R_thigh` | Thigh | 2 | PLA | 18.1 | xem leg_v3.md | [bản vẽ](drawings/thigh.png) |
@@ -327,8 +327,8 @@ Toạ độ = điểm vào của lỗ, so với điểm tham chiếu của chi t
 
 | # | Lỗ | Loại | Ø | Sâu | Vị trí (x, y, z) | Hướng | Dùng cho |
 | --- | --- | --- | ---: | --- | --- | --- | --- |
-| H1 | `bay_radxa1` | ins_m2_thru | 3.20 | xuyên | (+12.0, -20.0, +0.0) | −z | INS-M2 for sled_radxa (M2x6) |
-| H2 | `bay_radxa2` | ins_m2_thru | 3.20 | xuyên | (+12.0, +20.0, +0.0) | −z | INS-M2 for sled_radxa (M2x6) |
+| H1 | `bay_radxa1` | ins_m2_thru | 3.20 | xuyên | (+12.0, -21.0, +0.0) | −z | INS-M2 for sled_radxa (M2x6) |
+| H2 | `bay_radxa2` | ins_m2_thru | 3.20 | xuyên | (+12.0, +19.0, +0.0) | −z | INS-M2 for sled_radxa (M2x6) |
 | H3 | `neck1` | ins_m2_thru | 3.20 | xuyên | (-26.0, +12.5, +0.0) | −z | INS-M2 for neck_mount (M2x6) |
 | H4 | `neck2` | ins_m2_thru | 3.20 | xuyên | (-26.0, -12.5, +0.0) | −z | INS-M2 for neck_mount (M2x6) |
 | H5 | `neck3` | ins_m2_thru | 3.20 | xuyên | (+2.0, +12.5, +0.0) | −z | INS-M2 for neck_mount (M2x6) |
@@ -374,19 +374,17 @@ Toạ độ = điểm vào của lỗ, so với điểm tham chiếu của chi t
 | --- | --- | --- | ---: | --- | --- | --- | --- |
 | H1 | `bay_cam1` | ins_m2_thru | 3.20 | xuyên | (+15.0, -10.0, +23.0) | −z | INS-M2 for cam_mount (M2x6) |
 | H2 | `bay_cam2` | ins_m2_thru | 3.20 | xuyên | (+15.0, +10.0, +23.0) | −z | INS-M2 for cam_mount (M2x6) |
-| H3 | `disp_tie1` | tie | 1.60 | xuyên | (+30.0, -21.0, +14.0) | −x | cable tie over the display module |
-| H4 | `disp_tie2` | tie | 1.60 | xuyên | (+30.0, +21.0, +14.0) | −x | cable tie over the display module |
-| H5 | `disp_tie3` | tie | 1.60 | xuyên | (+30.0, -21.0, +0.0) | −x | cable tie over the display module |
-| H6 | `disp_tie4` | tie | 1.60 | xuyên | (+30.0, +21.0, +0.0) | −x | cable tie over the display module |
-| H7 | `head_pitch.access` | access | 5.20 | xuyên | (+0.0, +22.4, +0.0) | −y | horn centre screw (comes with the servo) |
-| H8 | `head_pitch.horn1` | pilot_st2 | 1.60 | 2.4 | (+0.0, +19.6, -7.0) | +y | ST2x3 through the horn (plate to horn) |
-| H9 | `head_pitch.horn2` | pilot_st2 | 1.60 | 2.4 | (+0.0, +19.6, +7.0) | +y | ST2x3 through the horn (plate to horn) |
-| H10 | `idler1` | ins_m2_thru | 3.20 | xuyên | (-15.0, -19.2, +23.0) | −z | INS-M2 for head_idler (M2x6 from below) |
-| H11 | `idler2` | ins_m2_thru | 3.20 | xuyên | (-10.0, -19.2, +23.0) | −z | INS-M2 for head_idler (M2x6 from below) |
-| H12 | `shell1` | ins_m2_thru | 3.20 | xuyên | (-20.0, +20.0, +23.0) | −z | INS-M2, head shell (M2x6) |
-| H13 | `shell2` | ins_m2_thru | 3.20 | xuyên | (-20.0, -20.0, +23.0) | −z | INS-M2, head shell (M2x6) |
-| H14 | `shell3` | ins_m2_thru | 3.20 | xuyên | (+5.0, +20.0, +23.0) | −z | INS-M2, head shell (M2x6) |
-| H15 | `shell4` | ins_m2_thru | 3.20 | xuyên | (+5.0, -20.0, +23.0) | −z | INS-M2, head shell (M2x6) |
+| H3 | `csi1` | cable | 18.00 | xuyên | (+5.2, +0.0, +23.0) | −z | slot 3.5 x 18 for the camera FFC (Pi Zero cable, 22 to 15 pin) |
+| H4 | `disp_win1` | cable | 32.00 | xuyên | (+30.0, +0.0, +7.5) | −x | window 32 x 17 for the display plug and lead |
+| H5 | `head_pitch.access` | access | 5.20 | xuyên | (+0.0, +22.4, +0.0) | −y | horn centre screw (comes with the servo) |
+| H6 | `head_pitch.horn1` | pilot_st2 | 1.60 | 2.4 | (+0.0, +19.6, -7.0) | +y | ST2x3 through the horn (plate to horn) |
+| H7 | `head_pitch.horn2` | pilot_st2 | 1.60 | 2.4 | (+0.0, +19.6, +7.0) | +y | ST2x3 through the horn (plate to horn) |
+| H8 | `idler1` | ins_m2_thru | 3.20 | xuyên | (-15.0, -19.2, +23.0) | −z | INS-M2 for head_idler (M2x6 from below) |
+| H9 | `idler2` | ins_m2_thru | 3.20 | xuyên | (-10.0, -19.2, +23.0) | −z | INS-M2 for head_idler (M2x6 from below) |
+| H10 | `shell1` | ins_m2_thru | 3.20 | xuyên | (-20.0, +20.0, +23.0) | −z | INS-M2, head shell (M2x6) |
+| H11 | `shell2` | ins_m2_thru | 3.20 | xuyên | (-20.0, -20.0, +23.0) | −z | INS-M2, head shell (M2x6) |
+| H12 | `shell3` | ins_m2_thru | 3.20 | xuyên | (+5.0, +20.0, +23.0) | −z | INS-M2, head shell (M2x6) |
+| H13 | `shell4` | ins_m2_thru | 3.20 | xuyên | (+5.0, -20.0, +23.0) | −z | INS-M2, head shell (M2x6) |
 
 #### N3i · `head_idler` — Head Idler Bracket
 
@@ -554,7 +552,7 @@ Toạ độ = điểm vào của lỗ, so với điểm tham chiếu của chi t
 
 #### S3 · `sled_radxa` — Radxa Zero 3W Sled
 
-Điểm tham chiếu: tâm bay trên mặt deck 2 = robot (+24.5, +0.0, +158.5).
+Điểm tham chiếu: tâm bay trên mặt deck 2 = robot (+24.5, -1.0, +158.5).
 
 ![sled_radxa](v4/drawings/sled_radxa.png)
 

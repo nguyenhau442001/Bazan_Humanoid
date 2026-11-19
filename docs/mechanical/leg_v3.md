@@ -50,8 +50,8 @@ Printed parts:
 
 | Part | Material | Volume (cm³) | Mass, solid (g) | Print orientation | Drawing |
 | --- | --- | --- | --- | --- | --- |
-| `foot` | PLA | 12.1 | 15.1 | sole plate down; uprights vertical | [drawing](drawings/foot.png) |
-| `sole` | TPU 95A | 8.5 | 10.3 | flat, 3 walls, 30 % gyroid | [drawing](drawings/sole.png) |
+| `foot` | PLA | 11.7 | 14.5 | sole plate down; uprights vertical | [drawing](drawings/foot.png) |
+| `sole` | TPU 95A | 8.6 | 10.4 | flat, 3 walls, 30 % gyroid | [drawing](drawings/sole.png) |
 | `ankle_block` | PLA | 9.8 | 12.1 | as the hip block: −y face down | [drawing](drawings/ankle_block.png) |
 | `shin` | PLA | 9.9 | 12.3 | lying on its −y side: all four plate holes print round | [drawing](drawings/shin.png) |
 | `thigh` | PLA | 14.6 | 18.1 | lying on its −y side (idler plate down): both bearing seats print as round holes | [drawing](drawings/thigh.png) |
@@ -59,7 +59,7 @@ Printed parts:
 | `yaw_bracket` | PLA | 12.4 | 15.4 | top plate down on the bed; supports only under the roll horn recess | [drawing](drawings/yaw_bracket.png) |
 | `thrust_ring` | PLA | 3.9 | 4.8 | thrust face down on the bed (smooth face against the yaw bracket) | [drawing](drawings/thrust_ring.png) |
 | `hip_mount` | PLA | 10.5 | 13.0 | top flange down on the bed: the yaw pocket opens upward, no supports | [drawing](drawings/hip_mount.png) |
-| **Total** | | 91.5 | **113.3** | upper bound: printed at 4 walls, 40 % infill they come out about 30 % lighter | |
+| **Total** | | 91.1 | **112.8** | upper bound: printed at 4 walls, 40 % infill they come out about 30 % lighter | |
 
 Bought parts (servos: 5 × MG92B and the hip-yaw MG90S, which sits in `hip_mount`):
 
@@ -93,10 +93,12 @@ is for checking a print and for pressing the inserts in the right place.
 | H2 | `ankle_roll.bearing` | 6.05 | 4.8 | (-21.4, +0.0, +0.0) | +x | MR63ZZ + W3 + M3x10 button head (idler) |
 | H3 | `ankle_roll.horn1` | 1.60 | 2.4 | (+23.4, +0.0, +7.0) | +x | ST2x3 through the horn (plate to horn) |
 | H4 | `ankle_roll.horn2` | 1.60 | 2.4 | (+23.4, +0.0, -7.0) | +x | ST2x3 through the horn (plate to horn) |
-| H5 | `sole.ins1` | 3.20 | 3.0 | (-31.0, -12.0, -18.3) | +z | INS-M2 + M2x6 (TPU sole) |
-| H6 | `sole.ins2` | 3.20 | 3.0 | (+31.0, -12.0, -18.3) | +z | INS-M2 + M2x6 (TPU sole) |
-| H7 | `sole.ins3` | 3.20 | 3.0 | (-31.0, +12.0, -18.3) | +z | INS-M2 + M2x6 (TPU sole) |
-| H8 | `sole.ins4` | 3.20 | 3.0 | (+31.0, +12.0, -18.3) | +z | INS-M2 + M2x6 (TPU sole) |
+| H5 | `fsr1` | 18.80 | 0.6 | (+22.0, +0.0, -18.3) | +z | FSR 402 pocket, tail out to +y (obs[50..53]) |
+| H6 | `fsr2` | 18.80 | 0.6 | (-22.0, +0.0, -18.3) | +z | FSR 402 pocket, tail out to +y (obs[50..53]) |
+| H7 | `sole.ins1` | 3.20 | 3.0 | (-31.0, -12.0, -18.3) | +z | INS-M2 + M2x6 (TPU sole) |
+| H8 | `sole.ins2` | 3.20 | 3.0 | (+31.0, -12.0, -18.3) | +z | INS-M2 + M2x6 (TPU sole) |
+| H9 | `sole.ins3` | 3.20 | 3.0 | (-31.0, +12.0, -18.3) | +z | INS-M2 + M2x6 (TPU sole) |
+| H10 | `sole.ins4` | 3.20 | 3.0 | (+31.0, +12.0, -18.3) | +z | INS-M2 + M2x6 (TPU sole) |
 
 ### `sole` · origin: ankle roll axis
 
@@ -163,6 +165,7 @@ is for checking a print and for pressing the inserts in the right place.
 | H4 | `hip_roll.ear1` | 3.20 | 4.0 | (+8.2, +8.4, +20.0) | −x | INS-M2 + M2x6 (servo ear) |
 | H5 | `hip_roll.ear2` | 3.20 | 4.0 | (+8.2, -19.4, +20.0) | −x | INS-M2 + M2x6 (servo ear) |
 | H6 | `hip_roll.idler_insert` | 4.00 | 3.3 | (-11.5, +0.0, +20.0) | +x | INS-M3 + spacer tube Ø4×0.45 L5.1 + M3x10 (idler pivot) |
+| H7 | `hip_roll.ntc` | 3.60 | through | (+0.2, -5.5, +28.8) | −z | NTC 10k bead on the servo case (Kapton), wire out |
 
 ### `yaw_bracket` · origin: hip roll axis
 
