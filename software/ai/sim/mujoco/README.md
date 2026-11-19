@@ -1,60 +1,61 @@
-# Mico in MuJoCo — Physics Simulation & RViz2 on macOS
+# Bazan in MuJoCo — physics on the robot generated from the CAD
 
-MuJoCo runs natively on Apple Silicon macOS, ROS 2 Jazzy is provided via RoboStack (conda), and RViz2 runs natively. Both physics setups subscribe to identical `/joint_trajectory_controller/joint_trajectory` topics, allowing the same `mico_gait.py` script to run seamlessly on both.
+One robot description: `software/ros2/src/humanoid_description/urdf/bazan_cad.urdf`, written by
+`hardware/mechanical/gen_urdf.py` from the printable CAD (joint axes where the parts put them, joint limits the
+parts are checked for, every link's mass, CoM and inertia from its solids, servo ratings from `hardware.py`).
+MuJoCo, the gait, RViz2, MoveIt, the RL environment and the firmware joint table are all built from it.
 
 ```text
-mico_gait.py ──JointTrajectory──▶ mico_mujoco_bridge.py ──/clock /joint_states /tf /odom /imu──▶ robot_state_publisher, RViz2
-                                   (MuJoCo, 1 ms substeps)
+hardware/mechanical (CAD) ──gen_urdf.py──▶ bazan_cad.urdf ──bazan_mujoco.cad_mjcf()──▶ bazan.xml / bridge / RL env
+                                                  │
+                                                  └──▶ bazan_gait.py (leg geometry, masses) ──JointTrajectory──▶ MuJoCo
 ```
 
-The physics core is located at `src/humanoid_control/scripts/mico_mujoco.py`, shared between the ROS 2 bridge and standalone simulation scripts:
-
-| Component | Model Representation |
+| Component | Model |
 | --- | --- |
-| Kinematics, Limits, Damping | Loaded directly from URDF (`mico.urdf.xacro`, `look:=mico camera:=false mass:=sim`) |
-| Visuals | Blender meshes `meshes/visual/mico` (geom group 1); collision boxes in group 0, floor in group 2 |
-| Servo Actuation | `τ = kp (q* − q) − kv q̇`, clipped at stall torque = `effort` in URDF; `kp` = 6 N·m/rad, `kv` = 0.03, armature = 2e-5 kg·m² |
-| Contacts | Robot-to-floor and foot-to-foot contacts |
-| IMU | Pelvis site on `imu_link`: accelerometer, gyroscope, quaternion orientation |
-| Trajectory Interpolation | Linear time interpolation matching `joint_trajectory_controller`; stamp 0 executes immediately |
+| Kinematics, limits, inertials | `bazan_cad.urdf` (1083 g, hip pitch axes 137 mm above the floor) |
+| Collision | Each link's bounding box (group 0); legs collide with the floor and with each other |
+| Servo | `τ = kp (q* − q) − kv q̇`, clipped at the URDF effort (catalogue stall torque); `kp` = `bazan_gait.SERVO_KP` = 6 N·m/rad, `kv` = 0.03, armature 2e-5 kg·m² |
+| IMU | Site on `imu_link` (MPU6050 on deck 1): accelerometer, gyro, orientation |
+| Camera | `head_camera` on `camera_link` (camera mount on the head, 15° down) |
+| Trajectories | Linear interpolation like `joint_trajectory_controller`; stamp 0 executes immediately |
 
-## Running Simulation
+The gait (`bazan_gait.py`) plans on the same URDF: the pelvis is placed by whole-body IK so the CoM of the CAD masses
+sits over the stance foot, the pelvis rolls toward the loaded foot (`LEAN`) to unload the stance hip roll, and each
+command carries the static servo sag (hold torque / `SERVO_KP`, ×`SAG_FF`).
+
+## Running
 
 ```zsh
-./setup_macos.sh                                     # One-time setup: ros2_jazzy env + MuJoCo, builds to .mac/
+python3 sim/mujoco/bazan_mjcf.py            # regenerate bazan.xml after gen_urdf.py changed the URDF (--check in CI)
+python3 sim/mujoco/check_mujoco.py          # headless demo: fell or not, distance, heading, servo loads -> servo_loads.csv
+mjpython sim/mujoco/bazan_viewer.py --physics
+python3 sim/mujoco/bazan_viewer.py --png bazan.png
 
 conda activate ros2_jazzy && source .mac/install/setup.zsh
-ros2 launch humanoid_description mico_mujoco.launch.py gait:=true      # Physics + RViz2 + gait demo
-ros2 launch humanoid_description mico_mujoco.launch.py viewer:=true    # Adds MuJoCo viewer (launched via mjpython)
-ros2 launch humanoid_description mico_view.launch.py                   # Kinematic playback without physics
+ros2 launch humanoid_description bazan_mujoco.launch.py gait:=true      # physics + RViz2 + demo gait
+ros2 launch humanoid_description bazan_view.launch.py                   # kinematic playback, no physics
 ```
 
-| Parameter `mico_mujoco.launch.py` | Default | Description |
-| --- | --- | --- |
-| `gait` | `false` | Launch `mico_gait.py` (sends trajectory after 2 s) |
-| `rviz` | `true` | Open RViz2 with `rviz/mico.rviz` (fixed frame `odom`, 5 cm grid) |
-| `viewer` | `false` | Open interactive MuJoCo viewer (automatically invokes `mjpython` on macOS) |
-| `look` | `mico` | `mico`: Blender outer shell, `boxes`: collision servo boxes |
-| `mass` | `sim` | `sim`: tuned gait simulation mass, `blender`: full CAD shell mass budget |
+`bazan.xml` runs with `pip install mujoco` alone (no ROS, no xacro).
 
-Topics: `/clock`, `/joint_states` (position, velocity, effort), `/tf` (`odom → base_link`), `/odom`, `/imu`.
-Commands: `/joint_trajectory_controller/joint_trajectory`, or 20 joint angles on `/position_controller/commands`.
+## Results on the CAD robot (MuJoCo 4.0, 1 ms step)
 
-Without ROS (Standalone Python):
+`check_mujoco.py`: no fall, 170 mm forward, heading +63° (target +60°), max tilt 15° (the planned 11.5° pelvis roll
+plus servo sag). Loads (99th percentile of stall): knee 76 %, hip roll 51 %, ankle roll 33 %; knee and hip roll spend
+most of the demo above 1/3 stall, see `docs/engineering/torque_validation.md`.
 
-```zsh
-python3 sim/mujoco/check_mujoco.py                   # Headless verification: balance check, distance, heading, loads
-mjpython sim/mujoco/mico_viewer.py --physics         # Interactive viewer with physics
-mjpython sim/mujoco/mico_viewer.py                   # Kinematic playback (standalone)
-python3 sim/mujoco/mico_viewer.py --png mico.png     # Render standing/walking/turn/wave snapshots
-python3 sim/mujoco/mico_mjcf.py                      # Regenerate mico.xml after modifying gen_robot.py
-```
+The same open-loop trajectory was also run against servo and floor variations (not in CI):
 
-`mico.xml` is a pre-generated MJCF file (relative mesh paths to `src/humanoid_description`), runnable directly via `pip install mujoco` without ROS 2 installed.
+| Variation | Result |
+| --- | --- |
+| 50 Hz servo frame + 15 ms delay | walks |
+| Robot mass ±10 % (gait planned on the nominal mass) | walks |
+| Servo stiffness 5 or 8 N·m/rad (gait assumes 6) | walks |
+| Floor friction 0.42 | walks |
+| Servo deadband ±0.25° | walks |
+| Floor friction 0.35 | falls |
+| Servo deadband ±0.5° | falls |
 
-## Validation Results (MuJoCo 3.9+, macOS, 1 ms step)
-
-- `check_mujoco.py` full gait evaluation: zero falls, forward distance 186 mm, lateral drift +11 mm, yaw turn +62.7° (target 60°), maximum base tilt 5.6°, minimum pelvis height 111 mm.
-- Servo loading (P99 peak vs stall torque): hip roll 35%, knee 29%, ankle pitch 29%.
-- Robustness across gain sweeps: `kp` in 3–12, `kv` in 0.01–0.1, armature in 0–1e-4 maintain stable dynamic balance and 61–63° yaw turns.
-- ROS 2 execution (`mico_mujoco.launch.py gait:=true`): `/joint_states` published at ~100 Hz at 1.0× real-time; stationary IMU measures +9.79 m/s² on the z-axis.
+There is no feedback in this gait. Measure deadband, stiffness and stall on the P0 bench before trusting it on the
+real robot, and keep a TPU sole for friction.
