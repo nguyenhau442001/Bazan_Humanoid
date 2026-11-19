@@ -1,0 +1,286 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="1100" viewBox="0 0 1700 1100" font-family="DejaVu Sans, Arial, sans-serif"><defs><marker id="a_pwr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#c4622f"/></marker><marker id="a_sig" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2f3d63"/></marker><marker id="a_ana" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2c7a5a"/></marker><marker id="a_bus" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#6a3d9a"/></marker><marker id="a_off" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8d8778"/></marker></defs><rect x="10" y="10" width="1680" height="1080" fill="white" stroke="#1d2333" stroke-width="2"/>
+<text x="30" y="45" font-size="22" text-anchor="start" font-weight="bold" fill="#1d2333">BZN-MB rev A: board block diagram</text>
+<text x="30" y="68" font-size="12" text-anchor="start" font-weight="normal" fill="#555">Servo power flows along the top band, logic and sensing along the bottom band. Pins, addresses and channels match software/firmware/stm32f411 (main.h, joint_table.h).</text>
+<rect x="250" y="90" width="1140" height="810" fill="none" stroke="#1d2333" stroke-width="2.5" stroke-dasharray="14 6"/>
+<text x="260" y="110" font-size="13" text-anchor="start" font-weight="bold" fill="#1d2333">BZN-MB rev A  (80 × 60 mm, 4 layers)</text>
+<rect x="30" y="110" width="180" height="50" rx="3" fill="#ffffff" stroke="#8d8778" stroke-width="1.4"/>
+<text x="36" y="125" font-size="12" text-anchor="start" font-weight="bold" fill="#8d8778">BT1</text>
+<text x="36" y="141" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">2S LiPo 1100 mAh 30C</text>
+<text x="36" y="155" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">6.0–8.4 V</text>
+<rect x="30" y="190" width="180" height="50" rx="3" fill="#fbd3d3" stroke="#b03030" stroke-width="1.4"/>
+<text x="36" y="205" font-size="12" text-anchor="start" font-weight="bold" fill="#b03030">F_MAIN + SW1</text>
+<text x="36" y="221" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">15 A fuse, power switch</text>
+<text x="36" y="235" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">on the battery lead</text>
+<rect x="30" y="275" width="180" height="50" rx="3" fill="#ffffff" stroke="#8d8778" stroke-width="1.4"/>
+<text x="36" y="290" font-size="12" text-anchor="start" font-weight="bold" fill="#8d8778">UBEC (module)</text>
+<text x="36" y="306" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">6.0 V, 8 A cont.</text>
+<text x="36" y="320" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">15 A burst</text>
+<path d="M120,160 L120,190" fill="none" stroke="#c4622f" stroke-width="3.0" marker-end="url(#a_pwr)"/>
+<path d="M120,240 L120,275" fill="none" stroke="#c4622f" stroke-width="3.0" marker-end="url(#a_pwr)"/>
+<rect x="30" y="560" width="180" height="60" rx="3" fill="#ffffff" stroke="#8d8778" stroke-width="1.4"/>
+<text x="36" y="575" font-size="12" text-anchor="start" font-weight="bold" fill="#8d8778">Leg servo pots</text>
+<text x="36" y="591" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">12 wipers + ground sense</text>
+<text x="36" y="605" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">L 6, R 6 (MG92B)</text>
+<rect x="30" y="660" width="180" height="44" rx="3" fill="#ffffff" stroke="#8d8778" stroke-width="1.4"/>
+<text x="36" y="675" font-size="12" text-anchor="start" font-weight="bold" fill="#8d8778">Foot sensors</text>
+<text x="36" y="691" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">4 × FSR402</text>
+<rect x="30" y="740" width="180" height="44" rx="3" fill="#ffffff" stroke="#8d8778" stroke-width="1.4"/>
+<text x="36" y="755" font-size="12" text-anchor="start" font-weight="bold" fill="#8d8778">Hip-roll servos</text>
+<text x="36" y="771" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">2 × NTC 10 kΩ on case</text>
+<rect x="1480" y="110" width="190" height="120" rx="3" fill="#ffffff" stroke="#8d8778" stroke-width="1.4"/>
+<text x="1486" y="125" font-size="12" text-anchor="start" font-weight="bold" fill="#8d8778">Leg servos</text>
+<text x="1486" y="141" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">12 × MG92B</text>
+<text x="1486" y="155" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">L: J3–J8</text>
+<text x="1486" y="169" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">R: J9–J14</text>
+<rect x="1480" y="390" width="190" height="64" rx="3" fill="#ffffff" stroke="#8d8778" stroke-width="1.4"/>
+<text x="1486" y="405" font-size="12" text-anchor="start" font-weight="bold" fill="#8d8778">Arm + neck servos</text>
+<text x="1486" y="421" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">2 × MG90S, 6 × SG90</text>
+<text x="1486" y="435" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">J15–J22</text>
+<rect x="1480" y="500" width="190" height="50" rx="3" fill="#ffffff" stroke="#8d8778" stroke-width="1.4"/>
+<text x="1486" y="515" font-size="12" text-anchor="start" font-weight="bold" fill="#8d8778">BUCK (module)</text>
+<text x="1486" y="531" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">5 V 3 A</text>
+<rect x="1480" y="580" width="190" height="54" rx="3" fill="#ffffff" stroke="#8d8778" stroke-width="1.4"/>
+<text x="1486" y="595" font-size="12" text-anchor="start" font-weight="bold" fill="#8d8778">Radxa Zero 3W</text>
+<text x="1486" y="611" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">application domain</text>
+<rect x="1480" y="800" width="190" height="50" rx="3" fill="#ffffff" stroke="#8d8778" stroke-width="1.4"/>
+<text x="1486" y="815" font-size="12" text-anchor="start" font-weight="bold" fill="#8d8778">Debug probe</text>
+<text x="1486" y="831" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">ST-Link / OpenOCD</text>
+<path d="M30,215 L20,215 L20,80 L1575,80 L1575,500" fill="none" stroke="#c4622f" stroke-width="3.0" marker-end="url(#a_pwr)"/>
+<text x="1581" y="290.0" font-size="10" text-anchor="start" font-weight="normal" fill="#c4622f">VBAT (after F_MAIN)</text>
+<path d="M1575,550 L1575,580" fill="none" stroke="#c4622f" stroke-width="3.0" marker-end="url(#a_pwr)"/>
+<rect x="226" y="204" width="48" height="22" fill="#fff6c8" stroke="#1d2333" stroke-width="1.2"/>
+<text x="250" y="219" font-size="10" text-anchor="middle" font-weight="bold" fill="#1d2333">J2</text>
+<rect x="226" y="289" width="48" height="22" fill="#fff6c8" stroke="#1d2333" stroke-width="1.2"/>
+<text x="250" y="304" font-size="10" text-anchor="middle" font-weight="bold" fill="#1d2333">J1</text>
+<rect x="226" y="564" width="48" height="22" fill="#fff6c8" stroke="#1d2333" stroke-width="1.2"/>
+<text x="250" y="579" font-size="10" text-anchor="middle" font-weight="bold" fill="#1d2333">J23</text>
+<rect x="226" y="594" width="48" height="22" fill="#fff6c8" stroke="#1d2333" stroke-width="1.2"/>
+<text x="250" y="609" font-size="10" text-anchor="middle" font-weight="bold" fill="#1d2333">J24</text>
+<rect x="226" y="671" width="48" height="22" fill="#fff6c8" stroke="#1d2333" stroke-width="1.2"/>
+<text x="250" y="686" font-size="10" text-anchor="middle" font-weight="bold" fill="#1d2333">J25</text>
+<rect x="226" y="751" width="48" height="22" fill="#fff6c8" stroke="#1d2333" stroke-width="1.2"/>
+<text x="250" y="766" font-size="10" text-anchor="middle" font-weight="bold" fill="#1d2333">J26</text>
+<rect x="1366" y="159" width="48" height="22" fill="#fff6c8" stroke="#1d2333" stroke-width="1.2"/>
+<text x="1390" y="174" font-size="10" text-anchor="middle" font-weight="bold" fill="#1d2333">J3–J14</text>
+<rect x="1366" y="409" width="48" height="22" fill="#fff6c8" stroke="#1d2333" stroke-width="1.2"/>
+<text x="1390" y="424" font-size="10" text-anchor="middle" font-weight="bold" fill="#1d2333">J15–J22</text>
+<rect x="1366" y="596" width="48" height="22" fill="#fff6c8" stroke="#1d2333" stroke-width="1.2"/>
+<text x="1390" y="611" font-size="10" text-anchor="middle" font-weight="bold" fill="#1d2333">J27</text>
+<rect x="1366" y="814" width="48" height="22" fill="#fff6c8" stroke="#1d2333" stroke-width="1.2"/>
+<text x="1390" y="829" font-size="10" text-anchor="middle" font-weight="bold" fill="#1d2333">J28</text>
+<path d="M210,215 L226,215" fill="none" stroke="#c4622f" stroke-width="3.0"/>
+<path d="M210,300 L226,300" fill="none" stroke="#c4622f" stroke-width="3.0"/>
+<path d="M210,575 L226,575" fill="none" stroke="#2c7a5a" stroke-width="1.4"/>
+<path d="M210,605 L226,605" fill="none" stroke="#2c7a5a" stroke-width="1.4"/>
+<path d="M210,682 L226,682" fill="none" stroke="#2c7a5a" stroke-width="1.4"/>
+<path d="M210,762 L226,762" fill="none" stroke="#2c7a5a" stroke-width="1.4"/>
+<path d="M1414,170 L1480,170" fill="none" stroke="#c4622f" stroke-width="3.0" marker-end="url(#a_pwr)"/>
+<text x="1447.0" y="164" font-size="10" text-anchor="middle" font-weight="normal" fill="#c4622f">6 V + PWM</text>
+<path d="M1414,420 L1480,420" fill="none" stroke="#c4622f" stroke-width="3.0" marker-end="url(#a_pwr)"/>
+<text x="1447.0" y="414" font-size="10" text-anchor="middle" font-weight="normal" fill="#c4622f">6 V + PWM</text>
+<path d="M1480,600 L1414,600" fill="none" stroke="#2f3d63" stroke-width="1.4" marker-end="url(#a_sig)"/>
+<text x="1447.0" y="595" font-size="10" text-anchor="middle" font-weight="normal" fill="#2f3d63">TX</text>
+<path d="M1414,614 L1480,614" fill="none" stroke="#2f3d63" stroke-width="1.4" marker-end="url(#a_sig)"/>
+<text x="1447.0" y="628" font-size="10" text-anchor="middle" font-weight="normal" fill="#2f3d63">RX</text>
+<path d="M1480,825 L1414,825" fill="none" stroke="#2f3d63" stroke-width="1.4" marker-end="url(#a_sig)"/>
+<text x="1447.0" y="819" font-size="10" text-anchor="middle" font-weight="normal" fill="#2f3d63">SWD</text>
+<rect x="300" y="272" width="150" height="56" rx="3" fill="#fbd3d3" stroke="#b03030" stroke-width="1.4"/>
+<text x="306" y="287" font-size="12" text-anchor="start" font-weight="bold" fill="#b03030">Q1, D1</text>
+<text x="306" y="303" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">reverse-polarity P-FET</text>
+<text x="306" y="317" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">TVS clamp</text>
+<path d="M274,300 L300,300" fill="none" stroke="#c4622f" stroke-width="3.0" marker-end="url(#a_pwr)"/>
+<rect x="300" y="180" width="150" height="70" rx="3" fill="#fde8dc" stroke="#c4622f" stroke-width="1.4"/>
+<text x="306" y="195" font-size="12" text-anchor="start" font-weight="bold" fill="#c4622f">F4, D2, U18, U19</text>
+<text x="306" y="211" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">PTC + diode on VBAT</text>
+<text x="306" y="225" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">LDO +5V_LOGIC</text>
+<text x="306" y="239" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">LDO +5VA</text>
+<path d="M274,215 L300,215" fill="none" stroke="#c4622f" stroke-width="3.0" marker-end="url(#a_pwr)"/>
+<path d="M450,300 L475,300" fill="none" stroke="#c4622f" stroke-width="3.0"/>
+<text x="470" y="133" font-size="11" text-anchor="middle" font-weight="bold" fill="#c4622f">+6V_SERVO</text>
+<path d="M475,150 L475,440" fill="none" stroke="#c4622f" stroke-width="3.0"/>
+<circle cx="475" cy="300" r="4" fill="#c4622f"/>
+<path d="M475,150 L520,150" fill="none" stroke="#c4622f" stroke-width="3.0" marker-end="url(#a_pwr)"/>
+<rect x="520" y="125" width="150" height="50" rx="3" fill="#fbd3d3" stroke="#b03030" stroke-width="1.4"/>
+<text x="526" y="140" font-size="12" text-anchor="start" font-weight="bold" fill="#b03030">F1, RS1</text>
+<text x="526" y="156" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">fuse + 10 mΩ shunt</text>
+<text x="526" y="170" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">left leg</text>
+<rect x="520" y="188" width="150" height="30" rx="3" fill="#e6eaf4" stroke="#2f3d63" stroke-width="1.4"/>
+<text x="526" y="204" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">U4  INA226 0x44</text>
+<path d="M595,175 L595,188" fill="none" stroke="#2c7a5a" stroke-width="1.4" stroke-dasharray="5 4"/>
+<path d="M475,300 L520,300" fill="none" stroke="#c4622f" stroke-width="3.0" marker-end="url(#a_pwr)"/>
+<rect x="520" y="275" width="150" height="50" rx="3" fill="#fbd3d3" stroke="#b03030" stroke-width="1.4"/>
+<text x="526" y="290" font-size="12" text-anchor="start" font-weight="bold" fill="#b03030">F2, RS2</text>
+<text x="526" y="306" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">fuse + 10 mΩ shunt</text>
+<text x="526" y="320" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">right leg</text>
+<rect x="520" y="338" width="150" height="30" rx="3" fill="#e6eaf4" stroke="#2f3d63" stroke-width="1.4"/>
+<text x="526" y="354" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">U5  INA226 0x45</text>
+<path d="M595,325 L595,338" fill="none" stroke="#2c7a5a" stroke-width="1.4" stroke-dasharray="5 4"/>
+<path d="M475,440 L520,440" fill="none" stroke="#c4622f" stroke-width="3.0" marker-end="url(#a_pwr)"/>
+<rect x="520" y="415" width="150" height="50" rx="3" fill="#fbd3d3" stroke="#b03030" stroke-width="1.4"/>
+<text x="526" y="430" font-size="12" text-anchor="start" font-weight="bold" fill="#b03030">F3, RS3</text>
+<text x="526" y="446" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">fuse + 10 mΩ shunt</text>
+<text x="526" y="460" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">arms + neck</text>
+<rect x="520" y="478" width="150" height="30" rx="3" fill="#e6eaf4" stroke="#2f3d63" stroke-width="1.4"/>
+<text x="526" y="494" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">U6  INA226 0x46</text>
+<path d="M595,465 L595,478" fill="none" stroke="#2c7a5a" stroke-width="1.4" stroke-dasharray="5 4"/>
+<text x="605" y="186" font-size="9" text-anchor="start" font-weight="normal" fill="#2c7a5a">Kelvin</text>
+<path d="M670,150 L1200,150" fill="none" stroke="#c4622f" stroke-width="3.0" marker-end="url(#a_pwr)"/>
+<text x="935.0" y="144" font-size="10" text-anchor="middle" font-weight="normal" fill="#c4622f">+6V_LL  (≤ 8.2 A, shunt full scale)</text>
+<path d="M670,300 L1150,300 L1150,220 L1200,220" fill="none" stroke="#c4622f" stroke-width="3.0" marker-end="url(#a_pwr)"/>
+<text x="800" y="294" font-size="10" text-anchor="start" font-weight="normal" fill="#c4622f">+6V_RL</text>
+<path d="M670,440 L1200,440" fill="none" stroke="#c4622f" stroke-width="3.0" marker-end="url(#a_pwr)"/>
+<text x="1040" y="434" font-size="10" text-anchor="start" font-weight="normal" fill="#c4622f">+6V_ARM</text>
+<rect x="1200" y="120" width="150" height="120" rx="3" fill="#fde8dc" stroke="#c4622f" stroke-width="1.4"/>
+<text x="1206" y="135" font-size="12" text-anchor="start" font-weight="bold" fill="#c4622f">J3–J14</text>
+<text x="1206" y="151" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">12 leg servo headers</text>
+<text x="1206" y="165" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">2.54 mm, GND / V+ / S</text>
+<text x="1206" y="179" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">220 Ω on each S</text>
+<text x="1206" y="193" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">C_BULK × 2</text>
+<rect x="1200" y="400" width="150" height="76" rx="3" fill="#fde8dc" stroke="#c4622f" stroke-width="1.4"/>
+<text x="1206" y="415" font-size="12" text-anchor="start" font-weight="bold" fill="#c4622f">J15–J22</text>
+<text x="1206" y="431" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">8 arm / neck headers</text>
+<text x="1206" y="445" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">220 Ω on each S</text>
+<text x="1206" y="459" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">C_BULK</text>
+<path d="M1350,170 L1366,170" fill="none" stroke="#c4622f" stroke-width="3.0"/>
+<path d="M1350,420 L1366,420" fill="none" stroke="#c4622f" stroke-width="3.0"/>
+<rect x="990" y="330" width="150" height="56" rx="3" fill="#e6eaf4" stroke="#2f3d63" stroke-width="1.4"/>
+<text x="996" y="345" font-size="12" text-anchor="start" font-weight="bold" fill="#2f3d63">U2  PCA9685</text>
+<text x="996" y="361" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">0x40, legs ch 0–11</text>
+<text x="996" y="375" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">OE ← OE_LEGS</text>
+<rect x="990" y="486" width="150" height="56" rx="3" fill="#e6eaf4" stroke="#2f3d63" stroke-width="1.4"/>
+<text x="996" y="501" font-size="12" text-anchor="start" font-weight="bold" fill="#2f3d63">U3  PCA9685</text>
+<text x="996" y="517" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">0x41, arms + neck ch 0–7</text>
+<text x="996" y="531" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">OE ← OE_ARMS</text>
+<path d="M1140,358 L1170,358 L1170,230 L1200,230" fill="none" stroke="#2f3d63" stroke-width="1.4" marker-end="url(#a_sig)"/>
+<text x="1176" y="294.0" font-size="10" text-anchor="start" font-weight="normal" fill="#2f3d63">PWM ×12</text>
+<path d="M1140,514 L1175,514 L1175,466 L1200,466" fill="none" stroke="#2f3d63" stroke-width="1.4" marker-end="url(#a_sig)"/>
+<text x="1181" y="490.0" font-size="10" text-anchor="start" font-weight="normal" fill="#2f3d63">PWM ×8</text>
+<rect x="760" y="330" width="160" height="70" rx="3" fill="#fbd3d3" stroke="#b03030" stroke-width="1.4"/>
+<text x="766" y="345" font-size="12" text-anchor="start" font-weight="bold" fill="#b03030">U15–U17</text>
+<text x="766" y="361" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">trip latch, powers up tripped</text>
+<text x="766" y="375" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">OE = MCU_OE OR TRIP</text>
+<path d="M670,203 L720,203 L720,493 L670,493" fill="none" stroke="#2f3d63" stroke-width="1.4"/>
+<text x="726" y="250" font-size="10" text-anchor="start" font-weight="normal" fill="#2f3d63">ALERT</text>
+<text x="726" y="263" font-size="10" text-anchor="start" font-weight="normal" fill="#2f3d63">(wired-OR,</text>
+<text x="726" y="276" font-size="10" text-anchor="start" font-weight="normal" fill="#2f3d63">open drain)</text>
+<path d="M670,353 L720,353" fill="none" stroke="#2f3d63" stroke-width="1.4"/>
+<circle cx="720" cy="353" r="4" fill="#2f3d63"/>
+<path d="M720,365 L760,365" fill="none" stroke="#2f3d63" stroke-width="1.4" marker-end="url(#a_sig)"/>
+<circle cx="720" cy="365" r="4" fill="#2f3d63"/>
+<path d="M920,350 L990,350" fill="none" stroke="#2f3d63" stroke-width="1.4" marker-end="url(#a_sig)"/>
+<text x="955.0" y="345" font-size="10" text-anchor="middle" font-weight="normal" fill="#2f3d63">OE_LEGS</text>
+<path d="M920,385 L950,385 L950,506 L990,506" fill="none" stroke="#2f3d63" stroke-width="1.4" marker-end="url(#a_sig)"/>
+<text x="880" y="470" font-size="10" text-anchor="start" font-weight="normal" fill="#2f3d63">OE_ARMS</text>
+<rect x="760" y="600" width="220" height="210" rx="3" fill="#d6def0" stroke="#2f3d63" stroke-width="1.4"/>
+<text x="766" y="615" font-size="12" text-anchor="start" font-weight="bold" fill="#2f3d63">U1  Black Pill (socketed)</text>
+<text x="766" y="631" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333" font-family="DejaVu Sans Mono, monospace">STM32F411CEU6, AP7343 3.3 V</text>
+<text x="766" y="645" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333" font-family="DejaVu Sans Mono, monospace"></text>
+<text x="766" y="659" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333" font-family="DejaVu Sans Mono, monospace">PB6/PB7    I²C1</text>
+<text x="766" y="673" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333" font-family="DejaVu Sans Mono, monospace">PB10/PB3   I²C2</text>
+<text x="766" y="687" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333" font-family="DejaVu Sans Mono, monospace">PB0/PB1    OE legs / arms</text>
+<text x="766" y="701" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333" font-family="DejaVu Sans Mono, monospace">PA0        mux SIG (ADC1_IN0)</text>
+<text x="766" y="715" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333" font-family="DejaVu Sans Mono, monospace">PA1/PA2    NTC L / R</text>
+<text x="766" y="729" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333" font-family="DejaVu Sans Mono, monospace">PA3        VBAT_SNS</text>
+<text x="766" y="743" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333" font-family="DejaVu Sans Mono, monospace">PB12–PB15  mux S0–S3</text>
+<text x="766" y="757" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333" font-family="DejaVu Sans Mono, monospace">PA9/PA10   USART1 → J27</text>
+<text x="766" y="771" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333" font-family="DejaVu Sans Mono, monospace">TRIP_CLR, TRIP_STATE: step 6</text>
+<path d="M970,600 L970,370 L990,370" fill="none" stroke="#6a3d9a" stroke-width="3.0"/>
+<text x="985" y="585" font-size="10" text-anchor="start" font-weight="normal" fill="#6a3d9a">I²C1 400 kHz</text>
+<path d="M970,524 L990,524" fill="none" stroke="#6a3d9a" stroke-width="3.0"/>
+<circle cx="970" cy="524" r="4" fill="#6a3d9a"/>
+<path d="M800,600 L800,560 L500,560 L500,203 L520,203" fill="none" stroke="#6a3d9a" stroke-width="3.0"/>
+<text x="650.0" y="554" font-size="10" text-anchor="middle" font-weight="normal" fill="#6a3d9a">I²C2  400 kHz</text>
+<path d="M500,353 L520,353" fill="none" stroke="#6a3d9a" stroke-width="3.0"/>
+<path d="M500,493 L520,493" fill="none" stroke="#6a3d9a" stroke-width="3.0"/>
+<circle cx="500" cy="353" r="4" fill="#6a3d9a"/>
+<circle cx="500" cy="493" r="4" fill="#6a3d9a"/>
+<rect x="1060" y="640" width="170" height="56" rx="3" fill="#e6eaf4" stroke="#2f3d63" stroke-width="1.4"/>
+<text x="1066" y="655" font-size="12" text-anchor="start" font-weight="bold" fill="#2f3d63">U7  MPU6050</text>
+<text x="1066" y="671" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">0x68, board centre</text>
+<text x="1066" y="685" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">axes = base_link</text>
+<path d="M800,560 L1040,560 L1040,668 L1060,668" fill="none" stroke="#6a3d9a" stroke-width="3.0"/>
+<circle cx="800" cy="560" r="4" fill="#6a3d9a"/>
+<path d="M860,600 L860,400" fill="none" stroke="#2f3d63" stroke-width="1.4" marker-end="url(#a_sig)"/>
+<text x="866" y="500.0" font-size="10" text-anchor="start" font-weight="normal" fill="#2f3d63">OE ×2, TRIP_CLR,</text>
+<text x="866" y="513.0" font-size="10" text-anchor="start" font-weight="normal" fill="#2f3d63">TRIP_STATE</text>
+<rect x="300" y="560" width="150" height="60" rx="3" fill="#e1f1ea" stroke="#2c7a5a" stroke-width="1.4"/>
+<text x="306" y="575" font-size="12" text-anchor="start" font-weight="bold" fill="#2c7a5a">U8–U13</text>
+<text x="306" y="591" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">6 × LMV358</text>
+<text x="306" y="605" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">12 wiper followers</text>
+<rect x="520" y="560" width="150" height="74" rx="3" fill="#e1f1ea" stroke="#2c7a5a" stroke-width="1.4"/>
+<text x="526" y="575" font-size="12" text-anchor="start" font-weight="bold" fill="#2c7a5a">U14</text>
+<text x="526" y="591" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">CD74HC4067</text>
+<text x="526" y="605" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">16:1 analog mux</text>
+<text x="526" y="619" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">ch 0–11 pots, 12–15 FSR</text>
+<rect x="300" y="660" width="150" height="120" rx="3" fill="#e1f1ea" stroke="#2c7a5a" stroke-width="1.4"/>
+<text x="306" y="675" font-size="12" text-anchor="start" font-weight="bold" fill="#2c7a5a">R/C network</text>
+<text x="306" y="691" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">FSR dividers × 4</text>
+<text x="306" y="705" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">NTC dividers × 2</text>
+<text x="306" y="719" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">series R + clamps</text>
+<text x="306" y="733" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">on every ADC input</text>
+<path d="M274,575 L300,575" fill="none" stroke="#2c7a5a" stroke-width="1.4" marker-end="url(#a_ana)"/>
+<path d="M274,605 L300,605" fill="none" stroke="#2c7a5a" stroke-width="1.4" marker-end="url(#a_ana)"/>
+<path d="M274,682 L300,682" fill="none" stroke="#2c7a5a" stroke-width="1.4" marker-end="url(#a_ana)"/>
+<path d="M274,762 L300,762" fill="none" stroke="#2c7a5a" stroke-width="1.4" marker-end="url(#a_ana)"/>
+<path d="M450,590 L520,590" fill="none" stroke="#2c7a5a" stroke-width="1.4" marker-end="url(#a_ana)"/>
+<text x="485.0" y="585" font-size="10" text-anchor="middle" font-weight="normal" fill="#2c7a5a">12</text>
+<path d="M450,690 L595,690 L595,634" fill="none" stroke="#2c7a5a" stroke-width="1.4" marker-end="url(#a_ana)"/>
+<text x="522.5" y="685" font-size="10" text-anchor="middle" font-weight="normal" fill="#2c7a5a">FSR ×4</text>
+<path d="M670,610 L760,610" fill="none" stroke="#2c7a5a" stroke-width="1.4" marker-end="url(#a_ana)"/>
+<text x="715.0" y="605" font-size="10" text-anchor="middle" font-weight="normal" fill="#2c7a5a">SIG → PA0</text>
+<path d="M450,750 L760,750" fill="none" stroke="#2c7a5a" stroke-width="1.4" marker-end="url(#a_ana)"/>
+<text x="605.0" y="745" font-size="10" text-anchor="middle" font-weight="normal" fill="#2c7a5a">NTC → PA1, PA2</text>
+<path d="M760,628 L670,628" fill="none" stroke="#2f3d63" stroke-width="1.4" marker-end="url(#a_sig)"/>
+<text x="715.0" y="642" font-size="10" text-anchor="middle" font-weight="normal" fill="#2f3d63">S0–S3</text>
+<path d="M980,620 L1300,620 L1300,607 L1366,607" fill="none" stroke="#2f3d63" stroke-width="1.4"/>
+<text x="1140.0" y="614" font-size="10" text-anchor="middle" font-weight="normal" fill="#2f3d63">USART1 921 600 Bd, 3.3 V</text>
+<rect x="1060" y="790" width="170" height="56" rx="3" fill="#e6eaf4" stroke="#2f3d63" stroke-width="1.4"/>
+<text x="1066" y="805" font-size="12" text-anchor="start" font-weight="bold" fill="#2f3d63">J28</text>
+<text x="1066" y="821" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">SWD: SWDIO, SWCLK,</text>
+<text x="1066" y="835" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">NRST, 3V3, GND</text>
+<path d="M980,818 L1060,818" fill="none" stroke="#2f3d63" stroke-width="1.4"/>
+<path d="M1230,818 L1300,818 L1300,825 L1366,825" fill="none" stroke="#2f3d63" stroke-width="1.4"/>
+<text x="300" y="860" font-size="11" text-anchor="start" font-weight="normal" fill="#555">Rails: +5V_LOGIC → U1 5 V pin through a Schottky (USB back-feed);  +3V3 from U1 → U2–U7, U14–U17;  +5VA → U8–U13.  Sheet 2 has the full power tree.</text>
+<rect x="30" y="930" width="400" height="144" fill="white" stroke="#1d2333"/>
+<text x="38" y="946" font-size="11" text-anchor="start" font-weight="bold" fill="#1d2333">Legend</text>
+<path d="M40,960 L90,960" fill="none" stroke="#c4622f" stroke-width="3.0" marker-end="url(#a_pwr)"/>
+<text x="105" y="964" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">power, servo current</text>
+<path d="M40,980 L90,980" fill="none" stroke="#2f3d63" stroke-width="1.4" marker-end="url(#a_sig)"/>
+<text x="105" y="984" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">logic signal, arrow = direction</text>
+<path d="M40,1000 L90,1000" fill="none" stroke="#2c7a5a" stroke-width="1.4" marker-end="url(#a_ana)"/>
+<text x="105" y="1004" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">analog signal</text>
+<path d="M40,1020 L90,1020" fill="none" stroke="#6a3d9a" stroke-width="3.0"/>
+<text x="105" y="1024" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">I²C bus</text>
+<path d="M40,1040 L90,1040" fill="none" stroke="#2c7a5a" stroke-width="1.4" stroke-dasharray="5 4"/>
+<text x="105" y="1044" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">Kelvin sense</text>
+<path d="M40,1060 L90,1060" fill="none" stroke="#2f3d63" stroke-width="1.4"/>
+<circle cx="65" cy="1060" r="4" fill="#2f3d63"/>
+<text x="105" y="1064" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">junction (crossing without dot = no connection)</text>
+<rect x="450" y="930" width="400" height="84" fill="white" stroke="#1d2333"/>
+<text x="458" y="946" font-size="11" text-anchor="start" font-weight="bold" fill="#1d2333">Legend</text>
+<rect x="461" y="949" width="48" height="22" fill="#fff6c8" stroke="#1d2333" stroke-width="1.2"/>
+<text x="485" y="964" font-size="10" text-anchor="middle" font-weight="bold" fill="#1d2333">J</text>
+<text x="525" y="964" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">connector on the board edge</text>
+<rect x="465" y="972" width="40" height="16" fill="#fbd3d3" stroke="#b03030"/>
+<text x="525" y="984" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">protection</text>
+<rect x="465" y="992" width="40" height="16" fill="#ffffff" stroke="#8d8778"/>
+<text x="525" y="1004" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">off the board (module or cable)</text>
+<rect x="1140" y="950" width="550" height="140" fill="white" stroke="#1d2333" stroke-width="2"/>
+<text x="1148" y="966" font-size="11" text-anchor="start" font-weight="normal" fill="#555">Project</text>
+<text x="1250" y="966" font-size="12" text-anchor="start" font-weight="normal" fill="#1d2333">BZN-01 Bazan humanoid: mainboard BZN-MB rev A</text>
+<line x1="1140" y1="973" x2="1690" y2="973" stroke="#1d2333"/>
+<text x="1148" y="989" font-size="11" text-anchor="start" font-weight="normal" fill="#555">Title</text>
+<text x="1250" y="989" font-size="12" text-anchor="start" font-weight="bold" fill="#1d2333">Board block diagram</text>
+<line x1="1140" y1="996" x2="1690" y2="996" stroke="#1d2333"/>
+<text x="1148" y="1012" font-size="11" text-anchor="start" font-weight="normal" fill="#555">Doc no.</text>
+<text x="1250" y="1012" font-size="12" text-anchor="start" font-weight="bold" fill="#1d2333">BZN-MB-BD-001   Rev A0   Sheet 1 / 2</text>
+<line x1="1140" y1="1019" x2="1690" y2="1019" stroke="#1d2333"/>
+<text x="1148" y="1035" font-size="11" text-anchor="start" font-weight="normal" fill="#555">Date / drawn</text>
+<text x="1250" y="1035" font-size="12" text-anchor="start" font-weight="normal" fill="#1d2333">2026-11-20   H. Nguyen Ngoc</text>
+<line x1="1140" y1="1042" x2="1690" y2="1042" stroke="#1d2333"/>
+<text x="1148" y="1058" font-size="11" text-anchor="start" font-weight="normal" fill="#555">Status</text>
+<text x="1250" y="1058" font-size="12" text-anchor="start" font-weight="normal" fill="#1d2333">DRAFT, FOR REVIEW</text>
+<line x1="1140" y1="1065" x2="1690" y2="1065" stroke="#1d2333"/>
+<text x="1148" y="1081" font-size="11" text-anchor="start" font-weight="normal" fill="#555">Source</text>
+<text x="1250" y="1081" font-size="12" text-anchor="start" font-weight="normal" fill="#1d2333">hardware/electrical/mainboard/gen_diagrams.py</text>
+<line x1="1240" y1="950" x2="1240" y2="1090" stroke="#1d2333"/></svg>

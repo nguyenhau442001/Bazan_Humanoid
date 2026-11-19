@@ -1,6 +1,6 @@
 # BZN-MB rev A: architecture (step 4)
 
-Block diagram: [`block_diagram.svg`](block_diagram.svg) (source `block_diagram.dot`). Requirement IDs refer to
+Diagram set BZN-MB-BD-001: [sheet 1, board block diagram](BZN-MB-BD-001_s1.svg) and [sheet 2, power tree](BZN-MB-BD-001_s2.svg), drawn by `gen_diagrams.py`. Requirement IDs refer to
 [`requirements.md`](requirements.md). Part numbers and values are fixed in step 5; this page fixes the structure.
 
 ## 1. Two power domains

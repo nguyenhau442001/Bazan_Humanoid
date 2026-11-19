@@ -1,0 +1,136 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="1100" viewBox="0 0 1700 1100" font-family="DejaVu Sans, Arial, sans-serif"><defs><marker id="a_pwr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#c4622f"/></marker><marker id="a_sig" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2f3d63"/></marker><marker id="a_ana" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2c7a5a"/></marker><marker id="a_bus" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#6a3d9a"/></marker><marker id="a_off" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8d8778"/></marker></defs><rect x="10" y="10" width="1680" height="1080" fill="white" stroke="#1d2333" stroke-width="2"/>
+<text x="30" y="45" font-size="22" text-anchor="start" font-weight="bold" fill="#1d2333">BZN-MB rev A: power tree</text>
+<text x="30" y="68" font-size="12" text-anchor="start" font-weight="normal" fill="#555">Current figures: worst case per the requirements. Fuse and part ratings marked TBD are sized in step 5 against these numbers.</text>
+<rect x="40" y="480" width="200" height="76" rx="3" fill="#ffffff" stroke="#8d8778" stroke-width="1.4"/>
+<text x="46" y="495" font-size="12" text-anchor="start" font-weight="bold" fill="#8d8778">BT1</text>
+<text x="46" y="511" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">2S LiPo 1100 mAh 30C</text>
+<text x="46" y="525" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">7.4 V nom, 6.0–8.4 V</text>
+<text x="46" y="539" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">≤ 33 A by C rating</text>
+<rect x="300" y="486" width="180" height="64" rx="3" fill="#fbd3d3" stroke="#b03030" stroke-width="1.4"/>
+<text x="306" y="501" font-size="12" text-anchor="start" font-weight="bold" fill="#b03030">F_MAIN + SW1</text>
+<text x="306" y="517" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">fuse 15 A, switch</text>
+<text x="306" y="531" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">battery lead</text>
+<path d="M240,518 L300,518" fill="none" stroke="#c4622f" stroke-width="3.0" marker-end="url(#a_pwr)"/>
+<text x="270.0" y="512" font-size="10" text-anchor="middle" font-weight="normal" fill="#c4622f">VBAT</text>
+<path d="M480,518 L530,518" fill="none" stroke="#c4622f" stroke-width="3.0"/>
+<path d="M530,170 L530,772" fill="none" stroke="#c4622f" stroke-width="3.0"/>
+<circle cx="530" cy="518" r="4" fill="#c4622f"/>
+<rect x="580" y="140" width="200" height="64" rx="3" fill="#ffffff" stroke="#8d8778" stroke-width="1.4"/>
+<text x="586" y="155" font-size="12" text-anchor="start" font-weight="bold" fill="#8d8778">UBEC (module)</text>
+<text x="586" y="171" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">VBAT → 6.0 V</text>
+<text x="586" y="185" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">8 A cont., 15 A burst</text>
+<path d="M530,170 L580,170" fill="none" stroke="#c4622f" stroke-width="3.0" marker-end="url(#a_pwr)"/>
+<rect x="840" y="140" width="180" height="64" rx="3" fill="#fbd3d3" stroke="#b03030" stroke-width="1.4"/>
+<text x="846" y="155" font-size="12" text-anchor="start" font-weight="bold" fill="#b03030">J1, Q1, D1</text>
+<text x="846" y="171" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">XT30, reverse-polarity</text>
+<text x="846" y="185" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">P-FET, TVS</text>
+<path d="M780,170 L840,170" fill="none" stroke="#c4622f" stroke-width="3.0" marker-end="url(#a_pwr)"/>
+<text x="810.0" y="164" font-size="10" text-anchor="middle" font-weight="normal" fill="#c4622f">+6V</text>
+<path d="M1020,170 L1060,170" fill="none" stroke="#c4622f" stroke-width="3.0"/>
+<text x="1066" y="128" font-size="11" text-anchor="start" font-weight="bold" fill="#c4622f">+6V_SERVO  ≤ 8.5 A cont., 15 A 1 s</text>
+<path d="M1060,170 L1060,370" fill="none" stroke="#c4622f" stroke-width="3.0"/>
+<circle cx="1060" cy="170" r="4" fill="#c4622f"/>
+<path d="M1060,170 L1100,170" fill="none" stroke="#c4622f" stroke-width="3.0" marker-end="url(#a_pwr)"/>
+<rect x="1100" y="150" width="190" height="44" rx="3" fill="#fbd3d3" stroke="#b03030" stroke-width="1.4"/>
+<text x="1106" y="166" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">F1 (TBD) + RS1 10 mΩ</text>
+<path d="M1290,170 L1330,170" fill="none" stroke="#c4622f" stroke-width="3.0" marker-end="url(#a_pwr)"/>
+<rect x="1330" y="150" width="330" height="44" rx="3" fill="#ffffff" stroke="#8d8778" stroke-width="1.4"/>
+<text x="1336" y="166" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">+6V_LL → 6 × MG92B left leg</text>
+<text x="1336" y="180" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">stall 6 × 0.85 = 5.1 A</text>
+<path d="M1060,270 L1100,270" fill="none" stroke="#c4622f" stroke-width="3.0" marker-end="url(#a_pwr)"/>
+<rect x="1100" y="250" width="190" height="44" rx="3" fill="#fbd3d3" stroke="#b03030" stroke-width="1.4"/>
+<text x="1106" y="266" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">F2 (TBD) + RS2 10 mΩ</text>
+<path d="M1290,270 L1330,270" fill="none" stroke="#c4622f" stroke-width="3.0" marker-end="url(#a_pwr)"/>
+<rect x="1330" y="250" width="330" height="44" rx="3" fill="#ffffff" stroke="#8d8778" stroke-width="1.4"/>
+<text x="1336" y="266" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">+6V_RL → 6 × MG92B right leg</text>
+<text x="1336" y="280" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">stall 5.1 A</text>
+<path d="M1060,370 L1100,370" fill="none" stroke="#c4622f" stroke-width="3.0" marker-end="url(#a_pwr)"/>
+<rect x="1100" y="350" width="190" height="44" rx="3" fill="#fbd3d3" stroke="#b03030" stroke-width="1.4"/>
+<text x="1106" y="366" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">F3 (TBD) + RS3 10 mΩ</text>
+<path d="M1290,370 L1330,370" fill="none" stroke="#c4622f" stroke-width="3.0" marker-end="url(#a_pwr)"/>
+<rect x="1330" y="350" width="330" height="44" rx="3" fill="#ffffff" stroke="#8d8778" stroke-width="1.4"/>
+<text x="1336" y="366" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">+6V_ARM → 2 MG90S + 6 SG90</text>
+<text x="1336" y="380" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">stall TBD (P0)</text>
+<rect x="580" y="600" width="200" height="56" rx="3" fill="#ffffff" stroke="#8d8778" stroke-width="1.4"/>
+<text x="586" y="615" font-size="12" text-anchor="start" font-weight="bold" fill="#8d8778">BUCK (module)</text>
+<text x="586" y="631" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">VBAT → 5.0 V, 3 A</text>
+<path d="M530,628 L580,628" fill="none" stroke="#c4622f" stroke-width="3.0" marker-end="url(#a_pwr)"/>
+<path d="M780,628 L840,628" fill="none" stroke="#c4622f" stroke-width="3.0" marker-end="url(#a_pwr)"/>
+<text x="810.0" y="622" font-size="10" text-anchor="middle" font-weight="normal" fill="#c4622f">+5V_RADXA</text>
+<rect x="840" y="600" width="260" height="56" rx="3" fill="#ffffff" stroke="#8d8778" stroke-width="1.4"/>
+<text x="846" y="615" font-size="12" text-anchor="start" font-weight="bold" fill="#8d8778">Radxa Zero 3W</text>
+<text x="846" y="631" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">≥ 2 A recommended; never through</text>
+<text x="846" y="645" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">the mainboard (P-6)</text>
+<rect x="580" y="740" width="200" height="64" rx="3" fill="#fbd3d3" stroke="#b03030" stroke-width="1.4"/>
+<text x="586" y="755" font-size="12" text-anchor="start" font-weight="bold" fill="#b03030">J2, F4, D2</text>
+<text x="586" y="771" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">VBAT lead, PTC (TBD)</text>
+<text x="586" y="785" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">series diode</text>
+<path d="M530,772 L580,772" fill="none" stroke="#c4622f" stroke-width="3.0" marker-end="url(#a_pwr)"/>
+<path d="M780,772 L820,772" fill="none" stroke="#c4622f" stroke-width="3.0"/>
+<path d="M820,725 L820,882" fill="none" stroke="#c4622f" stroke-width="3.0"/>
+<circle cx="820" cy="772" r="4" fill="#c4622f"/>
+<rect x="860" y="700" width="200" height="50" rx="3" fill="#fde8dc" stroke="#c4622f" stroke-width="1.4"/>
+<text x="866" y="715" font-size="12" text-anchor="start" font-weight="bold" fill="#c4622f">U18  LDO (TBD)</text>
+<text x="866" y="731" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">VBAT → +5V_LOGIC, ≥ 16 V in</text>
+<rect x="860" y="780" width="200" height="50" rx="3" fill="#fde8dc" stroke="#c4622f" stroke-width="1.4"/>
+<text x="866" y="795" font-size="12" text-anchor="start" font-weight="bold" fill="#c4622f">U19  LDO (TBD)</text>
+<text x="866" y="811" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">VBAT → +5VA, ≥ 16 V in</text>
+<rect x="860" y="860" width="200" height="44" rx="3" fill="#e1f1ea" stroke="#2c7a5a" stroke-width="1.4"/>
+<text x="866" y="875" font-size="12" text-anchor="start" font-weight="bold" fill="#2c7a5a">R_DIV</text>
+<text x="866" y="891" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">VBAT → VBAT_SNS (PA3)</text>
+<path d="M820,725 L860,725" fill="none" stroke="#c4622f" stroke-width="3.0" marker-end="url(#a_pwr)"/>
+<path d="M820,805 L860,805" fill="none" stroke="#c4622f" stroke-width="3.0" marker-end="url(#a_pwr)"/>
+<path d="M820,882 L860,882" fill="none" stroke="#2c7a5a" stroke-width="1.4" marker-end="url(#a_ana)"/>
+<rect x="1100" y="700" width="160" height="50" rx="3" fill="#fbd3d3" stroke="#b03030" stroke-width="1.4"/>
+<text x="1106" y="715" font-size="12" text-anchor="start" font-weight="bold" fill="#b03030">D3  Schottky</text>
+<text x="1106" y="731" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">blocks USB back-feed</text>
+<path d="M1060,725 L1100,725" fill="none" stroke="#c4622f" stroke-width="3.0" marker-end="url(#a_pwr)"/>
+<text x="1080.0" y="719" font-size="10" text-anchor="middle" font-weight="normal" fill="#c4622f">60 mA</text>
+<rect x="1300" y="690" width="200" height="70" rx="3" fill="#d6def0" stroke="#2f3d63" stroke-width="1.4"/>
+<text x="1306" y="705" font-size="12" text-anchor="start" font-weight="bold" fill="#2f3d63">U1  Black Pill</text>
+<text x="1306" y="721" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">5 V pin → AP7343</text>
+<text x="1306" y="735" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">→ +3V3, 300 mA max</text>
+<path d="M1260,725 L1300,725" fill="none" stroke="#c4622f" stroke-width="3.0" marker-end="url(#a_pwr)"/>
+<rect x="1300" y="790" width="360" height="64" rx="3" fill="#e6eaf4" stroke="#2f3d63" stroke-width="1.4"/>
+<text x="1306" y="805" font-size="12" text-anchor="start" font-weight="bold" fill="#2f3d63">+3V3 loads ≈ 55 mA</text>
+<text x="1306" y="821" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">U1 30, U2+U3 12, U4–U6 1, U7 4,</text>
+<text x="1306" y="835" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">U14–U17 + pull-ups 6, LEDs 2</text>
+<path d="M1400,760 L1400,790" fill="none" stroke="#c4622f" stroke-width="3.0" marker-end="url(#a_pwr)"/>
+<rect x="1100" y="780" width="160" height="50" rx="3" fill="#e1f1ea" stroke="#2c7a5a" stroke-width="1.4"/>
+<text x="1106" y="795" font-size="12" text-anchor="start" font-weight="bold" fill="#2c7a5a">U8–U13</text>
+<text x="1106" y="811" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">6 × LMV358 ≈ 3 mA</text>
+<path d="M1060,805 L1100,805" fill="none" stroke="#c4622f" stroke-width="3.0" marker-end="url(#a_pwr)"/>
+<text x="1080.0" y="799" font-size="10" text-anchor="middle" font-weight="normal" fill="#c4622f">+5VA</text>
+<text x="40" y="960" font-size="12" text-anchor="start" font-weight="normal" fill="#555">Ground: battery negative is the single star point; UBEC, buck and board grounds meet there. The VBAT lead carries no ground wire, so it never carries servo return current.</text>
+<rect x="40" y="600" width="400" height="124" fill="white" stroke="#1d2333"/>
+<text x="48" y="616" font-size="11" text-anchor="start" font-weight="bold" fill="#1d2333">Legend</text>
+<path d="M50,630 L100,630" fill="none" stroke="#c4622f" stroke-width="3.0" marker-end="url(#a_pwr)"/>
+<text x="115" y="634" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">power</text>
+<path d="M50,650 L100,650" fill="none" stroke="#2c7a5a" stroke-width="1.4" marker-end="url(#a_ana)"/>
+<text x="115" y="654" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">sense</text>
+<rect x="55" y="662" width="40" height="16" fill="#fbd3d3" stroke="#b03030"/>
+<text x="115" y="674" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">protection</text>
+<rect x="55" y="682" width="40" height="16" fill="#ffffff" stroke="#8d8778"/>
+<text x="115" y="694" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">module or load</text>
+<path d="M50,710 L100,710" fill="none" stroke="#2f3d63" stroke-width="1.4"/>
+<circle cx="75" cy="710" r="4" fill="#2f3d63"/>
+<text x="115" y="714" font-size="11" text-anchor="start" font-weight="normal" fill="#1d2333">junction</text>
+<rect x="1140" y="950" width="550" height="140" fill="white" stroke="#1d2333" stroke-width="2"/>
+<text x="1148" y="966" font-size="11" text-anchor="start" font-weight="normal" fill="#555">Project</text>
+<text x="1250" y="966" font-size="12" text-anchor="start" font-weight="normal" fill="#1d2333">BZN-01 Bazan humanoid: mainboard BZN-MB rev A</text>
+<line x1="1140" y1="973" x2="1690" y2="973" stroke="#1d2333"/>
+<text x="1148" y="989" font-size="11" text-anchor="start" font-weight="normal" fill="#555">Title</text>
+<text x="1250" y="989" font-size="12" text-anchor="start" font-weight="bold" fill="#1d2333">Power tree</text>
+<line x1="1140" y1="996" x2="1690" y2="996" stroke="#1d2333"/>
+<text x="1148" y="1012" font-size="11" text-anchor="start" font-weight="normal" fill="#555">Doc no.</text>
+<text x="1250" y="1012" font-size="12" text-anchor="start" font-weight="bold" fill="#1d2333">BZN-MB-BD-001   Rev A0   Sheet 2 / 2</text>
+<line x1="1140" y1="1019" x2="1690" y2="1019" stroke="#1d2333"/>
+<text x="1148" y="1035" font-size="11" text-anchor="start" font-weight="normal" fill="#555">Date / drawn</text>
+<text x="1250" y="1035" font-size="12" text-anchor="start" font-weight="normal" fill="#1d2333">2026-11-20   H. Nguyen Ngoc</text>
+<line x1="1140" y1="1042" x2="1690" y2="1042" stroke="#1d2333"/>
+<text x="1148" y="1058" font-size="11" text-anchor="start" font-weight="normal" fill="#555">Status</text>
+<text x="1250" y="1058" font-size="12" text-anchor="start" font-weight="normal" fill="#1d2333">DRAFT, FOR REVIEW</text>
+<line x1="1140" y1="1065" x2="1690" y2="1065" stroke="#1d2333"/>
+<text x="1148" y="1081" font-size="11" text-anchor="start" font-weight="normal" fill="#555">Source</text>
+<text x="1250" y="1081" font-size="12" text-anchor="start" font-weight="normal" fill="#1d2333">hardware/electrical/mainboard/gen_diagrams.py</text>
+<line x1="1240" y1="950" x2="1240" y2="1090" stroke="#1d2333"/></svg>
