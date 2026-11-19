@@ -81,26 +81,26 @@ def get_body_sensors(body) -> dict[str, SensorFrame]:
     # Camera lens center: 24 mm up the face
     cc = face0 + 24.0 * up
     cam_pos = tuple(float(x) for x in np.round(cc, 3))
-    # Camera body frame: pitch -15° (tilted down 15° about Y axis)
+    # Camera body frame (REP-103, x forward): looking down 15° is +15° pitch about y (x tips toward -z)
     sensors["camera_frame"] = SensorFrame(
         name="camera_frame",
         kind="camera",
         parent_link="head_frame",
         pos=cam_pos,
-        rpy_deg=(0.0, -15.0, 0.0),
+        rpy_deg=(0.0, 15.0, 0.0),
         axis=tuple(float(x) for x in np.round(n, 4)),
         description="Raspberry Pi Camera V2 lens center (15° downward tilt)"
     )
 
     # Camera optical frame: standard ROS REP-103 optical convention
     # In camera optical frame: Z points forward out of lens, X points right, Y points down
-    # Rotation from base link: pitch -15°, then roll -90°, yaw -90° (or RPY: -105°, 0°, -90°)
+    # Relative to camera_frame (already pitched): the standard body -> optical rotation, RPY (-90°, 0°, -90°)
     sensors["camera_optical_frame"] = SensorFrame(
         name="camera_optical_frame",
         kind="camera_optical",
         parent_link="camera_frame",
         pos=(0.0, 0.0, 0.0),
-        rpy_deg=(-105.0, 0.0, -90.0),
+        rpy_deg=(-90.0, 0.0, -90.0),
         axis=(0, 0, 1),
         description="ROS standard camera optical frame (Z forward, X right, Y down)"
     )
@@ -113,7 +113,7 @@ def get_body_sensors(body) -> dict[str, SensorFrame]:
         kind="tof",
         parent_link="head_frame",
         pos=tof_pos,
-        rpy_deg=(0.0, -15.0, 0.0),
+        rpy_deg=(0.0, 15.0, 0.0),
         axis=tuple(float(x) for x in np.round(n, 4)),
         description="VL53L0X ToF laser distance sensor (15° downward beam)"
     )
