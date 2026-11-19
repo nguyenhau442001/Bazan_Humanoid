@@ -94,7 +94,7 @@
    {
     "moving": "head_idler",
     "fixed": "neck_link",
-    "min_all": 0.4,
+    "min_all": 0.8,
     "min_off_axis": 0.8,
     "overlap": 0.0,
     "at_all": -30.0,
@@ -673,11 +673,11 @@
   }
  },
  "leg_removal": {
-  "hip_roll": 1.0,
-  "hip_pitch": 1.0,
-  "knee": 1.0,
-  "ankle_pitch": 1.0,
-  "ankle_roll": 1.0
+  "hip_roll": null,
+  "hip_pitch": null,
+  "knee": null,
+  "ankle_pitch": null,
+  "ankle_roll": null
  },
  "findings": [
   {
@@ -808,9 +808,9 @@
    "severity": "Minor",
    "status": "FAILED",
    "title": "Khe N3/N3i ↔ N2 so với quy tắc 1.0 mm",
-   "evidence": "Hướng kính lip Ø5.0 ↔ boss Ø4.2 = 0.4 mm (P1 0.2); dọc trục 0.8 mm. Hai khe này đồng trục quanh cùng gối bạc đạn, nên chỉ cọ nếu bạc đạn rơ; quy tắc 1.0 là cho khe giữa hai gối khác nhau.",
+   "evidence": "Hướng kính lip Ø5.0 ↔ ống đồng Ø4.0 = 0.8 mm (P1 0.2); dọc trục 0.8 mm. Hai khe này đồng trục quanh cùng gối bạc đạn, nên chỉ cọ nếu bạc đạn rơ; quy tắc 1.0 là cho khe giữa hai gối khác nhau.",
    "numbers": {
-    "radial": 0.4,
+    "radial": 0.8,
     "axial": 0.8
    },
    "action": "Chấp nhận có điều kiện V5 (quay không cọ), hoặc tăng GAP (C-1)."
@@ -844,41 +844,38 @@
   {
    "id": "G-2",
    "severity": "Critical",
-   "status": "FAILED",
+   "status": "VERIFIED",
    "title": "Cùng lỗi G-1 ở các khớp chân (joint.py dùng chung)",
-   "evidence": "Khớp bị chặn sau (mm): {'hip_roll': 1.0, 'hip_pitch': 1.0, 'knee': 1.0, 'ankle_pitch': 1.0, 'ankle_roll': 1.0}. Sửa ở chân đổi hình ngoài (đường ghép, ốc) → cần duyệt cùng phương án gia cố ống chân.",
+   "evidence": "Khớp bị chặn (mm): không. Chân dùng khe idler 4.6 mm, phía servo/horn dịch ra ngoài (chân rộng thêm 3.8 mm phía ngoài; ảnh trước/sau G2_before_after.png).",
    "numbers": {
-    "blocked_at": {
-     "hip_roll": 1.0,
-     "hip_pitch": 1.0,
-     "knee": 1.0,
-     "ankle_pitch": 1.0,
-     "ankle_roll": 1.0
-    }
+    "blocked_at": {},
+    "leg_gap": 4.6
    },
-   "action": "Phương án như N3i cho từng driven link; ảnh trước/sau để duyệt."
+   "action": "Chờ duyệt hình ngoài."
   },
   {
    "id": "H-1",
    "severity": "Major",
    "status": "ASSUMED",
-   "title": "Mặt kẹp vòng trong lớn hơn vai tối đa của bạc đạn",
-   "evidence": "Boss Ø4.2 và long đền W3 Ø5.0 > db max 3.7 (NSK MF63): có thể chạm nắp chắn ZZ (quay theo vòng ngoài). Nắp chắn thường lõm so với mặt vòng, nên long đền phẳng thường không chạm; boss in thì không chắc phẳng. Không có long đền ≤ Ø3.7 bán phổ thông.",
+   "title": "Mặt kẹp vòng trong so với vai tối đa của bạc đạn",
+   "evidence": "Boss in Ø4.2 đã bỏ. Vòng trong giờ kẹp giữa ống đồng Ø4.0 (mặt cắt phẳng) và long đền thép W3. Ống vượt db max 3.7 (NSK MF63) 0.15 mm bán kính (boss cũ 0.25), nằm trong mép trong nắp chắn; long đền thép phẳng vượt qua nắp chắn lõm.",
    "numbers": {
-    "boss": 4.2,
-    "washer": 5.0,
-    "db_max": 3.7
+    "spacer_d": 4.0,
+    "db_max": 3.7,
+    "over_radial": 0.15
    },
-   "action": "V5: siết ốc idler xong, vòng ngoài phải quay trơn; nếu nặng → thay boss bằng 1 shim thép."
+   "action": "V5: siết ốc idler xong, vòng ngoài phải quay trơn."
   },
   {
    "id": "H-2",
    "severity": "Minor",
-   "status": "FAILED",
-   "title": "Tán M3 (gai Ø4.6) lớn hơn boss Ø4.2 chứa nó",
-   "evidence": "Lỗ tán Ø4.0 bắt đầu ngay mặt boss: thành boss 0.1 mm, khi ép tán boss vỡ, mặt tán thành mặt kẹp. Chức năng vẫn còn (mặt đồng phẳng) nhưng hình học CAD không in được đúng.",
-   "numbers": {},
-   "action": "Sửa joint.py (ảnh hưởng mọi khớp) cùng đợt G-2."
+   "status": "VERIFIED",
+   "title": "Tán M3 (gai Ø4.6) và chỗ chứa nó",
+   "evidence": "Tán ép thẳng vào mặt thành idler, sâu 3.3 trong thành 3.6 (còn 0.3 tới ổ servo); không còn boss. Ống cách dài 1.3 (đầu), ốc M3x6.",
+   "numbers": {
+    "insert_depth": 3.3
+   },
+   "action": ""
   }
  ],
  "slice": {

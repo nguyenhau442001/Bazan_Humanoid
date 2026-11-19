@@ -306,7 +306,8 @@ def evaluate(k, sw, rem, legs):
         over = [r for r in sw["pairs"] if r["overlap"] > 0.05]
         out.append(finding("F-1", "Minor", "FAILED" if min(radial, axial) < hw.GAP_MOVING else "VERIFIED",
                            "Khe N3/N3i ↔ N2 so với quy tắc 1.0 mm",
-                           f"Hướng kính lip Ø{J.LIP_D} ↔ boss Ø4.2 = {radial} mm (P1 0.2); dọc trục {axial} mm. "
+                           f"Hướng kính lip Ø{J.LIP_D} ↔ ống đồng Ø{J.SPACER_D} = {radial} mm (P1 0.2); "
+                           f"dọc trục {axial} mm. "
                            "Hai khe "
                            "này đồng trục quanh cùng gối bạc đạn, nên chỉ cọ nếu bạc đạn rơ; quy tắc 1.0 là cho khe "
                            "giữa hai gối khác nhau.", dict(radial=radial, axial=axial),
@@ -323,20 +324,25 @@ def evaluate(k, sw, rem, legs):
     bad = {k_: v for k_, v in legs.items() if v is not None}
     out.append(finding("G-2", "Critical", "FAILED" if bad else "VERIFIED",
                        "Cùng lỗi G-1 ở các khớp chân (joint.py dùng chung)",
-                       f"Khớp bị chặn sau (mm): {bad}. Sửa ở chân đổi hình ngoài (đường ghép, ốc) → cần duyệt cùng "
-                       "phương án gia cố ống chân.", dict(blocked_at=bad),
-                       "Phương án như N3i cho từng driven link; ảnh trước/sau để duyệt."))
+                       f"Khớp bị chặn (mm): {bad or 'không'}. Chân dùng khe idler {J.LEG_GAP} mm, "
+                       "phía servo/horn dịch ra "
+                       "ngoài (chân rộng thêm 3.8 mm phía ngoài; ảnh trước/sau G2_before_after.png).",
+                       dict(blocked_at=bad, leg_gap=J.LEG_GAP), "Chờ duyệt hình ngoài." if not bad else "Sửa CAD."))
     # H. idler clamp vs bearing shield (new in P2)
-    out.append(finding("H-1", "Major", "ASSUMED", "Mặt kẹp vòng trong lớn hơn vai tối đa của bạc đạn",
-                       f"Boss Ø4.2 và long đền W3 Ø5.0 > db max {NSK_DB_MAX} (NSK MF63): có thể chạm nắp chắn ZZ (quay "
-                       "theo vòng ngoài). Nắp chắn thường lõm so với mặt vòng, nên long đền phẳng thường không chạm; "
-                       "boss in thì không chắc phẳng. Không có long đền ≤ Ø3.7 bán phổ thông.",
-                       dict(boss=4.2, washer=5.0, db_max=NSK_DB_MAX),
-                       "V5: siết ốc idler xong, vòng ngoài phải quay trơn; nếu nặng → thay boss bằng 1 shim thép."))
-    out.append(finding("H-2", "Minor", "FAILED", "Tán M3 (gai Ø4.6) lớn hơn boss Ø4.2 chứa nó",
-                       "Lỗ tán Ø4.0 bắt đầu ngay mặt boss: thành boss 0.1 mm, khi ép tán boss vỡ, mặt tán thành mặt "
-                       "kẹp. Chức năng vẫn còn (mặt đồng phẳng) nhưng hình học CAD không in được đúng.", {},
-                       "Sửa joint.py (ảnh hưởng mọi khớp) cùng đợt G-2."))
+    js = body.joints["head_pitch"]
+    over = (J.SPACER_D - NSK_DB_MAX) / 2
+    out.append(finding("H-1", "Major", "ASSUMED", "Mặt kẹp vòng trong so với vai tối đa của bạc đạn",
+                       f"Boss in Ø4.2 đã bỏ. Vòng trong giờ kẹp giữa ống đồng Ø{J.SPACER_D} (mặt cắt phẳng) và long "
+                       f"đền thép W3. Ống vượt db max {NSK_DB_MAX} (NSK MF63) {over:.2f} mm bán kính (boss cũ 0.25), "
+                       "nằm trong mép trong nắp chắn; long đền thép phẳng vượt qua nắp chắn lõm.",
+                       dict(spacer_d=J.SPACER_D, db_max=NSK_DB_MAX, over_radial=round(over, 2)),
+                       "V5: siết ốc idler xong, vòng ngoài phải quay trơn."))
+    ins = [h for h in body.holes() if h.id == "head_pitch.idler_insert"]
+    in_wall = bool(ins) and abs(ins[0].depth - J.INSERT_M3_DEPTH) < 1e-6
+    out.append(finding("H-2", "Minor", "VERIFIED" if in_wall else "FAILED", "Tán M3 (gai Ø4.6) và chỗ chứa nó",
+                       f"Tán ép thẳng vào mặt thành idler, sâu {J.INSERT_M3_DEPTH} trong thành 3.6 (còn 0.3 tới ổ "
+                       f"servo); không còn boss. Ống cách dài {js.SPACER[1] - js.SPACER[0]:.1f} (đầu), ốc "
+                       f"{js.idler_screw}.", dict(insert_depth=J.INSERT_M3_DEPTH), ""))
     return out
 
 

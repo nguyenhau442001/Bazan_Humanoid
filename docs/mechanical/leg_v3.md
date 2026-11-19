@@ -29,15 +29,15 @@ the yaw plate and the sole sit where the hip and ankle blocks can swing ±20° i
 
 ![exploded](images/leg_exploded.jpg)
 
-Leg joints: idler gap 0.8 mm (the driven link slides 3.9 mm off the spline only when the gap is ≥ 4.6); the inner race is clamped by a brass tube Ø4.0 × 0.45 between the bearing and the M3 insert in the wall face, screw M3x6 button head.
+Leg joints: idler gap 4.6 mm (the driven link slides 3.9 mm off the spline only when the gap is ≥ 4.6); the inner race is clamped by a brass tube Ø4.0 × 0.45 between the bearing and the M3 insert in the wall face, screw M3x10 button head.
 
 Along the shaft, from the case top of the servo (mm):
 
 | Element | From | To |
 | --- | --- | --- |
-| Idler plate (driven link), MR63ZZ seat, cap recess | -33.60 | -27.30 |
-| MR63ZZ bearing | -30.30 | -27.80 |
-| Brass spacer tube on the inner race | -27.80 | -26.50 |
+| Idler plate (driven link), MR63ZZ seat, cap recess | -37.40 | -31.10 |
+| MR63ZZ bearing | -34.10 | -31.60 |
+| Brass spacer tube on the inner race | -31.60 | -26.50 |
 | Idler wall (holder) with M3 insert | -26.50 | -22.90 |
 | Servo case | -22.70 | +0.00 |
 | Servo ears | -6.80 | -4.30 |
@@ -53,20 +53,20 @@ Printed parts:
 | `foot` | PLA | 12.1 | 15.1 | sole plate down; uprights vertical | [drawing](drawings/foot.png) |
 | `sole` | TPU 95A | 8.5 | 10.3 | flat, 3 walls, 30 % gyroid | [drawing](drawings/sole.png) |
 | `ankle_block` | PLA | 9.8 | 12.1 | as the hip block: −y face down | [drawing](drawings/ankle_block.png) |
-| `shin` | PLA | 8.1 | 10.1 | lying on its −y side: all four plate holes print round | [drawing](drawings/shin.png) |
-| `thigh` | PLA | 14.5 | 18.0 | lying on its −y side (idler plate down): both bearing seats print as round holes | [drawing](drawings/thigh.png) |
+| `shin` | PLA | 8.2 | 10.2 | lying on its −y side: all four plate holes print round | [drawing](drawings/shin.png) |
+| `thigh` | PLA | 14.6 | 18.1 | lying on its −y side (idler plate down): both bearing seats print as round holes | [drawing](drawings/thigh.png) |
 | `hip_block` | PLA | 9.8 | 12.1 | idler wall of the hip pitch pocket (−y face) down; no supports inside the pockets | [drawing](drawings/hip_block.png) |
-| `yaw_bracket` | PLA | 12.0 | 14.8 | top plate down on the bed; supports only under the roll horn recess | [drawing](drawings/yaw_bracket.png) |
+| `yaw_bracket` | PLA | 12.4 | 15.4 | top plate down on the bed; supports only under the roll horn recess | [drawing](drawings/yaw_bracket.png) |
 | `thrust_ring` | PLA | 3.9 | 4.8 | thrust face down on the bed (smooth face against the yaw bracket) | [drawing](drawings/thrust_ring.png) |
 | `hip_mount` | PLA | 10.5 | 13.0 | top flange down on the bed: the yaw pocket opens upward, no supports | [drawing](drawings/hip_mount.png) |
-| **Total** | | 89.2 | **110.3** | upper bound: printed at 4 walls, 40 % infill they come out about 30 % lighter | |
+| **Total** | | 89.9 | **111.2** | upper bound: printed at 4 walls, 40 % infill they come out about 30 % lighter | |
 
 Bought parts (servos: 5 × MG92B and the hip-yaw MG90S, which sits in `hip_mount`):
 
 | Code | Qty | Part | Ask the shop for |
 | --- | --- | --- | --- |
 | M2x6 | 22 | M2×6 socket head cap screw, ISO 4762, stainless | ốc lục giác M2×6 inox |
-| M3x10B | 0 | M3×10 button head, ISO 7380 (leg idler pivot) | ốc đầu dù M3×10 inox |
+| M3x10B | 5 | M3×10 button head, ISO 7380 (leg idler pivot) | ốc đầu dù M3×10 inox |
 | ST2x3 | 12 | 2×3 self-tapping pan head (horn to plate) | vít tự ren đầu tròn PA 2×3 |
 | INS-M2 | 22 | M2 brass heat-set insert, L3.0, knurl Ø3.6, for a Ø3.2 hole (CNC Kitchen TC-M2x3.0 or equal) | tán cấy nhiệt M2 dài 3, gai Ø3.6, lỗ Ø3.2 |
 | INS-M3 | 5 | M3 brass heat-set insert, L3.0, knurl Ø4.6, for a Ø4.0 hole (CNC Kitchen M3 short or equal) | tán cấy nhiệt M3 dài 3, gai Ø4.6, lỗ Ø4.0 |
@@ -89,10 +89,10 @@ is for checking a print and for pressing the inserts in the right place.
 
 | # | Hole | Ø | Depth | Position (x, y, z) | Direction | For |
 | --- | --- | --- | --- | --- | --- | --- |
-| H1 | `ankle_roll.access` | 5.20 | through | (+22.4, +0.0, +0.0) | −x | horn centre screw (comes with the servo) |
-| H2 | `ankle_roll.bearing` | 6.05 | 4.8 | (-21.4, +0.0, +0.0) | +x | MR63ZZ + W3 + M3x6 button head (idler) |
-| H3 | `ankle_roll.horn1` | 1.60 | 2.4 | (+19.6, +0.0, +7.0) | +x | ST2x3 through the horn (plate to horn) |
-| H4 | `ankle_roll.horn2` | 1.60 | 2.4 | (+19.6, +0.0, -7.0) | +x | ST2x3 through the horn (plate to horn) |
+| H1 | `ankle_roll.access` | 5.20 | through | (+26.2, +0.0, +0.0) | −x | horn centre screw (comes with the servo) |
+| H2 | `ankle_roll.bearing` | 6.05 | 4.8 | (-21.4, +0.0, +0.0) | +x | MR63ZZ + W3 + M3x10 button head (idler) |
+| H3 | `ankle_roll.horn1` | 1.60 | 2.4 | (+23.4, +0.0, +7.0) | +x | ST2x3 through the horn (plate to horn) |
+| H4 | `ankle_roll.horn2` | 1.60 | 2.4 | (+23.4, +0.0, -7.0) | +x | ST2x3 through the horn (plate to horn) |
 | H5 | `sole.ins1` | 3.20 | 3.0 | (-31.0, -12.0, -18.3) | +z | INS-M2 + M2x6 (TPU sole) |
 | H6 | `sole.ins2` | 3.20 | 3.0 | (+31.0, -12.0, -18.3) | +z | INS-M2 + M2x6 (TPU sole) |
 | H7 | `sole.ins3` | 3.20 | 3.0 | (-31.0, +12.0, -18.3) | +z | INS-M2 + M2x6 (TPU sole) |
@@ -115,12 +115,12 @@ is for checking a print and for pressing the inserts in the right place.
 
 | # | Hole | Ø | Depth | Position (x, y, z) | Direction | For |
 | --- | --- | --- | --- | --- | --- | --- |
-| H1 | `ankle_pitch.ear1` | 3.20 | 4.0 | (+0.0, +4.4, -8.4) | −y | INS-M2 + M2x6 (servo ear) |
-| H2 | `ankle_pitch.ear2` | 3.20 | 4.0 | (+0.0, +4.4, +19.4) | −y | INS-M2 + M2x6 (servo ear) |
-| H3 | `ankle_pitch.idler_insert` | 4.00 | 3.3 | (+0.0, -15.3, +0.0) | +y | INS-M3 + spacer tube Ø4×0.45 L1.3 + M3x6 (idler pivot) |
-| H4 | `ankle_roll.ear1` | 3.20 | 4.0 | (+4.4, +8.4, -20.0) | −x | INS-M2 + M2x6 (servo ear) |
-| H5 | `ankle_roll.ear2` | 3.20 | 4.0 | (+4.4, -19.4, -20.0) | −x | INS-M2 + M2x6 (servo ear) |
-| H6 | `ankle_roll.idler_insert` | 4.00 | 3.3 | (-15.3, +0.0, -20.0) | +x | INS-M3 + spacer tube Ø4×0.45 L1.3 + M3x6 (idler pivot) |
+| H1 | `ankle_pitch.ear1` | 3.20 | 4.0 | (+0.0, +8.2, -8.4) | −y | INS-M2 + M2x6 (servo ear) |
+| H2 | `ankle_pitch.ear2` | 3.20 | 4.0 | (+0.0, +8.2, +19.4) | −y | INS-M2 + M2x6 (servo ear) |
+| H3 | `ankle_pitch.idler_insert` | 4.00 | 3.3 | (+0.0, -11.5, +0.0) | +y | INS-M3 + spacer tube Ø4×0.45 L5.1 + M3x10 (idler pivot) |
+| H4 | `ankle_roll.ear1` | 3.20 | 4.0 | (+8.2, +8.4, -20.0) | −x | INS-M2 + M2x6 (servo ear) |
+| H5 | `ankle_roll.ear2` | 3.20 | 4.0 | (+8.2, -19.4, -20.0) | −x | INS-M2 + M2x6 (servo ear) |
+| H6 | `ankle_roll.idler_insert` | 4.00 | 3.3 | (-11.5, +0.0, -20.0) | +x | INS-M3 + spacer tube Ø4×0.45 L5.1 + M3x10 (idler pivot) |
 
 ### `shin` · origin: knee axis
 
@@ -128,14 +128,14 @@ is for checking a print and for pressing the inserts in the right place.
 
 | # | Hole | Ø | Depth | Position (x, y, z) | Direction | For |
 | --- | --- | --- | --- | --- | --- | --- |
-| H1 | `ankle_pitch.access` | 5.20 | through | (+0.0, +22.4, -48.0) | −y | horn centre screw (comes with the servo) |
-| H2 | `ankle_pitch.bearing` | 6.05 | 4.8 | (+0.0, -21.4, -48.0) | +y | MR63ZZ + W3 + M3x6 button head (idler) |
-| H3 | `ankle_pitch.horn1` | 1.60 | 2.4 | (-7.0, +19.6, -48.0) | +y | ST2x3 through the horn (plate to horn) |
-| H4 | `ankle_pitch.horn2` | 1.60 | 2.4 | (+7.0, +19.6, -48.0) | +y | ST2x3 through the horn (plate to horn) |
-| H5 | `knee.access` | 5.20 | through | (+0.0, +22.4, +0.0) | −y | horn centre screw (comes with the servo) |
-| H6 | `knee.bearing` | 6.05 | 4.8 | (+0.0, -21.4, +0.0) | +y | MR63ZZ + W3 + M3x6 button head (idler) |
-| H7 | `knee.horn1` | 1.60 | 2.4 | (-7.0, +19.6, +0.0) | +y | ST2x3 through the horn (plate to horn) |
-| H8 | `knee.horn2` | 1.60 | 2.4 | (+7.0, +19.6, +0.0) | +y | ST2x3 through the horn (plate to horn) |
+| H1 | `ankle_pitch.access` | 5.20 | through | (+0.0, +26.2, -48.0) | −y | horn centre screw (comes with the servo) |
+| H2 | `ankle_pitch.bearing` | 6.05 | 4.8 | (+0.0, -21.4, -48.0) | +y | MR63ZZ + W3 + M3x10 button head (idler) |
+| H3 | `ankle_pitch.horn1` | 1.60 | 2.4 | (-7.0, +23.4, -48.0) | +y | ST2x3 through the horn (plate to horn) |
+| H4 | `ankle_pitch.horn2` | 1.60 | 2.4 | (+7.0, +23.4, -48.0) | +y | ST2x3 through the horn (plate to horn) |
+| H5 | `knee.access` | 5.20 | through | (+0.0, +26.2, +0.0) | −y | horn centre screw (comes with the servo) |
+| H6 | `knee.bearing` | 6.05 | 4.8 | (+0.0, -21.4, +0.0) | +y | MR63ZZ + W3 + M3x10 button head (idler) |
+| H7 | `knee.horn1` | 1.60 | 2.4 | (-7.0, +23.4, +0.0) | +y | ST2x3 through the horn (plate to horn) |
+| H8 | `knee.horn2` | 1.60 | 2.4 | (+7.0, +23.4, +0.0) | +y | ST2x3 through the horn (plate to horn) |
 
 ### `thigh` · origin: hip point H
 
@@ -143,13 +143,13 @@ is for checking a print and for pressing the inserts in the right place.
 
 | # | Hole | Ø | Depth | Position (x, y, z) | Direction | For |
 | --- | --- | --- | --- | --- | --- | --- |
-| H1 | `hip_pitch.access` | 5.20 | through | (+0.0, +22.4, +0.0) | −y | horn centre screw (comes with the servo) |
-| H2 | `hip_pitch.bearing` | 6.05 | 4.8 | (+0.0, -21.4, +0.0) | +y | MR63ZZ + W3 + M3x6 button head (idler) |
-| H3 | `hip_pitch.horn1` | 1.60 | 2.4 | (+7.0, +19.6, +0.0) | +y | ST2x3 through the horn (plate to horn) |
-| H4 | `hip_pitch.horn2` | 1.60 | 2.4 | (-7.0, +19.6, +0.0) | +y | ST2x3 through the horn (plate to horn) |
-| H5 | `knee.ear1` | 3.20 | 4.0 | (+0.0, +4.4, -56.4) | −y | INS-M2 + M2x6 (servo ear) |
-| H6 | `knee.ear2` | 3.20 | 4.0 | (+0.0, +4.4, -28.6) | −y | INS-M2 + M2x6 (servo ear) |
-| H7 | `knee.idler_insert` | 4.00 | 3.3 | (+0.0, -15.3, -48.0) | +y | INS-M3 + spacer tube Ø4×0.45 L1.3 + M3x6 (idler pivot) |
+| H1 | `hip_pitch.access` | 5.20 | through | (+0.0, +26.2, +0.0) | −y | horn centre screw (comes with the servo) |
+| H2 | `hip_pitch.bearing` | 6.05 | 4.8 | (+0.0, -21.4, +0.0) | +y | MR63ZZ + W3 + M3x10 button head (idler) |
+| H3 | `hip_pitch.horn1` | 1.60 | 2.4 | (+7.0, +23.4, +0.0) | +y | ST2x3 through the horn (plate to horn) |
+| H4 | `hip_pitch.horn2` | 1.60 | 2.4 | (-7.0, +23.4, +0.0) | +y | ST2x3 through the horn (plate to horn) |
+| H5 | `knee.ear1` | 3.20 | 4.0 | (+0.0, +8.2, -56.4) | −y | INS-M2 + M2x6 (servo ear) |
+| H6 | `knee.ear2` | 3.20 | 4.0 | (+0.0, +8.2, -28.6) | −y | INS-M2 + M2x6 (servo ear) |
+| H7 | `knee.idler_insert` | 4.00 | 3.3 | (+0.0, -11.5, -48.0) | +y | INS-M3 + spacer tube Ø4×0.45 L5.1 + M3x10 (idler pivot) |
 
 ### `hip_block` · origin: hip point H (hip pitch axis)
 
@@ -157,12 +157,12 @@ is for checking a print and for pressing the inserts in the right place.
 
 | # | Hole | Ø | Depth | Position (x, y, z) | Direction | For |
 | --- | --- | --- | --- | --- | --- | --- |
-| H1 | `hip_pitch.ear1` | 3.20 | 4.0 | (+0.0, +4.4, +8.4) | −y | INS-M2 + M2x6 (servo ear) |
-| H2 | `hip_pitch.ear2` | 3.20 | 4.0 | (+0.0, +4.4, -19.4) | −y | INS-M2 + M2x6 (servo ear) |
-| H3 | `hip_pitch.idler_insert` | 4.00 | 3.3 | (+0.0, -15.3, +0.0) | +y | INS-M3 + spacer tube Ø4×0.45 L1.3 + M3x6 (idler pivot) |
-| H4 | `hip_roll.ear1` | 3.20 | 4.0 | (+4.4, +8.4, +20.0) | −x | INS-M2 + M2x6 (servo ear) |
-| H5 | `hip_roll.ear2` | 3.20 | 4.0 | (+4.4, -19.4, +20.0) | −x | INS-M2 + M2x6 (servo ear) |
-| H6 | `hip_roll.idler_insert` | 4.00 | 3.3 | (-15.3, +0.0, +20.0) | +x | INS-M3 + spacer tube Ø4×0.45 L1.3 + M3x6 (idler pivot) |
+| H1 | `hip_pitch.ear1` | 3.20 | 4.0 | (+0.0, +8.2, +8.4) | −y | INS-M2 + M2x6 (servo ear) |
+| H2 | `hip_pitch.ear2` | 3.20 | 4.0 | (+0.0, +8.2, -19.4) | −y | INS-M2 + M2x6 (servo ear) |
+| H3 | `hip_pitch.idler_insert` | 4.00 | 3.3 | (+0.0, -11.5, +0.0) | +y | INS-M3 + spacer tube Ø4×0.45 L5.1 + M3x10 (idler pivot) |
+| H4 | `hip_roll.ear1` | 3.20 | 4.0 | (+8.2, +8.4, +20.0) | −x | INS-M2 + M2x6 (servo ear) |
+| H5 | `hip_roll.ear2` | 3.20 | 4.0 | (+8.2, -19.4, +20.0) | −x | INS-M2 + M2x6 (servo ear) |
+| H6 | `hip_roll.idler_insert` | 4.00 | 3.3 | (-11.5, +0.0, +20.0) | +x | INS-M3 + spacer tube Ø4×0.45 L5.1 + M3x10 (idler pivot) |
 
 ### `yaw_bracket` · origin: hip roll axis
 
@@ -170,10 +170,10 @@ is for checking a print and for pressing the inserts in the right place.
 
 | # | Hole | Ø | Depth | Position (x, y, z) | Direction | For |
 | --- | --- | --- | --- | --- | --- | --- |
-| H1 | `hip_roll.access` | 5.20 | through | (+22.4, +0.0, +0.0) | −x | horn centre screw (comes with the servo) |
-| H2 | `hip_roll.bearing` | 6.05 | 4.8 | (-21.4, +0.0, +0.0) | +x | MR63ZZ + W3 + M3x6 button head (idler) |
-| H3 | `hip_roll.horn1` | 1.60 | 2.4 | (+19.6, +0.0, +7.0) | +x | ST2x3 through the horn (plate to horn) |
-| H4 | `hip_roll.horn2` | 1.60 | 2.4 | (+19.6, +0.0, -7.0) | +x | ST2x3 through the horn (plate to horn) |
+| H1 | `hip_roll.access` | 5.20 | through | (+26.2, +0.0, +0.0) | −x | horn centre screw (comes with the servo) |
+| H2 | `hip_roll.bearing` | 6.05 | 4.8 | (-21.4, +0.0, +0.0) | +x | MR63ZZ + W3 + M3x10 button head (idler) |
+| H3 | `hip_roll.horn1` | 1.60 | 2.4 | (+23.4, +0.0, +7.0) | +x | ST2x3 through the horn (plate to horn) |
+| H4 | `hip_roll.horn2` | 1.60 | 2.4 | (+23.4, +0.0, -7.0) | +x | ST2x3 through the horn (plate to horn) |
 | H5 | `hip_yaw.access` | 5.20 | through | (+0.0, +0.0, +15.3) | +z | horn centre screw (comes with the servo) |
 | H6 | `hip_yaw.horn1` | 1.60 | 2.4 | (+0.0, -7.0, +18.1) | −z | ST2x3 through the horn (plate to horn) |
 | H7 | `hip_yaw.horn2` | 1.60 | 2.4 | (+0.0, +7.0, +18.1) | −z | ST2x3 through the horn (plate to horn) |
@@ -291,11 +291,11 @@ up behind `hip_mount` and into the torso through the slot in the pelvis plate. L
 
 | Servo | Run (mm) | Joints crossed | Lead needed (mm) | Stock lead about 250 mm (MEASURE) |
 | --- | --- | --- | --- | --- |
-| ankle_roll | 182 | 5 | 412 | add a 200 mm extension |
-| ankle_pitch | 178 | 5 | 408 | add a 200 mm extension |
-| knee | 94 | 3 | 264 | add a 100 mm extension |
+| ankle_roll | 183 | 5 | 413 | add a 200 mm extension |
+| ankle_pitch | 177 | 5 | 407 | add a 200 mm extension |
+| knee | 93 | 3 | 263 | add a 100 mm extension |
 | hip_pitch | 81 | 2 | 221 | fits |
-| hip_roll | 60 | 2 | 200 | fits |
+| hip_roll | 63 | 2 | 203 | fits |
 
 Extensions also give each servo its own plug near the pelvis: a servo is unplugged there, not at the PCA9685.
 

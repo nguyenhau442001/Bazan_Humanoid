@@ -8,14 +8,14 @@
     <collision><origin xyz="-0.00400 -0.00000 0.11728"/><geometry><box size="0.10040 0.13760 0.15810"/></geometry></collision>
   </link>
   <link name="l_hip_yaw_link">
-    <inertial><origin xyz="0.00171 0.00000 0.01401" rpy="0 0 0"/><mass value="0.01446"/><inertia ixx="2.3355e-06" iyy="4.1345e-06" izz="4.5726e-06" ixy="-4.7195e-22" ixz="2.4860e-07" iyz="1.3052e-22"/></inertial>
-    <visual><origin xyz="0.00000 0.00000 0.00497"/><geometry><box size="0.04480 0.04200 0.03393"/></geometry><material name="frame"/></visual>
-    <collision><origin xyz="0.00000 0.00000 0.00497"/><geometry><box size="0.04480 0.04200 0.03393"/></geometry></collision>
+    <inertial><origin xyz="0.00326 0.00000 0.01418" rpy="0 0 0"/><mass value="0.01494"/><inertia ixx="2.3526e-06" iyy="4.8062e-06" izz="5.2441e-06" ixy="-1.2864e-23" ixz="3.0023e-07" iyz="1.3944e-22"/></inertial>
+    <visual><origin xyz="0.00190 0.00000 0.00497"/><geometry><box size="0.04860 0.04200 0.03393"/></geometry><material name="frame"/></visual>
+    <collision><origin xyz="0.00190 0.00000 0.00497"/><geometry><box size="0.04860 0.04200 0.03393"/></geometry></collision>
   </link>
   <link name="r_hip_yaw_link">
-    <inertial><origin xyz="0.00171 0.00000 0.01401" rpy="0 0 0"/><mass value="0.01446"/><inertia ixx="2.3355e-06" iyy="4.1345e-06" izz="4.5726e-06" ixy="4.7195e-22" ixz="2.4860e-07" iyz="-1.3052e-22"/></inertial>
-    <visual><origin xyz="0.00000 0.00000 0.00497"/><geometry><box size="0.04480 0.04200 0.03393"/></geometry><material name="frame"/></visual>
-    <collision><origin xyz="0.00000 0.00000 0.00497"/><geometry><box size="0.04480 0.04200 0.03393"/></geometry></collision>
+    <inertial><origin xyz="0.00326 0.00000 0.01418" rpy="0 0 0"/><mass value="0.01494"/><inertia ixx="2.3526e-06" iyy="4.8062e-06" izz="5.2441e-06" ixy="1.2864e-23" ixz="3.0023e-07" iyz="-1.3944e-22"/></inertial>
+    <visual><origin xyz="0.00190 0.00000 0.00497"/><geometry><box size="0.04860 0.04200 0.03393"/></geometry><material name="frame"/></visual>
+    <collision><origin xyz="0.00190 0.00000 0.00497"/><geometry><box size="0.04860 0.04200 0.03393"/></geometry></collision>
   </link>
   <link name="l_shoulder_pitch_link">
     <inertial><origin xyz="-0.00334 -0.00245 -0.01649" rpy="0 0 0"/><mass value="0.01938"/><inertia ixx="2.8301e-06" iyy="3.0573e-06" izz="2.1081e-06" ixy="7.2242e-08" ixz="-1.4631e-07" iyz="6.6117e-07"/></inertial>
@@ -33,54 +33,54 @@
     <collision><origin xyz="-0.00530 0.00145 -0.00330"/><geometry><box size="0.03460 0.03610 0.02320"/></geometry></collision>
   </link>
   <link name="l_hip_roll_link">
-    <inertial><origin xyz="-0.00056 -0.00309 -0.01250" rpy="0 0 0"/><mass value="0.04624"/><inertia ixx="1.1942e-05" iyy="1.0757e-05" izz="4.8295e-06" ixy="-1.3119e-07" ixz="3.0190e-07" iyz="1.0757e-06"/></inertial>
-    <visual><origin xyz="0.00145 -0.00155 -0.01715"/><geometry><box size="0.03610 0.04210 0.05090"/></geometry><material name="frame"/></visual>
-    <collision><origin xyz="0.00145 -0.00155 -0.01715"/><geometry><box size="0.03610 0.04210 0.05090"/></geometry></collision>
+    <inertial><origin xyz="0.00125 -0.00121 -0.01248" rpy="0 0 0"/><mass value="0.04657"/><inertia ixx="1.2517e-05" iyy="1.0917e-05" izz="5.4950e-06" ixy="1.6564e-07" ixz="-7.4922e-07" iyz="2.1387e-06"/></inertial>
+    <visual><origin xyz="0.00335 0.00035 -0.01715"/><geometry><box size="0.03990 0.04590 0.05090"/></geometry><material name="frame"/></visual>
+    <collision><origin xyz="0.00335 0.00035 -0.01715"/><geometry><box size="0.03990 0.04590 0.05090"/></geometry></collision>
   </link>
   <link name="l_hip_pitch_link">
-    <inertial><origin xyz="-0.00202 -0.00246 -0.03580" rpy="0 0 0"/><mass value="0.03504"/><inertia ixx="1.3210e-05" iyy="9.8010e-06" izz="5.9125e-06" ixy="-7.3336e-08" ixz="1.3837e-07" iyz="-3.8718e-08"/></inertial>
-    <visual><origin xyz="-0.00090 0.00000 -0.02380"/><geometry><box size="0.02580 0.04480 0.07160"/></geometry><material name="frame"/></visual>
-    <collision><origin xyz="-0.00090 0.00000 -0.02380"/><geometry><box size="0.02580 0.04480 0.07160"/></geometry></collision>
+    <inertial><origin xyz="-0.00206 0.00067 -0.03583" rpy="0 0 0"/><mass value="0.03537"/><inertia ixx="1.4046e-05" iyy="9.8504e-06" izz="6.7329e-06" ixy="-9.5562e-08" ixz="1.5287e-07" iyz="3.0842e-07"/></inertial>
+    <visual><origin xyz="-0.00090 0.00190 -0.02380"/><geometry><box size="0.02580 0.04860 0.07160"/></geometry><material name="frame"/></visual>
+    <collision><origin xyz="-0.00090 0.00190 -0.02380"/><geometry><box size="0.02580 0.04860 0.07160"/></geometry></collision>
   </link>
   <link name="l_knee_link">
-    <inertial><origin xyz="0.00446 0.00355 -0.02170" rpy="0 0 0"/><mass value="0.01007"/><inertia ixx="8.1538e-06" iyy="5.1955e-06" izz="4.0391e-06" ixy="2.0094e-07" ixz="-1.4355e-07" iyz="8.1610e-08"/></inertial>
-    <visual><origin xyz="0.00090 0.00000 -0.02400"/><geometry><box size="0.02580 0.04480 0.07200"/></geometry><material name="frame"/></visual>
-    <collision><origin xyz="0.00090 0.00000 -0.02400"/><geometry><box size="0.02580 0.04480 0.07200"/></geometry></collision>
+    <inertial><origin xyz="0.00456 0.00571 -0.02166" rpy="0 0 0"/><mass value="0.01020"/><inertia ixx="8.8770e-06" iyy="5.2050e-06" izz="4.7683e-06" ixy="2.2295e-07" ixz="-1.4628e-07" iyz="9.0293e-08"/></inertial>
+    <visual><origin xyz="0.00090 0.00190 -0.02400"/><geometry><box size="0.02580 0.04860 0.07200"/></geometry><material name="frame"/></visual>
+    <collision><origin xyz="0.00090 0.00190 -0.02400"/><geometry><box size="0.02580 0.04860 0.07200"/></geometry></collision>
   </link>
   <link name="l_ankle_pitch_link">
-    <inertial><origin xyz="-0.00056 -0.00309 -0.00750" rpy="0 0 0"/><mass value="0.04624"/><inertia ixx="1.1942e-05" iyy="1.0757e-05" izz="4.8295e-06" ixy="-1.3119e-07" ixz="-3.0190e-07" iyz="-1.0757e-06"/></inertial>
-    <visual><origin xyz="0.00145 -0.00155 -0.00285"/><geometry><box size="0.03610 0.04210 0.05090"/></geometry><material name="frame"/></visual>
-    <collision><origin xyz="0.00145 -0.00155 -0.00285"/><geometry><box size="0.03610 0.04210 0.05090"/></geometry></collision>
+    <inertial><origin xyz="0.00125 -0.00121 -0.00752" rpy="0 0 0"/><mass value="0.04657"/><inertia ixx="1.2517e-05" iyy="1.0917e-05" izz="5.4950e-06" ixy="1.6564e-07" ixz="7.4922e-07" iyz="-2.1387e-06"/></inertial>
+    <visual><origin xyz="0.00335 0.00035 -0.00285"/><geometry><box size="0.03990 0.04590 0.05090"/></geometry><material name="frame"/></visual>
+    <collision><origin xyz="0.00335 0.00035 -0.00285"/><geometry><box size="0.03990 0.04590 0.05090"/></geometry></collision>
   </link>
   <link name="l_ankle_roll_link">
-    <inertial><origin xyz="0.00000 0.00000 -0.01572" rpy="0 0 0"/><mass value="0.02540"/><inertia ixx="3.7914e-06" iyy="1.2808e-05" izz="1.4390e-05" ixy="-3.8439e-23" ixz="-3.0421e-07" iyz="-2.3236e-21"/></inertial>
-    <visual><origin xyz="-0.00081 0.00000 -0.00467"/><geometry><box size="0.07600 0.03800 0.03333"/></geometry><material name="frame"/></visual>
-    <collision><origin xyz="-0.00081 0.00000 -0.00467"/><geometry><box size="0.07600 0.03800 0.03333"/></geometry></collision>
+    <inertial><origin xyz="0.00000 0.00000 -0.01572" rpy="0 0 0"/><mass value="0.02540"/><inertia ixx="3.7914e-06" iyy="1.3239e-05" izz="1.4822e-05" ixy="1.4086e-22" ixz="-4.3446e-07" iyz="-2.0480e-21"/></inertial>
+    <visual><origin xyz="-0.00121 0.00000 -0.00467"/><geometry><box size="0.07600 0.03800 0.03333"/></geometry><material name="frame"/></visual>
+    <collision><origin xyz="-0.00121 0.00000 -0.00467"/><geometry><box size="0.07600 0.03800 0.03333"/></geometry></collision>
   </link>
   <link name="r_hip_roll_link">
-    <inertial><origin xyz="-0.00056 0.00309 -0.01250" rpy="0 0 0"/><mass value="0.04624"/><inertia ixx="1.1942e-05" iyy="1.0757e-05" izz="4.8295e-06" ixy="1.3119e-07" ixz="3.0190e-07" iyz="-1.0757e-06"/></inertial>
-    <visual><origin xyz="0.00145 0.00155 -0.01715"/><geometry><box size="0.03610 0.04210 0.05090"/></geometry><material name="frame"/></visual>
-    <collision><origin xyz="0.00145 0.00155 -0.01715"/><geometry><box size="0.03610 0.04210 0.05090"/></geometry></collision>
+    <inertial><origin xyz="0.00125 0.00121 -0.01248" rpy="0 0 0"/><mass value="0.04657"/><inertia ixx="1.2517e-05" iyy="1.0917e-05" izz="5.4950e-06" ixy="-1.6564e-07" ixz="-7.4922e-07" iyz="-2.1387e-06"/></inertial>
+    <visual><origin xyz="0.00335 -0.00035 -0.01715"/><geometry><box size="0.03990 0.04590 0.05090"/></geometry><material name="frame"/></visual>
+    <collision><origin xyz="0.00335 -0.00035 -0.01715"/><geometry><box size="0.03990 0.04590 0.05090"/></geometry></collision>
   </link>
   <link name="r_hip_pitch_link">
-    <inertial><origin xyz="-0.00202 0.00246 -0.03580" rpy="0 0 0"/><mass value="0.03504"/><inertia ixx="1.3210e-05" iyy="9.8010e-06" izz="5.9125e-06" ixy="7.3336e-08" ixz="1.3837e-07" iyz="3.8718e-08"/></inertial>
-    <visual><origin xyz="-0.00090 0.00000 -0.02380"/><geometry><box size="0.02580 0.04480 0.07160"/></geometry><material name="frame"/></visual>
-    <collision><origin xyz="-0.00090 0.00000 -0.02380"/><geometry><box size="0.02580 0.04480 0.07160"/></geometry></collision>
+    <inertial><origin xyz="-0.00206 -0.00067 -0.03583" rpy="0 0 0"/><mass value="0.03537"/><inertia ixx="1.4046e-05" iyy="9.8504e-06" izz="6.7329e-06" ixy="9.5562e-08" ixz="1.5287e-07" iyz="-3.0842e-07"/></inertial>
+    <visual><origin xyz="-0.00090 -0.00190 -0.02380"/><geometry><box size="0.02580 0.04860 0.07160"/></geometry><material name="frame"/></visual>
+    <collision><origin xyz="-0.00090 -0.00190 -0.02380"/><geometry><box size="0.02580 0.04860 0.07160"/></geometry></collision>
   </link>
   <link name="r_knee_link">
-    <inertial><origin xyz="0.00446 -0.00355 -0.02170" rpy="0 0 0"/><mass value="0.01007"/><inertia ixx="8.1538e-06" iyy="5.1955e-06" izz="4.0391e-06" ixy="-2.0094e-07" ixz="-1.4355e-07" iyz="-8.1610e-08"/></inertial>
-    <visual><origin xyz="0.00090 0.00000 -0.02400"/><geometry><box size="0.02580 0.04480 0.07200"/></geometry><material name="frame"/></visual>
-    <collision><origin xyz="0.00090 0.00000 -0.02400"/><geometry><box size="0.02580 0.04480 0.07200"/></geometry></collision>
+    <inertial><origin xyz="0.00456 -0.00571 -0.02166" rpy="0 0 0"/><mass value="0.01020"/><inertia ixx="8.8770e-06" iyy="5.2050e-06" izz="4.7683e-06" ixy="-2.2295e-07" ixz="-1.4628e-07" iyz="-9.0293e-08"/></inertial>
+    <visual><origin xyz="0.00090 -0.00190 -0.02400"/><geometry><box size="0.02580 0.04860 0.07200"/></geometry><material name="frame"/></visual>
+    <collision><origin xyz="0.00090 -0.00190 -0.02400"/><geometry><box size="0.02580 0.04860 0.07200"/></geometry></collision>
   </link>
   <link name="r_ankle_pitch_link">
-    <inertial><origin xyz="-0.00056 0.00309 -0.00750" rpy="0 0 0"/><mass value="0.04624"/><inertia ixx="1.1942e-05" iyy="1.0757e-05" izz="4.8295e-06" ixy="1.3119e-07" ixz="-3.0190e-07" iyz="1.0757e-06"/></inertial>
-    <visual><origin xyz="0.00145 0.00155 -0.00285"/><geometry><box size="0.03610 0.04210 0.05090"/></geometry><material name="frame"/></visual>
-    <collision><origin xyz="0.00145 0.00155 -0.00285"/><geometry><box size="0.03610 0.04210 0.05090"/></geometry></collision>
+    <inertial><origin xyz="0.00125 0.00121 -0.00752" rpy="0 0 0"/><mass value="0.04657"/><inertia ixx="1.2517e-05" iyy="1.0917e-05" izz="5.4950e-06" ixy="-1.6564e-07" ixz="7.4922e-07" iyz="2.1387e-06"/></inertial>
+    <visual><origin xyz="0.00335 -0.00035 -0.00285"/><geometry><box size="0.03990 0.04590 0.05090"/></geometry><material name="frame"/></visual>
+    <collision><origin xyz="0.00335 -0.00035 -0.00285"/><geometry><box size="0.03990 0.04590 0.05090"/></geometry></collision>
   </link>
   <link name="r_ankle_roll_link">
-    <inertial><origin xyz="0.00000 0.00000 -0.01572" rpy="0 0 0"/><mass value="0.02540"/><inertia ixx="3.7914e-06" iyy="1.2808e-05" izz="1.4390e-05" ixy="3.6307e-23" ixz="-3.0421e-07" iyz="2.3329e-21"/></inertial>
-    <visual><origin xyz="-0.00081 0.00000 -0.00467"/><geometry><box size="0.07600 0.03800 0.03333"/></geometry><material name="frame"/></visual>
-    <collision><origin xyz="-0.00081 0.00000 -0.00467"/><geometry><box size="0.07600 0.03800 0.03333"/></geometry></collision>
+    <inertial><origin xyz="0.00000 0.00000 -0.01572" rpy="0 0 0"/><mass value="0.02540"/><inertia ixx="3.7914e-06" iyy="1.3239e-05" izz="1.4822e-05" ixy="-1.4299e-22" ixz="-4.3446e-07" iyz="2.0573e-21"/></inertial>
+    <visual><origin xyz="-0.00121 0.00000 -0.00467"/><geometry><box size="0.07600 0.03800 0.03333"/></geometry><material name="frame"/></visual>
+    <collision><origin xyz="-0.00121 0.00000 -0.00467"/><geometry><box size="0.07600 0.03800 0.03333"/></geometry></collision>
   </link>
   <link name="l_shoulder_roll_link">
     <inertial><origin xyz="0.00518 0.00243 -0.03630" rpy="0 0 0"/><mass value="0.02235"/><inertia ixx="5.2988e-06" iyy="5.7806e-06" izz="2.7167e-06" ixy="-7.4163e-09" ixz="-1.2277e-06" iyz="1.6733e-07"/></inertial>
@@ -116,12 +116,12 @@
   <joint name="l_hip_pitch" type="revolute"><parent link="l_hip_roll_link"/><child link="l_hip_pitch_link"/><origin xyz="0.00000 0.00000 -0.02000"/><axis xyz="0 1 0"/><limit lower="-1.5708" upper="0.7854" effort="0.343" velocity="13.09"/><dynamics damping="0.02" friction="0"/></joint>
   <joint name="l_knee" type="revolute"><parent link="l_hip_pitch_link"/><child link="l_knee_link"/><origin xyz="0.00000 0.00000 -0.04800"/><axis xyz="0 1 0"/><limit lower="0.0000" upper="2.0944" effort="0.343" velocity="13.09"/><dynamics damping="0.02" friction="0"/></joint>
   <joint name="l_ankle_pitch" type="revolute"><parent link="l_knee_link"/><child link="l_ankle_pitch_link"/><origin xyz="0.00000 0.00000 -0.04800"/><axis xyz="0 1 0"/><limit lower="-0.7854" upper="0.7854" effort="0.343" velocity="13.09"/><dynamics damping="0.02" friction="0"/></joint>
-  <joint name="l_ankle_roll" type="revolute"><parent link="l_ankle_pitch_link"/><child link="l_ankle_roll_link"/><origin xyz="0.00081 0.00000 -0.02000"/><axis xyz="1 0 0"/><limit lower="-0.5236" upper="0.5236" effort="0.343" velocity="13.09"/><dynamics damping="0.02" friction="0"/></joint>
+  <joint name="l_ankle_roll" type="revolute"><parent link="l_ankle_pitch_link"/><child link="l_ankle_roll_link"/><origin xyz="0.00121 0.00000 -0.02000"/><axis xyz="1 0 0"/><limit lower="-0.5236" upper="0.5236" effort="0.343" velocity="13.09"/><dynamics damping="0.02" friction="0"/></joint>
   <joint name="r_hip_roll" type="revolute"><parent link="r_hip_yaw_link"/><child link="r_hip_roll_link"/><origin xyz="0.00000 0.00000 0.00000"/><axis xyz="1 0 0"/><limit lower="-0.4363" upper="0.4363" effort="0.343" velocity="13.09"/><dynamics damping="0.02" friction="0"/></joint>
   <joint name="r_hip_pitch" type="revolute"><parent link="r_hip_roll_link"/><child link="r_hip_pitch_link"/><origin xyz="0.00000 0.00000 -0.02000"/><axis xyz="0 1 0"/><limit lower="-1.5708" upper="0.7854" effort="0.343" velocity="13.09"/><dynamics damping="0.02" friction="0"/></joint>
   <joint name="r_knee" type="revolute"><parent link="r_hip_pitch_link"/><child link="r_knee_link"/><origin xyz="0.00000 0.00000 -0.04800"/><axis xyz="0 1 0"/><limit lower="0.0000" upper="2.0944" effort="0.343" velocity="13.09"/><dynamics damping="0.02" friction="0"/></joint>
   <joint name="r_ankle_pitch" type="revolute"><parent link="r_knee_link"/><child link="r_ankle_pitch_link"/><origin xyz="0.00000 0.00000 -0.04800"/><axis xyz="0 1 0"/><limit lower="-0.7854" upper="0.7854" effort="0.343" velocity="13.09"/><dynamics damping="0.02" friction="0"/></joint>
-  <joint name="r_ankle_roll" type="revolute"><parent link="r_ankle_pitch_link"/><child link="r_ankle_roll_link"/><origin xyz="0.00081 0.00000 -0.02000"/><axis xyz="1 0 0"/><limit lower="-0.5236" upper="0.5236" effort="0.343" velocity="13.09"/><dynamics damping="0.02" friction="0"/></joint>
+  <joint name="r_ankle_roll" type="revolute"><parent link="r_ankle_pitch_link"/><child link="r_ankle_roll_link"/><origin xyz="0.00121 0.00000 -0.02000"/><axis xyz="1 0 0"/><limit lower="-0.5236" upper="0.5236" effort="0.343" velocity="13.09"/><dynamics damping="0.02" friction="0"/></joint>
   <joint name="l_shoulder_roll" type="revolute"><parent link="l_shoulder_pitch_link"/><child link="l_shoulder_roll_link"/><origin xyz="0.00000 0.00000 -0.01400"/><axis xyz="1 0 0"/><limit lower="-0.1745" upper="2.7925" effort="0.177" velocity="10.47"/><dynamics damping="0.02" friction="0"/></joint>
   <joint name="l_elbow" type="revolute"><parent link="l_shoulder_roll_link"/><child link="l_elbow_link"/><origin xyz="0.00000 -0.01825 -0.03550"/><axis xyz="0 1 0"/><limit lower="-2.2689" upper="0.0000" effort="0.177" velocity="10.47"/><dynamics damping="0.02" friction="0"/></joint>
   <joint name="r_shoulder_roll" type="revolute"><parent link="r_shoulder_pitch_link"/><child link="r_shoulder_roll_link"/><origin xyz="0.00000 0.00000 -0.01400"/><axis xyz="1 0 0"/><limit lower="-2.7925" upper="0.1745" effort="0.177" velocity="10.47"/><dynamics damping="0.02" friction="0"/></joint>

@@ -38,6 +38,8 @@ SPINE = 3.6              # structural spine thickness
 HIP_Y = 28.0             # leg centre lines at y = ±HIP_Y on the pelvis (was ±22): 44.8 wide legs, 11 mm apart
 YAW_MAX = 45.0
 RING_R = (13.0, 21.0)    # yaw thrust ring: carries the robot's weight past the yaw servo
+# idler gap wide enough to take the driven link off the spline; the servo side moves out, the idler stays
+WIDE = dict(gap=J.LEG_GAP, keep_idler=True)
 ARM = 4.0                # side-plate arm thickness
 
 X, Y, Z = (1, 0, 0), (0, 1, 0), (0, 0, 1)
@@ -66,11 +68,12 @@ def fuse(*shapes):
 class Leg:
     def __init__(self):
         self.joints = {
-            "hip_roll": J.Joint("hip_roll", "hip_block", "yaw_bracket", (0, 0, HIP_ROLL_UP), X, NY),
-            "hip_pitch": J.Joint("hip_pitch", "hip_block", "thigh", (0, 0, 0), Y, NZ),
-            "knee": J.Joint("knee", "thigh", "shin", (0, 0, K), Y, Z),
-            "ankle_pitch": J.Joint("ankle_pitch", "ankle_block", "shin", (0, 0, A), Y, Z),
-            "ankle_roll": J.Joint("ankle_roll", "ankle_block", "foot", (0, 0, AR), X, NY),
+            # gap = LEG_GAP: the driven link comes off the spline along the shaft (N3 review G-2)
+            "hip_roll": J.Joint("hip_roll", "hip_block", "yaw_bracket", (0, 0, HIP_ROLL_UP), X, NY, **WIDE),
+            "hip_pitch": J.Joint("hip_pitch", "hip_block", "thigh", (0, 0, 0), Y, NZ, **WIDE),
+            "knee": J.Joint("knee", "thigh", "shin", (0, 0, K), Y, Z, **WIDE),
+            "ankle_pitch": J.Joint("ankle_pitch", "ankle_block", "shin", (0, 0, A), Y, Z, **WIDE),
+            "ankle_roll": J.Joint("ankle_roll", "ankle_block", "foot", (0, 0, AR), X, NY, **WIDE),
         }
         self.parts = {}
         self.extra_holes = []

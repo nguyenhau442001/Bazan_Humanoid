@@ -72,8 +72,8 @@ SG90 hẹp hơn MG92B 0.4 mm: nếu servo lắc trong ổ, dán 1 lớp băng ke
 | --- | ---: | ---: | ---: | --- |
 | M2x6 | 114 | 36 | 78 | ốc lục giác chìm M2×6 inox |
 | M3x6 | 4 | 0 | 4 | ốc lục giác chìm M3×6 inox |
-| M3x6B | 11 | 10 | 1 | ốc đầu dù M3×6 inox (trục idler đầu) |
-| M3x10B | 0 | 0 | 0 | ốc đầu dù M3×10 inox (trục idler chân) |
+| M3x6B | 1 | 0 | 1 | ốc đầu dù M3×6 inox (trục idler đầu) |
+| M3x10B | 10 | 10 | 0 | ốc đầu dù M3×10 inox (trục idler chân) |
 | ST2x3 | 40 | 24 | 16 | vít tự ren đầu tròn 2×3 (bắt horn) |
 | INS-M2 | 130 | 44 | 86 | tán cấy nhiệt M2, dài 3, gai Ø3.6 (lỗ Ø3.2) |
 | INS-M3 | 15 | 10 | 5 | tán cấy nhiệt M3, dài 3, gai Ø4.6 (lỗ Ø4.0) |
@@ -128,10 +128,10 @@ Cộng thêm cho vỏ (Design C, bắt sau): 16 × M2×6 vào các tán vỏ đ�
 | L1 | `L_foot` + `R_foot` | Foot | 2 | PLA | 15.1 | xem leg_v3.md | [bản vẽ](drawings/foot.png) |
 | L2 | `L_sole` + `R_sole` | TPU Sole | 2 | TPU 95A | 10.3 | xem leg_v3.md | [bản vẽ](drawings/sole.png) |
 | L3 | `L_ankle_block` + `R_ankle_block` | Ankle Block | 2 | PLA | 12.1 | xem leg_v3.md | [bản vẽ](drawings/ankle_block.png) |
-| L4 | `L_shin` + `R_shin` | Shin | 2 | PLA | 10.1 | xem leg_v3.md | [bản vẽ](drawings/shin.png) |
-| L5 | `L_thigh` + `R_thigh` | Thigh | 2 | PLA | 18.0 | xem leg_v3.md | [bản vẽ](drawings/thigh.png) |
+| L4 | `L_shin` + `R_shin` | Shin | 2 | PLA | 10.2 | xem leg_v3.md | [bản vẽ](drawings/shin.png) |
+| L5 | `L_thigh` + `R_thigh` | Thigh | 2 | PLA | 18.1 | xem leg_v3.md | [bản vẽ](drawings/thigh.png) |
 | L6 | `L_hip_block` + `R_hip_block` | Hip Block | 2 | PLA | 12.1 | xem leg_v3.md | [bản vẽ](drawings/hip_block.png) |
-| L7 | `L_yaw_bracket` + `R_yaw_bracket` | Yaw Bracket | 2 | PLA | 14.8 | xem leg_v3.md | [bản vẽ](drawings/yaw_bracket.png) |
+| L7 | `L_yaw_bracket` + `R_yaw_bracket` | Yaw Bracket | 2 | PLA | 15.4 | xem leg_v3.md | [bản vẽ](drawings/yaw_bracket.png) |
 | L8 | `L_thrust_ring` + `R_thrust_ring` | Thrust Ring | 2 | PLA | 4.8 | xem leg_v3.md | [bản vẽ](drawings/thrust_ring.png) |
 | L9 | `L_hip_mount` + `R_hip_mount` | Hip Mount | 2 | PLA | 13.0 | xem leg_v3.md | [bản vẽ](drawings/hip_mount.png) |
 
@@ -159,19 +159,19 @@ Bắt đế TPU (L2) dưới bàn chân (L1): 4 × M2×6 từ dưới lên, đ�
 
 ![leg_02](v4/steps/leg_02.png)
 
-Khối cổ chân (L3) mang 2 servo MG92B: ankle roll (trục x) và ankle pitch (trục y). Mỗi servo: luồn dây qua rãnh cuối ổ, đẩy servo vào từ phía trục, 2 × M2×6 qua tai servo vào tán M2. Lắp bàn chân vào ankle roll: đĩa horn ép vào trục khi servo ở 1500 µs, bàn chân song song mặt khối; vít giữa horn qua lỗ Ø5.2; phía đối diện: ống đồng 1.3 giữa tán M3 và vòng trong bạc đạn, long đền W3 dưới đầu ốc M3×6 đầu dù — vặn vừa khít, vòng ngoài phải quay trơn.
+Khối cổ chân (L3) mang 2 servo MG92B: ankle roll (trục x) và ankle pitch (trục y). Mỗi servo: luồn dây qua rãnh cuối ổ, đẩy servo vào từ phía trục, 2 × M2×6 qua tai servo vào tán M2. Lắp bàn chân vào ankle roll: đĩa horn ép vào trục khi servo ở 1500 µs, bàn chân song song mặt khối; vít giữa horn qua lỗ Ø5.2; phía đối diện: ống đồng 5.1 giữa tán M3 và vòng trong bạc đạn, long đền W3 dưới đầu ốc M3×10 đầu dù — vặn vừa khít, vòng ngoài phải quay trơn.
 
 ### Step 3. Leg 3: Shin
 
 ![leg_03](v4/steps/leg_03.png)
 
-Ống chân (L4) lên trục ankle pitch (ống chân thẳng đứng): horn + vít giữa, idler: ống đồng 1.3, W3 + M3×6 đầu dù.
+Ống chân (L4) lên trục ankle pitch (ống chân thẳng đứng): horn + vít giữa, idler: ống đồng 5.1, W3 + M3×10 đầu dù.
 
 ### Step 4. Leg 4: Thigh
 
 ![leg_04](v4/steps/leg_04.png)
 
-Servo knee vào ổ trong đùi (L5); lắp đầu trên ống chân vào trục knee (gối thẳng): horn + vít giữa, idler: ống đồng 1.3 lên tán M3, bạc đạn, W3 + M3×6 đầu dù.
+Servo knee vào ổ trong đùi (L5); lắp đầu trên ống chân vào trục knee (gối thẳng): horn + vít giữa, idler: ống đồng 5.1 lên tán M3, bạc đạn, W3 + M3×10 đầu dù.
 
 ### Step 5. Leg 5: Hip Block
 
@@ -183,7 +183,7 @@ Khối hông (L6) mang hip roll và hip pitch. Đùi lên trục hip pitch (châ
 
 ![leg_06](v4/steps/leg_06.png)
 
-Giá yaw (L7) lên trục hip roll (khối hông nằm ngang): horn + vít giữa, idler: ống đồng 1.3, W3 + M3×6 đầu dù.
+Giá yaw (L7) lên trục hip roll (khối hông nằm ngang): horn + vít giữa, idler: ống đồng 5.1, W3 + M3×10 đầu dù.
 
 ### Step 7. Leg 7: Thrust Ring + Hip Mount
 
