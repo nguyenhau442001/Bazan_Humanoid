@@ -1,0 +1,187 @@
+[
+ {
+  "check": "tờ 1 [front] 28.2 = giá trị trên CAD",
+  "ok": true,
+  "detail": "28.200"
+ },
+ {
+  "check": "tờ 1 [front] 70.1 = giá trị trên CAD",
+  "ok": true,
+  "detail": "70.100"
+ },
+ {
+  "check": "tờ 1 [left] 29 = giá trị trên CAD",
+  "ok": true,
+  "detail": "29.000"
+ },
+ {
+  "check": "tờ 1 [front] 12 = giá trị trên CAD",
+  "ok": true,
+  "detail": "12.000"
+ },
+ {
+  "check": "tờ 1 [front] 58.1 = giá trị trên CAD",
+  "ok": true,
+  "detail": "58.100"
+ },
+ {
+  "check": "tờ 1 [top] 20.9 = giá trị trên CAD",
+  "ok": true,
+  "detail": "20.900"
+ },
+ {
+  "check": "tờ 1 [top] 8.3 = giá trị trên CAD",
+  "ok": true,
+  "detail": "8.300"
+ },
+ {
+  "check": "tờ 1 [left] 8.3 = giá trị trên CAD",
+  "ok": true,
+  "detail": "8.300"
+ },
+ {
+  "check": "tờ 1 [left] 27.8 = giá trị trên CAD",
+  "ok": true,
+  "detail": "27.800"
+ },
+ {
+  "check": "tờ 1 [left] 3.2 = giá trị trên CAD",
+  "ok": true,
+  "detail": "3.200"
+ },
+ {
+  "check": "tờ 1 [front] 14 = giá trị trên CAD",
+  "ok": true,
+  "detail": "14.000"
+ },
+ {
+  "check": "tờ 1 [front] 5 = giá trị trên CAD",
+  "ok": true,
+  "detail": "5.000"
+ },
+ {
+  "check": "tờ 1 [left] 17.1 = giá trị trên CAD",
+  "ok": true,
+  "detail": "17.100"
+ },
+ {
+  "check": "kích thước bao = hộp bao chính xác của khối đặc",
+  "ok": true,
+  "detail": "CAD [29.  28.2 70.1], ghi [28.2, 29.0, 70.1]"
+ },
+ {
+  "check": "mỗi đặc tính trong bảng là một lỗ có thật trên khối đặc",
+  "ok": true,
+  "detail": "8 đặc tính"
+ },
+ {
+  "check": "mã đặc tính không trùng",
+  "ok": true,
+  "detail": "A1, B1, C1, C2, D1, D2, E1, F1"
+ },
+ {
+  "check": "bảng = mọi lỗ của chi tiết trong CAD",
+  "ok": true,
+  "detail": "8"
+ },
+ {
+  "check": "thẳng hàng đứng/bằng (cùng X giấy cho cùng điểm)",
+  "ok": true,
+  "detail": "0.0e+00"
+ },
+ {
+  "check": "thẳng hàng đứng/cạnh (cùng Y giấy cho cùng điểm)",
+  "ok": true,
+  "detail": "0.0e+00"
+ },
+ {
+  "check": "góc thứ nhất: hình bằng nằm dưới, hình cạnh nằm phải hình đứng, không chạm nhau",
+  "ok": true,
+  "detail": "bằng y1 143 < đứng y0 185; cạnh x0 140 > đứng x1 88"
+ },
+ {
+  "check": "tờ 1 hình front: trong khung, không chạm khung tên",
+  "ok": true,
+  "detail": "[60, 185, 88, 255]"
+ },
+ {
+  "check": "tờ 1 hình top: trong khung, không chạm khung tên",
+  "ok": true,
+  "detail": "[60, 114, 88, 143]"
+ },
+ {
+  "check": "tờ 1 hình left: trong khung, không chạm khung tên",
+  "ok": true,
+  "detail": "[140, 185, 169, 255]"
+ },
+ {
+  "check": "tờ 1 hình iso: trong khung, không chạm khung tên",
+  "ok": true,
+  "detail": "[341, 73, 372, 132]"
+ },
+ {
+  "check": "tỉ lệ tờ 1 hình front là tỉ lệ ISO 5455",
+  "ok": true,
+  "detail": "1:1"
+ },
+ {
+  "check": "tỉ lệ tờ 1 hình top là tỉ lệ ISO 5455",
+  "ok": true,
+  "detail": "1:1"
+ },
+ {
+  "check": "tỉ lệ tờ 1 hình left là tỉ lệ ISO 5455",
+  "ok": true,
+  "detail": "1:1"
+ },
+ {
+  "check": "tờ 1: chữ nằm trong khung",
+  "ok": true,
+  "detail": "ok"
+ },
+ {
+  "check": "tờ 1: chữ không chồng nhau",
+  "ok": true,
+  "detail": "ok"
+ },
+ {
+  "check": "tờ 2 hình A: trong khung, không chạm khung tên",
+  "ok": true,
+  "detail": "[59, 224, 69, 241]"
+ },
+ {
+  "check": "tờ 2 hình B: trong khung, không chạm khung tên",
+  "ok": true,
+  "detail": "[119, 224, 134, 259]"
+ },
+ {
+  "check": "tỉ lệ tờ 2 hình A là tỉ lệ ISO 5455",
+  "ok": true,
+  "detail": "1:2"
+ },
+ {
+  "check": "tỉ lệ tờ 2 hình B là tỉ lệ ISO 5455",
+  "ok": true,
+  "detail": "1:2"
+ },
+ {
+  "check": "tờ 2: chữ nằm trong khung",
+  "ok": true,
+  "detail": "ok"
+ },
+ {
+  "check": "tờ 2: chữ không chồng nhau",
+  "ok": true,
+  "detail": "ok"
+ },
+ {
+  "check": "khung tên đủ trường",
+  "ok": true,
+  "detail": "đủ"
+ },
+ {
+  "check": "đánh số tờ liên tục",
+  "ok": true,
+  "detail": ""
+ }
+]
