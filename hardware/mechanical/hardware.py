@@ -63,6 +63,14 @@ class Horn:
     hub_d: float = 7.0
     screw_r: float = 7.0     # radius of the two holes used to bolt the horn to the plate (drill if missing)
     screw_head_d: float = 4.5  # the horn's own centre screw
+    measured: bool = False   # True once disc_t and disc_low come from calipers (step M-2), not the datasheet
+
+
+def horn_screw(horn=None):
+    """Horn-to-plate screw (decided 2026-11-19): ST2x3 until the real horn is measured (M-2); ST2x4 only if the
+    disc is 1.8 or thicker, so the longer tip still stops short of the outer skin. No CAD change either way."""
+    horn = horn or HORN
+    return "ST2x4" if horn.measured and horn.disc_t >= 1.8 else "ST2x3"
 
 
 HORN = Horn()

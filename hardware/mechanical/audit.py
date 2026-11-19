@@ -341,16 +341,19 @@ def fits(leg, body, sh):
         "sole, M2x4 (head sunk 2.0 in 3.0 TPU)": 4.0 - (LEG.TPU_SOLE - 2.0),
         "sled, M2x5 through its counterbore": 5.0 - (B.SLED_T - 2.2),
         "flange, M2x6 (shoulder and neck mounts)": 6.0 - B.FLANGE_T,
-        "horn to plate, ST2x3 through the horn": 3.0 - hw.HORN.disc_t,
+        f"horn to plate, {hw.horn_screw()} through the horn": int(hw.horn_screw()[-1]) - hw.HORN.disc_t,
     }
     room = {"sole, M2x4 (head sunk 2.0 in 3.0 TPU)": LEG.SOLE_PLATE,
-            "horn to plate, ST2x3 through the horn": J.HP[1] - 0.4 - J.HORN_TOP}
+            f"horn to plate, {hw.horn_screw()} through the horn": J.HP[1] - 0.4 - J.HORN_TOP}
     out["engagement"] = {}
     for k, e in eng.items():
         r = room.get(k, 4.0)
         flag = "" if e <= r + 1e-6 else f"  LONGER THAN THE HOLE ({r:.1f}): pokes out {e - r:.1f}"
         flag = flag or ("" if e >= 2.4 else "  SHORT (under 2.4 mm in the thread)")
-        bad += bool(flag)
+        if flag and k.startswith("horn to plate") and not hw.HORN.measured:
+            flag += ": accepted until the horn is measured (M-2), then hardware.horn_screw() decides"
+        else:
+            bad += bool(flag)
         out["engagement"][k] = dict(in_thread=round(e, 2), hole=round(r, 2), ok=not flag)
         print(f"  {k:48s} {e:.1f} mm in the thread, hole {r:.1f}{flag}")
     const = {
