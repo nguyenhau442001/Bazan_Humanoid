@@ -31,7 +31,7 @@ _spec = importlib.util.spec_from_file_location("mico_gait", REPO / "src/humanoid
 gait = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(gait)
 
-PROTO_VERSION = 2        # 2: battery voltage, current and state of charge in State
+PROTO_VERSION = 3        # 2: battery V, I and charge in State. 3: BATT_EMPTY fault
 Q_SCALE = 10000          # joint angles on the wire: int16 in 1e-4 rad
 NTC_SITES = ["l_hip_roll", "r_hip_roll"]
 FSR_SITES = ["l_heel", "l_toe", "r_heel", "r_toe"]
@@ -81,7 +81,7 @@ TRAJ_POINT = [("dt_ms", "uint16_t", 1), ("q", "int16_t", NJ)]
 TRAJ_MAX_POINTS = 8
 MODES = ["BOOT", "IDLE", "RUN", "HOLD", "CROUCH", "FAULT", "CALIB"]
 FAULTS = ["OVERCURRENT_L", "OVERCURRENT_R", "OVERTEMP", "UNDERVOLT", "JOINT_JAM", "I2C_PWM", "I2C_SENSOR",
-          "WATCHDOG_RESET", "CONTROL_DEADLINE"]
+          "WATCHDOG_RESET", "CONTROL_DEADLINE", "BATT_EMPTY"]
 PYFMT = {"uint8_t": "B", "int8_t": "b", "uint16_t": "H", "int16_t": "h", "uint32_t": "I", "int32_t": "i"}
 
 

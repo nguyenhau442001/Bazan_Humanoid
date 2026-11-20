@@ -111,6 +111,10 @@ When a side fails:
   keep the servos off through the reset, and `State` reports `WATCHDOG_RESET` until cleared.
 - Electrical fault (over-current, over-temperature, under-voltage, jammed joint): the MCU cuts the outputs and
   latches FAULT. Only the application domain's `ClearFault` releases it, after the cause is gone.
+- Battery empty (fuel gauge at 0 % for 1 s, rest voltage 3.30 V per cell): the MCU refuses new trajectories,
+  crouches in 2 s, settles 0.5 s, then cuts the outputs and latches `BATT_EMPTY`; idle, it latches at once so the
+  robot cannot be enabled. Below 3.0 V per cell at the terminals for 0.5 s it cuts at once. `ClearFault` is
+  refused until the pack reads 5 % again. A `battery low` log goes to the host at 15 %.
 
 ## Compared with Renesas
 

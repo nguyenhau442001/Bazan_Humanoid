@@ -47,6 +47,7 @@ class BatteryEstimator {
   uint8_t soc_pct() const { return (uint8_t)(soc_ * 100.0f + 0.5f); }
   float ocv_cell_v() const { return ocv_cell_; }          // IR-compensated, per cell (V)
   bool resting() const { return rest_ms_ >= cfg_.rest_settle_ms; }
+  int cells() const { return cfg_.cells; }
 
  private:
   BatteryConfig cfg_;

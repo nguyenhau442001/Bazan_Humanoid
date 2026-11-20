@@ -4,12 +4,12 @@
 
 namespace mico {
 
-constexpr uint8_t PROTO_VERSION = 2;
+constexpr uint8_t PROTO_VERSION = 3;
 constexpr int TRAJ_MAX_POINTS = 8;
 constexpr int N_TASKS = 4;
 constexpr int FAULT_HISTORY = 4;
 enum class Mode : uint8_t { BOOT = 0, IDLE = 1, RUN = 2, HOLD = 3, CROUCH = 4, FAULT = 5, CALIB = 6 };
-enum Fault : uint16_t { F_OVERCURRENT_L = 1u << 0, F_OVERCURRENT_R = 1u << 1, F_OVERTEMP = 1u << 2, F_UNDERVOLT = 1u << 3, F_JOINT_JAM = 1u << 4, F_I2C_PWM = 1u << 5, F_I2C_SENSOR = 1u << 6, F_WATCHDOG_RESET = 1u << 7, F_CONTROL_DEADLINE = 1u << 8 };
+enum Fault : uint16_t { F_OVERCURRENT_L = 1u << 0, F_OVERCURRENT_R = 1u << 1, F_OVERTEMP = 1u << 2, F_UNDERVOLT = 1u << 3, F_JOINT_JAM = 1u << 4, F_I2C_PWM = 1u << 5, F_I2C_SENSOR = 1u << 6, F_WATCHDOG_RESET = 1u << 7, F_CONTROL_DEADLINE = 1u << 8, F_BATT_EMPTY = 1u << 9 };
 enum MsgType : uint8_t { MSG_HELLO = 0x01, MSG_ENABLE = 0x02, MSG_TRAJ = 0x03, MSG_CLEARFAULT = 0x04, MSG_RAWPULSE = 0x06, MSG_TESTHOOK = 0x07, MSG_STATE = 0x80, MSG_INFO = 0x81, MSG_LOG = 0x82, MSG_DIAG = 0x83 };
 
 #pragma pack(push, 1)

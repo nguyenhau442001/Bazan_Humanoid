@@ -19,6 +19,13 @@ constexpr float T_TRIP_C = 60.0f;            // servo case, the P0 stop conditio
 constexpr uint32_t T_TRIP_MS = 500;
 constexpr float V_MIN_V = 5.2f;              // servo rail, only checked while outputs are on
 constexpr uint32_t V_TRIP_MS = 200;
+// Battery (software fuel gauge, battery-lead INA226). Empty: crouch under control, then outputs off.
+constexpr uint8_t BATT_LOW_PCT = 15;         // host warning (logged once)
+constexpr uint32_t BATT_EMPTY_MS = 1000;     // 0 % (rest voltage 3.30 V/cell) held this long: crouch and stop
+constexpr float BATT_CUT_CELL_V = 3.00f;     // terminal voltage per cell, the damage limit: outputs off now
+constexpr uint32_t BATT_CUT_MS = 500;        // longer than a stance-phase current peak
+constexpr uint32_t BATT_SETTLE_MS = 500;     // after the crouch, before the outputs go off
+constexpr uint8_t BATT_RESUME_PCT = 5;       // ClearFault accepted again from here (a fresh or charged pack)
 constexpr float JAM_ERR_RAD = 0.2618f;       // 15 deg between command and pot
 constexpr uint32_t JAM_MS = 500;
 constexpr uint16_t I2C_MAX_ERRORS = 10;      // consecutive failed transfers before a fault

@@ -289,6 +289,86 @@ static void test_link_messages() {
   CHECK(last_frame(c, MSG_LOG, p, &n));
 }
 
+static Inputs batt_inputs(uint32_t now, float v, float a) {
+  Inputs in = idle_inputs(now);
+  in.batt_v = v;
+  in.batt_a = a;
+  in.batt_v_valid = in.batt_i_valid = true;
+  return in;
+}
+
+static bool log_seen(Controller& c, const char* text) {
+  uint8_t p[256] = {};
+  size_t n = 0;
+  return last_frame(c, MSG_LOG, p, &n) && n > 1 && strstr(reinterpret_cast<const char*>(p + 1), text);
+}
+
+static void test_battery_empty() {
+  // Walking when the pack reaches 0 %: crouch under control, then outputs off and latched.
+  Controller c;
+  Outputs out;
+  c.begin(0, false);
+  uint8_t on = 1;
+  send(c, MSG_ENABLE, &on, 1, 0);
+  send_traj(c, Q_STAND, 5000, true, 0);                      // the host is streaming a motion
+  const float v_empty = 2 * 3.28f - 3.0f * 0.080f;           // OCV below 3.30 V/cell while drawing 3 A
+  run(c, batt_inputs(0, v_empty, 3.0f), 0, BATT_EMPTY_MS - 50, out);
+  CHECK(c.mode() == Mode::RUN && out.oe_legs);              // debounced: not yet
+  run(c, batt_inputs(BATT_EMPTY_MS - 50, v_empty, 3.0f), BATT_EMPTY_MS - 50, BATT_EMPTY_MS + 20, out);
+  CHECK(c.mode() == Mode::CROUCH && out.oe_legs);           // sitting down, servos still powered
+  CHECK(log_seen(c, "battery empty"));
+  uint32_t t = BATT_EMPTY_MS + 20;
+  send_traj(c, Q_STAND, 200, true, t);                       // the host keeps walking: refused
+  CHECK(c.mode() == Mode::CROUCH);
+  run(c, batt_inputs(t, v_empty, 1.0f), t, t + CROUCH_MS, out);
+  NEAR(c.q_cmd()[3], Q_CROUCH[3], 1e-3);
+  CHECK(c.mode() == Mode::CROUCH && out.oe_legs);           // crouched, settling
+  t += CROUCH_MS;
+  run(c, batt_inputs(t, v_empty, 0.3f), t, t + BATT_SETTLE_MS + 20, out);
+  CHECK(c.mode() == Mode::FAULT && (c.faults() & F_BATT_EMPTY) && !out.oe_legs);
+  t += BATT_SETTLE_MS + 20;
+  send(c, MSG_CLEARFAULT, nullptr, 0, t);                    // still empty: clearing is refused
+  run(c, batt_inputs(t, v_empty, 0.3f), t, t + 10, out);
+  CHECK(c.mode() == Mode::FAULT);
+  CHECK(log_seen(c, "battery empty"));
+
+  // Idle on an empty pack: fault, so it cannot be enabled.
+  Controller idle;
+  idle.begin(0, false);
+  run(idle, batt_inputs(0, 2 * 3.25f, 0.3f), 0, BATT_EMPTY_MS + 20, out);
+  CHECK(idle.mode() == Mode::FAULT && (idle.faults() & F_BATT_EMPTY));
+  send(idle, MSG_ENABLE, &on, 1, BATT_EMPTY_MS + 20);
+  CHECK(idle.mode() == Mode::FAULT);
+
+  // Terminal voltage under the 3.0 V/cell damage limit on a pack that still has charge: off at once.
+  Controller cut;
+  cut.begin(0, false);
+  send(cut, MSG_ENABLE, &on, 1, 0);
+  send_traj(cut, Q_STAND, 5000, true, 0);
+  run(cut, batt_inputs(0, 7.9f, 1.0f), 0, 1000, out);       // healthy pack, about 75 %
+  CHECK(cut.mode() == Mode::RUN && cut.battery().soc_pct() > 50);
+  run(cut, batt_inputs(1000, 5.9f, 9.0f), 1000, 1000 + BATT_CUT_MS - 20, out);
+  CHECK(cut.mode() == Mode::RUN);                            // a stance-phase dip shorter than the debounce
+  run(cut, batt_inputs(1480, 7.6f, 2.0f), 1480, 1500, out);
+  run(cut, batt_inputs(1500, 5.9f, 9.0f), 1500, 1500 + BATT_CUT_MS + 10, out);
+  CHECK(cut.mode() == Mode::FAULT && (cut.faults() & F_BATT_EMPTY) && !out.oe_legs);
+
+  // Low warning, once.
+  Controller low;
+  low.begin(0, false);
+  run(low, batt_inputs(0, 2 * 3.70f, 0.3f), 0, 10, out);    // about 12 %
+  CHECK(log_seen(low, "battery low"));
+  run(low, batt_inputs(10, 2 * 3.70f, 0.3f), 10, 200, out);
+  CHECK(!log_seen(low, "battery low"));
+  CHECK(low.mode() == Mode::IDLE);
+
+  // No battery reading: no battery protection (the servo-rail under-voltage still applies).
+  Controller none;
+  none.begin(0, false);
+  run(none, idle_inputs(0), 0, BATT_EMPTY_MS + 100, out);
+  CHECK(none.mode() == Mode::IDLE);
+}
+
 int main() {
   test_frame();
   test_conversions();
@@ -296,6 +376,7 @@ int main() {
   test_modes_and_comm_loss();
   test_faults();
   test_link_messages();
+  test_battery_empty();
   printf("%d checks, %d failed\n", checks, failures);
   return failures ? 1 : 0;
 }

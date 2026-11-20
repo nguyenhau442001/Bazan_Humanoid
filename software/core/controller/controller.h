@@ -76,6 +76,7 @@ class Controller {
   void enter(Mode m, uint32_t now_ms);
   void fault(uint16_t bits, uint32_t now_ms);
   void check_safety(const Inputs& in, uint32_t dt_ms);
+  void check_battery(const Inputs& in, uint32_t dt_ms);
   void queue(uint8_t type, const void* payload, size_t n);
   void log(uint8_t level, const char* text);
   const char* active_fault_condition() const;
@@ -96,6 +97,9 @@ class Controller {
   uint16_t calib_us_ = 0;
   uint32_t t_oc_[2] = {}, t_ot_ = 0, t_uv_ = 0, t_jam_[NLEG] = {};
   uint16_t pwm_errs_ = 0, sensor_errs_ = 0;
+  uint32_t t_batt_empty_ = 0, t_batt_cut_ = 0;
+  bool batt_stop_ = false;        // battery empty: crouching, outputs off once there
+  bool batt_low_logged_ = false;
   uint32_t ticks_ = 0;
   uint16_t loop_us_max_ = 0;
   uint8_t tx_seq_ = 0;

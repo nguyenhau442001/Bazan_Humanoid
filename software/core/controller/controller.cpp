@@ -68,6 +68,7 @@ void Controller::on_frame(const Frame& f, uint32_t now_ms) {
       memcpy(&h, f.payload, sizeof(h));
       if (h.n > TRAJ_MAX_POINTS || f.len != sizeof(Traj) + h.n * sizeof(TrajPoint)) return log(1, "bad Traj length");
       if (mode_ != Mode::RUN && mode_ != Mode::HOLD && mode_ != Mode::CROUCH) return log(1, "Traj ignored: not enabled");
+      if (batt_stop_) return log(1, "Traj ignored: battery empty");
       if (h.flags & TRAJ_REPLACE || mode_ != Mode::RUN) traj_.reset(q_cmd_, now_ms);
       enter(Mode::RUN, now_ms);
       for (int k = 0; k < h.n; ++k) {
@@ -90,7 +91,8 @@ void Controller::on_frame(const Frame& f, uint32_t now_ms) {
         }
         clear_accepted_ = true;
         faults_ = 0;
-        t_oc_[0] = t_oc_[1] = t_ot_ = t_uv_ = 0;
+        t_oc_[0] = t_oc_[1] = t_ot_ = t_uv_ = t_batt_empty_ = t_batt_cut_ = 0;
+        batt_stop_ = false;
         memset(t_jam_, 0, sizeof(t_jam_));
         pwm_errs_ = sensor_errs_ = 0;
         enter(Mode::IDLE, now_ms);
@@ -130,6 +132,9 @@ const char* Controller::active_fault_condition() const {
     if (isnan(t) || t > T_TRIP_C) return "over-temperature or NTC open";
   }
   if (!in.pwm_ok) return "PWM I2C";
+  if (in.batt_v_valid && batt_.valid() &&
+      (batt_.soc_pct() < BATT_RESUME_PCT || in.batt_v < BATT_CUT_CELL_V * static_cast<float>(batt_.cells())))
+    return "battery empty";
   if (!in.sensors_ok) return "sensor I2C";
   return nullptr;
 }
@@ -165,6 +170,34 @@ void Controller::check_safety(const Inputs& in, uint32_t dt) {
   if (f) fault(f, in.now_ms);
 }
 
+// Battery protection, in two levels. Empty (0 %, rest voltage at 3.30 V per cell): host trajectories are
+// refused, the robot crouches under control, settles, then the outputs go off, so it sits down instead of
+// falling. Below the damage limit (3.0 V per cell at the terminals, sustained): outputs off at once.
+void Controller::check_battery(const Inputs& in, uint32_t dt) {
+  if (!in.batt_v_valid || !batt_.valid()) {
+    t_batt_empty_ = t_batt_cut_ = 0;
+    return;
+  }
+  const uint32_t now = in.now_ms;
+  const bool cut = in.batt_v < BATT_CUT_CELL_V * static_cast<float>(batt_.cells());
+  if (debounce(cut, t_batt_cut_, dt, BATT_CUT_MS)) return fault(F_BATT_EMPTY, now);
+  if (!batt_low_logged_ && batt_.soc_pct() <= BATT_LOW_PCT) {
+    batt_low_logged_ = true;
+    log(1, "battery low");
+  }
+  if (!batt_stop_ && debounce(batt_.soc_pct() == 0, t_batt_empty_, dt, BATT_EMPTY_MS)) {
+    if (mode_ != Mode::RUN && mode_ != Mode::HOLD && mode_ != Mode::CROUCH) return fault(F_BATT_EMPTY, now);
+    batt_stop_ = true;
+    traj_.reset(q_cmd_, now);
+    traj_.push(CROUCH_MS, Q_CROUCH, now);
+    enter(Mode::CROUCH, now);
+    mode_since_ = now;                         // also when it was already crouching
+    log(2, "battery empty: crouching, then outputs off");
+  }
+  if (batt_stop_ && (mode_ != Mode::CROUCH || now - mode_since_ >= CROUCH_MS + BATT_SETTLE_MS))
+    fault(F_BATT_EMPTY, now);
+}
+
 void Controller::tick(const Inputs& in, Outputs& out) {
   uint32_t now = in.now_ms;
   uint32_t dt = have_tick_ ? now - last_tick_ : 0;
@@ -177,6 +210,7 @@ void Controller::tick(const Inputs& in, Outputs& out) {
 
   if (in.batt_v_valid) batt_.update(dt, in.batt_v, in.batt_a, in.batt_i_valid);
   if (mode_ != Mode::FAULT) check_safety(in, dt);
+  if (mode_ != Mode::FAULT) check_battery(in, dt);
 
   uint32_t quiet = now - last_rx_;
   if (mode_ == Mode::RUN || mode_ == Mode::CROUCH) traj_.sample(now, q_cmd_);
