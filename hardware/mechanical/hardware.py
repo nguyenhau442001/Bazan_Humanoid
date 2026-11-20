@@ -29,6 +29,9 @@ class Servo:
     mass: float          # g
     stall_kgcm: float = 0.0   # catalogue stall torque at 6 V (MEASURE on the P0 bench)
     speed_s60: float = 0.0    # catalogue no-load speed, s per 60 deg
+    size: str = "micro"       # pocket family: "micro" (9 g case, joint.py MG92B pocket) or "standard" (DS3218)
+    hole_w: float = 0.0       # standard servos: the two holes of one ear, centre to centre across w (0 = one hole)
+    ear_screw: str = "M2x6"   # ear screw into the pocket insert
 
 
 MG92B = Servo("MG92B", length=22.8, width=12.2, case_h=22.7, shaft_off=5.9, tab_span=32.4, tab_t=2.5,
@@ -45,7 +48,15 @@ MG90S = Servo("MG90S", 22.8, 12.2, 22.7, 5.9, 32.4, 2.5, 15.9, 27.8, 2.0, 11.8, 
 SG90 = Servo("SG90", length=22.8, width=12.2, case_h=22.7, shaft_off=5.9, tab_span=32.4, tab_t=2.5,
              tab_low=15.9, hole_pitch=27.8, hole_d=2.0, tower_d=11.8, tower_h=4.0, spline_d=4.8, spline_top=8.3,
              cable_z=(1.5, 5.5), cable_w=4.5, mass=9.0, stall_kgcm=1.8, speed_s60=0.10)         # MEASURE all
-SERVOS = {s.name: s for s in (MG92B, MG90S, SG90)}
+# DS3218 (DSSERVO, "20 kg" standard size, 25T spline), leg v4. Datasheet: 40 x 20 x 40.5 mm, 60 g, 18 kg.cm at
+# 5 V, 21.5 kg.cm at 6.8 V. The rest are the standard-servo norms (ears 49.5 x 10 hole pattern, holes for M3,
+# shaft about 10 from the near end), not read off a DS3218: MEASURE every field on the first servo bought.
+DS3218 = Servo("DS3218", length=40.0, width=20.0, case_h=36.5, shaft_off=10.0, tab_span=54.5, tab_t=2.5,
+               tab_low=27.5, hole_pitch=49.5, hole_d=3.4, tower_d=13.0, tower_h=0.5, spline_d=5.9, spline_top=4.0,
+               cable_z=(2.0, 6.0), cable_w=5.0, mass=60.0, stall_kgcm=20.0, speed_s60=0.15,
+               size="standard", hole_w=10.0, ear_screw="M3x8")                                # MEASURE all
+SERVOS = {s.name: s for s in (MG92B, MG90S, SG90, DS3218)}
+POCKET_SERVO = {"micro": MG92B, "standard": DS3218}     # the servo each pocket family is built around
 JOINT_SERVO = {  # which servo type sits in which joint (both sides)
     "hip_yaw": "MG90S", "hip_roll": "MG92B", "hip_pitch": "MG92B", "knee": "MG92B", "ankle_pitch": "MG92B",
     "ankle_roll": "MG92B", "shoulder_pitch": "MG90S", "shoulder_roll": "SG90", "elbow": "SG90",
@@ -53,7 +64,7 @@ JOINT_SERVO = {  # which servo type sits in which joint (both sides)
 }
 # Servo types whose sizes above still come from datasheets. Remove a name once you have measured that servo
 # with calipers and typed the numbers in (see docs/mechanical/test_print.md).
-UNMEASURED = {"MG92B", "MG90S", "SG90"}
+UNMEASURED = {"MG92B", "MG90S", "SG90", "DS3218"}
 
 
 # ---------------------------------------------------------------- horn (the round disc horn sold with the servo)
@@ -76,6 +87,9 @@ def horn_screw(horn=None):
 
 
 HORN = Horn()
+# 25T aluminium disc horn for the DS3218 (bought separately: "25T 圆盘 舵盘"). Typical sizes, MEASURE.
+HORN25 = Horn(disc_d=25.0, disc_t=2.5, disc_low=2.0, hub_d=9.0, screw_r=9.0, screw_head_d=5.5)
+HORNS = {"MG92B": HORN, "DS3218": HORN25}               # per pocket servo
 
 # 3-pin servo plug (JR / Dupont housing, 3 x 2.54 pitch): it has to pass every opening the lead goes through
 PLUG = (7.7, 2.6)        # width, thickness (MEASURE)
@@ -117,6 +131,8 @@ FASTENERS = {
                       "ống đồng Ø4 dày 0.45 (cắt đoạn 1.3 / 5.1 mm)"),
     # body v4 (torso stack, sleds, arms, head)
     "M2x10": Fastener("M2x10", "M2×10 socket head cap screw, ISO 4762, stainless", "ốc lục giác M2×10 inox"),
+    "M3x8": Fastener("M3x8", "M3×8 socket head cap screw, ISO 4762, stainless (DS3218 ear)",
+                     "ốc lục giác M3×8 inox"),
     "M3x6": Fastener("M3x6", "M3×6 socket head cap screw, ISO 4762, stainless", "ốc lục giác M3×6 inox"),
     "SO40": Fastener("SO40", "M3 hex standoff male-female, nylon, 40 + 6 thread, 5.5 AF", "trụ nhựa đực-cái M3 40+6"),
     "SO35": Fastener("SO35", "M3 hex standoff male-female, nylon, 35 + 6 thread, 5.5 AF", "trụ nhựa đực-cái M3 35+6"),

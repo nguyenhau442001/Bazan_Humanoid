@@ -1,8 +1,9 @@
-"""Does each servo type fit the one shared pocket? Numbers only, no CAD: fast enough to run after every edit.
+"""Does each servo type fit the pocket of its size class? Numbers only, no CAD: fast enough to run after every edit.
 
-All 20 joints use the pocket that joint.py builds around hardware.MG92B. The MG90S and the SG90 go into the same
-pocket, so a servo whose sizes differ from the MG92B can wobble, sit too high or too low (the ears rest on the
-bosses, so the ear height sets where the shaft ends up along the joint axis), or not take its ear screws.
+joint.py builds one pocket per size class (hardware.POCKET_SERVO): the 9 g pocket around the MG92B, shared by the
+MG90S and the SG90, and the standard pocket around the DS3218. A servo whose sizes differ from its pocket's servo
+can wobble, sit too high or too low (the ears rest on the bosses, so the ear height sets where the shaft ends up
+along the joint axis), or not take its ear screws.
 
     python servo_fit.py            # table for every servo in hardware.SERVOS, exits 1 if one does not fit
 
@@ -15,8 +16,7 @@ from dataclasses import dataclass
 import hardware as hw
 import joint as J
 
-M2_SCREW = 2.0          # M2 major diameter
-POCKET = J.S            # the servo the pocket is built around
+SCREW_D = {"M2": 2.0, "M3": 3.0}     # ear screw major diameter
 
 
 @dataclass
@@ -33,35 +33,37 @@ class Check:
 
 
 def checks(t: hw.Servo) -> list:
-    """Margins of servo t seated in the pocket built for POCKET: ears on the bosses, shaft on the joint axis."""
-    p, c = POCKET, hw.CLEAR_SERVO
-    # along the shaft (a), case top of POCKET = 0. t's ears rest on the same bosses (underside at TAB_A[0]).
-    top = J.TAB_A[0] + (t.case_h - t.tab_low)            # where t's case top ends up
+    """Margins of servo t seated in the pocket of its size class: ears on the bosses, shaft on the joint axis."""
+    P = J.pocket(t)
+    p, c = P.S, hw.CLEAR_SERVO
+    screw = SCREW_D[t.ear_screw[:2]]
+    # along the shaft (a), case top of the pocket's servo = 0. t's ears rest on the same bosses (TAB_A[0]).
+    top = P.TAB_A[0] + (t.case_h - t.tab_low)            # where t's case top ends up
     bottom = top - t.case_h
     cab = (bottom + t.cable_z[0], bottom + t.cable_z[1])
-    win = (J.CASE[0] + p.cable_z[0] - 0.5, J.CASE[0] + p.cable_z[1] + 0.5)
+    win = (P.CASE[0] + p.cable_z[0] - 0.5, P.CASE[0] + p.cable_z[1] + 0.5)
     # along the case (b), shaft = 0
     mid = t.length / 2 - t.shaft_off
     holes = (mid - t.hole_pitch / 2, mid + t.hole_pitch / 2)
-    hole_err = max(abs(h - hp) for h, hp in zip(holes, J.HOLE_B))
+    hole_err = max(abs(h - hp) for h, hp in zip(holes, P.HOLE_B))
     return [
         Check("width: gap per side", (p.width + 2 * c - t.width) / 2, 0.05, 0.35,
               "under 0.05: sand the pocket; over 0.35: one layer of paper tape (0.1) on both sides of the case"),
-        Check("length: near end of case to pocket", -t.shaft_off - (J.CB0 - c), 0.0, 1.0,
+        Check("length: near end of case to pocket", -t.shaft_off - (P.CB0 - c), 0.0, 1.0,
               "negative: the case hits the pocket end"),
-        Check("length: far end of case to pocket", (J.CB + c) - (t.length - t.shaft_off), 0.0, 1.0,
+        Check("length: far end of case to pocket", (P.CB + c) - (t.length - t.shaft_off), 0.0, 1.0,
               "negative: the case hits the pocket end"),
-        Check("ear span: room at the ear slot ends", (p.tab_span + 2 * c - t.tab_span) / 2 - abs(mid - J.CMID),
+        Check("ear span: room at the ear slot ends", (p.tab_span + 2 * c - t.tab_span) / 2 - abs(mid - P.CMID),
               0.0, 1.0, "negative: the ears do not drop into the slot; file the ear ends"),
-        Check("ear holes: M2 passes (hole - screw)", t.hole_d - M2_SCREW, 0.2, 1.0,
+        Check(f"ear holes: {t.ear_screw[:2]} passes (hole - screw)", t.hole_d - screw, 0.2, 1.0,
               "drill both ear holes to Ø2.3 with a hand drill, then set hole_d = 2.3 in hardware.py"),
-        Check("ear holes: offset to the inserts", hole_err, 0.0, max((t.hole_d - M2_SCREW) / 2, 0.0),
+        Check("ear holes: offset to the inserts", hole_err, 0.0, max((t.hole_d - screw) / 2, 0.0),
               "the M2 screw cannot reach the insert: drill the ear holes larger (Ø2.4 allows 0.2)"),
         Check("shaft height: case top vs design", top, -0.3, 0.3,
               "the horn and the idler stack shift by this much along the axis: change TAB_A or shim the ears"),
-        Check("case bottom to idler wall", bottom - J.IW[1], 0.0, 1.0,
+        Check("case bottom to idler wall", bottom - P.IW[1], 0.0, 1.0,
               "negative: the case hits the idler wall before the ears seat"),
-        Check("gear tower to horn plate", J.HP[0] - (top + t.tower_h), 0.3, 2.0,
+        Check("gear tower to horn plate", P.HP[0] - (top + t.tower_h), 0.3, 2.0,
               "under 0.3: the turning horn plate rubs on the tower"),
         Check("spline top vs design (horn seating)", top + t.spline_top - p.spline_top, -0.5, 0.5,
               "the horn sits higher/lower than its recess in the horn plate"),
@@ -72,9 +74,10 @@ def checks(t: hw.Servo) -> list:
 
 def main():
     bad = 0
-    print(f"Pocket built for {POCKET.name} (clearance {hw.CLEAR_SERVO} per side). Values in mm.\n")
+    print(f"Clearance {hw.CLEAR_SERVO} per side. Values in mm.\n")
     for t in hw.SERVOS.values():
-        print(f"{t.name}{'  (MEASURE: datasheet values)' if t.name in hw.UNMEASURED else ''}")
+        print(f"{t.name} in the {J.pocket(t).S.name} pocket"
+              f"{'  (MEASURE: datasheet values)' if t.name in hw.UNMEASURED else ''}")
         for ch in checks(t):
             mark = "ok  " if ch.ok else "FAIL"
             bad += not ch.ok
