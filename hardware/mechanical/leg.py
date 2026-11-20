@@ -25,27 +25,45 @@ import numpy as np
 import hardware as hw
 import joint as J
 
-HIP_ROLL_UP = 20.0       # D2B: hip roll axis above the hip-pitch axis
-ANKLE_ROLL_DOWN = 20.0   # D2B: ankle roll axis below the ankle-pitch axis
-L1 = 48.0                # H -> knee (was 45)
-L2 = 48.0                # knee -> A (was 45)
+X, Y, Z = (1, 0, 0), (0, 1, 0), (0, 0, 1)
+NX, NY, NZ = (-1, 0, 0), (0, -1, 0), (0, 0, -1)
+
+# Every leg joint uses the pocket of the servo hardware.JOINT_SERVO puts in the leg; the layout below is derived
+# from that pocket (v3: 9 g MG92B, v4: DS3218). Pocket outer faces from the joint axis:
+LEG_SERVO = hw.SERVOS[hw.JOINT_SERVO["knee"]]
+LP = J.pocket(LEG_SERVO)
+PW = round(LEG_SERVO.width / 2 + hw.CLEAR_SERVO + hw.WALL, 2)   # across the case (w), each side
+PB0 = round(-LP.CB0 + hw.CLEAR_SERVO + hw.WALL, 2)        # along the case (b), shaft side
+PB1 = round(LP.CB + hw.CLEAR_SERVO + hw.WALL, 2)          # along the case (b), far end
+EAR_ROOM = 3.6           # pitch pocket wall to roll pocket wall: room for the ear screws
+V4 = LEG_SERVO.size == "standard"
+HIP_ROLL_UP = round(PB0 + PW + EAR_ROOM, 2)   # D2B: hip roll axis above the hip-pitch axis (v3 20.0)
+ANKLE_ROLL_DOWN = HIP_ROLL_UP          # D2B: ankle roll axis below the ankle-pitch axis
+L1 = 105.0 if V4 else 48.0             # H -> knee (v3 48, chosen by check_mujoco: see docs/mechanical)
+L2 = L1                                # knee -> A
+# roll servos: v3 hangs them inboard (-y); the DS3218 is too long for that (the two hip blocks would meet on the
+# centre line), so v4 turns both roll servos outboard
+ROLL_B = Y if V4 else NY
 HIP_ROLL_MAX = 20.0      # deg, mechanical range used for clearances (gait uses ±17)
 ANKLE_ROLL_MAX = 20.0
 SOLE_PLATE = 3.0
 TPU_SOLE = 3.0
-SOLE = dict(length=76.0, width=38.0, x=0.0, y=0.0)     # foot outline, centred under the ankle axes
+# foot outline under the ankle axes: v3 76 x 38 centred; v4 covers the outboard ankle-roll servo and keeps the
+# inner edge 10 mm inside the pocket face
+SOLE = (dict(length=96.0, width=PB0 + PB1 + 12.0, x=0.0, y=(PB1 - PB0 - 8.0) / 2) if V4
+        else dict(length=76.0, width=38.0, x=0.0, y=0.0))
 # FSR 402 (Interlink datasheet, ASSUMED): disc Ø18.28, 0.46-0.55 thick, tail 56 long; toe and heel under the plate,
 # tails out along +y (outboard) to the leg harness; a TPU puck Ø10 x 0.3 on the sole presses the active area
-FSR_X = (22.0, -22.0)
+FSR_X = (SOLE["length"] / 2 - 16.0, -(SOLE["length"] / 2 - 16.0))
 FSR_POCKET = (18.8, 0.6)       # diameter, depth in the plate underside
 FSR_TAIL = (8.4, 0.6)          # channel width, depth
 FSR_PUCK = (10.0, 0.3)
 SPINE = 3.6              # structural spine thickness
-HIP_Y = 28.0             # leg centre lines at y = ±HIP_Y on the pelvis (was ±22): 44.8 wide legs, 11 mm apart
+HIP_Y = round(LP.HALF + 5.6, 2)   # leg centre lines at y = ±HIP_Y on the pelvis (v3 28.0): legs 11 mm apart
 YAW_MAX = 45.0
 RING_R = (13.0, 21.0)    # yaw thrust ring: carries the robot's weight past the yaw servo
 # idler gap wide enough to take the driven link off the spline; the servo side moves out, the idler stays
-WIDE = dict(gap=J.LEG_GAP, keep_idler=True)
+WIDE = dict(gap=J.LEG_GAP, keep_idler=True, servo=LEG_SERVO)
 ARM = 4.0                # side-plate arm thickness
 # closed shin (default): the side outline below, printed as 4 mm webs on the outer faces.
 # hybrid shin (frame B, only if the printed one fails test T4): two cut metal side plates on the outer faces, a
@@ -55,15 +73,15 @@ ARM = 4.0                # side-plate arm thickness
 # (thigh arms there) and above the ankle axis on the idler side (ankle roll parts below).
 SHIN_WEB = 2.4           # closed shin side web: 6 perimeters (solid); FEA peak 8.2 MPa of 12, +2 g over the open shin
 PLATE_T = 1.5            # 5052-H32 aluminium or 3K carbon, same DXF (FEA: 2.0 buys nothing)
-PLATE_RING = {"h": 15.0, "i": 10.5}          # plate outer radius round the horn / idler discs
-PLATE_HOLE = {"h": J.HORN_R + 0.15, "i": J.IDLER_R + 0.15}
-PLATE_SCREWS = [(3.5, -L1 - 18.0), (10.0, -L1 - 18.0), (-4.0, -L1 - L2 + 17.0), (6.0, -L1 - L2 + 17.0)]  # (x, z)
-SHIN_FRONT = 13.8
+PLATE_RING = {"h": LP.HORN_R + 3.0, "i": LP.IDLER_R + 3.0}   # plate outer radius round the horn / idler discs
+PLATE_HOLE = {"h": LP.HORN_R + 0.15, "i": LP.IDLER_R + 0.15}
+PLATE_SCREWS = [(3.5, -L1 - PB0 - 9.9), (10.0, -L1 - PB0 - 9.9), (-4.0, -L1 - L2 + PB0 + 8.9),
+                (6.0, -L1 - L2 + PB0 + 8.9)]  # (x, z)
+SHIN_FRONT = round(LP.HORN_R + 1.8, 2)
 PLATE_FILLET = 3.0
-PLATE_BACK = 30.0        # back edge of the shin plates starts this far below the knee axis (thigh folds in above)
+PLATE_BACK = round(PB1 + 10.9, 2)  # shin plate back edge starts this far below the knee (the thigh folds in above)
+WEB_Y = round(3.6 + hw.CLEAR_SERVO + LEG_SERVO.tab_low, 2)   # block webs: idler wall face up to the ear underside
 
-X, Y, Z = (1, 0, 0), (0, 1, 0), (0, 0, 1)
-NX, NY, NZ = (-1, 0, 0), (0, -1, 0), (0, 0, -1)
 K = -L1
 A = -(L1 + L2)
 AR = A - ANKLE_ROLL_DOWN
@@ -90,11 +108,11 @@ class Leg:
         self.shin_frame = shin
         self.joints = {
             # gap = LEG_GAP: the driven link comes off the spline along the shaft (N3 review G-2)
-            "hip_roll": J.Joint("hip_roll", "hip_block", "yaw_bracket", (0, 0, HIP_ROLL_UP), X, NY, **WIDE),
+            "hip_roll": J.Joint("hip_roll", "hip_block", "yaw_bracket", (0, 0, HIP_ROLL_UP), X, ROLL_B, **WIDE),
             "hip_pitch": J.Joint("hip_pitch", "hip_block", "thigh", (0, 0, 0), Y, NZ, **WIDE),
             "knee": J.Joint("knee", "thigh", "shin", (0, 0, K), Y, Z, **WIDE),
             "ankle_pitch": J.Joint("ankle_pitch", "ankle_block", "shin", (0, 0, A), Y, Z, **WIDE),
-            "ankle_roll": J.Joint("ankle_roll", "ankle_block", "foot", (0, 0, AR), X, NY, **WIDE),
+            "ankle_roll": J.Joint("ankle_roll", "ankle_block", "foot", (0, 0, AR), X, ROLL_B, **WIDE),
         }
         self.parts = {}
         self.extra_holes = []
@@ -151,58 +169,59 @@ class Leg:
     # ------------------------------------------------------------ hip block: hip roll pocket over hip pitch pocket
     def _hip_block_body(self):
         jr, jp = self.joints["hip_roll"], self.joints["hip_pitch"]
-        iw_y = min(p[1] for p in jp.a_range(J.IW))     # web follows the hip pitch pocket
-        web = bx((-8.3, 4.4), (iw_y, iw_y + 19.7), (8.0, HIP_ROLL_UP - 8.2))
+        iw_y = min(p[1] for p in jp.a_range(LP.IW))    # web follows the hip pitch pocket
+        web = bx((-PW, round(PW * 0.53, 1)), (iw_y, iw_y + WEB_Y), (PB0 - 0.1, HIP_ROLL_UP - PW + 0.1))
         return fuse(jr.holder_add(), jp.holder_add(), web)
 
     # ------------------------------------------------------------ ankle block: ankle pitch over ankle roll pocket
     def _ankle_block_body(self):
         jp, jr = self.joints["ankle_pitch"], self.joints["ankle_roll"]
-        iw_y = min(p[1] for p in jp.a_range(J.IW))     # web follows the ankle pitch pocket
-        web = bx((-8.3, 4.4), (iw_y, iw_y + 19.7), (AR + 8.2, A - 8.0))
+        iw_y = min(p[1] for p in jp.a_range(LP.IW))    # web follows the ankle pitch pocket
+        web = bx((-PW, round(PW * 0.53, 1)), (iw_y, iw_y + WEB_Y), (AR + PW - 0.1, A - PB0 + 0.1))
         return fuse(jp.holder_add(), jr.holder_add(), web)
 
     # ------------------------------------------------------------ yaw bracket: U around the hip block
     def _yaw_bracket_body(self):
         jy, jr = self.joints["hip_yaw"], self.joints["hip_roll"]
         zb = self.yaw_bottom
-        hp_x = sorted(p[0] for p in jr.a_range(J.HP))           # horn plate (front) x range
+        hp_x = sorted(p[0] for p in jr.a_range(LP.HP))          # horn plate (front) x range
         ip_x = sorted(p[0] for p in jr.a_range(jr.IP))           # idler plate (back) x range
         top_t = J.HP[1] - J.HP[0]
         top = fuse(bx((ip_x[0], hp_x[1]), (-9.0, 9.0), (zb, zb + top_t)),
                    cq.Solid.makeCylinder(RING_R[1], top_t, cq.Vector(0, 0, zb)))     # thrust face for the ring
-        front = bx((hp_x[1] - ARM, hp_x[1]), (-J.HORN_R, J.HORN_R), (HIP_ROLL_UP, zb + top_t))
-        back = bx((ip_x[0], ip_x[0] + ARM), (-J.IDLER_R, J.IDLER_R), (HIP_ROLL_UP, zb + top_t))
+        front = bx((hp_x[1] - ARM, hp_x[1]), (-LP.HORN_R, LP.HORN_R), (HIP_ROLL_UP, zb + top_t))
+        back = bx((ip_x[0], ip_x[0] + ARM), (-LP.IDLER_R, LP.IDLER_R), (HIP_ROLL_UP, zb + top_t))
         return fuse(top, front, back, jy.horn_disc(), jr.horn_disc(), jr.idler_disc())
 
     # ------------------------------------------------------------ thigh: hip-pitch plates, back spine, knee pocket
     def _thigh_body(self):
         jp, jk = self.joints["hip_pitch"], self.joints["knee"]
-        hp_y = sorted(p[1] for p in jp.a_range(J.HP))
+        hp_y = sorted(p[1] for p in jp.a_range(LP.HP))
         ip_y = sorted(p[1] for p in jp.a_range(jp.IP))
-        spine_x = (-12.0 - SPINE / 2, -12.0 + SPINE / 2)
-        z_top = -24.5                                   # spine stays outside the hip block's reach from H
+        spine_x = (-LP.HORN_R - SPINE / 2, -LP.HORN_R + SPINE / 2)
+        z_top = -round(np.hypot(PB1, PW) + 3.7, 1)            # spine stays outside the hip block's reach from H
         # the knee servo slides in along -y: nothing on the +y side over the pocket (x -8.3..8.3, z up to K+23)
-        horn_arm = fuse(bx((spine_x[0], 0.0), (hp_y[1] - ARM, hp_y[1]), (-J.HORN_R, 0.0)),
-                        bx((spine_x[0], spine_x[1]), (hp_y[1] - ARM, hp_y[1]), (K + J.HORN_R + 2, 0.0)))
-        idler_arm = fuse(bx((-9.0, 9.0), (ip_y[0], ip_y[0] + ARM), (K + 10, 0.0)),
-                         bx((spine_x[0], 0), (ip_y[0], ip_y[0] + ARM), (K + 10, 0.0)))
-        spine = bx(spine_x, (ip_y[0], hp_y[1]), (K + J.HORN_R + 2, z_top))
-        iw_y = min(p[1] for p in jk.a_range(J.IW))     # knee pocket wall: the link follows the pocket
-        pocket_link = bx((spine_x[0], -6.0), (iw_y, iw_y + 19.7), (K - 8.1, K + 19.1))
+        horn_arm = fuse(bx((spine_x[0], 0.0), (hp_y[1] - ARM, hp_y[1]), (-LP.HORN_R, 0.0)),
+                        bx((spine_x[0], spine_x[1]), (hp_y[1] - ARM, hp_y[1]), (K + LP.HORN_R + 2, 0.0)))
+        ir = LP.IDLER_R
+        idler_arm = fuse(bx((-ir - 1.5, ir + 1.5), (ip_y[0], ip_y[0] + ARM), (K + ir + 2.5, 0.0)),
+                         bx((spine_x[0], 0), (ip_y[0], ip_y[0] + ARM), (K + LP.IDLER_R + 2.5, 0.0)))
+        spine = bx(spine_x, (ip_y[0], hp_y[1]), (K + LP.HORN_R + 2, z_top))
+        iw_y = min(p[1] for p in jk.a_range(LP.IW))    # knee pocket wall: the link follows the pocket
+        pocket_link = bx((spine_x[0], -PW + 2.3), (iw_y, iw_y + WEB_Y), (K - PB0, K + PB1))
         return fuse(jp.horn_disc(), jp.idler_disc(), horn_arm, idler_arm, spine, jk.holder_add(), pocket_link)
 
     # ------------------------------------------------------------ shin: knee and ankle plates, front spine (shin bone)
     def _shin_body(self):
         jk, ja = self.joints["knee"], self.joints["ankle_pitch"]
-        hp_y = sorted(p[1] for p in jk.a_range(J.HP))
+        hp_y = sorted(p[1] for p in jk.a_range(LP.HP))
         ip_y = sorted(p[1] for p in jk.a_range(jk.IP))
-        spine_x = (12.0 - SPINE / 2, 12.0 + SPINE / 2)
-        z0, z1 = A + 25.0, K - 15.0                     # clear of the ankle block's pitch pocket and the knee pocket
+        spine_x = (LP.HORN_R - SPINE / 2, LP.HORN_R + SPINE / 2)
+        z0, z1 = A + PB1 + 5.9, K - PB0 - 6.9           # clear of the ankle block's pitch pocket and the knee pocket
         plates = []
         for zc, lo in ((K, 1), (A, 0)):          # at A only the upper half: the ankle roll servo sits below
-            plates += [bx((0.0, spine_x[1]), (hp_y[1] - ARM, hp_y[1]), (zc - lo * J.HORN_R, zc + J.HORN_R)),
-                       bx((0.0, spine_x[1]), (ip_y[0], ip_y[0] + ARM), (zc - lo * J.IDLER_R, zc + J.IDLER_R))]
+            plates += [bx((0.0, spine_x[1]), (hp_y[1] - ARM, hp_y[1]), (zc - lo * LP.HORN_R, zc + LP.HORN_R)),
+                       bx((0.0, spine_x[1]), (ip_y[0], ip_y[0] + ARM), (zc - lo * LP.IDLER_R, zc + LP.IDLER_R))]
         side_h = bx(spine_x, (hp_y[1] - ARM, hp_y[1]), (A, K))
         side_i = bx(spine_x, (ip_y[0], ip_y[0] + ARM), (A, K))
         spine = bx(spine_x, (ip_y[0], hp_y[1]), (z0, z1))
@@ -212,7 +231,7 @@ class Leg:
     def _shin_side(self, y0, y1, side):
         """Outline of one side of the hybrid shin between y0 and y1 (leg frame), without the disc holes."""
         R = PLATE_RING[side]
-        top = J.HORN_R if side == "h" else J.IDLER_R           # stay inside the old silhouette above the knee
+        top = LP.HORN_R if side == "h" else LP.IDLER_R         # stay inside the old silhouette above the knee
 
         def cyl_y(z, r):
             return cq.Solid.makeCylinder(r, y1 - y0, cq.Vector(0, y0, z), cq.Vector(0, 1, 0))
@@ -236,21 +255,21 @@ class Leg:
         """Printed shin with closed sides: the hybrid outline as 4 mm side webs on the outer faces, no metal.
         FEA (fea.py): deflection 7.8 -> 0.4 mm, peak 54 -> 8 MPa (PLA limit 12); metal only if test T4 fails."""
         jk, ja = self.joints["knee"], self.joints["ankle_pitch"]
-        hp_out = max(p[1] for p in jk.a_range(J.HP))
+        hp_out = max(p[1] for p in jk.a_range(LP.HP))
         ip_out = min(p[1] for p in jk.a_range(jk.IP))
-        spine_x = (12.0 - SPINE / 2, 12.0 + SPINE / 2)
-        spine = bx(spine_x, (ip_out, hp_out), (A + 25.0, K - 15.0))
+        spine_x = (LP.HORN_R - SPINE / 2, LP.HORN_R + SPINE / 2)
+        spine = bx(spine_x, (ip_out, hp_out), (A + PB1 + 5.9, K - PB0 - 6.9))
         return fuse(jk.horn_disc(), jk.idler_disc(), ja.horn_disc(), ja.idler_disc(), spine,
                     self._shin_side(hp_out - SHIN_WEB, hp_out, "h"), self._shin_side(ip_out, ip_out + SHIN_WEB, "i"))
 
     def _shin_hybrid(self):
         jk, ja = self.joints["knee"], self.joints["ankle_pitch"]
-        hp_out = max(p[1] for p in jk.a_range(J.HP))                     # horn-side outer face
+        hp_out = max(p[1] for p in jk.a_range(LP.HP))                    # horn-side outer face
         ip_out = min(p[1] for p in jk.a_range(jk.IP))                    # idler-side outer face
         layers = {"h": ((hp_out - PLATE_T, hp_out), (hp_out - PLATE_T - ARM, hp_out - PLATE_T)),
                   "i": ((ip_out, ip_out + PLATE_T), (ip_out + PLATE_T, ip_out + PLATE_T + ARM))}
-        spine_x = (12.0 - SPINE / 2, 12.0 + SPINE / 2)
-        z0, z1 = A + 25.0, K - 15.0
+        spine_x = (LP.HORN_R - SPINE / 2, LP.HORN_R + SPINE / 2)
+        z0, z1 = A + PB1 + 5.9, K - PB0 - 6.9
         spine = bx(spine_x, (layers["i"][1][0], layers["h"][1][1]), (z0, z1))
         core = [jk.horn_disc(), jk.idler_disc(), ja.horn_disc(), ja.idler_disc(), spine]
         plates = {}
@@ -284,14 +303,14 @@ class Leg:
     # ------------------------------------------------------------ foot: ankle-roll uprights on the sole plate
     def _foot_body(self):
         jr = self.joints["ankle_roll"]
-        hp_x = sorted(p[0] for p in jr.a_range(J.HP))
+        hp_x = sorted(p[0] for p in jr.a_range(LP.HP))
         ip_x = sorted(p[0] for p in jr.a_range(jr.IP))
         st = self.sole_top
         sx0, sx1 = SOLE["x"] - SOLE["length"] / 2, SOLE["x"] + SOLE["length"] / 2
         sy0, sy1 = SOLE["y"] - SOLE["width"] / 2, SOLE["y"] + SOLE["width"] / 2
         plate = bx((sx0, sx1), (sy0, sy1), (st - SOLE_PLATE, st))
-        front = bx((hp_x[1] - ARM, hp_x[1]), (-J.HORN_R, J.HORN_R), (st - 0.01, AR))
-        back = bx((ip_x[0], ip_x[0] + ARM), (-J.IDLER_R, J.IDLER_R), (st - 0.01, AR))
+        front = bx((hp_x[1] - ARM, hp_x[1]), (-LP.HORN_R, LP.HORN_R), (st - 0.01, AR))
+        back = bx((ip_x[0], ip_x[0] + ARM), (-LP.IDLER_R, LP.IDLER_R), (st - 0.01, AR))
         body = fuse(plate, front, back, jr.horn_disc(), jr.idler_disc())
         # sole: 4 × M2 inserts from below, at the corners
         spec = hw.HOLES["ins_m2"]
@@ -370,8 +389,8 @@ class Leg:
 
     # ------------------------------------------------------------ cable tie slots (2.5 mm ties) along the cable route
     TIES = {  # part: [(centre, slot axis)] slots are 3.0 × 1.6 through the spine or wall
-        "thigh": [((-12.0, 0.0, -30.0), "y")],
-        "shin": [((12.0, 0.0, -60.0), "y"), ((12.0, 0.0, -78.0), "y")],
+        "thigh": [((-LP.HORN_R, 0.0, -L1 * 0.625), "y")],
+        "shin": [((LP.HORN_R, 0.0, -L1 - L2 * 0.25), "y"), ((LP.HORN_R, 0.0, -L1 - L2 * 0.625), "y")],
         "yaw_bracket": [((-20.4, 0.0, 30.0), "x")],
     }
 
@@ -415,7 +434,7 @@ class Leg:
         out = {}
         for jn in ("ankle_roll", "ankle_pitch", "knee", "hip_pitch", "hip_roll"):
             j = self.joints[jn]
-            pts = [np.array(j.world((J.CB, 0, J.CASE[0] + 3.5)))]
+            pts = [np.array(j.world((j.P.CB, 0, j.P.CASE[0] + 3.5)))]
             # a lead crosses every joint between the link that holds its servo and the pelvis
             crossed = [c for c in ("ankle_pitch", "knee", "hip_pitch", "hip_roll", "hip_yaw")
                        if self._below(c, j.holder)]
@@ -437,7 +456,8 @@ class Leg:
     @property
     def CROSS(self):
         ct = self.yaw_case_top()
-        return {"ankle_pitch": (-14.0, 0.0, A), "knee": (-14.0, 0.0, K), "hip_pitch": (-14.0, 0.0, 0.0),
+        x = -LP.HORN_R - 2.0
+        return {"ankle_pitch": (x, 0.0, A), "knee": (x, 0.0, K), "hip_pitch": (x, 0.0, 0.0),
                 "hip_roll": (-24.0, 0.0, HIP_ROLL_UP), "hip_yaw": (-22.0, 0.0, ct)}
 
     def window(self):
@@ -469,7 +489,7 @@ class Leg:
                     pelvis_floor=round(self.yaw_case_top() - J.IW[0], 2),
                     yaw_plate_bottom=round(self.yaw_bottom, 2), sole_top=round(self.sole_top, 2),
                     floor=round(self.floor, 2), H_above_floor=round(-self.floor, 2),
-                    A_above_floor=round(A - self.floor, 2), stack_width=round(2 * J.HALF, 2))
+                    A_above_floor=round(A - self.floor, 2), stack_width=round(2 * LP.HALF, 2))
 
 
 if __name__ == "__main__":
