@@ -44,7 +44,7 @@
 <!-- gen:readme_spec -->
 | Height | Mass | DoF | Compute | Sensors | BOM |
 | --- | --- | --- | --- | --- | --- |
-| 407 mm | 1083 g | 20 (legs 2×6, arms 2×3, neck 2) | Radxa Zero 3W (Cortex-A55 + NPU) · STM32F411 (Cortex-M4) | IMU, camera, ToF, 2 mics, 4 foot FSRs | ≈ 6.02M VND |
+| 540 mm | 1803 g | 20 (legs 2×6, arms 2×3, neck 2) | Radxa Zero 3W (Cortex-A55 + NPU) · STM32F411 (Cortex-M4) | IMU, camera, ToF, 2 mics, 4 foot FSRs | ≈ 9.59M VND |
 <!-- /gen:readme_spec -->
 
 > **Documentation Subpages:** [Getting Started & Sim Guide](docs/getting_started.md) · [Upgrade Roadmap](docs/engineering/upgrade_roadmap.md) · [RL Benchmark Suite](docs/engineering/rl_benchmark.md) · [Theory & References](docs/references.md) · [Hardware Architecture](docs/engineering/hardware_architecture.md) · [Mass Budget](docs/engineering/mass_budget.md) · [Torque Validation](docs/engineering/torque_validation.md) · [Firmware Docs](firmware/stm32f411/README.md) · [Web Dashboard](https://nguyenhau442001.github.io/Synapse_Humanoid/)
@@ -107,7 +107,7 @@ The platform architecture is structured into **5 decoupled vertical tiers**, str
 | **Layer 4** | **Robotics Framework** | ROS 2 Jazzy Core, `robot_state_publisher`, TF2 Dynamic Transforms, Telemetry & RViz2 | Host Middleware |
 | **Layer 3** | **Native Core & Digital Twin** | MuJoCo 3.8+ Physics Engine, ONNX Runtime C++, Lock-Free SPSC Queues, Shared Memory IPC | Native Compute (1 kHz) |
 | **Layer 2** | **Hardware Abstraction Layer (HAL)** | STM32F411 Firmware, FreeRTOS Deterministic Scheduler, S-Curve Trajectories, Safety Interlocks | Real-Time MCU (200 Hz) |
-| **Layer 1** | **Hardware & Mechatronics** | 20-DoF Joint Actuators (MG92B/SG90), MPU6050 IMU, 4× Foot FSRs, 2S LiPo & Dual Power Grid | Physical Foundation |
+| **Layer 1** | **Hardware & Mechatronics** | 20-DoF Joint Actuators (DS3218/DS3225 legs, MG90S/SG90), MPU6050 IMU, 4× Foot FSRs, 2S LiPo & Dual Power Grid | Physical Foundation |
 
 > Detailed hardware interconnects, firmware state machines, and real-time control pipelines for each layer are described in the sections below.
 
@@ -136,7 +136,7 @@ flowchart TB
 
   STM -->|"I²C1 0x40 · OE PB0"| PCA1["🎛️ PCA9685 #1"]
   STM -->|"I²C1 0x41 · OE PB1"| PCA2["🎛️ PCA9685 #2"]
-  PCA1 -->|"PWM 50 Hz"| LEGS["🦾 <b>12 Leg Servos</b><br/>MG92B × 10 · MG90S × 2"]
+  PCA1 -->|"PWM 50 Hz"| LEGS["🦾 <b>12 Leg Servos</b><br/>DS3218 × 8 · DS3225 × 2 · MG90S × 2"]
   PCA2 -->|"PWM 50 Hz"| ARMS["🦾 <b>8 Arm + Neck Servos</b><br/>MG90S × 2 · SG90 × 6"]
   STM ---|"I²C2 0x44 / 0x45"| INA["⚡ INA226 × 2<br/>leg branch V / I sensing"]
   STM ---|"I²C2 0x68"| IMU["🧭 MPU6050 IMU<br/>pelvis top plate"]
