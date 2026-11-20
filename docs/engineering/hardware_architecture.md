@@ -5,7 +5,7 @@ servos, and position, current and temperature monitoring added around them. Part
 `python docs/engineering/gen_docs.py` from the CAD mass budget (`cad_mass.json`) and `hardware.py`.
 
 <!-- gen:stamp -->
-Generated from `docs/engineering/cad_mass.json`, `software/ros2/src/humanoid_description/urdf/bazan_cad.urdf`, `software/ai/sim/mujoco/servo_loads.csv`, `software/ros2/src/humanoid_control/scripts/bazan_gait.py`, `hardware/mechanical/hardware.py`, `docs/engineering/bom_aplus.csv` · source hash `ab103a6d448e`
+Generated from `docs/engineering/cad_mass.json`, `software/ros2/src/humanoid_description/urdf/bazan_cad.urdf`, `software/ai/sim/mujoco/servo_loads.csv`, `software/ros2/src/humanoid_control/scripts/bazan_gait.py`, `hardware/mechanical/hardware.py`, `docs/engineering/bom_aplus.csv` · source hash `f567ce9fcc09`
 <!-- /gen:stamp -->
 
 ## Rule
@@ -162,14 +162,18 @@ the F411 stays unless a Renesas part becomes a hard requirement.
 | Servo | Count | Stall kg·cm | g each | g total | Joints |
 | --- | ---: | ---: | ---: | ---: | --- |
 | MG90S | 4 | 2.20 | 13.4 | 53.6 | hip_yaw, shoulder_pitch |
-| MG92B | 10 | 3.50 | 14 | 140.0 | ankle_pitch, ankle_roll, hip_pitch, hip_roll, knee |
+| DS3218 | 8 | 20.00 | 60 | 480.0 | ankle_pitch, ankle_roll, hip_pitch, hip_roll |
+| DS3225 | 2 | 22.00 | 60 | 120.0 | knee |
 | SG90 | 6 | 1.80 | 9 | 54.0 | elbow, head_pitch, neck_yaw, shoulder_roll |
-| **Total** | 20 |  |  | **247.6** | 23% of 1083 g |
+| **Total** | 20 |  |  | **707.6** | 39% of 1803 g |
 <!-- /gen:servos -->
 
-All MG92B stay. No smart servos for now: the only small one with enough torque (Feetech STS3032, 4.5 kg·cm,
-20 g) is import-only, about 1M VND each, and adds 72 g over the twelve leg joints. See `torque_validation.md`
-for why the current servos are not ruled out.
+Leg v4 (2026-11-21): the ten leg pitch and roll joints moved from the MG92B to standard-size PWM servos, DS3218
+(20 kg·cm at 6 V) and DS3225 (22 kg·cm) at the knees, so the legs could grow to 100 mm thigh and shin (robot
+540 mm). Same PWM control, same pot-wiper monitoring, so the electronics did not change. In the MuJoCo twin the
+knee is the most loaded joint at 31.9 % of stall (p99) with a 56 mm stride; with DS3218 knees it was 34–35 %,
+over the one-third continuous rule. Smart servos (STS3215) were priced and left out: about 1.5 times the cost.
+See `torque_validation.md` for every joint.
 
 ## A+ monitoring, with its conditions
 
@@ -224,9 +228,10 @@ winding, so set the limits conservatively and treat them as a trend, not a safe 
 ## Power
 
 - 2S LiPo 1100 mAh 30C (in the BOM), fuse, reverse protection. Capacity is re-checked against P0 current data.
-- Servo rail 6.0 V from the 6 V 8 A UBEC in the BOM. Upper bound: ten MG92B stalled at once is about 8.5 A,
-  using a reported 0.85 A stall current that P0 must confirm. If P0 shows peaks above 8 A, the UBEC is the
-  part to upgrade. Bulk capacitors at each leg.
+- Servo rail 6.0 V from two 6 V 8 A UBECs, one per leg (the arms and neck share the left one). Walking draws
+  3.5 A peak for all servos in the twin; a leg at its 6 A firmware trip with the rest walking needs 6.6 A from
+  its UBEC. Numbers and checks in `hardware/electrical/tray/power_calc.md` (stall currents are design values
+  until P0). Bulk capacitors at each leg.
 - Compute rail 5 V from the 5 V 3 A mini buck in the BOM (Radxa recommends at least 2 A).
 - Logic 3.3 V from an LDO. All grounds join at one point near the battery.
 
@@ -235,7 +240,7 @@ moving), peak (turning, stepping onto one foot, recovering).
 
 ## Parts to add for A+
 
-Already in the BOM (`design/sketch_shell_a`, ≈ 5.79M VND): STM32F411 Black Pill, PCA9685 × 2, MPU6050,
+Already in the BOM (`design/sketch_shell_a`, ≈ 9.36M VND): STM32F411 Black Pill, PCA9685 × 2, MPU6050,
 FSR × 4, 2S LiPo, 6 V 8 A UBEC, 5 V buck. A+ adds only the monitoring parts below. Prices are list prices from
 HCMC shops, checked on the date in `bom_aplus.csv`; "listed" means the shop page showed a price, not that stock
 was confirmed. Call the shop before going.
@@ -249,7 +254,7 @@ was confirmed. Call the shop before going.
 | LMV358 dual op-amp SOIC-8 | 6 | 7,000 | 42,000 | [icdayroi](https://icdayroi.com/lmv358idr) | 12 wiper buffers; MCP6002 (rail-to-rail input, Thế Giới IC) if P0 shows wipers near the supply |
 | Perfboard, headers, series resistors, clamp diodes | 1 | 40,000 (est.) | 40,000 | Nhật Tảo | monitoring board for P0 and P1 |
 | **A+ total** |  |  | **233,000** |  |  |
-| **Robot total** (BOM + A+) |  |  | **6,018,000** |  |  |
+| **Robot total** (BOM + A+) |  |  | **9,588,000** |  |  |
 
 Prices checked 2026-11-07.
 <!-- /gen:bom -->
@@ -258,26 +263,28 @@ Prices checked 2026-11-07.
 
 | Stage | Build | Done when |
 | --- | --- | --- |
-| P0 | Actuator bench: MG92B, MG90S, SG90, plus the A+ monitoring chain | Torque, current, temperature and speed data for each servo type |
+| P0 | Actuator bench: DS3218, DS3225, MG90S, SG90, plus the A+ monitoring chain | Torque, current, temperature and speed data for each servo type; DS32xx sizes measured into `hardware.py` |
 | P1 | Pelvis + 12 DoF legs + feet with FSR + IMU, on a harness | Stands, shifts weight, lifts one foot, steps in place, walks, turns |
 | P2 | Torso, arms, neck, OLED face, camera, ToF | Gestures and expressions while standing |
 | P3 | Full Bazan: 20 DoF, battery, ROS 2 on the Radxa | The MuJoCo demo on the floor: walk, turn 60°, wave |
 
-### P0: MG92B hip-roll thermal test
+### P0: DS3225 knee thermal test
 
-Run on two servos (one per side).
+The knee is the most loaded leg joint in the twin (`software/ai/sim/mujoco/servo_loads.csv`: rms 0.35 N·m,
+p99 0.69 N·m of 2.16). Run on two servos (one per side).
 
 | Item | Value |
 | --- | --- |
 | Supply | 6.0 V, current-limited bench supply |
-| Continuous load | 1.07 kg·cm |
-| Transient load | 2.2 kg·cm for 0.4 s in every 2 s cycle |
+| Continuous load | 3.6 kg·cm (the knee rms) |
+| Transient load | 7.0 kg·cm (the knee p99) for 0.4 s in every 2 s cycle |
 | Duration | 10 min, or until a stop condition |
 | Stop if | case above 60 °C, or current above 90% of the measured stall current for more than 1 s |
 
-Load without a load cell: a lever on the horn with a known mass. At 20 mm from the axis, 53.5 g gives
-1.07 kg·cm; a second mass that the lever lifts during the transient adds the rest. Check the arm length with
-calipers; that is the calibration.
+Load without a load cell: a lever on the horn with a known mass. At 50 mm from the axis, 72 g gives
+3.6 kg·cm; a second mass of 68 g that the lever lifts during the transient adds the rest. Check the arm length
+with calipers; that is the calibration. Measure the DS3218 and DS3225 sizes and stall currents on the same
+bench and type them into `hardware/mechanical/hardware.py` before printing any leg part.
 
 Log at 10 Hz or faster: case and ambient temperature, current, rail voltage, commanded and measured angle
 (from the pot), position error, and time above each temperature threshold.

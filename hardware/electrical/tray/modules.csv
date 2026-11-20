@@ -5,7 +5,7 @@ M03,PCA9685 16-channel PWM module,2,tray,62.5,25.4,26.1,9.0,4 x M2.5 holes,in BO
 M04,INA226 module CJMCU-226 (R010),4,tray,21.0,16.0,5.0,2.0,glue or clip (CAD: no holes),changed: 2 -> 4,65000,electronics.py INA (MEASURE),third for the arms + neck branch; fourth on the battery lead at 0x40 (fuel gauge); check the shunt reads R010
 M05,MPU6050 module GY-521,1,tray,21.0,16.0,3.0,2.0,2 x M3 holes,in BOM,58000,typical listing (MEASURE),must sit rigid and level near the torso centre line; today it is on the perfboard
 M06,CD74HC4067 16-channel mux module,1,tray,40.0,18.0,3.0,3.0,on the perfboard headers,in BOM (A+),15000,typical listing (MEASURE),rides on M02 in the current layout
-M07,UBEC 6 V 8 A (Hobbywing),1,tray,62.0,27.5,10.0,24.5,strap or clip (heat-shrunk),in BOM,250000,electronics.py UBEC (ASSUMED),gets warm: needs airflow and must not touch the battery
+M07,UBEC 6 V 8 A (Hobbywing),2,tray,62.0,27.5,10.0,24.5,strap or clip (heat-shrunk),changed: 1 -> 2,250000,electronics.py UBEC (ASSUMED),one per leg (power_calc.md, leg v4); the arms and neck share the left one. Gets warm: needs airflow and must not touch the battery
 M08,5 V 3 A mini buck (Mini560 class),1,tray,22.0,17.0,5.0,3.0,glue or clip,in BOM,15000,electronics.py BUCK (MEASURE),feeds only the Radxa
 M09,2S LiPo about 1000 mAh 30C,1,pelvis,56.0,30.0,19.0,57.0,strap + cradle,in BOM,155000,electronics.py BATT (MEASURE),buy a pack that fits 56 x 30 x 19 mm (CAD is the reference; BOM v0.8)
 S01,Inline mini blade fuse holder (ATM) + wire,4,tray,30.0,12.0,10.0,4.0,cable tie to the tray,new (safety),10000,typical listing (MEASURE),one on the battery lead (15 A) and one per servo branch

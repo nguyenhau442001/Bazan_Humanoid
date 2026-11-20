@@ -30,7 +30,8 @@ One torso deck in the v4 CAD is 89 × 108 mm = 9 612 mm². The tray needs **two 
 | VBAT divider to PA3, 1 kΩ on every PWM line | firmware battery cut-off; one-pin-off plug protection | +6 000 |
 | XT30 pairs, silicone wire by gauge, JST leads (replaces the 60 000 lump) | sized wiring instead of a guess | +20 000 |
 | Wiper buffers MCP6002 on 3.3 V instead of LMV358 on 5 V | the buffer output can never exceed the ADC input range | ≈ 0 |
-| **Total** | | **≈ +275 000 VND** |
+| Second 6 V 8 A UBEC: one per leg | leg v4 DS3218 / DS3225: a single fault (one leg at its 6 A trip) must stay inside one UBEC's rating; see [power_calc.md](power_calc.md) | +250 000 |
+| **Total** | | **≈ +525 000 VND** |
 
 ## The BOM follows the CAD
 
