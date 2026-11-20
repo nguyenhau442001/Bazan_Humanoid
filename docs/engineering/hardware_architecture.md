@@ -5,7 +5,7 @@ servos, and position, current and temperature monitoring added around them. Part
 `python docs/engineering/gen_docs.py` from the CAD mass budget (`cad_mass.json`) and `hardware.py`.
 
 <!-- gen:stamp -->
-Generated from `docs/engineering/cad_mass.json`, `software/ros2/src/humanoid_description/urdf/bazan_cad.urdf`, `software/ai/sim/mujoco/servo_loads.csv`, `software/ros2/src/humanoid_control/scripts/bazan_gait.py`, `hardware/mechanical/hardware.py`, `docs/engineering/bom_aplus.csv` · source hash `f567ce9fcc09`
+Generated from `docs/engineering/cad_mass.json`, `software/ros2/src/humanoid_description/urdf/bazan_cad.urdf`, `software/ai/sim/mujoco/servo_loads.csv`, `software/ros2/src/humanoid_control/scripts/bazan_gait.py`, `hardware/mechanical/hardware.py`, `docs/engineering/bom_aplus.csv` · source hash `2c8d7fa93a07`
 <!-- /gen:stamp -->
 
 ## Rule
@@ -165,7 +165,7 @@ the F411 stays unless a Renesas part becomes a hard requirement.
 | DS3218 | 8 | 20.00 | 60 | 480.0 | ankle_pitch, ankle_roll, hip_pitch, hip_roll |
 | DS3225 | 2 | 22.00 | 60 | 120.0 | knee |
 | SG90 | 6 | 1.80 | 9 | 54.0 | elbow, head_pitch, neck_yaw, shoulder_roll |
-| **Total** | 20 |  |  | **707.6** | 39% of 1803 g |
+| **Total** | 20 |  |  | **707.6** | 39% of 1804 g |
 <!-- /gen:servos -->
 
 Leg v4 (2026-11-21): the ten leg pitch and roll joints moved from the MG92B to standard-size PWM servos, DS3218

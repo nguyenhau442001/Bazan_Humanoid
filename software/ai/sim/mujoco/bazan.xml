@@ -13,21 +13,21 @@
     <light pos="0.3 -0.3 1" dir="-0.276172 0.276172 -0.920575" diffuse="0.8 0.8 0.8"/>
     <light pos="-0.4 0.4 0.8" dir="0.348155 -0.348155 -0.870388" diffuse="0.4 0.4 0.4"/>
     <body name="base_link">
-      <inertial pos="-0.00323 0.00039 0.12831" quat="0.999594 -0.0055769 0.0250429 0.0123624" mass="0.5331" diaginertia="0.00132293 0.00105627 0.000814873"/>
+      <inertial pos="-0.00323 0.00039 0.12871" quat="0.999595 -0.00557755 0.0250272 0.0123622" mass="0.5331" diaginertia="0.00132293 0.00105627 0.000814874"/>
       <joint name="floating_base" type="free"/>
-      <geom size="0.0502 0.0688 0.07905" pos="-0.004 0 0.13343" type="box" contype="0" conaffinity="0" group="1" rgba="0.88 0.88 0.86 1" density="0"/>
-      <geom size="0.0502 0.0688 0.07905" pos="-0.004 0 0.13343" type="box" conaffinity="2" rgba="0.88 0.88 0.86 1"/>
-      <body name="l_hip_yaw_link" pos="0 0.03295 0.028">
-        <inertial pos="0.0052 0 0.01978" quat="0.458597 0.538227 0.538227 0.458597" mass="0.01875" diaginertia="9.9568e-06 9.39579e-06 3.85331e-06"/>
+      <geom size="0.0502 0.0688 0.07905" pos="-0.004 0 0.13383" type="box" contype="0" conaffinity="0" group="1" rgba="0.88 0.88 0.86 1" density="0"/>
+      <geom size="0.0502 0.0688 0.07905" pos="-0.004 0 0.13383" type="box" conaffinity="2" rgba="0.88 0.88 0.86 1"/>
+      <body name="l_hip_yaw_link" pos="0 0.03295 0.0284">
+        <inertial pos="0.0052 0 0.01978" quat="0.458587 0.538236 0.538236 0.458587" mass="0.01875" diaginertia="9.9564e-06 9.39587e-06 3.85283e-06"/>
         <joint name="l_hip_yaw" range="-0.7854 0.7854" actuatorfrcrange="-0.216 0.216" armature="2e-05" damping="0.02"/>
         <geom size="0.02925 0.021 0.02229" pos="0.0019 0 0.00779" type="box" contype="0" conaffinity="0" group="1" rgba="0.88 0.88 0.86 1" density="0"/>
         <geom size="0.02925 0.021 0.02229" pos="0.0019 0 0.00779" type="box" contype="4" conaffinity="10" rgba="0.88 0.88 0.86 1"/>
         <body name="l_hip_roll_link">
-          <inertial pos="0.0018 0.00667 -0.01899" quat="0.994969 -0.0903687 0.0430677 -0.00398192" mass="0.16541" diaginertia="0.000107434 9.51576e-05 3.99474e-05"/>
+          <inertial pos="0.00179 0.00668 -0.01917" quat="0.995073 -0.0894255 0.0426271 -0.00405881" mass="0.16588" diaginertia="0.000108813 9.6473e-05 4.00526e-05"/>
           <joint name="l_hip_roll" range="-0.3491 0.3491" actuatorfrcrange="-1.961 1.961" armature="2e-05" damping="0.02" axis="1 0 0"/>
-          <geom size="0.0247 0.03015 0.039475" pos="0.00315 0.0086 -0.02727" type="box" contype="0" conaffinity="0" group="1" rgba="0.88 0.88 0.86 1" density="0"/>
-          <geom size="0.0247 0.03015 0.039475" pos="0.00315 0.0086 -0.02727" type="box" contype="4" conaffinity="10" rgba="0.88 0.88 0.86 1"/>
-          <body name="l_hip_pitch_link" pos="0 0 -0.028">
+          <geom size="0.0247 0.03015 0.039675" pos="0.00315 0.0086 -0.02748" type="box" contype="0" conaffinity="0" group="1" rgba="0.88 0.88 0.86 1" density="0"/>
+          <geom size="0.0247 0.03015 0.039675" pos="0.00315 0.0086 -0.02748" type="box" contype="4" conaffinity="10" rgba="0.88 0.88 0.86 1"/>
+          <body name="l_hip_pitch_link" pos="0 0 -0.0284">
             <inertial pos="-0.00243 0.0013 -0.08007" quat="0.99834 0.050275 -0.0276801 -0.00486135" mass="0.11384" diaginertia="0.000103154 8.55507e-05 3.12339e-05"/>
             <joint name="l_hip_pitch" range="-1.3963 0.6981" actuatorfrcrange="-1.961 1.961" armature="2e-05" damping="0.02" axis="0 1 0"/>
             <geom size="0.0154 0.02925 0.066625" pos="-0.0009 0.0019 -0.05212" type="box" contype="0" conaffinity="0" group="1" rgba="0.88 0.88 0.86 1" density="0"/>
@@ -54,17 +54,17 @@
           </body>
         </body>
       </body>
-      <body name="r_hip_yaw_link" pos="0 -0.03295 0.028">
-        <inertial pos="0.0052 0 0.01978" quat="0.458597 0.538227 0.538227 0.458597" mass="0.01875" diaginertia="9.9568e-06 9.39579e-06 3.85331e-06"/>
+      <body name="r_hip_yaw_link" pos="0 -0.03295 0.0284">
+        <inertial pos="0.0052 0 0.01978" quat="0.458587 0.538236 0.538236 0.458587" mass="0.01875" diaginertia="9.9564e-06 9.39587e-06 3.85283e-06"/>
         <joint name="r_hip_yaw" range="-0.7854 0.7854" actuatorfrcrange="-0.216 0.216" armature="2e-05" damping="0.02"/>
         <geom size="0.02925 0.021 0.02229" pos="0.0019 0 0.00779" type="box" contype="0" conaffinity="0" group="1" rgba="0.88 0.88 0.86 1" density="0"/>
         <geom size="0.02925 0.021 0.02229" pos="0.0019 0 0.00779" type="box" contype="8" conaffinity="6" rgba="0.88 0.88 0.86 1"/>
         <body name="r_hip_roll_link">
-          <inertial pos="0.0018 -0.00667 -0.01899" quat="0.994969 0.0903687 0.0430677 0.00398192" mass="0.16541" diaginertia="0.000107434 9.51576e-05 3.99474e-05"/>
+          <inertial pos="0.00179 -0.00668 -0.01917" quat="0.995073 0.0894255 0.0426271 0.00405881" mass="0.16588" diaginertia="0.000108813 9.6473e-05 4.00526e-05"/>
           <joint name="r_hip_roll" range="-0.3491 0.3491" actuatorfrcrange="-1.961 1.961" armature="2e-05" damping="0.02" axis="1 0 0"/>
-          <geom size="0.0247 0.03015 0.039475" pos="0.00315 -0.0086 -0.02727" type="box" contype="0" conaffinity="0" group="1" rgba="0.88 0.88 0.86 1" density="0"/>
-          <geom size="0.0247 0.03015 0.039475" pos="0.00315 -0.0086 -0.02727" type="box" contype="8" conaffinity="6" rgba="0.88 0.88 0.86 1"/>
-          <body name="r_hip_pitch_link" pos="0 0 -0.028">
+          <geom size="0.0247 0.03015 0.039675" pos="0.00315 -0.0086 -0.02748" type="box" contype="0" conaffinity="0" group="1" rgba="0.88 0.88 0.86 1" density="0"/>
+          <geom size="0.0247 0.03015 0.039675" pos="0.00315 -0.0086 -0.02748" type="box" contype="8" conaffinity="6" rgba="0.88 0.88 0.86 1"/>
+          <body name="r_hip_pitch_link" pos="0 0 -0.0284">
             <inertial pos="-0.00243 -0.0013 -0.08007" quat="0.99834 -0.050275 -0.0276801 0.00486135" mass="0.11384" diaginertia="0.000103154 8.55507e-05 3.12339e-05"/>
             <joint name="r_hip_pitch" range="-1.3963 0.6981" actuatorfrcrange="-1.961 1.961" armature="2e-05" damping="0.02" axis="0 1 0"/>
             <geom size="0.0154 0.02925 0.066625" pos="-0.0009 -0.0019 -0.05212" type="box" contype="0" conaffinity="0" group="1" rgba="0.88 0.88 0.86 1" density="0"/>
@@ -91,7 +91,7 @@
           </body>
         </body>
       </body>
-      <body name="l_shoulder_pitch_link" pos="0 0.086 0.18598">
+      <body name="l_shoulder_pitch_link" pos="0 0.086 0.18638">
         <inertial pos="-0.00334 -0.00245 -0.01649" quat="0.671455 0.216461 -0.114807 0.699366" mass="0.01938" diaginertia="3.39659e-06 2.8546e-06 1.74431e-06"/>
         <joint name="l_shoulder_pitch" range="-3.1416 1.0472" actuatorfrcrange="-0.216 0.216" armature="2e-05" damping="0.02" axis="0 1 0"/>
         <geom size="0.0174 0.0146 0.0243" pos="0.0004 -0.0063 -0.0123" type="box" contype="0" conaffinity="0" group="1" rgba="0.88 0.88 0.86 1" density="0"/>
@@ -109,7 +109,7 @@
           </body>
         </body>
       </body>
-      <body name="r_shoulder_pitch_link" pos="0 -0.086 0.18598">
+      <body name="r_shoulder_pitch_link" pos="0 -0.086 0.18638">
         <inertial pos="-0.00334 0.00245 -0.01649" quat="0.699366 -0.114807 0.216461 0.671455" mass="0.01938" diaginertia="3.39659e-06 2.8546e-06 1.74431e-06"/>
         <joint name="r_shoulder_pitch" range="-3.1416 1.0472" actuatorfrcrange="-0.216 0.216" armature="2e-05" damping="0.02" axis="0 1 0"/>
         <geom size="0.0174 0.0146 0.0243" pos="0.0004 0.0063 -0.0123" type="box" contype="0" conaffinity="0" group="1" rgba="0.88 0.88 0.86 1" density="0"/>
@@ -127,24 +127,24 @@
           </body>
         </body>
       </body>
-      <body name="neck_yaw_link" pos="-0.003 0 0.22368">
+      <body name="neck_yaw_link" pos="-0.003 0 0.22408">
         <inertial pos="-0.00455 -0.0017 -0.00115" quat="-0.167585 0.732203 0.175101 0.636501" mass="0.01811" diaginertia="2.34447e-06 1.74474e-06 1.58399e-06"/>
         <joint name="neck_yaw" range="-1.5708 1.5708" actuatorfrcrange="-0.177 0.177" armature="2e-05" damping="0.02"/>
         <geom size="0.0173 0.01805 0.0116" pos="-0.0053 0.00145 -0.0033" type="box" contype="0" conaffinity="0" group="1" rgba="0.88 0.88 0.86 1" density="0"/>
         <geom size="0.0173 0.01805 0.0116" pos="-0.0053 0.00145 -0.0033" type="box" conaffinity="2" rgba="0.88 0.88 0.86 1"/>
         <body name="head_pitch_link" pos="0 0.00019 0">
-          <inertial pos="0.01193 0 0.01853" quat="0.027672 0.683938 0.017181 0.728812" mass="0.06677" diaginertia="5.91627e-05 5.39776e-05 4.31877e-05"/>
+          <inertial pos="0.01191 0 0.01836" quat="0.0273126 0.681032 0.0165184 0.731558" mass="0.06663" diaginertia="5.90234e-05 5.37784e-05 4.30072e-05"/>
           <joint name="head_pitch" range="-0.5236 0.5585" actuatorfrcrange="-0.177 0.177" armature="2e-05" damping="0.02" axis="0 1 0"/>
-          <geom size="0.0396 0.0326 0.04012" pos="0.0086 -0.00019 0.01572" type="box" contype="0" conaffinity="0" group="1" rgba="0.88 0.88 0.86 1" density="0"/>
-          <geom size="0.0396 0.0326 0.04012" pos="0.0086 -0.00019 0.01572" type="box" conaffinity="2" rgba="0.88 0.88 0.86 1"/>
+          <geom size="0.0396 0.0326 0.04032" pos="0.0086 -0.00019 0.01552" type="box" contype="0" conaffinity="0" group="1" rgba="0.88 0.88 0.86 1" density="0"/>
+          <geom size="0.0396 0.0326 0.04032" pos="0.0086 -0.00019 0.01552" type="box" conaffinity="2" rgba="0.88 0.88 0.86 1"/>
           <body name="camera_link" pos="0.03411 -0.00019 0.04541" quat="0.991445 0 0.130526 0">
             <camera name="head_camera" quat="0.5 -0.5 0.5 0.5" fovy="60"/>
             <body name="camera_optical_frame" quat="0.499998 -0.5 0.500002 -0.5"/>
           </body>
-          <body name="tof_link" pos="0.02971 -0.00019 0.02898" quat="0.991445 0 0.130526 0"/>
+          <body name="tof_link" pos="0.02971 -0.00019 0.02899" quat="0.991445 0 0.130526 0"/>
         </body>
       </body>
-      <body name="imu_link" pos="0.013 0 0.14808">
+      <body name="imu_link" pos="0.013 0 0.14848">
         <site name="imu"/>
       </body>
     </body>

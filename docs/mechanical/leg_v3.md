@@ -11,19 +11,19 @@ the hip point H on the hip-pitch axis, x forward, y outboard, z up, leg straight
 | | Leg v4 (DS3218, DS3225) | Leg v3 (MG92B) |
 | --- | --- | --- |
 | Leg width at the joints (caps flush) | 54.7 | 44.8 |
-| Hip roll axis above the hip pitch axis | 28.0 | 20.0 |
+| Hip roll axis above the hip pitch axis | 28.4 | 20.0 |
 | Ankle roll axis below the ankle pitch axis | 30.7 | 20.0 |
 | Hip → knee → ankle (L1, L2) | 100.0, 100.0 | 48.0, 48.0 |
 | Ankle point A above the floor | 60.18 | 41.33 |
 | Hip point H above the floor | 260.18 | 137.33 |
-| Hip yaw horn plate (underside) above H | 51.48 | 35.33 |
-| Pelvis floor (top of `hip_mount`) above H | 89.18 | 73.03 |
+| Hip yaw horn plate (underside) above H | 51.88 | 35.33 |
+| Pelvis floor (top of `hip_mount`) above H | 89.58 | 73.03 |
 | Leg centre lines | y = ±32.95 | ±28.0 |
 | Sole | 96 × 56.4 | 76 × 38 |
 
 Where those come from: every joint has the servo shaft on the joint axis, a horn plate on one side and an
 MR63ZZ idler on the other, so the stack across a joint is fixed by the servo and the bearing (table below).
-The roll axes sit 28.0 / 30.7 mm off the pitch axes so the roll servo clears the pitch servo's ears (and, at the ankle, the shin's ring round the ankle axis);
+The roll axes sit 28.4 / 30.7 mm off the pitch axes so the roll servo clears the pitch servo's ears (and, at the ankle, the shin's ring round the ankle axis);
 the yaw plate and the sole sit where the hip and ankle blocks can swing ±20° in roll.
 
 ## Joint stack (every joint is built the same way)
@@ -56,11 +56,11 @@ Printed parts:
 | `ankle_block` | PLA | 33.6 | 41.7 | as the hip block: −y face down | [drawing](drawings/ankle_block.png) |
 | `shin` | PLA | 25.2 | 31.3 | lying on its −y side: all four plate holes print round | [drawing](drawings/shin.png) |
 | `thigh` | PLA | 41.4 | 51.3 | lying on its −y side (idler plate down): both bearing seats print as round holes | [drawing](drawings/thigh.png) |
-| `hip_block` | PLA | 31.4 | 39.0 | idler wall of the hip pitch pocket (−y face) down; no supports inside the pockets | [drawing](drawings/hip_block.png) |
+| `hip_block` | PLA | 31.8 | 39.4 | idler wall of the hip pitch pocket (−y face) down; no supports inside the pockets | [drawing](drawings/hip_block.png) |
 | `yaw_bracket` | PLA | 15.7 | 19.5 | top plate down on the bed; supports only under the roll horn recess | [drawing](drawings/yaw_bracket.png) |
 | `thrust_ring` | PLA | 3.9 | 4.8 | thrust face down on the bed (smooth face against the yaw bracket) | [drawing](drawings/thrust_ring.png) |
 | `hip_mount` | PLA | 10.5 | 13.0 | top flange down on the bed: the yaw pocket opens upward, no supports | [drawing](drawings/hip_mount.png) |
-| **Total** | | 199.0 | **246.2** | upper bound: printed at 4 walls, 40 % infill they come out about 30 % lighter | |
+| **Total** | | 199.3 | **246.7** | upper bound: printed at 4 walls, 40 % infill they come out about 30 % lighter | |
 
 Bought parts (servos: 4 × DS3218, 1 × DS3225 and the hip-yaw MG90S, which sits in `hip_mount`):
 
@@ -173,12 +173,12 @@ is for checking a print and for pressing the inserts in the right place.
 | H3 | `hip_pitch.ear3` | 4.00 | 3.6 | (+5.0, +14.8, -34.8) | −y | INS-M3 + M3x8 (servo ear) |
 | H4 | `hip_pitch.ear4` | 4.00 | 3.6 | (-5.0, +14.8, -34.8) | −y | INS-M3 + M3x8 (servo ear) |
 | H5 | `hip_pitch.idler_insert` | 4.00 | 3.3 | (+0.0, -16.4, +0.0) | +y | INS-M3 + spacer tube Ø4×0.45 L5.1 + M3x10 (idler pivot) |
-| H6 | `hip_roll.ear1` | 4.00 | 3.6 | (+14.8, -14.8, +23.0) | −x | INS-M3 + M3x8 (servo ear) |
-| H7 | `hip_roll.ear2` | 4.00 | 3.6 | (+14.8, -14.8, +33.0) | −x | INS-M3 + M3x8 (servo ear) |
-| H8 | `hip_roll.ear3` | 4.00 | 3.6 | (+14.8, +34.8, +23.0) | −x | INS-M3 + M3x8 (servo ear) |
-| H9 | `hip_roll.ear4` | 4.00 | 3.6 | (+14.8, +34.8, +33.0) | −x | INS-M3 + M3x8 (servo ear) |
-| H10 | `hip_roll.idler_insert` | 4.00 | 3.3 | (-16.4, +0.0, +28.0) | +x | INS-M3 + spacer tube Ø4×0.45 L5.1 + M3x10 (idler pivot) |
-| H11 | `hip_roll.ntc` | 3.60 | through | (+1.1, +10.0, +15.3) | +z | NTC 10k bead on the servo case (Kapton), wire out |
+| H6 | `hip_roll.ear1` | 4.00 | 3.6 | (+14.8, -14.8, +23.4) | −x | INS-M3 + M3x8 (servo ear) |
+| H7 | `hip_roll.ear2` | 4.00 | 3.6 | (+14.8, -14.8, +33.4) | −x | INS-M3 + M3x8 (servo ear) |
+| H8 | `hip_roll.ear3` | 4.00 | 3.6 | (+14.8, +34.8, +23.4) | −x | INS-M3 + M3x8 (servo ear) |
+| H9 | `hip_roll.ear4` | 4.00 | 3.6 | (+14.8, +34.8, +33.4) | −x | INS-M3 + M3x8 (servo ear) |
+| H10 | `hip_roll.idler_insert` | 4.00 | 3.3 | (-16.4, +0.0, +28.4) | +x | INS-M3 + spacer tube Ø4×0.45 L5.1 + M3x10 (idler pivot) |
+| H11 | `hip_roll.ntc` | 3.60 | through | (+1.1, +10.0, +15.7) | +z | NTC 10k bead on the servo case (Kapton), wire out |
 
 ### `yaw_bracket` · origin: hip roll axis
 
@@ -307,10 +307,10 @@ up behind `hip_mount` and into the torso through the slot in the pelvis plate. L
 
 | Servo | Run (mm) | Joints crossed | Lead needed (mm) | Stock lead about 250 mm (MEASURE) |
 | --- | --- | --- | --- | --- |
-| ankle_roll | 317 | 5 | 547 | add a 200 mm extension |
-| ankle_pitch | 309 | 5 | 539 | add a 200 mm extension |
-| knee | 146 | 3 | 316 | add a 100 mm extension |
-| hip_pitch | 108 | 2 | 248 | add a 100 mm extension |
+| ankle_roll | 318 | 5 | 548 | add a 200 mm extension |
+| ankle_pitch | 310 | 5 | 540 | add a 200 mm extension |
+| knee | 147 | 3 | 317 | add a 100 mm extension |
+| hip_pitch | 109 | 2 | 249 | add a 100 mm extension |
 | hip_roll | 78 | 2 | 218 | fits |
 
 Extensions also give each servo its own plug near the pelvis: a servo is unplugged there, not at the PCA9685.

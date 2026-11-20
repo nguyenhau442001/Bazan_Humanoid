@@ -35,7 +35,7 @@ LP = J.pocket(LEG_SERVO)
 PW = round(LEG_SERVO.width / 2 + hw.CLEAR_SERVO + hw.WALL, 2)   # across the case (w), each side
 PB0 = round(-LP.CB0 + hw.CLEAR_SERVO + hw.WALL, 2)        # along the case (b), shaft side
 PB1 = round(LP.CB + hw.CLEAR_SERVO + hw.WALL, 2)          # along the case (b), far end
-EAR_ROOM = 3.6           # pitch pocket wall to roll pocket wall: room for the ear screws
+EAR_ROOM = 4.0 if LEG_SERVO.size == "standard" else 3.6   # pitch to roll pocket wall: ear screws and inserts
 V4 = LEG_SERVO.size == "standard"
 HIP_ROLL_UP = round(PB0 + PW + EAR_ROOM, 2)   # D2B: hip roll axis above the hip-pitch axis (v3 20.0)
 # D2B: ankle roll axis below the ankle-pitch axis. v4: the outboard roll pocket sits under the shin's horn-side
