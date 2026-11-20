@@ -5,9 +5,9 @@
   "detail": "49.000"
  },
  {
-  "check": "tờ 1 [front] 60 = giá trị trên CAD",
+  "check": "tờ 1 [front] 47.58 = giá trị trên CAD",
   "ok": true,
-  "detail": "60.000"
+  "detail": "47.580"
  },
  {
   "check": "tờ 1 [left] 8.43 = giá trị trên CAD",
@@ -20,19 +20,19 @@
   "detail": "24.500"
  },
  {
-  "check": "tờ 1 [front] 50.44 = giá trị trên CAD",
+  "check": "tờ 1 [front] 54.16 = giá trị trên CAD",
   "ok": true,
-  "detail": "50.438"
+  "detail": "54.163"
  },
  {
-  "check": "tờ 1 [front] 34.02 = giá trị trên CAD",
+  "check": "tờ 1 [front] 37.74 = giá trị trên CAD",
   "ok": true,
-  "detail": "34.017"
+  "detail": "37.742"
  },
  {
   "check": "kích thước bao = hộp bao chính xác của khối đặc",
   "ok": true,
-  "detail": "CAD [ 8.43 49.   60.  ], ghi [8.43, 49.0, 60.0]"
+  "detail": "CAD [ 8.43 49.   47.58], ghi [8.43, 47.58, 49.0]"
  },
  {
   "check": "mỗi đặc tính trong bảng là một lỗ có thật trên khối đặc",
@@ -62,27 +62,27 @@
  {
   "check": "góc thứ nhất: hình bằng nằm dưới, hình cạnh nằm phải hình đứng, không chạm nhau",
   "ok": true,
-  "detail": "bằng y1 153 < đứng y0 195; cạnh x0 161 > đứng x1 109"
+  "detail": "bằng y1 165 < đứng y0 207; cạnh x0 161 > đứng x1 109"
  },
  {
   "check": "tờ 1 hình front: trong khung, không chạm khung tên",
   "ok": true,
-  "detail": "[60, 195, 109, 255]"
+  "detail": "[60, 207, 109, 255]"
  },
  {
   "check": "tờ 1 hình top: trong khung, không chạm khung tên",
   "ok": true,
-  "detail": "[60, 145, 109, 153]"
+  "detail": "[60, 157, 109, 165]"
  },
  {
   "check": "tờ 1 hình left: trong khung, không chạm khung tên",
   "ok": true,
-  "detail": "[161, 195, 169, 255]"
+  "detail": "[161, 207, 169, 255]"
  },
  {
   "check": "tờ 1 hình iso: trong khung, không chạm khung tên",
   "ok": true,
-  "detail": "[335, 70, 372, 134]"
+  "detail": "[335, 69, 372, 124]"
  },
  {
   "check": "tỉ lệ tờ 1 hình front là tỉ lệ ISO 5455",
@@ -106,18 +106,18 @@
  },
  {
   "check": "tờ 1: chữ không chồng nhau",
-  "ok": true,
-  "detail": "ok"
+  "ok": false,
+  "detail": "'49' × 'A1'"
  },
  {
   "check": "tờ 2 hình A: trong khung, không chạm khung tên",
   "ok": true,
-  "detail": "[55, 201, 104, 259]"
+  "detail": "[55, 211, 104, 259]"
  },
  {
   "check": "tờ 2 hình B: trong khung, không chạm khung tên",
   "ok": true,
-  "detail": "[154, 199, 162, 259]"
+  "detail": "[154, 211, 162, 259]"
  },
  {
   "check": "tỉ lệ tờ 2 hình A là tỉ lệ ISO 5455",

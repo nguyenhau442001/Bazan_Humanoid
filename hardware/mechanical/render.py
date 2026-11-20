@@ -25,7 +25,7 @@ LOOK = {"yaw_bracket": "white", "hip_block": "navy", "thigh": "white", "shin": "
 def look(name):
     if name in LOOK:
         return LOOK[name]
-    return {"servo": "servo", "horn": "horn", "cap": "cap"}[name.split("_", 1)[0]]
+    return {"servo": "servo", "horn": "horn", "cap": "cap", "spacer": "horn"}[name.split("_", 1)[0]]
 
 
 POSES = {
@@ -33,6 +33,19 @@ POSES = {
     "crouch": {"hip_pitch": -25, "knee": 50, "ankle_pitch": -25},
     "deep": {"hip_pitch": -60, "knee": 110, "ankle_pitch": -45, "hip_roll": 15, "ankle_roll": -15},
 }
+
+# cameras were framed on leg v3; scale them with the leg (v3: K = 1)
+K = (L.L1 + L.L2 + L.HIP_ROLL_UP + L.ANKLE_ROLL_DOWN) / (48.0 + 48.0 + 20.0 + 20.0)
+
+
+def _scaled(view):
+    name, pose, cam, tgt, ortho, xray, exploded = view
+    if K == 1.0:
+        return view
+    t = (tgt[0], tgt[1], tgt[2] * K)
+    c = tuple(ti + K * (ci - ti0) for ci, ti0, ti in zip(cam, tgt, t))
+    return name, pose, c, t, ortho and ortho * K, xray, exploded
+
 
 VIEWS = [  # (file, pose, camera location (m), target, ortho scale or None, xray, exploded)
     ("leg_34", "stand", (0.42, 0.36, 0.06), (0, 0, -0.05), None, False, False),
@@ -43,11 +56,12 @@ VIEWS = [  # (file, pose, camera location (m), target, ortho scale or None, xray
     ("leg_deep", "deep", (0.42, 0.36, 0.06), (0, 0, -0.05), None, False, False),
     ("leg_exploded", "stand", (0.55, 0.5, 0.05), (0, 0, -0.05), None, False, True),
 ]
+VIEWS = [_scaled(v) for v in VIEWS]
 
 # exploded view: links pulled apart along their joint axes (mm)
-EXPLODE = {"pelvis": (0, 0, 75), "yaw_bracket": (0, 0, 40), "hip_block": (0, 0, 0), "thigh": (0, 30, -20),
-           "shin": (0, 55, -40),
-           "ankle_block": (0, 0, -60), "foot": (35, 0, -85), "sole": (35, 0, -100)}
+EXPLODE = {k: tuple(K * c for c in v) for k, v in {
+    "pelvis": (0, 0, 75), "yaw_bracket": (0, 0, 40), "hip_block": (0, 0, 0), "thigh": (0, 30, -20),
+    "shin": (0, 55, -40), "ankle_block": (0, 0, -60), "foot": (35, 0, -85), "sole": (35, 0, -100)}.items()}
 
 
 # assembly steps: (file, title, links present, links added in this step); servos, horns and caps follow their links
@@ -65,8 +79,10 @@ STEPS = [
      ["foot", "ankle_block", "shin", "thigh", "hip_block", "yaw_bracket", "pelvis"], ["pelvis"]),
 ]
 # the four sub-assemblies side by side across the camera's view, all at mid height
-STEP_SPREAD = {"ankle_block": (39, -46, 68), "thigh": (13, -15, -6), "hip_block": (-13, 15, -33),
-               "hip_mount": (-39, 46, -90)}
+STEP_SPREAD = {k: tuple(K * c for c in v) for k, v in {
+    "ankle_block": (39, -46, 68), "thigh": (13, -15, -6), "hip_block": (-13, 15, -33),
+    "hip_mount": (-39, 46, -90)}.items()}
+STEP_CAM = _scaled(("", "", (0.45, 0.38, 0.08), (0, 0, -0.03), None, False, False))[2:4]
 
 
 def export(tmp, samples, only=None):
@@ -92,7 +108,7 @@ def export(tmp, samples, only=None):
             f = Path(tmp) / f"{vname}__{n}.stl"
             cq.exporters.export(s, str(f), tolerance=0.05, angularTolerance=0.15)
             files.append((str(f), c))
-        manifest["views"].append(dict(name=vname, files=files, cam=(0.45, 0.38, 0.08), target=(0, 0, -0.03),
+        manifest["views"].append(dict(name=vname, files=files, cam=STEP_CAM[0], target=STEP_CAM[1],
                                       ortho=None, xray=False))
     for vname, pname, cam, tgt, ortho, xray, exploded in VIEWS:
         if only and vname not in only:

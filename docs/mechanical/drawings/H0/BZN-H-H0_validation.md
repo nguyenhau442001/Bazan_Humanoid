@@ -4,13 +4,13 @@ Sinh bởi `hardware/mechanical/drawings_parts.py H0`. Lỗi: **0**.
 
 | Kiểm tra | Kết quả | Chi tiết |
 | --- | --- | --- |
-| tờ 1 hình front: trong khung, không chạm khung tên | đạt | [55, 180, 120, 257] |
-| tờ 1 hình left: trong khung, không chạm khung tên | đạt | [160, 180, 239, 257] |
+| tờ 1 hình front: trong khung, không chạm khung tên | đạt | [55, 176, 120, 257] |
+| tờ 1 hình left: trong khung, không chạm khung tên | đạt | [160, 176, 239, 257] |
 | tỉ lệ tờ 1 hình front là tỉ lệ ISO 5455 | đạt | 1:1 |
 | tỉ lệ tờ 1 hình left là tỉ lệ ISO 5455 | đạt | 1:1 |
 | tờ 1: chữ nằm trong khung | đạt | ok |
 | tờ 1: chữ không chồng nhau | đạt | ok |
-| tờ 2 hình xiso: trong khung, không chạm khung tên | đạt | [114, 131, 211, 216] |
+| tờ 2 hình xiso: trong khung, không chạm khung tên | đạt | [114, 133, 211, 211] |
 | tờ 2: chữ nằm trong khung | đạt | ok |
 | tờ 2: chữ không chồng nhau | đạt | ok |
 | khung tên đủ trường | đạt | đủ |

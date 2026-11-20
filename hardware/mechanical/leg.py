@@ -38,8 +38,10 @@ PB1 = round(LP.CB + hw.CLEAR_SERVO + hw.WALL, 2)          # along the case (b), 
 EAR_ROOM = 3.6           # pitch pocket wall to roll pocket wall: room for the ear screws
 V4 = LEG_SERVO.size == "standard"
 HIP_ROLL_UP = round(PB0 + PW + EAR_ROOM, 2)   # D2B: hip roll axis above the hip-pitch axis (v3 20.0)
-ANKLE_ROLL_DOWN = HIP_ROLL_UP          # D2B: ankle roll axis below the ankle-pitch axis
-L1 = 105.0 if V4 else 48.0             # H -> knee (v3 48, chosen by check_mujoco: see docs/mechanical)
+# D2B: ankle roll axis below the ankle-pitch axis. v4: the outboard roll pocket sits under the shin's horn-side
+# web, whose ring round the ankle axis is HORN_R + 3: keep the pocket a moving gap below that ring
+ANKLE_ROLL_DOWN = (max(HIP_ROLL_UP, round(LP.HORN_R + 3.0 + PW + hw.GAP_MOVING, 2)) if V4 else HIP_ROLL_UP)
+L1 = 100.0 if V4 else 48.0             # H -> knee (v3 48, chosen by check_mujoco: see docs/mechanical)
 L2 = L1                                # knee -> A
 # roll servos: v3 hangs them inboard (-y); the DS3218 is too long for that (the two hip blocks would meet on the
 # centre line), so v4 turns both roll servos outboard
@@ -103,17 +105,36 @@ def fuse(*shapes):
     return s.clean()
 
 
+def _leg_joints():
+    return {
+        # gap = LEG_GAP: the driven link comes off the spline along the shaft (N3 review G-2)
+        "hip_roll": J.Joint("hip_roll", "hip_block", "yaw_bracket", (0, 0, HIP_ROLL_UP), X, ROLL_B, **WIDE),
+        "hip_pitch": J.Joint("hip_pitch", "hip_block", "thigh", (0, 0, 0), Y, NZ, **WIDE),
+        "knee": J.Joint("knee", "thigh", "shin", (0, 0, K), Y, Z, **WIDE),
+        "ankle_pitch": J.Joint("ankle_pitch", "ankle_block", "shin", (0, 0, A), Y, Z, **WIDE),
+        "ankle_roll": J.Joint("ankle_roll", "ankle_block", "foot", (0, 0, AR), X, ROLL_B, **WIDE),
+    }
+
+
+_PELVIS_FLOOR = []
+
+
+def pelvis_floor():
+    """Top of hip_mount above H (the pelvis plate underside): the yaw plate clears the hip block swinging in roll,
+    the yaw pocket sits on the plate. Computed from the hip block alone, once."""
+    if not _PELVIS_FLOOR:
+        leg = Leg.__new__(Leg)
+        leg.joints = _leg_joints()
+        yaw_bottom = Leg._swept_top(leg._hip_block_body(), (0, 0, HIP_ROLL_UP), X, HIP_ROLL_MAX) + hw.GAP_MOVING
+        case_top = yaw_bottom + J.HP[1]          # yaw pocket case top: the yaw horn plate sits on the yaw plate
+        _PELVIS_FLOOR.append(round(case_top - J.IW[0], 3))
+    return _PELVIS_FLOOR[0]
+
+
 class Leg:
     def __init__(self, shin="closed"):
         self.shin_frame = shin
-        self.joints = {
-            # gap = LEG_GAP: the driven link comes off the spline along the shaft (N3 review G-2)
-            "hip_roll": J.Joint("hip_roll", "hip_block", "yaw_bracket", (0, 0, HIP_ROLL_UP), X, ROLL_B, **WIDE),
-            "hip_pitch": J.Joint("hip_pitch", "hip_block", "thigh", (0, 0, 0), Y, NZ, **WIDE),
-            "knee": J.Joint("knee", "thigh", "shin", (0, 0, K), Y, Z, **WIDE),
-            "ankle_pitch": J.Joint("ankle_pitch", "ankle_block", "shin", (0, 0, A), Y, Z, **WIDE),
-            "ankle_roll": J.Joint("ankle_roll", "ankle_block", "foot", (0, 0, AR), X, ROLL_B, **WIDE),
-        }
+        self.joints = _leg_joints()
         self.parts = {}
         self.extra_holes = []
         hb = self._hip_block_body()

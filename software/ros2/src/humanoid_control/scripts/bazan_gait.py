@@ -137,11 +137,15 @@ HIP_Y = PIVOT["l"][1]
 LIMIT = {j: _J[j]["limit"] for j in JOINTS}
 
 # ---------------------------------------------------------------- gait parameters
-H0 = 0.090           # nominal hip-pitch to ankle-pitch height (m), legs slightly bent
-STEP = 0.024         # stride (m): each foot moves this far per step
+H0 = L1 + L2 - 0.006  # nominal hip-pitch to ankle-pitch height (m): legs bent 6 mm short of straight (v3 0.090)
+STEP = 0.056         # stride (m) per step: the longest that keeps the knee p99 under 1/3 stall (leg v4, check_mujoco)
 LIFT = 0.012         # foot clearance (m)
 LEAN = 0.20          # pelvis roll toward the loaded foot at full load (rad)
-SERVO_KP = 6.0       # hobby-servo stiffness, N.m/rad (the MuJoCo actuator uses the same; P0 measures it)
+# hobby-servo stiffness, N.m/rad: a position servo reaches its stall torque a fixed angle error off target, so
+# its stiffness scales with its stall torque. MG92B 6 N.m/rad at 0.343 N.m (P0 measures it); the MuJoCo actuators
+# use the same per-joint values
+KP_PER_NM = 6.0 / 0.343
+SERVO_KP = {j: KP_PER_NM * _J[j]["effort"] for j in JOINTS}
 SAG_FF = 1.25        # command += SAG_FF * hold torque / SERVO_KP; above 1 so an underestimated load errs stiff
 H0_LEANED = L1 + L2 - 2 * HIP_Y * math.sin(LEAN) - 0.002   # at full lean: the free leg reaches the floor, 2 mm spare
 T_SHIFT, T_SWING, T_SETTLE = 1.2, 1.2, 0.3   # seconds per step phase
@@ -298,7 +302,7 @@ def pose(com, yaw, feet, upper, z=None, guess=(0.0, 0.0), sag=True):
     down = [s for s, ft in feet.items() if ft[2] < 1e-6]
     load = {down[0]: 1.0} if len(down) == 1 else {"l": (1 + f) / 2, "r": (1 - f) / 2}
     tau = MODEL.hold_torques(T, Rb, load) if sag else {}
-    cmd = {j: q.get(j, 0.0) + SAG_FF * tau.get(j, 0.0) / SERVO_KP for j in JOINTS}
+    cmd = {j: q.get(j, 0.0) + SAG_FF * tau.get(j, 0.0) / SERVO_KP[j] for j in JOINTS}
     return {j: min(max(v, LIMIT[j][0]), LIMIT[j][1]) for j, v in cmd.items()}, xy
 
 

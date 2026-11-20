@@ -4,45 +4,49 @@ Sinh bởi `hardware/mechanical/drawings_parts.py L6`. Lỗi: **0**.
 
 | Kiểm tra | Kết quả | Chi tiết |
 | --- | --- | --- |
-| tờ 1 [front] 34.2 = giá trị trên CAD | đạt | 34.200 |
-| tờ 1 [front] 50.9 = giá trị trên CAD | đạt | 50.900 |
-| tờ 1 [left] 19.8 = giá trị trên CAD | đạt | 19.800 |
-| tờ 1 [top] 18.4 = giá trị trên CAD | đạt | 18.400 |
-| tờ 1 [top] 11.5 = giá trị trên CAD | đạt | 11.500 |
-| tờ 1 [left] 7.3 = giá trị trên CAD | đạt | 7.300 |
-| tờ 1 [left] 42.6 = giá trị trên CAD | đạt | 42.600 |
-| tờ 1 [left] 11.5 = giá trị trên CAD | đạt | 11.500 |
-| tờ 1 [left] 27.8 = giá trị trên CAD | đạt | 27.800 |
-| tờ 1 [left] 3.2 = giá trị trên CAD | đạt | 3.200 |
-| tờ 1 [front] 27.8 = giá trị trên CAD | đạt | 27.800 |
-| tờ 1 [front] 3.2 = giá trị trên CAD | đạt | 3.200 |
-| tờ 1 [front] 42.6 = giá trị trên CAD | đạt | 42.600 |
-| tờ 1 [left] 22.6 = giá trị trên CAD | đạt | 22.600 |
-| tờ 1 [front] 22.6 = giá trị trên CAD | đạt | 22.600 |
-| tờ 1 [top] 17.1 = giá trị trên CAD | đạt | 17.100 |
-| tờ 1 [top] 11.75 = giá trị trên CAD | đạt | 11.750 |
-| tờ 1 [left] 17.1 = giá trị trên CAD | đạt | 17.100 |
-| tờ 1 [front] 17.1 = giá trị trên CAD | đạt | 17.100 |
-| kích thước bao = hộp bao chính xác của khối đặc | đạt | CAD [19.8 34.2 50.9], ghi [19.8, 34.2, 50.9] |
-| mỗi đặc tính trong bảng là một lỗ có thật trên khối đặc | đạt | 11 đặc tính |
-| mã đặc tính không trùng | đạt | A1, B1, C1, C2, D1, D2, E1, F1, G1, H1, J1 |
-| bảng = mọi lỗ của chi tiết trong CAD | đạt | 11 |
+| tờ 1 [front] 57.5 = giá trị trên CAD | đạt | 57.500 |
+| tờ 1 [front] 78.95 = giá trị trên CAD | đạt | 78.950 |
+| tờ 1 [left] 31.3 = giá trị trên CAD | đạt | 31.300 |
+| tờ 1 [top] 23.4 = giá trị trên CAD | đạt | 23.400 |
+| tờ 1 [top] 16.45 = giá trị trên CAD | đạt | 16.450 |
+| tờ 1 [left] 21.1 = giá trị trên CAD | đạt | 21.100 |
+| tờ 1 [left] 66.75 = giá trị trên CAD | đạt | 66.750 |
+| tờ 1 [left] 10 = giá trị trên CAD | đạt | 10.000 |
+| tờ 1 [left] 11.45 = giá trị trên CAD | đạt | 11.450 |
+| tờ 1 [left] 49.5 = giá trị trên CAD | đạt | 49.500 |
+| tờ 1 [left] 4 = giá trị trên CAD | đạt | 4.000 |
+| tờ 1 [left] 16.45 = giá trị trên CAD | đạt | 16.450 |
+| tờ 1 [left] 38.75 = giá trị trên CAD | đạt | 38.750 |
+| tờ 1 [front] 49.5 = giá trị trên CAD | đạt | 49.500 |
+| tờ 1 [front] 4 = giá trị trên CAD | đạt | 4.000 |
+| tờ 1 [front] 10 = giá trị trên CAD | đạt | 10.000 |
+| tờ 1 [front] 61.75 = giá trị trên CAD | đạt | 61.750 |
+| tờ 1 [front] 18.75 = giá trị trên CAD | đạt | 18.750 |
+| tờ 1 [front] 66.75 = giá trị trên CAD | đạt | 66.750 |
+| tờ 1 [top] 28.75 = giá trị trên CAD | đạt | 28.750 |
+| tờ 1 [top] 17.55 = giá trị trên CAD | đạt | 17.550 |
+| tờ 1 [left] 33.25 = giá trị trên CAD | đạt | 33.250 |
+| tờ 1 [front] 24.25 = giá trị trên CAD | đạt | 24.250 |
+| kích thước bao = hộp bao chính xác của khối đặc | đạt | CAD [31.3  57.5  78.95], ghi [31.3, 57.5, 78.95] |
+| mỗi đặc tính trong bảng là một lỗ có thật trên khối đặc | đạt | 15 đặc tính |
+| mã đặc tính không trùng | đạt | A1, B1, C1, C2, C3, C4, D1, E1, E2, E3, E4, F1, G1, H1, J1 |
+| bảng = mọi lỗ của chi tiết trong CAD | đạt | 15 |
 | thẳng hàng đứng/bằng (cùng X giấy cho cùng điểm) | đạt | 0.0e+00 |
 | thẳng hàng đứng/cạnh (cùng Y giấy cho cùng điểm) | đạt | 0.0e+00 |
-| góc thứ nhất: hình bằng nằm dưới, hình cạnh nằm phải hình đứng, không chạm nhau | đạt | bằng y1 162 < đứng y0 204; cạnh x0 146 > đứng x1 94 |
-| tờ 1 hình front: trong khung, không chạm khung tên | đạt | [60, 204, 94, 255] |
-| tờ 1 hình top: trong khung, không chạm khung tên | đạt | [60, 142, 94, 162] |
-| tờ 1 hình left: trong khung, không chạm khung tên | đạt | [146, 204, 166, 255] |
-| tờ 1 hình iso: trong khung, không chạm khung tên | đạt | [336, 73, 374, 128] |
+| góc thứ nhất: hình bằng nằm dưới, hình cạnh nằm phải hình đứng, không chạm nhau | đạt | bằng y1 134 < đứng y0 176; cạnh x0 170 > đứng x1 118 |
+| tờ 1 hình front: trong khung, không chạm khung tên | đạt | [60, 176, 118, 255] |
+| tờ 1 hình top: trong khung, không chạm khung tên | đạt | [60, 103, 118, 134] |
+| tờ 1 hình left: trong khung, không chạm khung tên | đạt | [170, 176, 201, 255] |
+| tờ 1 hình iso: trong khung, không chạm khung tên | đạt | [329, 70, 381, 148] |
 | tỉ lệ tờ 1 hình front là tỉ lệ ISO 5455 | đạt | 1:1 |
 | tỉ lệ tờ 1 hình top là tỉ lệ ISO 5455 | đạt | 1:1 |
 | tỉ lệ tờ 1 hình left là tỉ lệ ISO 5455 | đạt | 1:1 |
 | tờ 1: chữ nằm trong khung | đạt | ok |
 | tờ 1: chữ không chồng nhau | đạt | ok |
-| tờ 2 hình A: trong khung, không chạm khung tên | đạt | [55, 209, 89, 259] |
-| tờ 2 hình B: trong khung, không chạm khung tên | đạt | [139, 208, 159, 259] |
-| tỉ lệ tờ 2 hình A là tỉ lệ ISO 5455 | đạt | 1:1 |
-| tỉ lệ tờ 2 hình B là tỉ lệ ISO 5455 | đạt | 1:1 |
+| tờ 2 hình A: trong khung, không chạm khung tên | đạt | [55, 220, 84, 259] |
+| tờ 2 hình B: trong khung, không chạm khung tên | đạt | [134, 220, 149, 259] |
+| tỉ lệ tờ 2 hình A là tỉ lệ ISO 5455 | đạt | 1:2 |
+| tỉ lệ tờ 2 hình B là tỉ lệ ISO 5455 | đạt | 1:2 |
 | tờ 2: chữ nằm trong khung | đạt | ok |
 | tờ 2: chữ không chồng nhau | đạt | ok |
 | khung tên đủ trường | đạt | đủ |

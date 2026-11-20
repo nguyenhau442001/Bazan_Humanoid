@@ -2,12 +2,12 @@
  {
   "check": "tờ 1 hình front: trong khung, không chạm khung tên",
   "ok": true,
-  "detail": "[55, 180, 120, 257]"
+  "detail": "[55, 176, 120, 257]"
  },
  {
   "check": "tờ 1 hình left: trong khung, không chạm khung tên",
   "ok": true,
-  "detail": "[160, 180, 239, 257]"
+  "detail": "[160, 176, 239, 257]"
  },
  {
   "check": "tỉ lệ tờ 1 hình front là tỉ lệ ISO 5455",
@@ -32,7 +32,7 @@
  {
   "check": "tờ 2 hình xiso: trong khung, không chạm khung tên",
   "ok": true,
-  "detail": "[114, 131, 211, 216]"
+  "detail": "[114, 133, 211, 211]"
  },
  {
   "check": "tờ 2: chữ nằm trong khung",

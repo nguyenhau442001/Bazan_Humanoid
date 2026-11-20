@@ -135,6 +135,7 @@ YOUTUBE_KEY_POSES = {
     "leg_z": [0.081, 0.081, 0.079, 0.081, 0.081, 0.081, 0.081, 0.079, 0.079, 0.081, 0.082, 0.081],
     "torso_pitch": [0.00, 0.02, 0.00, 0.00, 0.00, 0.02, 0.03, 0.02, 0.03, 0.00, 0.12, 0.00],
 }
+LEG_V3 = 0.096                  # hip pitch to ankle pitch, straight, on the leg the keyframes were made for
 YOUTUBE_SPLINES = {k: CubicSpline(YOUTUBE_KEY_TIMES, v, bc_type='periodic') for k, v in YOUTUBE_KEY_POSES.items()}
 
 
@@ -149,7 +150,7 @@ def get_madance_pose(t_sec):
     idx = int(np.clip(int(t_mod * 50.0), 0, len(t_pts) - 1))
 
     scale = float(data["com_height_scale"][idx])
-    h = np.clip(0.081 * scale, 0.078, 0.083)
+    h = np.clip(0.081 * scale, 0.078, 0.083) * (gait.L1 + gait.L2) / LEG_V3
     hp, kn, ap = gait.leg_ik(0, h)
 
     q = {j: 0.0 for j in gait.JOINTS}
@@ -178,7 +179,8 @@ def sample_spline_dance_pose(t_sec, mode="madance"):
     dur = TIKTOK_DURATION if mode == "tiktok" else YOUTUBE_DURATION
     t_mod = t_sec % dur
 
-    z_height = float(splines["leg_z"](t_mod))
+    # keyframes authored on leg v3 (L1 + L2 = 96 mm): the same knee bend on any leg length
+    z_height = float(splines["leg_z"](t_mod)) * (gait.L1 + gait.L2) / LEG_V3
     sway = float(splines["hip_roll"](t_mod))
     yaw = float(splines["hip_yaw"](t_mod))
     t_pitch = float(splines["torso_pitch"](t_mod))

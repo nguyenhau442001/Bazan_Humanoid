@@ -15,14 +15,14 @@
   "detail": "89.000"
  },
  {
-  "check": "tờ 1 [top] 76 = giá trị trên CAD",
+  "check": "tờ 1 [top] 85.9 = giá trị trên CAD",
   "ok": true,
-  "detail": "76.000"
+  "detail": "85.900"
  },
  {
-  "check": "tờ 1 [top] 16 = giá trị trên CAD",
+  "check": "tờ 1 [top] 11.05 = giá trị trên CAD",
   "ok": true,
-  "detail": "16.000"
+  "detail": "11.050"
  },
  {
   "check": "tờ 1 [top] 30 = giá trị trên CAD",

@@ -10,9 +10,9 @@
   "detail": "70.724"
  },
  {
-  "check": "tờ 1 [left] 62.2 = giá trị trên CAD",
+  "check": "tờ 1 [left] 61.62 = giá trị trên CAD",
   "ok": true,
-  "detail": "62.200"
+  "detail": "61.616"
  },
  {
   "check": "tờ 1 [top] 40 = giá trị trên CAD",
@@ -32,7 +32,7 @@
  {
   "check": "kích thước bao = hộp bao chính xác của khối đặc",
   "ok": true,
-  "detail": "CAD [62.2  65.2  70.72], ghi [62.2, 65.2, 70.72]"
+  "detail": "CAD [61.62 65.2  70.72], ghi [61.62, 65.2, 70.72]"
  },
  {
   "check": "mỗi đặc tính trong bảng là một lỗ có thật trên khối đặc",
@@ -72,7 +72,7 @@
  {
   "check": "tờ 1 hình top: trong khung, không chạm khung tên",
   "ok": true,
-  "detail": "[60, 80, 125, 142]"
+  "detail": "[60, 81, 125, 142]"
  },
  {
   "check": "tờ 1 hình left: trong khung, không chạm khung tên",
@@ -82,7 +82,7 @@
  {
   "check": "tờ 1 hình iso: trong khung, không chạm khung tên",
   "ok": true,
-  "detail": "[323, 72, 383, 144]"
+  "detail": "[323, 78, 383, 144]"
  },
  {
   "check": "tỉ lệ tờ 1 hình front là tỉ lệ ISO 5455",
@@ -117,7 +117,7 @@
  {
   "check": "tờ 2 hình B: trong khung, không chạm khung tên",
   "ok": true,
-  "detail": "[138, 224, 169, 259]"
+  "detail": "[138, 224, 168, 259]"
  },
  {
   "check": "tỉ lệ tờ 2 hình A là tỉ lệ ISO 5455",

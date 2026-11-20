@@ -5,7 +5,9 @@
   "servo_defaults": {
     "MG92B": {"center_us": 1500, "us_per_rad": 636.6, "min_us": 500, "max_us": 2500},
     "MG90S": {"center_us": 1500, "us_per_rad": 636.6, "min_us": 500, "max_us": 2500},
-    "SG90": {"center_us": 1500, "us_per_rad": 636.6, "min_us": 500, "max_us": 2500}
+    "SG90": {"center_us": 1500, "us_per_rad": 636.6, "min_us": 500, "max_us": 2500},
+    "DS3218": {"center_us": 1500, "us_per_rad": 636.6, "min_us": 500, "max_us": 2500},
+    "DS3225": {"center_us": 1500, "us_per_rad": 636.6, "min_us": 500, "max_us": 2500}
   },
   "joints": {
     "_example": {"center_us": 1500, "us_per_rad": 636.6, "dir": 1, "pot": {"adc": [1200, 2900], "q": [-0.5, 0.5]}}

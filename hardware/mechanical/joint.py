@@ -103,11 +103,12 @@ CAP_R = P9.CAP_R
 IDLER_R = P9.IDLER_R
 
 
-def idler_screw(head_underside):
-    """Shortest ISO 7380 M3 button head that reaches 1.7..3.0 mm into the wall insert."""
+def idler_screw(head_underside, wall=None):
+    """Shortest ISO 7380 M3 button head that reaches 1.7..3.0 mm into the wall insert (wall: idler wall face)."""
+    wall = IW[0] if wall is None else wall
     for n in (6, 8, 10, 12, 14, 16):
         tip = head_underside + n
-        if IW[0] + 1.7 <= tip <= IW[0] + 3.0:
+        if wall + 1.7 <= tip <= wall + 3.0:
             return f"M3x{n}"
     raise ValueError(f"no M3 button head length fits head at {head_underside}")
 
@@ -174,7 +175,7 @@ class Joint:
         self.BRG = (self.IP_IN - LIP - 2.5, self.IP_IN - LIP)
         self.IP = (self.BRG[0] - WASHER - BUTTON_H - 0.15 - CAP_T, self.IP_IN)
         self.SPACER = (self.BRG[1], IW[0])             # brass tube on the inner race (replaces the printed boss)
-        self.idler_screw = idler_screw(self.BRG[0] - WASHER)
+        self.idler_screw = idler_screw(self.BRG[0] - WASHER, IW[0])
         R, p = frame(self.origin, self.a, self.b)
         self.R = R
         self.p = p - P.CENTER * R[:, 2]        # local origin: case top plane on the axis

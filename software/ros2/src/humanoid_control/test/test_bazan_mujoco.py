@@ -47,7 +47,9 @@ def test_model(mjcf):
     assert m.nu == 20 and m.opt.timestep == pytest.approx(0.001)
     assert m.body_mass.sum() == pytest.approx(gait.MODEL.total), "the masses of the CAD URDF"
     stall = {j: abs(m.actuator_forcerange[m.actuator(j).id, 1]) for j in gait.JOINTS}
-    assert stall["l_knee"] == pytest.approx(0.343) and stall["l_hip_yaw"] == pytest.approx(0.216)
+    # leg v4: DS3225 knee (22 kg.cm at 6 V), DS3218 pitch/roll (20 kg.cm), MG90S hip yaw, SG90 neck
+    assert stall["l_knee"] == pytest.approx(2.157) and stall["l_hip_pitch"] == pytest.approx(1.961)
+    assert stall["l_hip_yaw"] == pytest.approx(0.216)
     assert stall["neck_yaw"] == pytest.approx(0.177)
 
 

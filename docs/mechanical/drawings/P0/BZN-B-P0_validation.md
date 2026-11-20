@@ -7,8 +7,8 @@ Sinh bởi `hardware/mechanical/drawings_parts.py P0`. Lỗi: **0**.
 | tờ 1 [front] 108 = giá trị trên CAD | đạt | 108.000 |
 | tờ 1 [front] 12.5 = giá trị trên CAD | đạt | 12.500 |
 | tờ 1 [left] 89 = giá trị trên CAD | đạt | 89.000 |
-| tờ 1 [top] 76 = giá trị trên CAD | đạt | 76.000 |
-| tờ 1 [top] 16 = giá trị trên CAD | đạt | 16.000 |
+| tờ 1 [top] 85.9 = giá trị trên CAD | đạt | 85.900 |
+| tờ 1 [top] 11.05 = giá trị trên CAD | đạt | 11.050 |
 | tờ 1 [top] 30 = giá trị trên CAD | đạt | 30.000 |
 | tờ 1 [top] 29 = giá trị trên CAD | đạt | 29.000 |
 | tờ 1 [top] 96 = giá trị trên CAD | đạt | 96.000 |

@@ -4,7 +4,7 @@ Every size is in millimetres. Values marked MEASURE come from datasheets and clo
 tenths: measure the servos you bought with calipers and update this file before printing. Everything downstream
 (pockets, holes, drawings, the assembly guide) is generated from here.
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 
 # ---------------------------------------------------------------- servos ("9 g" case family)
@@ -32,13 +32,14 @@ class Servo:
     size: str = "micro"       # pocket family: "micro" (9 g case, joint.py MG92B pocket) or "standard" (DS3218)
     hole_w: float = 0.0       # standard servos: the two holes of one ear, centre to centre across w (0 = one hole)
     ear_screw: str = "M2x6"   # ear screw into the pocket insert
+    stall_a: float = 0.0      # stall current at 6 V, design value for fuses and trips (MEASURE on the P0 bench)
 
 
 MG92B = Servo("MG92B", length=22.8, width=12.2, case_h=22.7, shaft_off=5.9, tab_span=32.4, tab_t=2.5,
               tab_low=15.9, hole_pitch=27.8, hole_d=2.0, tower_d=11.8, tower_h=4.0, spline_d=4.8, spline_top=8.3,
-              cable_z=(1.5, 5.5), cable_w=4.5, mass=14.0, stall_kgcm=3.5, speed_s60=0.08)       # MEASURE all
+              cable_z=(1.5, 5.5), cable_w=4.5, mass=14.0, stall_kgcm=3.5, speed_s60=0.08, stall_a=1.2)  # MEASURE
 MG90S = Servo("MG90S", 22.8, 12.2, 22.7, 5.9, 32.4, 2.5, 15.9, 27.8, 2.0, 11.8, 4.0, 4.8, 8.3, (1.5, 5.5), 4.5,
-              13.4, stall_kgcm=2.2, speed_s60=0.08)                                             # MEASURE all
+              13.4, stall_kgcm=2.2, speed_s60=0.08, stall_a=0.95)                               # MEASURE all
 # SG90 (shoulder roll, elbow, neck yaw, head pitch). Sizes from the web, not measured yet (2026-11-18):
 #   TowerPro sells the SG90 as 23.0 × 12.2 × 29 mm and the MG90S as "identical mounting dimensions to the SG90";
 #   the datasheet table gives F = 16 (case bottom to ear underside) like the MG90S column. The old numbers here
@@ -47,24 +48,28 @@ MG90S = Servo("MG90S", 22.8, 12.2, 22.7, 5.9, 32.4, 2.5, 15.9, 27.8, 2.0, 11.8, 
 #   tower (5.75): see docs/mechanical/test_print.md; measure one servo before the final print.
 SG90 = Servo("SG90", length=22.8, width=12.2, case_h=22.7, shaft_off=5.9, tab_span=32.4, tab_t=2.5,
              tab_low=15.9, hole_pitch=27.8, hole_d=2.0, tower_d=11.8, tower_h=4.0, spline_d=4.8, spline_top=8.3,
-             cable_z=(1.5, 5.5), cable_w=4.5, mass=9.0, stall_kgcm=1.8, speed_s60=0.10)         # MEASURE all
+             cable_z=(1.5, 5.5), cable_w=4.5, mass=9.0, stall_kgcm=1.8, speed_s60=0.10, stall_a=0.75)  # MEASURE
 # DS3218 (DSSERVO, "20 kg" standard size, 25T spline), leg v4. Datasheet: 40 x 20 x 40.5 mm, 60 g, 18 kg.cm at
 # 5 V, 21.5 kg.cm at 6.8 V. The rest are the standard-servo norms (ears 49.5 x 10 hole pattern, holes for M3,
 # shaft about 10 from the near end), not read off a DS3218: MEASURE every field on the first servo bought.
+# Stall current: the DS3225 datasheet gives 1.9 A at 5 V and 2.3 A at 6.8 V, listings up to 2.9 A; 2.5 A is used
+# for both until P0 measures them.
 DS3218 = Servo("DS3218", length=40.0, width=20.0, case_h=36.5, shaft_off=10.0, tab_span=54.5, tab_t=2.5,
                tab_low=27.5, hole_pitch=49.5, hole_d=3.4, tower_d=13.0, tower_h=0.5, spline_d=5.9, spline_top=4.0,
                cable_z=(2.0, 6.0), cable_w=5.0, mass=60.0, stall_kgcm=20.0, speed_s60=0.15,
-               size="standard", hole_w=10.0, ear_screw="M3x8")                                # MEASURE all
-SERVOS = {s.name: s for s in (MG92B, MG90S, SG90, DS3218)}
+               size="standard", hole_w=10.0, ear_screw="M3x8", stall_a=2.5)                   # MEASURE all
+# DS3225: the same case and pocket as the DS3218 (40 x 20 x 40.5, 60 g), 21 kg.cm at 5 V, 22 at 6 V, 25 at 6.8 V
+DS3225 = replace(DS3218, name="DS3225", stall_kgcm=22.0, speed_s60=0.14)                       # MEASURE
+SERVOS = {s.name: s for s in (MG92B, MG90S, SG90, DS3218, DS3225)}
 POCKET_SERVO = {"micro": MG92B, "standard": DS3218}     # the servo each pocket family is built around
 JOINT_SERVO = {  # which servo type sits in which joint (both sides)
-    "hip_yaw": "MG90S", "hip_roll": "MG92B", "hip_pitch": "MG92B", "knee": "MG92B", "ankle_pitch": "MG92B",
-    "ankle_roll": "MG92B", "shoulder_pitch": "MG90S", "shoulder_roll": "SG90", "elbow": "SG90",
+    "hip_yaw": "MG90S", "hip_roll": "DS3218", "hip_pitch": "DS3218", "knee": "DS3225", "ankle_pitch": "DS3218",
+    "ankle_roll": "DS3218", "shoulder_pitch": "MG90S", "shoulder_roll": "SG90", "elbow": "SG90",
     "neck_yaw": "SG90", "head_pitch": "SG90",
 }
 # Servo types whose sizes above still come from datasheets. Remove a name once you have measured that servo
 # with calipers and typed the numbers in (see docs/mechanical/test_print.md).
-UNMEASURED = {"MG92B", "MG90S", "SG90", "DS3218"}
+UNMEASURED = {"MG92B", "MG90S", "SG90", "DS3218", "DS3225"}
 
 
 # ---------------------------------------------------------------- horn (the round disc horn sold with the servo)

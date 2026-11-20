@@ -43,9 +43,8 @@ WIRING_G = 30.0                          # wiring allowance in the pelvis (weigh
 CLEAR = hw.GAP_MOVING                    # moving parts closer than this are reported as near-collisions
 PLA, PETG, TPU = 1.24e-3, 1.27e-3, 1.21e-3   # g/mm3
 METAL = {"shin_plate_h": 2.68e-3, "shin_plate_i": 2.68e-3}   # cut plates, solid: Al 5052 (carbon 3K 1.55e-3)
-SERVO_OF = {"hip_yaw": "MG90S", "shoulder_pitch": "MG90S", "shoulder_roll": "SG90", "elbow": "SG90",
-            "neck_yaw": "SG90", "head_pitch": "SG90"}          # the rest MG92B (hardware.JOINT_SERVO)
-SERVO_G = {"MG92B": hw.MG92B.mass, "MG90S": hw.MG90S.mass, "SG90": 9.0}
+SERVO_OF = dict(hw.JOINT_SERVO)                                   # joint -> servo type
+SERVO_G = {n: t.mass for n, t in hw.SERVOS.items()}
 LEG_J = list(C.RANGES)
 
 

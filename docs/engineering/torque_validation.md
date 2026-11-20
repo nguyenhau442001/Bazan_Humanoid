@@ -4,7 +4,7 @@ Which servos are loaded, how hard, and against which limit. Tables between `gen:
 `python docs/engineering/gen_docs.py`; CI fails if they drift from the sources.
 
 <!-- gen:stamp -->
-Generated from `docs/engineering/cad_mass.json`, `software/ros2/src/humanoid_description/urdf/bazan_cad.urdf`, `software/ai/sim/mujoco/servo_loads.csv`, `software/ros2/src/humanoid_control/scripts/bazan_gait.py`, `hardware/mechanical/hardware.py`, `docs/engineering/bom_aplus.csv` · source hash `ab103a6d448e`
+Generated from `docs/engineering/cad_mass.json`, `software/ros2/src/humanoid_description/urdf/bazan_cad.urdf`, `software/ai/sim/mujoco/servo_loads.csv`, `software/ros2/src/humanoid_control/scripts/bazan_gait.py`, `hardware/mechanical/hardware.py`, `docs/engineering/bom_aplus.csv` · source hash `f567ce9fcc09`
 <!-- /gen:stamp -->
 
 ## Which number to compare with which limit
@@ -30,22 +30,22 @@ the same masses as `mass_budget.md`), so peaks and RMS are measured on the robot
 Static loads come from the gait's planned poses on the same URDF.
 
 <!-- gen:legs -->
-MuJoCo on the CAD robot (1083 g), the demo gait (53.5 s). Static worst is the larger of the left and right joint over two planned poses: the gait's start pose and halfway through a swing on one foot.
+MuJoCo on the CAD robot (1803 g), the demo gait (53.5 s). Static worst is the larger of the left and right joint over two planned poses: the gait's start pose and halfway through a swing on one foot.
 
 | Joint | Servo | Stall kg·cm | Peak p99 (/ stall) | RMS (/ continuous) | Time above continuous | Static worst (/ continuous) | Flag |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
-| `l_hip_yaw` | MG90S | 2.20 | 0.18 (8%) | 0.06 (8%) | 0% | 0.02 (3%) | – |
-| `l_hip_roll` | MG92B | 3.50 | 1.76 (50%) | 0.95 (81%) | 35% | 1.54 (132%) | thermal |
-| `l_hip_pitch` | MG92B | 3.50 | 0.56 (16%) | 0.21 (18%) | 0% | 0.10 (8%) | – |
-| `l_knee` | MG92B | 3.50 | 2.66 (76%) | 1.46 (125%) | 39% | 2.67 (229%) | thermal |
-| `l_ankle_pitch` | MG92B | 3.50 | 1.00 (29%) | 0.35 (30%) | 0% | 0.12 (11%) | – |
-| `l_ankle_roll` | MG92B | 3.50 | 1.16 (33%) | 0.54 (46%) | 1% | 1.52 (130%) | – |
-| `r_hip_yaw` | MG90S | 2.20 | 0.16 (7%) | 0.06 (8%) | 0% | 0.02 (3%) | – |
-| `r_hip_roll` | MG92B | 3.50 | 1.80 (51%) | 1.00 (86%) | 39% | 1.54 (132%) | thermal |
-| `r_hip_pitch` | MG92B | 3.50 | 0.50 (14%) | 0.19 (17%) | 0% | 0.10 (8%) | – |
-| `r_knee` | MG92B | 3.50 | 2.67 (76%) | 1.46 (125%) | 39% | 2.67 (229%) | thermal |
-| `r_ankle_pitch` | MG92B | 3.50 | 1.01 (29%) | 0.36 (31%) | 0% | 0.12 (11%) | – |
-| `r_ankle_roll` | MG92B | 3.50 | 1.18 (34%) | 0.55 (47%) | 1% | 1.52 (130%) | – |
+| `l_hip_yaw` | MG90S | 2.20 | 0.49 (22%) | 0.19 (26%) | 0% | 0.13 (18%) | – |
+| `l_hip_roll` | DS3218 | 20.00 | 6.04 (30%) | 3.33 (50%) | 0% | 5.41 (81%) | – |
+| `l_hip_pitch` | DS3218 | 20.00 | 2.24 (11%) | 0.88 (13%) | 0% | 0.62 (9%) | – |
+| `l_knee` | DS3225 | 22.00 | 7.01 (32%) | 3.58 (49%) | 0% | 6.09 (83%) | – |
+| `l_ankle_pitch` | DS3218 | 20.00 | 2.46 (12%) | 0.77 (12%) | 0% | 0.25 (4%) | – |
+| `l_ankle_roll` | DS3218 | 20.00 | 2.86 (14%) | 1.08 (16%) | 0% | 2.99 (45%) | – |
+| `r_hip_yaw` | MG90S | 2.20 | 0.51 (23%) | 0.19 (25%) | 0% | 0.13 (18%) | – |
+| `r_hip_roll` | DS3218 | 20.00 | 5.90 (30%) | 3.33 (50%) | 0% | 5.41 (81%) | – |
+| `r_hip_pitch` | DS3218 | 20.00 | 2.20 (11%) | 0.87 (13%) | 0% | 0.62 (9%) | – |
+| `r_knee` | DS3225 | 22.00 | 6.98 (32%) | 3.54 (48%) | 0% | 6.09 (83%) | – |
+| `r_ankle_pitch` | DS3218 | 20.00 | 2.77 (14%) | 0.82 (12%) | 0% | 0.25 (4%) | – |
+| `r_ankle_roll` | DS3218 | 20.00 | 2.15 (11%) | 1.02 (15%) | 0% | 2.99 (45%) | – |
 <!-- /gen:legs -->
 
 Flags: **peak** when p99 is above 80% of stall, **thermal** when RMS is above 60% of the continuous limit
@@ -54,12 +54,7 @@ or the joint spends more than 10% of the run above it.
 ## Verdict
 
 <!-- gen:verdict -->
-No leg servo is shown to fail. These joints need bench data before P1:
-
-- `l_hip_roll`: thermal (peak 50% of stall, RMS 81% of continuous, 35% of the run above continuous)
-- `l_knee`: thermal (peak 76% of stall, RMS 125% of continuous, 39% of the run above continuous)
-- `r_hip_roll`: thermal (peak 51% of stall, RMS 86% of continuous, 39% of the run above continuous)
-- `r_knee`: thermal (peak 76% of stall, RMS 125% of continuous, 39% of the run above continuous)
+No leg joint is flagged at the current mass.
 <!-- /gen:verdict -->
 
 Both flags come from single support, not from fast motion. The stance hip roll holds the torso and the swing
@@ -79,11 +74,11 @@ The fixes, in order of cost:
 | Joint | Servo | Stall kg·cm | Peak p99 (/ stall) | RMS (/ continuous) | Time above continuous | Static worst (/ continuous) | Flag |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
 | `l_shoulder_pitch` | MG90S | 2.20 | 0.15 (7%) | 0.04 (6%) | 0% | 0.07 (9%) | – |
-| `l_shoulder_roll` | SG90 | 1.80 | 0.04 (2%) | 0.03 (4%) | 0% | 0.04 (6%) | – |
+| `l_shoulder_roll` | SG90 | 1.80 | 0.04 (2%) | 0.02 (4%) | 0% | 0.04 (6%) | – |
 | `l_elbow` | SG90 | 1.80 | 0.09 (5%) | 0.02 (3%) | 0% | 0.02 (3%) | – |
 | `r_shoulder_pitch` | MG90S | 2.20 | 0.61 (28%) | 0.10 (14%) | 0% | 0.07 (9%) | – |
-| `r_shoulder_roll` | SG90 | 1.80 | 0.05 (3%) | 0.03 (5%) | 0% | 0.04 (6%) | – |
+| `r_shoulder_roll` | SG90 | 1.80 | 0.05 (3%) | 0.03 (4%) | 0% | 0.04 (6%) | – |
 | `r_elbow` | SG90 | 1.80 | 0.37 (21%) | 0.07 (12%) | 0% | 0.02 (3%) | – |
-| `neck_yaw` | SG90 | 1.80 | 0.13 (7%) | 0.03 (5%) | 0% | 0.02 (3%) | – |
-| `head_pitch` | SG90 | 1.80 | 0.10 (6%) | 0.09 (15%) | 0% | 0.09 (15%) | – |
+| `neck_yaw` | SG90 | 1.80 | 0.13 (7%) | 0.03 (5%) | 0% | 0.01 (2%) | – |
+| `head_pitch` | SG90 | 1.80 | 0.10 (5%) | 0.08 (13%) | 0% | 0.08 (13%) | – |
 <!-- /gen:others -->

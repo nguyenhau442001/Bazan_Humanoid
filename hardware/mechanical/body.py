@@ -1,13 +1,13 @@
 """Mico body v4: pelvis, the three-deck torso stack, board sleds, arms, neck and head, every hole placed.
 
 Robot frame: origin midway between the two hip points H (leg.py), x forward, y left, z up, standing straight.
-The legs are leg.py's leg v3 unchanged: the left leg is the leg frame moved to y = +HIP_Y, the right its mirror.
+The legs are leg.py's legs: the left leg is the leg frame moved to y = +HIP_Y, the right its mirror.
 
 Design rules that make it easy to change motors and boards later:
 
-    R1  One joint, one cartridge. All 20 joints use joint.py's 9 g pocket (MG92B / MG90S / SG90 share the case),
-        horn plate and, where loaded, the MR63ZZ idler. Any servo can go into any joint; a servo is replaced by
-        opening only its own joint.
+    R1  One joint, one cartridge. Every joint uses joint.py's pocket for its servo's size class (the 9 g pocket:
+        MG92B / MG90S / SG90 share the case; the standard pocket: DS3218), horn plate and, where loaded, the MR63ZZ
+        idler. Any servo of a class fits any joint of that class; a servo is replaced by opening only its own joint.
     R2  Boards never touch a deck. Each board sits on its own printed sled (4 bosses with M2 inserts at the board's
         holes), and each sled is held to its deck by 2 × M2×6 into a bay: two inserts 40 mm (SL-40) or 20 mm
         (SL-20) apart. A new board means a new sled (a 15-minute print), never a new deck.
@@ -28,7 +28,7 @@ import leg as LEG
 
 # ------------------------------------------------------------------ the stack
 HIP_Y = LEG.HIP_Y
-Z0 = 73.032            # pelvis plate underside = top of the hip mounts (leg.py summary 'pelvis_floor')
+Z0 = LEG.pelvis_floor()  # pelvis plate underside = top of the hip mounts (v3 73.032)
 T0 = 4.5               # pelvis plate
 TD = 3.0               # decks 1 and 2
 SO_A = 40.0            # standoff deck 0 → deck 1 (PCA9685 with plugs underneath)

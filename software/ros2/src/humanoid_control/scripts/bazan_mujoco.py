@@ -32,8 +32,8 @@ CAD_URDF = gait.URDF
 ROBOT, FLOOR, LEFT, RIGHT = 1, 2, 4, 8          # contact bits
 LEG_LINKS = ("hip_yaw", "hip_roll", "hip_pitch", "knee", "ankle_pitch", "ankle_roll")
 
-# servo model; MG92B / MG90S / SG90 stall torques come from the URDF effort limits
-KP = gait.SERVO_KP       # N m / rad: the gait's sag feed-forward assumes the same stiffness
+# servo model; stall torques (DS3218 / DS3225 legs, MG90S / SG90 elsewhere) come from the URDF effort limits
+KP = 0.0                 # N m / rad for every joint; 0: per joint, gait.SERVO_KP (the gait's sag feed-forward)
 KV = 0.03                # N m s / rad
 ARMATURE = 2e-5          # kg m^2 reflected rotor inertia
 TIMESTEP = 0.001
@@ -95,10 +95,11 @@ def build_mjcf(urdf_text, resolve_mesh, kp=KP, kv=KV, armature=ARMATURE, timeste
     for name in JOINTS:
         spec.joint(name).armature = armature
         f = effort[name]
+        k = kp or gait.SERVO_KP[name]
         lo, hi = spec.joint(name).range
         spec.add_actuator(name=name, target=name, trntype=mujoco.mjtTrn.mjTRN_JOINT,
-                          gaintype=mujoco.mjtGain.mjGAIN_FIXED, gainprm=[kp] + [0] * 9,
-                          biastype=mujoco.mjtBias.mjBIAS_AFFINE, biasprm=[0, -kp, -kv] + [0] * 7,
+                          gaintype=mujoco.mjtGain.mjGAIN_FIXED, gainprm=[k] + [0] * 9,
+                          biastype=mujoco.mjtBias.mjBIAS_AFFINE, biasprm=[0, -k, -kv] + [0] * 7,
                           ctrllimited=True, ctrlrange=[lo, hi], forcelimited=True, forcerange=[-f, f])
 
     spec.body("imu_link").add_site(name="imu")

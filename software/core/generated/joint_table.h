@@ -4,7 +4,7 @@
 
 namespace mico {
 
-constexpr uint32_t TABLE_HASH = 0x7485CC7Bu;  // reported in Info; the host checks it
+constexpr uint32_t TABLE_HASH = 0x3A0CEDFBu;  // reported in Info; the host checks it
 constexpr int NJ = 20;
 constexpr int NLEG = 12;
 constexpr int NNTC = 2;
@@ -15,7 +15,7 @@ constexpr uint32_t SERVO_FRAME_HZ = 50u;
 constexpr const char* JOINT_NAMES[] = {"l_hip_yaw", "l_hip_roll", "l_hip_pitch", "l_knee", "l_ankle_pitch", "l_ankle_roll", "r_hip_yaw", "r_hip_roll", "r_hip_pitch", "r_knee", "r_ankle_pitch", "r_ankle_roll", "l_shoulder_pitch", "l_shoulder_roll", "l_elbow", "r_shoulder_pitch", "r_shoulder_roll", "r_elbow", "neck_yaw", "head_pitch"};
 constexpr float Q_MIN[] = {-0.785400f, -0.349100f, -1.396300f, 0.000000f, -0.785400f, -0.349100f, -0.785400f, -0.349100f, -1.396300f, 0.000000f, -0.785400f, -0.349100f, -3.141600f, 0.000000f, -2.268900f, -3.141600f, -2.792500f, -2.268900f, -1.570800f, -0.523600f};
 constexpr float Q_MAX[] = {0.785400f, 0.349100f, 0.698100f, 2.094400f, 0.785400f, 0.349100f, 0.785400f, 0.349100f, 0.698100f, 2.094400f, 0.785400f, 0.349100f, 1.047200f, 2.792500f, 0.000000f, 1.047200f, 0.000000f, 0.000000f, 1.570800f, 0.558500f};
-constexpr float Q_STAND[] = {0.000000f, 0.000000f, -0.355421f, 0.710842f, -0.355421f, 0.000000f, 0.000000f, 0.000000f, -0.355421f, 0.710842f, -0.355421f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f};
+constexpr float Q_STAND[] = {0.000000f, 0.000000f, -0.245566f, 0.491131f, -0.245566f, 0.000000f, 0.000000f, 0.000000f, -0.245566f, 0.491131f, -0.245566f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f};
 constexpr float Q_CROUCH[] = {0.000000f, 0.000000f, -0.643501f, 1.287002f, -0.643501f, 0.000000f, 0.000000f, 0.000000f, -0.643501f, 1.287002f, -0.643501f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f};
 constexpr uint8_t PCA_BOARD[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1};
 constexpr uint8_t PCA_CHANNEL[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 1, 2, 3, 4, 5, 6, 7};

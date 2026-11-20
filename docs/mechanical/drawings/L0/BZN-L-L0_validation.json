@@ -2,12 +2,12 @@
  {
   "check": "tờ 1 hình front: trong khung, không chạm khung tên",
   "ok": true,
-  "detail": "[55, 215, 65, 257]"
+  "detail": "[55, 187, 68, 257]"
  },
  {
   "check": "tờ 1 hình left: trong khung, không chạm khung tên",
   "ok": true,
-  "detail": "[157, 215, 172, 257]"
+  "detail": "[157, 187, 176, 257]"
  },
  {
   "check": "tỉ lệ tờ 1 hình front là tỉ lệ ISO 5455",
@@ -32,7 +32,7 @@
  {
   "check": "tờ 2 hình xiso: trong khung, không chạm khung tên",
   "ok": true,
-  "detail": "[139, 83, 179, 232]"
+  "detail": "[149, 110, 171, 206]"
  },
  {
   "check": "tờ 2: chữ nằm trong khung",
@@ -57,7 +57,7 @@
  {
   "check": "mọi mục trong danh mục có đúng một số chỉ dẫn (balloon)",
   "ok": true,
-  "detail": "14 số chỉ dẫn, 14 mục"
+  "detail": "15 số chỉ dẫn, 15 mục"
  },
  {
   "check": "trình tự lắp nằm trên khổ giấy",
@@ -66,7 +66,7 @@
  },
  {
   "check": "số servo trên chân = 6",
-  "ok": true,
+  "ok": false,
   "detail": ""
  }
 ]
