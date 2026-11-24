@@ -1,22 +1,21 @@
 {
- "total_g": 1804.0,
+ "total_g": 1700.1,
  "height_mm": 540.1,
  "com_mm": [
+  0.2,
   0.1,
-  0.1,
-  -7.6
+  -18.3
  ],
- "com_above_floor_mm": 252.6,
- "lipm_tc_ms": 160.5,
+ "com_above_floor_mm": 241.9,
+ "lipm_tc_ms": 157.0,
  "inertia_about_com_gmm2": [
-  43879966.0,
-  41312410.0,
-  3566117.0
+  39970238.0,
+  37426157.0,
+  3272948.0
  ],
  "groups_g": {
   "Servos (with horn and screw allowance)": 755.6,
   "Printed frame": 720.7,
-  "Printed shell": 103.8,
   "Electronics and sensors": 95.5,
   "Battery 2S": 57.0,
   "TPU soles": 39.1,
@@ -25,16 +24,16 @@
  },
  "links": {
   "base_link": {
-   "g": 533.1,
+   "g": 465.0,
    "com_mm": [
-    -3.2,
+    -3.0,
     0.4,
-    128.7
+    129.0
    ],
    "I_diag_gmm2": [
-    1321469.0,
-    1056367.0,
-    816183.0
+    1122156.0,
+    890780.0,
+    567851.0
    ]
   },
   "l_shoulder_pitch_link": {
@@ -129,16 +128,16 @@
    ]
   },
   "head_pitch_link": {
-   "g": 66.6,
+   "g": 30.9,
    "com_mm": [
-    11.9,
+    16.3,
     0.0,
-    18.4
+    17.2
    ],
    "I_diag_gmm2": [
-    43091.0,
-    53797.0,
-    58921.0
+    12333.0,
+    14134.0,
+    15405.0
    ]
   },
   "l_hip_roll_link": {

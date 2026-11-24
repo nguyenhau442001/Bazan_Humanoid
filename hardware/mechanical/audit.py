@@ -422,6 +422,7 @@ def printing(leg, body, sh):
 
 
 # ------------------------------------------------------------------ mass
+WITH_SHELL = False   # prototype: bare frame, easy to take apart; shell.py stays for the finished product
 RECIPE = {"leg": (1.6, 0.40, PLA), "arm": (1.2, 0.25, PLA), "deck": (1.2, 0.20, PLA), "shell": (9.9, 1.0, PETG)}
 ARM_PARTS = ("shoulder_mount", "shoulder_link", "upper_arm", "forearm", "neck_mount", "neck_link", "head_frame",
              "cam_mount")
@@ -447,7 +448,7 @@ def weigh(leg, body, sh, q=None):
     for n, s in sh.parts.items():
         parts[f"shell.{n}"] = (printed_g(s, "shell"), 1)
     comps = R.assemble(body, leg, q or {})
-    for n, s in sh.parts.items():
+    for n, s in (sh.parts.items() if WITH_SHELL else ()):
         comps[n] = s
     items = []
     for n, s in comps.items():

@@ -9,7 +9,7 @@ Tables between `gen:` markers are written by `python docs/engineering/gen_docs.p
 them by hand; CI fails if they drift.
 
 <!-- gen:stamp -->
-Generated from `docs/engineering/cad_mass.json`, `software/ros2/src/humanoid_description/urdf/bazan_cad.urdf`, `software/ai/sim/mujoco/servo_loads.csv`, `software/ros2/src/humanoid_control/scripts/bazan_gait.py`, `hardware/mechanical/hardware.py`, `docs/engineering/bom_aplus.csv` · source hash `2c8d7fa93a07`
+Generated from `docs/engineering/cad_mass.json`, `software/ros2/src/humanoid_description/urdf/bazan_cad.urdf`, `software/ai/sim/mujoco/servo_loads.csv`, `software/ros2/src/humanoid_control/scripts/bazan_gait.py`, `hardware/mechanical/hardware.py`, `docs/engineering/bom_aplus.csv` · source hash `c3b2706e7e09`
 <!-- /gen:stamp -->
 
 ## Current configuration
@@ -17,12 +17,12 @@ Generated from `docs/engineering/cad_mass.json`, `software/ros2/src/humanoid_des
 <!-- gen:summary -->
 | Quantity | Value |
 | --- | ---: |
-| Total | **1804 g** |
+| Total | **1700 g** |
 | Height (floor to the top of the head) | 540 mm |
-| CoM above the floor (straight legs) | 253 mm |
-| CoM x / y from the middle of the hip points | 0.1 / 0.1 mm |
-| Whole-body inertia about CoM (roll, pitch, yaw) | 43.88 / 41.31 / 3.57 ×10⁻³ kg·m² |
-| LIPM time constant √(z/g) | 160 ms |
+| CoM above the floor (straight legs) | 242 mm |
+| CoM x / y from the middle of the hip points | 0.2 / 0.1 mm |
+| Whole-body inertia about CoM (roll, pitch, yaw) | 39.97 / 37.43 / 3.27 ×10⁻³ kg·m² |
+| LIPM time constant √(z/g) | 157 ms |
 <!-- /gen:summary -->
 
 Mass figures that still appear in older documents describe robots that will not be built:
@@ -37,10 +37,9 @@ Mass figures that still appear in older documents describe robots that will not 
 <!-- gen:groups -->
 | Group | g | Share |
 | --- | ---: | ---: |
-| Servos (with horn and screw allowance) | 755.6 | 42% |
-| Printed frame | 720.7 | 40% |
-| Printed shell | 103.8 | 6% |
-| Electronics and sensors | 95.5 | 5% |
+| Servos (with horn and screw allowance) | 755.6 | 44% |
+| Printed frame | 720.7 | 42% |
+| Electronics and sensors | 95.5 | 6% |
 | Battery 2S | 57.0 | 3% |
 | TPU soles | 39.1 | 2% |
 | Wiring | 30.0 | 2% |
@@ -55,9 +54,9 @@ side mirrors left.
 <!-- gen:links -->
 | Link | g | CoM x / y / z (mm) | Ixx / Iyy / Izz (g·mm²) |
 | --- | ---: | ---: | ---: |
-| `base_link` | 533.1 | -3.2 / 0.4 / 128.7 | 1,321,469 / 1,056,367 / 816,183 |
+| `base_link` | 465.0 | -3.0 / 0.4 / 129.0 | 1,122,156 / 890,780 / 567,851 |
 | `neck_yaw_link` | 18.1 | -4.5 / -1.7 / -1.2 | 1,632 / 1,711 / 2,331 |
-| `head_pitch_link` | 66.6 | 11.9 / 0.0 / 18.4 | 43,091 / 53,797 / 58,921 |
+| `head_pitch_link` | 30.9 | 16.3 / 0.0 / 17.2 | 12,333 / 14,134 / 15,405 |
 | `l_shoulder_pitch_link` | 19.4 | -3.3 / -2.4 / -16.5 | 2,830 / 3,057 / 2,108 |
 | `l_shoulder_roll_link` | 22.4 | 5.2 / 2.4 / -36.3 | 5,299 / 5,781 / 2,717 |
 | `l_elbow_link` | 7.7 | 0.1 / 0.0 / -37.7 | 4,098 / 4,256 / 250 |

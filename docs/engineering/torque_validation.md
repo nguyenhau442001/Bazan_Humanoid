@@ -4,7 +4,7 @@ Which servos are loaded, how hard, and against which limit. Tables between `gen:
 `python docs/engineering/gen_docs.py`; CI fails if they drift from the sources.
 
 <!-- gen:stamp -->
-Generated from `docs/engineering/cad_mass.json`, `software/ros2/src/humanoid_description/urdf/bazan_cad.urdf`, `software/ai/sim/mujoco/servo_loads.csv`, `software/ros2/src/humanoid_control/scripts/bazan_gait.py`, `hardware/mechanical/hardware.py`, `docs/engineering/bom_aplus.csv` · source hash `2c8d7fa93a07`
+Generated from `docs/engineering/cad_mass.json`, `software/ros2/src/humanoid_description/urdf/bazan_cad.urdf`, `software/ai/sim/mujoco/servo_loads.csv`, `software/ros2/src/humanoid_control/scripts/bazan_gait.py`, `hardware/mechanical/hardware.py`, `docs/engineering/bom_aplus.csv` · source hash `c3b2706e7e09`
 <!-- /gen:stamp -->
 
 ## Which number to compare with which limit
@@ -30,22 +30,22 @@ the same masses as `mass_budget.md`), so peaks and RMS are measured on the robot
 Static loads come from the gait's planned poses on the same URDF.
 
 <!-- gen:legs -->
-MuJoCo on the CAD robot (1804 g), the demo gait (53.5 s). Static worst is the larger of the left and right joint over two planned poses: the gait's start pose and halfway through a swing on one foot.
+MuJoCo on the CAD robot (1700 g), the demo gait (53.5 s). Static worst is the larger of the left and right joint over two planned poses: the gait's start pose and halfway through a swing on one foot.
 
 | Joint | Servo | Stall kg·cm | Peak p99 (/ stall) | RMS (/ continuous) | Time above continuous | Static worst (/ continuous) | Flag |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
-| `l_hip_yaw` | MG90S | 2.20 | 0.49 (22%) | 0.19 (26%) | 0% | 0.13 (18%) | – |
-| `l_hip_roll` | DS3218 | 20.00 | 6.04 (30%) | 3.33 (50%) | 0% | 5.41 (81%) | – |
-| `l_hip_pitch` | DS3218 | 20.00 | 2.24 (11%) | 0.88 (13%) | 0% | 0.62 (9%) | – |
-| `l_knee` | DS3225 | 22.00 | 7.01 (32%) | 3.58 (49%) | 0% | 6.10 (83%) | – |
-| `l_ankle_pitch` | DS3218 | 20.00 | 2.46 (12%) | 0.77 (12%) | 0% | 0.25 (4%) | – |
-| `l_ankle_roll` | DS3218 | 20.00 | 2.86 (14%) | 1.08 (16%) | 0% | 3.00 (45%) | – |
-| `r_hip_yaw` | MG90S | 2.20 | 0.51 (23%) | 0.19 (25%) | 0% | 0.13 (18%) | – |
-| `r_hip_roll` | DS3218 | 20.00 | 5.91 (30%) | 3.33 (50%) | 0% | 5.41 (81%) | – |
-| `r_hip_pitch` | DS3218 | 20.00 | 2.20 (11%) | 0.87 (13%) | 0% | 0.62 (9%) | – |
-| `r_knee` | DS3225 | 22.00 | 6.98 (32%) | 3.54 (48%) | 0% | 6.10 (83%) | – |
-| `r_ankle_pitch` | DS3218 | 20.00 | 2.77 (14%) | 0.82 (12%) | 0% | 0.25 (4%) | – |
-| `r_ankle_roll` | DS3218 | 20.00 | 2.15 (11%) | 1.02 (15%) | 0% | 3.00 (45%) | – |
+| `l_hip_yaw` | MG90S | 2.20 | 0.50 (23%) | 0.19 (26%) | 0% | 0.14 (19%) | – |
+| `l_hip_roll` | DS3218 | 20.00 | 6.04 (30%) | 3.33 (50%) | 0% | 5.44 (82%) | – |
+| `l_hip_pitch` | DS3218 | 20.00 | 2.22 (11%) | 0.90 (14%) | 0% | 0.64 (10%) | – |
+| `l_knee` | DS3225 | 22.00 | 6.61 (30%) | 3.29 (45%) | 0% | 5.57 (76%) | – |
+| `l_ankle_pitch` | DS3218 | 20.00 | 2.34 (12%) | 0.74 (11%) | 0% | 0.23 (4%) | – |
+| `l_ankle_roll` | DS3218 | 20.00 | 2.45 (12%) | 0.98 (15%) | 0% | 2.82 (42%) | – |
+| `r_hip_yaw` | MG90S | 2.20 | 0.51 (23%) | 0.19 (26%) | 0% | 0.14 (19%) | – |
+| `r_hip_roll` | DS3218 | 20.00 | 5.95 (30%) | 3.33 (50%) | 0% | 5.44 (82%) | – |
+| `r_hip_pitch` | DS3218 | 20.00 | 2.22 (11%) | 0.88 (13%) | 0% | 0.64 (10%) | – |
+| `r_knee` | DS3225 | 22.00 | 6.50 (30%) | 3.25 (44%) | 0% | 5.57 (76%) | – |
+| `r_ankle_pitch` | DS3218 | 20.00 | 2.83 (14%) | 0.78 (12%) | 0% | 0.23 (4%) | – |
+| `r_ankle_roll` | DS3218 | 20.00 | 2.04 (10%) | 0.95 (14%) | 0% | 2.82 (42%) | – |
 <!-- /gen:legs -->
 
 Flags: **peak** when p99 is above 80% of stall, **thermal** when RMS is above 60% of the continuous limit
@@ -79,6 +79,6 @@ The fixes, in order of cost:
 | `r_shoulder_pitch` | MG90S | 2.20 | 0.61 (28%) | 0.10 (14%) | 0% | 0.07 (9%) | – |
 | `r_shoulder_roll` | SG90 | 1.80 | 0.05 (3%) | 0.03 (4%) | 0% | 0.04 (6%) | – |
 | `r_elbow` | SG90 | 1.80 | 0.37 (21%) | 0.07 (12%) | 0% | 0.02 (3%) | – |
-| `neck_yaw` | SG90 | 1.80 | 0.13 (7%) | 0.03 (5%) | 0% | 0.01 (2%) | – |
-| `head_pitch` | SG90 | 1.80 | 0.10 (5%) | 0.08 (13%) | 0% | 0.08 (13%) | – |
+| `neck_yaw` | SG90 | 1.80 | 0.13 (7%) | 0.03 (4%) | 0% | 0.01 (1%) | – |
+| `head_pitch` | SG90 | 1.80 | 0.06 (3%) | 0.05 (8%) | 0% | 0.05 (8%) | – |
 <!-- /gen:others -->

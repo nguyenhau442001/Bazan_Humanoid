@@ -3,9 +3,9 @@
 <robot name="bazan">
   <material name="frame"><color rgba="0.88 0.88 0.86 1"/></material>
   <link name="base_link">
-    <inertial><origin xyz="-0.00323 0.00039 0.12871" rpy="0 0 0"/><mass value="0.53310"/><inertia ixx="1.3215e-03" iyy="1.0564e-03" izz="8.1618e-04" ixy="6.3639e-06" ixz="-2.5387e-05" iyz="-3.1643e-06"/></inertial>
-    <visual><origin xyz="-0.00400 -0.00000 0.13383"/><geometry><box size="0.10040 0.13760 0.15810"/></geometry><material name="frame"/></visual>
-    <collision><origin xyz="-0.00400 -0.00000 0.13383"/><geometry><box size="0.10040 0.13760 0.15810"/></geometry></collision>
+    <inertial><origin xyz="-0.00298 0.00044 0.12897" rpy="0 0 0"/><mass value="0.46503"/><inertia ixx="1.1222e-03" iyy="8.9078e-04" izz="5.6785e-04" ixy="6.4158e-06" ixz="-2.3742e-05" iyz="-3.1114e-06"/></inertial>
+    <visual><origin xyz="-0.00450 -0.00000 0.13383"/><geometry><box size="0.08900 0.13760 0.15810"/></geometry><material name="frame"/></visual>
+    <collision><origin xyz="-0.00450 -0.00000 0.13383"/><geometry><box size="0.08900 0.13760 0.15810"/></geometry></collision>
   </link>
   <link name="l_hip_yaw_link">
     <inertial><origin xyz="0.00520 0.00000 0.01978" rpy="0 0 0"/><mass value="0.01875"/><inertia ixx="3.9926e-06" iyy="9.9564e-06" izz="9.2561e-06" ixy="1.4542e-24" ixz="8.6902e-07" iyz="1.2755e-21"/></inertial>
@@ -103,9 +103,9 @@
     <collision><origin xyz="0.00000 -0.00025 -0.02900"/><geometry><box size="0.02400 0.01000 0.08200"/></geometry></collision>
   </link>
   <link name="head_pitch_link">
-    <inertial><origin xyz="0.01191 0.00000 0.01836" rpy="0 0 0"/><mass value="0.06663"/><inertia ixx="4.3091e-05" iyy="5.3797e-05" izz="5.8921e-05" ixy="1.1678e-07" ixz="-1.1420e-06" iyz="3.3623e-07"/></inertial>
-    <visual><origin xyz="0.00860 -0.00019 0.01552"/><geometry><box size="0.07920 0.06520 0.08064"/></geometry><material name="frame"/></visual>
-    <collision><origin xyz="0.00860 -0.00019 0.01552"/><geometry><box size="0.07920 0.06520 0.08064"/></geometry></collision>
+    <inertial><origin xyz="0.01627 0.00000 0.01725" rpy="0 0 0"/><mass value="0.03087"/><inertia ixx="1.2333e-05" iyy="1.4134e-05" izz="1.5405e-05" ixy="1.7351e-07" ixz="-3.9918e-07" iyz="3.2173e-07"/></inertial>
+    <visual><origin xyz="0.00739 -0.00042 0.02192"/><geometry><box size="0.06279 0.05400 0.06784"/></geometry><material name="frame"/></visual>
+    <collision><origin xyz="0.00739 -0.00042 0.02192"/><geometry><box size="0.06279 0.05400 0.06784"/></geometry></collision>
   </link>
   <joint name="l_hip_yaw" type="revolute"><parent link="base_link"/><child link="l_hip_yaw_link"/><origin xyz="0.00000 0.03295 0.02840"/><axis xyz="0 0 1"/><limit lower="-0.7854" upper="0.7854" effort="0.216" velocity="13.09"/><dynamics damping="0.02" friction="0"/></joint>
   <joint name="r_hip_yaw" type="revolute"><parent link="base_link"/><child link="r_hip_yaw_link"/><origin xyz="0.00000 -0.03295 0.02840"/><axis xyz="0 0 1"/><limit lower="-0.7854" upper="0.7854" effort="0.216" velocity="13.09"/><dynamics damping="0.02" friction="0"/></joint>
@@ -126,11 +126,11 @@
   <joint name="l_elbow" type="revolute"><parent link="l_shoulder_roll_link"/><child link="l_elbow_link"/><origin xyz="0.00000 -0.01825 -0.03550"/><axis xyz="0 1 0"/><limit lower="-2.2689" upper="0.0000" effort="0.177" velocity="10.47"/><dynamics damping="0.02" friction="0"/></joint>
   <joint name="r_shoulder_roll" type="revolute"><parent link="r_shoulder_pitch_link"/><child link="r_shoulder_roll_link"/><origin xyz="0.00000 0.00000 -0.01400"/><axis xyz="1 0 0"/><limit lower="-2.7925" upper="0.0000" effort="0.177" velocity="10.47"/><dynamics damping="0.02" friction="0"/></joint>
   <joint name="r_elbow" type="revolute"><parent link="r_shoulder_roll_link"/><child link="r_elbow_link"/><origin xyz="0.00000 0.01825 -0.03550"/><axis xyz="0 1 0"/><limit lower="-2.2689" upper="0.0000" effort="0.177" velocity="10.47"/><dynamics damping="0.02" friction="0"/></joint>
-  <joint name="head_pitch" type="revolute"><parent link="neck_yaw_link"/><child link="head_pitch_link"/><origin xyz="0.00000 0.00019 0.00000"/><axis xyz="0 1 0"/><limit lower="-0.5236" upper="0.5585" effort="0.177" velocity="10.47"/><dynamics damping="0.02" friction="0"/></joint>
+  <joint name="head_pitch" type="revolute"><parent link="neck_yaw_link"/><child link="head_pitch_link"/><origin xyz="0.00000 0.00042 0.00000"/><axis xyz="0 1 0"/><limit lower="-0.5236" upper="0.5585" effort="0.177" velocity="10.47"/><dynamics damping="0.02" friction="0"/></joint>
   <link name="l_sole"/><joint name="l_sole_joint" type="fixed"><parent link="l_ankle_roll_link"/><child link="l_sole"/><origin xyz="0 0 -0.02948" rpy="0 0 0"/></joint>
   <link name="r_sole"/><joint name="r_sole_joint" type="fixed"><parent link="r_ankle_roll_link"/><child link="r_sole"/><origin xyz="0 0 -0.02948" rpy="0 0 0"/></joint>
   <link name="imu_link"/><joint name="imu_link_joint" type="fixed"><parent link="base_link"/><child link="imu_link"/><origin xyz="0.01300 0.00000 0.14848" rpy="0 0 0"/></joint>
-  <link name="camera_link"/><joint name="camera_link_joint" type="fixed"><parent link="head_pitch_link"/><child link="camera_link"/><origin xyz="0.03411 -0.00019 0.04541" rpy="0.00000 0.26180 0.00000"/></joint>
-  <link name="tof_link"/><joint name="tof_link_joint" type="fixed"><parent link="head_pitch_link"/><child link="tof_link"/><origin xyz="0.02971 -0.00019 0.02899" rpy="0.00000 0.26180 0.00000"/></joint>
+  <link name="camera_link"/><joint name="camera_link_joint" type="fixed"><parent link="head_pitch_link"/><child link="camera_link"/><origin xyz="0.03411 -0.00042 0.04541" rpy="0.00000 0.26180 0.00000"/></joint>
+  <link name="tof_link"/><joint name="tof_link_joint" type="fixed"><parent link="head_pitch_link"/><child link="tof_link"/><origin xyz="0.02971 -0.00042 0.02899" rpy="0.00000 0.26180 0.00000"/></joint>
   <link name="camera_optical_frame"/><joint name="camera_optical_joint" type="fixed"><parent link="camera_link"/><child link="camera_optical_frame"/><origin xyz="0 0 0" rpy="-1.57080 0.00000 -1.57080"/></joint>
 </robot>
