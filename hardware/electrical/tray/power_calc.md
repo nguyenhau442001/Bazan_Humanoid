@@ -31,14 +31,14 @@ One 6 V 8 A UBEC per leg; the arms and neck share the left leg's. Sized for a si
 
 | | Battery current |
 | --- | --- |
-| Walking, mean | 2.78 A |
-| Walking, peak | 3.95 A |
-| Single fault (one branch at its limit, the rest walking) | 8.7 A |
-| Every branch at its limit (the 15 A battery fuse opens) | 15.2 A |
+| Walking, mean | 2.93 A |
+| Walking, peak | 4.10 A |
+| Single fault (one branch at its limit, the rest walking) | 8.8 A |
+| Every branch at its limit (the 15 A battery fuse opens) | 15.4 A |
 
 In a fault the battery INA226 clips at 8.19 A (R010); the fuel gauge rides through it.
 
-Pack 1000 mAh 30 C: about **17 min** of walking at 80 % depth of discharge, logic included (0.8 A).
+Pack 1000 mAh 30 C: about **16 min** of walking at 80 % depth of discharge, logic included (0.95 A).
 
 ## Wire (silicone, short runs)
 
@@ -65,6 +65,6 @@ Pack 1000 mAh 30 C: about **17 min** of walking at 80 % depth of discharge, logi
 | one UBEC per leg, single fault, inside the continuous rating | pass | 6.6 A vs 8 A |
 | double fault inside the UBEC burst rating until the leg trip clears it | pass | 10.0 A |
 | walking peak, all servos, inside one UBEC | pass | 3.50 A |
-| pack C rating covers every branch at its limit | pass | 15.2 A vs 30 A |
-| battery fuse holds a single fault | pass | 8.7 A |
-| battery INA226 sees the walking peak unclipped | pass | 3.95 A |
+| pack C rating covers every branch at its limit | pass | 15.4 A vs 30 A |
+| battery fuse holds a single fault | pass | 8.8 A |
+| battery INA226 sees the walking peak unclipped | pass | 4.10 A |

@@ -27,7 +27,7 @@ I_TRIP, T_TRIP = 6.0, 0.200        # software/core/config.h I_TRIP_A, I_TRIP_MS 
 INA_RANGE = 0.08192 / 0.010        # INA226 full scale 81.92 mV on the R010 shunt
 FUSE = {"left leg": (5.0, 50.0), "right leg": (5.0, 50.0), "arms + neck": (4.0, 34.4), "battery": (15.0, 400.0)}
 # (rating A, melting I2t A2s): slow-blow mini blade; the battery fuse I2t is the 15 A ATM typical value
-LOGIC_A = 0.80                     # A from the battery: Radxa + STM32 + sensors through the 5 V buck (budget)
+LOGIC_A = 0.95                     # A from the battery at the logic peak (battery_select.py LOGIC_W)
 PACK_MAH, PACK_C, USABLE = 1000.0, 30.0, 0.80      # BOM pack, its C rating, depth of discharge used
 WIRE = {"22 AWG": 7.0, "20 AWG": 11.0, "18 AWG": 16.0}   # A, silicone wire in free air, short runs (chassis rating)
 
