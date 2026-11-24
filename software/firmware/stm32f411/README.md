@@ -95,7 +95,7 @@ l_hip_roll, l_hip_pitch, l_knee, l_ankle_pitch, l_ankle_roll, then the same for 
 | Mode | Servos | Enters when | Leaves when |
 | --- | --- | --- | --- |
 | IDLE | limp (OE off) | boot, `Enable(0)`, `ClearFault`, calibration timeout | `Enable(1)` starts at the measured pose, or the stand pose if pots are not calibrated |
-| RUN | powered | `Enable(1)`, any trajectory | trajectory finished **and** nothing heard for 100 ms: HOLD |
+| RUN | powered; after `Enable(1)` one more joint every 100 ms (soft start, 2 s for all 20) | `Enable(1)`, any trajectory | trajectory finished **and** nothing heard for 100 ms: HOLD |
 | HOLD | powered, last pose | lost host | 1 s later: CROUCH; a new trajectory: RUN |
 | CROUCH | powered | 1 s in HOLD | slow 2 s move to the crouch, then stays; a new trajectory: RUN |
 | FAULT | limp (OE off), latched | over-current, over-temperature, under-voltage, joint jam, I²C failure, watchdog reset, control deadline | `ClearFault`, only when the cause is gone |

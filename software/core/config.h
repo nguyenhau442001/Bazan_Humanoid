@@ -11,6 +11,8 @@ constexpr uint32_t PWM_EVERY = 4;            // write servo pulses every 4th loo
 constexpr uint32_t COMM_HOLD_MS = 100;       // trajectory finished and nothing heard for this long: HOLD
 constexpr uint32_t HOLD_TO_CROUCH_MS = 1000; // then crouch slowly
 constexpr uint32_t CROUCH_MS = 2000;         // duration of the move into the crouch
+constexpr uint32_t SOFT_START_STEP_MS = 100; // Enable powers one more joint every step: a UBEC never sees two
+                                             // servos slewing at stall current together (power_calc.md start-up)
 constexpr uint32_t CALIB_TIMEOUT_MS = 500;   // calibration pulses stop when the host goes quiet
 
 constexpr float I_TRIP_A = 6.0f;             // per leg branch (6 servos)

@@ -56,6 +56,8 @@ void Controller::on_frame(const Frame& f, uint32_t now_ms) {
         // Start from where the legs are if the pots are calibrated, otherwise from the stand pose.
         for (int j = 0; j < NJ; ++j) q_cmd_[j] = (j < NLEG && q_meas_ok_[j]) ? q_meas_[j] : Q_STAND[j];
         traj_.reset(q_cmd_, now_ms);
+        n_on_ = 0;                             // soft start: tick() powers the joints one at a time
+        t_enable_ = now_ms;
         enter(Mode::RUN, now_ms);
       } else if (mode_ == Mode::FAULT) {
         log(1, "in FAULT: send ClearFault first");
@@ -163,7 +165,7 @@ void Controller::check_safety(const Inputs& in, uint32_t dt) {
   if (debounce(low, t_uv_, dt, V_TRIP_MS)) f |= F_UNDERVOLT;
   if (mode_ == Mode::RUN || mode_ == Mode::HOLD || mode_ == Mode::CROUCH) {
     for (int j = 0; j < NLEG; ++j) {
-      bool jam = q_meas_ok_[j] && fabsf(q_meas_[j] - q_cmd_[j]) > JAM_ERR_RAD;
+      bool jam = j < n_on_ && q_meas_ok_[j] && fabsf(q_meas_[j] - q_cmd_[j]) > JAM_ERR_RAD;   // limp: no jam
       if (debounce(jam, t_jam_[j], dt, JAM_MS)) f |= F_JOINT_JAM;
     }
   }
@@ -232,12 +234,19 @@ void Controller::tick(const Inputs& in, Outputs& out) {
       break;
   }
   bool on = outputs_on(mode_);
+  if (on && n_on_ < NJ) {
+    n_on_ = static_cast<int>((now - t_enable_) / SOFT_START_STEP_MS) + 1;
+    if (n_on_ >= NJ) {
+      n_on_ = NJ;
+      log(0, "soft start done");
+    }
+  }
   out.oe_legs = out.oe_arms = on;
   for (int j = 0; j < NJ; ++j) {
     if (mode_ == Mode::CALIB) {
       out.pulse_us[j] = (j == calib_joint_) ? calib_us_ : 0;
     } else {
-      out.pulse_us[j] = on ? joint_to_pulse_us(j, q_cmd_[j]) : 0;
+      out.pulse_us[j] = (on && j < n_on_) ? joint_to_pulse_us(j, q_cmd_[j]) : 0;
     }
   }
 

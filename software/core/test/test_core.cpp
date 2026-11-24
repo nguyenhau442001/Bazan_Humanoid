@@ -157,7 +157,8 @@ static void test_modes_and_comm_loss() {
   send(c, MSG_ENABLE, &on, 1, 50);
   CHECK(c.mode() == Mode::RUN);
   run(c, idle_inputs(50), 50, 60, out);
-  CHECK(out.oe_legs && out.pulse_us[3] == joint_to_pulse_us(3, Q_STAND[3]));   // starts at the stand pose
+  CHECK(out.oe_legs && out.pulse_us[0] == joint_to_pulse_us(0, Q_STAND[0]));   // starts at the stand pose,
+  CHECK(out.pulse_us[3] == 0 && c.joints_on() == 1);                             // one joint at a time
 
   float q[NJ];
   memcpy(q, Q_STAND, sizeof(q));
@@ -303,6 +304,31 @@ static bool log_seen(Controller& c, const char* text) {
   return last_frame(c, MSG_LOG, p, &n) && n > 1 && strstr(reinterpret_cast<const char*>(p + 1), text);
 }
 
+static void test_soft_start() {
+  Controller c;
+  Outputs out;
+  c.begin(0, false);
+  uint8_t on = 1;
+  send(c, MSG_ENABLE, &on, 1, 0);
+  const uint32_t t_all = (NJ - 1) * SOFT_START_STEP_MS;      // the last joint is powered here
+  int prev = 0;
+  bool steps_ok = true;
+  for (uint32_t t = 0; t < t_all; t += 5) {
+    c.tick(idle_inputs(t), out);
+    int n = 0;
+    for (int j = 0; j < NJ; ++j) n += out.pulse_us[j] != 0;
+    if (n > prev + 1 || n != c.joints_on()) steps_ok = false;   // never two joints powered in the same step
+    prev = n;
+  }
+  CHECK(steps_ok && prev == NJ - 1);
+  uint8_t drain[256];
+  size_t dn = 0;
+  last_frame(c, MSG_LOG, drain, &dn);                        // drain what is queued
+  c.tick(idle_inputs(t_all), out);
+  CHECK(c.joints_on() == NJ && out.pulse_us[NJ - 1] != 0);
+  CHECK(log_seen(c, "soft start done"));
+}
+
 static void test_battery_empty() {
   // Walking when the pack reaches 0 %: crouch under control, then outputs off and latched.
   Controller c;
@@ -375,6 +401,7 @@ int main() {
   test_trajectory();
   test_modes_and_comm_loss();
   test_faults();
+  test_soft_start();
   test_link_messages();
   test_battery_empty();
   printf("%d checks, %d failed\n", checks, failures);

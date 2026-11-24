@@ -69,6 +69,7 @@ class Controller {
   Mode mode() const { return mode_; }
   uint16_t faults() const { return faults_; }
   const float* q_cmd() const { return q_cmd_; }
+  int joints_on() const { return n_on_; }
   const BatteryEstimator& battery() const { return batt_; }
 
  private:
@@ -93,6 +94,8 @@ class Controller {
   float q_cmd_[NJ] = {};
   float q_meas_[NLEG] = {};
   bool q_meas_ok_[NLEG] = {};
+  int n_on_ = NJ;                 // soft start: joints 0..n_on_-1 get pulses, the rest stay limp
+  uint32_t t_enable_ = 0;
   int calib_joint_ = -1;
   uint16_t calib_us_ = 0;
   uint32_t t_oc_[2] = {}, t_ot_ = 0, t_uv_ = 0, t_jam_[NLEG] = {};
