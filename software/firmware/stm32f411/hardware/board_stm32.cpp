@@ -107,12 +107,12 @@ bool read_ina(Inputs& in, int k) {
   return true;
 }
 
-// Battery lead: IN+ on the battery side, so discharge reads positive. The R010 shunt clips at 8.19 A; the
-// fuel gauge rides through short peaks above that (they are corrected at the next rest).
+// Battery lead: IN+ on the battery side, so discharge reads positive. The R005 shunt reads up to 16.4 A, every
+// single fault included (power_calc.md); the 15 A battery fuse opens above that.
 bool read_batt(float& v, float& a) {
   uint8_t d[2];
   if (!reg_read(&hi2c2, BATT_INA_ADDR, 0x01, d, 2)) return false;
-  a = ina226_current_a(static_cast<int16_t>((d[0] << 8) | d[1]), INA226_SHUNT_OHM);
+  a = ina226_current_a(static_cast<int16_t>((d[0] << 8) | d[1]), BATT_SHUNT_OHM);
   if (!reg_read(&hi2c2, BATT_INA_ADDR, 0x02, d, 2)) return false;
   v = ina226_bus_v(static_cast<uint16_t>((d[0] << 8) | d[1]));
   return true;

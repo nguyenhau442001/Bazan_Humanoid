@@ -31,7 +31,8 @@ constexpr uint32_t JAM_MS = 500;
 constexpr uint16_t I2C_MAX_ERRORS = 10;      // consecutive failed transfers before a fault
 
 constexpr float NTC_R_FIXED = 10000.0f;      // pull-up from 3.3 V to the NTC, NTC to GND
-constexpr float INA226_SHUNT_OHM = 0.010f;   // CJMCU-226 "R010"
+constexpr float INA226_SHUNT_OHM = 0.010f;   // CJMCU-226 "R010", leg branches: 8.19 A range
+constexpr float BATT_SHUNT_OHM = 0.005f;     // battery-lead INA226, shunt changed to R005: 16.4 A range (power_calc.md)
 
 constexpr int TRAJ_QUEUE = 64;               // points buffered on the MCU
 constexpr int MAX_FRAME = 512;               // bytes before COBS
