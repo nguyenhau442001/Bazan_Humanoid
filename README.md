@@ -44,7 +44,7 @@
 <!-- gen:readme_spec -->
 | Height | Mass | DoF | Compute | Sensors | BOM |
 | --- | --- | --- | --- | --- | --- |
-| 540 mm | 1804 g | 20 (legs 2×6, arms 2×3, neck 2) | Radxa Zero 3W (Cortex-A55 + NPU) · STM32F411 (Cortex-M4) | IMU, camera, ToF, 2 mics, 4 foot FSRs | ≈ 9.59M VND |
+| 540 mm | 1700 g | 20 (legs 2×6, arms 2×3, neck 2) | Radxa Zero 3W (Cortex-A55 + NPU) · STM32F411 (Cortex-M4) | IMU, camera, ToF, 2 mics, 4 foot FSRs | ≈ 9.49M VND |
 <!-- /gen:readme_spec -->
 
 > **Documentation Subpages:** [Getting Started & Sim Guide](docs/getting_started.md) · [Upgrade Roadmap](docs/engineering/upgrade_roadmap.md) · [RL Benchmark Suite](docs/engineering/rl_benchmark.md) · [Theory & References](docs/references.md) · [Hardware Architecture](docs/engineering/hardware_architecture.md) · [Mass Budget](docs/engineering/mass_budget.md) · [Torque Validation](docs/engineering/torque_validation.md) · [Firmware Docs](firmware/stm32f411/README.md) · [Web Dashboard](https://nguyenhau442001.github.io/Synapse_Humanoid/)

@@ -35,7 +35,7 @@ import hardware  # noqa: E402
 
 G = 9.81
 BOM_APLUS = HERE / "bom_aplus.csv"
-BASE_BOM_VND = 9_355_000      # total of design/sketch_shell_a/BOM.dc.html v0.9 (leg v4 servos, before A+)
+BASE_BOM_VND = 9_255_000      # design/sketch_shell_a/BOM.dc.html v0.9 total (leg v4, bare-frame prototype, before A+)
 SOURCES = [CAD_MASS, gait.URDF, LOADS, SCRIPTS / "bazan_gait.py", HW, BOM_APLUS]
 LEG = ("hip_yaw", "hip_roll", "hip_pitch", "knee", "ankle_pitch", "ankle_roll")
 PEAK_FLAG, RMS_FLAG, TIME_FLAG = 0.80, 0.60, 0.10
