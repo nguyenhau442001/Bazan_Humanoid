@@ -24,14 +24,16 @@ One torso deck in the v4 CAD is 89 × 108 mm = 9 612 mm². The tray needs **two 
 | Change | Why | Cost |
 | --- | --- | ---: |
 | INA226 module 2 → 4 | the arms + neck branch is measured too; one on the battery lead feeds the software fuel gauge (battery %) | +130 000 |
-| Inline mini blade fuses: 15 A battery lead, 5 A per leg branch, 4 A arms + neck, with spares | a shorted servo cable must not burn (P-8) | +64 000 |
+| Inline mini blade fuses (MINI 297, fast): 15 A battery lead, 7.5 A per leg branch, 4 A arms + neck, with spares | a shorted servo cable must not burn (P-8) | +64 000 |
 | Main switch or disconnect, ≥ 15 A DC | power off without pulling a plug | +30 000 |
 | LiPo low-voltage alarm on the balance lead | over-discharge warning that does not depend on the firmware | +25 000 |
 | VBAT divider to PA3, 1 kΩ on every PWM line | firmware battery cut-off; one-pin-off plug protection | +6 000 |
 | XT30 pairs, silicone wire by gauge, JST leads (replaces the 60 000 lump) | sized wiring instead of a guess | +20 000 |
 | Wiper buffers MCP6002 on 3.3 V instead of LMV358 on 5 V | the buffer output can never exceed the ADC input range | ≈ 0 |
 | Second 6 V 8 A UBEC: one per leg | leg v4 DS3218 / DS3225: a single fault (one leg at its 6 A trip) must stay inside one UBEC's rating; see [power_calc.md](power_calc.md) | +250 000 |
-| **Total** | | **≈ +525 000 VND** |
+| 6 V 3 A UBEC for the arms + neck | equal 2 × derating: sharing a leg UBEC left it at 1.9 ×; every branch now has its own source ([power_calc.md](power_calc.md), electrical safety) | +70 000 (est.) |
+| Battery INA226 shunt R010 → R005 (2512, 1 %) | the battery INA226 reads every single fault (16.4 A range) | +5 000 |
+| **Total** | | **≈ +600 000 VND** |
 
 ## The BOM follows the CAD
 

@@ -218,8 +218,8 @@ and the buck, IN+ on the battery side. It sees everything the pack delivers, the
 the software fuel gauge in `software/core/power/battery.cpp`: coulomb counting on its current, corrected
 towards the IR-compensated rest voltage. State reports `batt_mv`, `batt_ma` and `soc_pct` (255 = not known
 yet). Against a simulated pack that differs from the model the error stays within 3.4 %; with only the VBAT
-divider it is about 10 %. The R010 shunt clips at 8.19 A, above the walking average; short peaks are
-absorbed by the next rest correction.
+divider it is about 10 %. This INA226 carries an R005 shunt (16.4 A range), so it reads every single fault;
+the branch INA226s keep R010 (8.19 A).
 
 **NTC × 2.** 10 kΩ NTC (MF52) glued to each hip-roll servo case with thermal epoxy. Shops do not state the
 B value, so calibrate each one against a thermometer at two temperatures. Case temperature lags the motor
@@ -228,9 +228,10 @@ winding, so set the limits conservatively and treat them as a trend, not a safe 
 ## Power
 
 - 2S LiPo 1100 mAh 30C (in the BOM), fuse, reverse protection. Capacity is re-checked against P0 current data.
-- Servo rail 6.0 V from two 6 V 8 A UBECs, one per leg (the arms and neck share the left one). Walking draws
-  3.5 A peak for all servos in the twin; a leg at its 6 A firmware trip with the rest walking needs 6.6 A from
-  its UBEC. Numbers and checks in `hardware/electrical/tray/power_calc.md` (stall currents are design values
+- Servo rail 6.0 V from three UBECs, one source per branch: 6 V 8 A per leg, 6 V 3 A for the arms and neck.
+  Walking draws 3.5 A peak for all servos in the twin; a leg at its 6 A firmware trip stays inside its UBEC.
+  Every part in the power path keeps at least 2 x margin at the walking peak x 1.5, the protection opens in
+  layers (firmware trip, 7.5 A leg fuse, 15 A battery fuse, BMS) and the start-up is soft (one joint at a time). Numbers and checks in `hardware/electrical/tray/power_calc.md` (stall currents are design values
   until P0). Bulk capacitors at each leg.
 - Compute rail 5 V from the 5 V 3 A mini buck in the BOM (Radxa recommends at least 2 A).
 - Logic 3.3 V from an LDO. All grounds join at one point near the battery.
